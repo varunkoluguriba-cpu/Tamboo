@@ -10,4 +10,6 @@ export type RootStackParamList = {
   Home: undefined;
   Event: undefined;
   Browse: { category?: string };
+  Vendor: { id: string };
+  Product: { id: string };
 };

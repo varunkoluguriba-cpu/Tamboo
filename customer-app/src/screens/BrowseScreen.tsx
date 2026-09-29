@@ -7,6 +7,7 @@ import Icon from '../components/Icon';
 import type { IconName } from '../components/icons';
 import TabBar from '../components/TabBar';
 import { useLanguage } from '../context/LanguageContext';
+import { PRODUCTS, VENDORS, getVendor, availBadge } from '../data/catalog';
 import { colors, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Browse'>;
@@ -21,20 +22,10 @@ const SORTS: Array<{ key: Sort; label: string }> = [
   { key: 'nearest', label: 'Nearest' },
 ];
 
-const ITEMS = [
-  { id: 'i1', name: 'Premium Shamiana (40×60 ft)', vendor: 'Sai Tent House', vendorVerified: true, cat: 'Shamiana & Tents', rating: 4.7, price: 8500, unit: '/ day', avail: 'In stock', availOk: true, km: 3.2 },
-  { id: 'i2', name: 'Banquet Chairs, Steel Padded', vendor: 'Balaji Decorators', vendorVerified: true, cat: 'Chairs & Tables', rating: 4.5, price: 18, unit: '/ chair / day', avail: '320 available', availOk: true, km: 5.6 },
-  { id: 'i3', name: 'LED Stage Lighting Set', vendor: 'Hyderabad Sound & Light', vendorVerified: false, cat: 'Lighting', rating: 4.3, price: 6000, unit: '/ day', avail: 'Only 2 left', availOk: false, km: 6.9 },
-  { id: 'i4', name: 'Deksha & Bogana Combo (100 pax)', vendor: 'Sai Tent House', vendorVerified: true, cat: 'Crockery & Vessels', rating: 4.6, price: 3200, unit: '/ day', avail: 'In stock', availOk: true, km: 3.2 },
-  { id: 'i5', name: 'DJ & PA System, 2000W', vendor: 'Hyderabad Sound & Light', vendorVerified: false, cat: 'Sound & DJ', rating: 4.2, price: 9500, unit: '/ day', avail: 'In stock', availOk: true, km: 6.9 },
-  { id: 'i6', name: 'Marigold Stage Backdrop', vendor: 'Balaji Decorators', vendorVerified: true, cat: 'Decor', rating: 4.6, price: 4200, unit: '/ setup', avail: 'In stock', availOk: true, km: 5.6 },
-];
-
-const VENDORS = [
-  { id: 'v1', name: 'Sai Tent House', area: 'Ameerpet', km: 3.2, years: '12 yrs', rating: 4.7, reviews: 210, verified: true },
-  { id: 'v2', name: 'Balaji Decorators', area: 'Kukatpally', km: 5.6, years: '8 yrs', rating: 4.5, reviews: 128, verified: true },
-  { id: 'v3', name: 'Hyderabad Sound & Light', area: 'Begumpet', km: 6.9, years: '5 yrs', rating: 4.3, reviews: 64, verified: false },
-];
+const ITEMS = PRODUCTS.filter((p) => p.isInstant).map((p) => {
+  const vendor = getVendor(p.vendorId)!;
+  return { ...p, vendorName: vendor.name, vendorVerified: vendor.verified, km: vendor.km };
+});
 
 function Photo({ icon, size = 84, radius = 14 }: { icon: IconName; size?: number; radius?: number }) {
   return (
@@ -55,9 +46,9 @@ export default function BrowseScreen({ navigation, route }: Props) {
 
   const items = useMemo(() => {
     let list = ITEMS.filter((p) => cat === 'All' || p.cat === cat);
-    if (q.trim()) list = list.filter((p) => p.name.toLowerCase().includes(q.trim().toLowerCase()) || p.vendor.toLowerCase().includes(q.trim().toLowerCase()));
+    if (q.trim()) list = list.filter((p) => p.name.toLowerCase().includes(q.trim().toLowerCase()) || p.vendorName.toLowerCase().includes(q.trim().toLowerCase()));
     if (verifiedOnly) list = list.filter((p) => p.vendorVerified);
-    if (inStockOnly) list = list.filter((p) => p.availOk);
+    if (inStockOnly) list = list.filter((p) => availBadge(p).ok);
     if (sort === 'priceLow') list = [...list].sort((a, b) => a.price - b.price);
     if (sort === 'priceHigh') list = [...list].sort((a, b) => b.price - a.price);
     if (sort === 'rating') list = [...list].sort((a, b) => b.rating - a.rating);
@@ -142,26 +133,29 @@ export default function BrowseScreen({ navigation, route }: Props) {
           <Text style={styles.noResults}>Nothing matches these filters. Try removing one.</Text>
         ) : resTab === 'items' ? (
           <View style={{ gap: 10 }}>
-            {items.map((p) => (
-              <TouchableOpacity key={p.id} style={styles.itemCard} activeOpacity={0.85}>
-                <Photo icon="package" />
-                <View style={styles.itemBody}>
-                  <Text style={styles.itemName}>{p.name}</Text>
-                  <Text style={styles.itemMeta}>{p.vendor} · ★ {p.rating}</Text>
-                  <View style={styles.itemFooter}>
-                    <Text style={styles.itemPrice}>
-                      ₹{p.price.toLocaleString('en-IN')} <Text style={styles.itemUnit}>{p.unit}</Text>
-                    </Text>
+            {items.map((p) => {
+              const badge = availBadge(p);
+              return (
+                <TouchableOpacity key={p.id} style={styles.itemCard} activeOpacity={0.85} onPress={() => navigation.navigate('Product', { id: p.id })}>
+                  <Photo icon="package" />
+                  <View style={styles.itemBody}>
+                    <Text style={styles.itemName}>{p.name}</Text>
+                    <Text style={styles.itemMeta}>{p.vendorName} · ★ {p.rating}</Text>
+                    <View style={styles.itemFooter}>
+                      <Text style={styles.itemPrice}>
+                        ₹{p.price.toLocaleString('en-IN')} <Text style={styles.itemUnit}>{p.unit}</Text>
+                      </Text>
+                    </View>
+                    <Text style={[styles.availBadge, badge.ok ? styles.chipOk : styles.chipWarn]}>{badge.label}</Text>
                   </View>
-                  <Text style={[styles.availBadge, p.availOk ? styles.chipOk : styles.chipWarn]}>{p.avail}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
+                </TouchableOpacity>
+              );
+            })}
           </View>
         ) : (
           <View style={{ gap: 10 }}>
             {vendors.map((v) => (
-              <TouchableOpacity key={v.id} style={styles.vendorRow} activeOpacity={0.85}>
+              <TouchableOpacity key={v.id} style={styles.vendorRow} activeOpacity={0.85} onPress={() => navigation.navigate('Vendor', { id: v.id })}>
                 <Photo icon="tent" size={56} radius={14} />
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text style={styles.vendorName}>{v.name}</Text>
