@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// TODO: point to the deployed Tamboo backend once it exists (see backend/ folder).
-export const BASE_URL = __DEV__ ? 'http://10.0.2.2:4000' : 'https://REPLACE-WITH-TAMBOO-BACKEND-URL';
+// TODO: point to the deployed Tamboo backend once it's live on Render.
+// Port 4001 locally (not 4000) so this can run alongside the Smart Easy backend on the same machine.
+export const BASE_URL = __DEV__ ? 'http://10.0.2.2:4001' : 'https://REPLACE-WITH-TAMBOO-BACKEND-URL';
 
 const TOKEN_KEY = 'tamboo-customer-token';
 
