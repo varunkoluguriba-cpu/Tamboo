@@ -11,7 +11,7 @@ function issueToken(user) {
 }
 
 function serialize(user) {
-  return { id: user.id, phone: user.phone, name: user.name, city: user.city, registered: user.registered };
+  return { id: user.id, phone: user.phone, name: user.name, email: user.email, city: user.city, registered: user.registered };
 }
 
 // Client verifies OTP with Firebase directly (see src/services/firebaseAuth.ts), then sends
@@ -37,9 +37,10 @@ router.post('/verify', async (req, res) => {
 });
 
 router.post('/register', requireAuth, async (req, res) => {
-  const { name, city } = req.body || {};
+  const { name, email, city } = req.body || {};
   if (!name || !name.trim()) return res.status(400).json({ error: 'Name is required' });
   req.user.name = name.trim();
+  if (email) req.user.email = email.trim();
   if (city) req.user.city = city;
   req.user.registered = true;
   await req.user.save();

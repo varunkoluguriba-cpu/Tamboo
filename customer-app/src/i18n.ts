@@ -9,6 +9,7 @@ const KEYS = [
 ] as const;
 
 type Key = (typeof KEYS)[number];
+export type LangStrings = Record<Key, string>;
 
 const R: Record<string, string[]> = {
   en: ['Everything for your event', 'Tents, chairs, vessels, lights and decor from verified local vendors.', 'See real availability', 'Live stock for your exact date. No more calling ten vendors.', 'Book. Setup. Celebrate.', 'Track delivery, setup and pickup — all in one place.', 'Next', 'Skip', 'Get started', 'Choose your language', 'Continue', 'Login with mobile', 'We’ll send a 4-digit OTP', 'Send OTP', 'Enter OTP', 'Verify', 'Create your account', 'Full name', 'City', 'Create account', 'Namaste', 'Plan your event', 'Everything for your event. One place.', 'Event date', 'Guests', 'Build my list', 'Categories', 'Ready packages', 'Nearby verified vendors', 'Home', 'Search', 'Bookings', 'Cart', 'Profile'],

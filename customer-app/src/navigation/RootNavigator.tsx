@@ -1,0 +1,35 @@
+import React from 'react';
+import { ActivityIndicator, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import type { RootStackParamList } from './types';
+import AuthNavigator from './AuthNavigator';
+import HomeScreen from '../screens/HomeScreen';
+import { useAuth } from '../context/AuthContext';
+import { colors } from '../theme';
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+export default function RootNavigator() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface }}>
+        <ActivityIndicator color={colors.pink} size="large" />
+      </View>
+    );
+  }
+
+  return (
+    <NavigationContainer>
+      {user && user.registered ? (
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Home" component={HomeScreen} />
+        </Stack.Navigator>
+      ) : (
+        <AuthNavigator initialRouteName={user && !user.registered ? 'Register' : 'Onboarding'} />
+      )}
+    </NavigationContainer>
+  );
+}
