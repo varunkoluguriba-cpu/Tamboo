@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "81013137310",
+    "project_id": "tamboo-da19d",
+    "storage_bucket": "tamboo-da19d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:81013137310:android:2c7c468f795fa35dcb808f",
+        "android_client_info": {
+          "package_name": "com.tamboocustomer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA75LXJ0pGBiV5eOA10snz8pzXKFzdQySw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,22 @@
+node_modules/
+.env
+*.log
+
+# React Native
+customer-app/android/app/build/
+customer-app/android/.gradle/
+customer-app/ios/build/
+customer-app/ios/Pods/
+partner-app/android/app/build/
+partner-app/android/.gradle/
+partner-app/ios/build/
+partner-app/ios/Pods/
+*.keystore
+!debug.keystore
+
+# Web
+admin/dist/
+marketing/dist/
+
+# macOS
+.DS_Store
