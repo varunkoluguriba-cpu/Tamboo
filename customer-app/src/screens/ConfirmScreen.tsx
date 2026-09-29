@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -10,10 +10,6 @@ import { colors, gradients } from '../theme';
 type Props = NativeStackScreenProps<RootStackParamList, 'Confirm'>;
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
-
-function soon() {
-  Alert.alert('Coming soon', 'This is being built next.');
-}
 
 export default function ConfirmScreen({ navigation, route }: Props) {
   const orders = route.params?.orders || [];
@@ -48,7 +44,7 @@ export default function ConfirmScreen({ navigation, route }: Props) {
           ))}
         </View>
 
-        <TouchableOpacity style={styles.trackBtnWrap} activeOpacity={0.85} onPress={soon}>
+        <TouchableOpacity style={styles.trackBtnWrap} activeOpacity={0.85} onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Bookings' }] })}>
           <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.trackBtn}>
             <Text style={styles.trackBtnText}>Track my bookings</Text>
           </LinearGradient>

@@ -45,6 +45,7 @@ export default function TabBar({
     if (key === 'home') return navigation.navigate('Home');
     if (key === 'search') return navigation.navigate('Browse', {});
     if (key === 'cart') return navigation.navigate('Cart');
+    if (key === 'bookings') return navigation.navigate('Bookings');
     soon();
   };
 

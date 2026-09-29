@@ -265,11 +265,11 @@ export default function HomeScreen() {
             </LinearGradient>
 
             <View style={styles.statGrid}>
-              <TouchableOpacity style={styles.statCard} activeOpacity={0.85} onPress={soon}>
+              <TouchableOpacity style={styles.statCard} activeOpacity={0.85} onPress={() => navigation.navigate('Bookings')}>
                 <Text style={styles.statLabel}>Active bookings</Text>
                 <Text style={styles.statValue}>0</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.statCard, styles.statCardPink]} activeOpacity={0.85} onPress={soon}>
+              <TouchableOpacity style={[styles.statCard, styles.statCardPink]} activeOpacity={0.85} onPress={() => navigation.navigate('Bookings')}>
                 <Text style={styles.statLabel}>Quotes to review</Text>
                 <Text style={[styles.statValue, { color: colors.pinkStrong }]}>0</Text>
               </TouchableOpacity>

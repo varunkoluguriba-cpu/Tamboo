@@ -16,4 +16,5 @@ export type RootStackParamList = {
   Checkout: undefined;
   Pay: undefined;
   Confirm: { orders: Array<{ id: string; vendor: string; total: number }> };
+  Bookings: undefined;
 };

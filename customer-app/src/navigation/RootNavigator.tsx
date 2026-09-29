@@ -13,6 +13,7 @@ import CartScreen from '../screens/CartScreen';
 import CheckoutScreen from '../screens/CheckoutScreen';
 import PayScreen from '../screens/PayScreen';
 import ConfirmScreen from '../screens/ConfirmScreen';
+import BookingsScreen from '../screens/BookingsScreen';
 import { useAuth } from '../context/AuthContext';
 import { colors } from '../theme';
 
@@ -42,6 +43,7 @@ export default function RootNavigator() {
           <Stack.Screen name="Checkout" component={CheckoutScreen} />
           <Stack.Screen name="Pay" component={PayScreen} />
           <Stack.Screen name="Confirm" component={ConfirmScreen} />
+          <Stack.Screen name="Bookings" component={BookingsScreen} />
         </Stack.Navigator>
       ) : (
         <AuthNavigator initialRouteName={user && !user.registered ? 'Register' : 'Onboarding'} />
