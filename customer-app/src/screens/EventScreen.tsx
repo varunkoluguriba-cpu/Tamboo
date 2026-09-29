@@ -5,6 +5,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
+import { useEvent } from '../context/EventContext';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Event'>;
@@ -39,22 +40,27 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 export default function EventScreen({ navigation }: Props) {
-  const [name, setName] = useState('');
-  const [type, setType] = useState('Wedding');
-  const [date, setDate] = useState('');
-  const [guests, setGuests] = useState('100');
-  const [setup, setSetup] = useState('');
-  const [pickup, setPickup] = useState('');
-  const [start, setStart] = useState('');
-  const [end, setEnd] = useState('');
-  const [venueType, setVenueType] = useState('Banquet hall');
-  const [address, setAddress] = useState('');
+  const { event, setEvent } = useEvent();
+  const [name, setName] = useState(event.name);
+  const [type, setType] = useState(event.type);
+  const [date, setDate] = useState(event.date);
+  const [guests, setGuests] = useState(event.guests);
+  const [setup, setSetup] = useState(event.setup);
+  const [pickup, setPickup] = useState(event.pickup);
+  const [start, setStart] = useState(event.start);
+  const [end, setEnd] = useState(event.end);
+  const [venueType, setVenueType] = useState(event.venueType);
+  const [address, setAddress] = useState(event.address);
   const [needs, setNeeds] = useState<string[]>([]);
-  const [budget, setBudget] = useState('');
-  const [notes, setNotes] = useState('');
+  const [budget, setBudget] = useState(event.budget);
+  const [notes, setNotes] = useState(event.notes);
 
   const toggleNeed = (c: string) => {
     setNeeds((s) => (s.includes(c) ? s.filter((x) => x !== c) : [...s, c]));
+  };
+
+  const persist = () => {
+    setEvent({ name: name.trim() || 'My event', type, date, guests, setup, pickup, start, end, venueType, address, budget, notes });
   };
 
   return (
@@ -165,10 +171,10 @@ export default function EventScreen({ navigation }: Props) {
         </View>
 
         <View style={styles.footerRow}>
-          <TouchableOpacity style={styles.saveBtn} activeOpacity={0.85} onPress={() => navigation.goBack()}>
+          <TouchableOpacity style={styles.saveBtn} activeOpacity={0.85} onPress={() => { persist(); navigation.goBack(); }}>
             <Text style={styles.saveBtnText}>Save</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.findBtnWrap} activeOpacity={0.85} onPress={() => navigation.navigate('Browse', {})}>
+          <TouchableOpacity style={styles.findBtnWrap} activeOpacity={0.85} onPress={() => { persist(); navigation.navigate('Browse', {}); }}>
             <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.findBtn}>
               <Text style={styles.findBtnText}>Find available items</Text>
             </LinearGradient>

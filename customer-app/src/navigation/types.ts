@@ -12,4 +12,8 @@ export type RootStackParamList = {
   Browse: { category?: string };
   Vendor: { id: string };
   Product: { id: string };
+  Cart: undefined;
+  Checkout: undefined;
+  Pay: undefined;
+  Confirm: { orders: Array<{ id: string; vendor: string; total: number }> };
 };

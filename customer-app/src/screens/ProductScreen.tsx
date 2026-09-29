@@ -6,6 +6,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { getProduct, getVendor } from '../data/catalog';
+import { useCart } from '../context/CartContext';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Product'>;
@@ -23,6 +24,7 @@ export default function ProductScreen({ navigation, route }: Props) {
   const product = getProduct(route.params.id);
   const vendor = product ? getVendor(product.vendorId) : undefined;
   const [qty, setQty] = useState(() => (product ? parseMin(product.min) : 1));
+  const { addToCart } = useCart();
 
   const pct = useMemo(() => {
     if (!product || product.avail.total <= 0) return 0;
@@ -142,7 +144,18 @@ export default function ProductScreen({ navigation, route }: Props) {
                 </View>
               )}
 
-              <TouchableOpacity style={styles.addBtnWrap} activeOpacity={cantAdd ? 1 : 0.85} disabled={cantAdd} onPress={soon}>
+              <TouchableOpacity
+                style={styles.addBtnWrap}
+                activeOpacity={cantAdd ? 1 : 0.85}
+                disabled={cantAdd}
+                onPress={() => {
+                  addToCart(product.id, qty);
+                  Alert.alert('Added to cart', `${qty} × ${product.name} added.`, [
+                    { text: 'Keep browsing', style: 'cancel' },
+                    { text: 'View cart', onPress: () => navigation.navigate('Cart') },
+                  ]);
+                }}
+              >
                 <LinearGradient
                   colors={gradients.primaryButton.colors}
                   start={gradients.primaryButton.start}
