@@ -8,6 +8,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import type { IconName } from '../components/icons';
+import TabBar from '../components/TabBar';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
@@ -47,14 +48,6 @@ const NEARBY_VENDORS = [
   { id: 'v1', name: 'Sai Tent House', verified: true, rating: '4.7', reviews: 210, km: '3.2 km' },
   { id: 'v2', name: 'Balaji Decorators', verified: true, rating: '4.5', reviews: 128, km: '5.6 km' },
   { id: 'v3', name: 'Hyderabad Sound & Light', verified: false, rating: '4.3', reviews: 64, km: '6.9 km' },
-];
-
-const TABS: Array<{ key: string; label: string; icon: IconName }> = [
-  { key: 'home', label: 'home', icon: 'home' },
-  { key: 'search', label: 'search', icon: 'search' },
-  { key: 'bookings', label: 'bookings', icon: 'calendar' },
-  { key: 'cart', label: 'cart', icon: 'cart' },
-  { key: 'profile', label: 'profile', icon: 'user' },
 ];
 
 function soon() {
@@ -109,7 +102,7 @@ export default function HomeScreen() {
               <Text style={styles.langChipDevanagari}>अ</Text>
               <Text style={styles.langChipText}>{lang.toUpperCase()}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={soon}>
+            <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => navigation.navigate('Browse', {})}>
               <Icon name="search" size={19} color={colors.text} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={soon}>
@@ -301,7 +294,7 @@ export default function HomeScreen() {
                     key={c.n}
                     style={[styles.catRow, i === CATEGORIES.length - 1 && { borderBottomWidth: 0 }]}
                     activeOpacity={0.85}
-                    onPress={soon}
+                    onPress={() => navigation.navigate('Browse', { category: c.name })}
                   >
                     <Text style={styles.catNum}>{c.n}</Text>
                     <View style={{ flex: 1, minWidth: 0 }}>
@@ -356,19 +349,7 @@ export default function HomeScreen() {
         )}
       </ScrollView>
 
-      <View style={styles.tabBar}>
-        {TABS.map((tb) => {
-          const active = tb.key === 'home';
-          return (
-            <TouchableOpacity key={tb.key} style={styles.tabItem} activeOpacity={0.7} onPress={active ? undefined : soon}>
-              <Icon name={tb.icon} size={21} color={active ? colors.pinkStrong : colors.textMuted} strokeWidth={active ? 2.2 : 1.8} />
-              <Text style={[styles.tabLabel, { color: active ? colors.pinkStrong : colors.textMuted }]}>
-                {(t as Record<string, string>)[tb.label] || tb.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+      <TabBar active="home" navigation={navigation} />
     </SafeAreaView>
   );
 }
@@ -450,7 +431,4 @@ const styles = StyleSheet.create({
   vendorNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   vendorName: { fontSize: 14, fontWeight: '700', color: colors.text },
   vendorMeta: { fontSize: 12, color: colors.textSoft },
-  tabBar: { flexDirection: 'row', height: 66, borderTopWidth: 1, borderTopColor: colors.divider, backgroundColor: colors.surface },
-  tabItem: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 3 },
-  tabLabel: { fontSize: 10.5, fontWeight: '700', textTransform: 'capitalize' },
 });

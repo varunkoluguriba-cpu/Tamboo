@@ -168,7 +168,7 @@ export default function EventScreen({ navigation }: Props) {
           <TouchableOpacity style={styles.saveBtn} activeOpacity={0.85} onPress={() => navigation.goBack()}>
             <Text style={styles.saveBtnText}>Save</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.findBtnWrap} activeOpacity={0.85} onPress={soon}>
+          <TouchableOpacity style={styles.findBtnWrap} activeOpacity={0.85} onPress={() => navigation.navigate('Browse', {})}>
             <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.findBtn}>
               <Text style={styles.findBtnText}>Find available items</Text>
             </LinearGradient>
