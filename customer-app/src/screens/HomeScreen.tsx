@@ -65,7 +65,7 @@ function Photo({ icon, height = 150, radius = 0 }: { icon: IconName; height?: nu
 
 export default function HomeScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { token } = useToken();
   const { lang, t } = useLanguage();
   const [mode, setMode] = useState<Mode>('rentals');
@@ -107,10 +107,10 @@ export default function HomeScreen() {
             <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => navigation.navigate('Browse', {})}>
               <Icon name="search" size={19} color={colors.text} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={soon}>
+            <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => navigation.navigate('Notifications')}>
               <Icon name="bell" size={19} color={colors.text} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.avatar} activeOpacity={0.8} onPress={logout}>
+            <TouchableOpacity style={styles.avatar} activeOpacity={0.8} onPress={() => navigation.navigate('Profile')}>
               <Text style={styles.avatarText}>{initials}</Text>
             </TouchableOpacity>
           </View>

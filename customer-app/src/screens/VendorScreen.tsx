@@ -92,7 +92,7 @@ export default function VendorScreen({ navigation, route }: Props) {
             </View>
 
             <View style={styles.actionRow}>
-              <TouchableOpacity style={styles.chatBtn} activeOpacity={0.85} onPress={soon}>
+              <TouchableOpacity style={styles.chatBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Chat', { peerName: vendor.name })}>
                 <Text style={styles.chatBtnText}>Chat</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.quoteBtnWrap} activeOpacity={0.85} onPress={soon}>

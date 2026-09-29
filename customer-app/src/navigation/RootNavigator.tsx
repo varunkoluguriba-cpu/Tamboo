@@ -19,6 +19,9 @@ import VenueScreen from '../screens/VenueScreen';
 import TokenPayScreen from '../screens/TokenPayScreen';
 import TokenDoneScreen from '../screens/TokenDoneScreen';
 import TokenScreen from '../screens/TokenScreen';
+import ChatScreen from '../screens/ChatScreen';
+import NotificationsScreen from '../screens/NotificationsScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 import { useAuth } from '../context/AuthContext';
 import { colors } from '../theme';
 
@@ -54,6 +57,9 @@ export default function RootNavigator() {
           <Stack.Screen name="TokenPay" component={TokenPayScreen} />
           <Stack.Screen name="TokenDone" component={TokenDoneScreen} />
           <Stack.Screen name="Token" component={TokenScreen} />
+          <Stack.Screen name="Chat" component={ChatScreen} />
+          <Stack.Screen name="Notifications" component={NotificationsScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
         </Stack.Navigator>
       ) : (
         <AuthNavigator initialRouteName={user && !user.registered ? 'Register' : 'Onboarding'} />
