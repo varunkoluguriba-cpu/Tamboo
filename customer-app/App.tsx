@@ -10,6 +10,7 @@ import { AuthProvider } from './src/context/AuthContext';
 import { LanguageProvider } from './src/context/LanguageContext';
 import { EventProvider } from './src/context/EventContext';
 import { CartProvider } from './src/context/CartContext';
+import { TokenProvider } from './src/context/TokenContext';
 import RootNavigator from './src/navigation/RootNavigator';
 
 function App() {
@@ -20,7 +21,9 @@ function App() {
         <AuthProvider>
           <EventProvider>
             <CartProvider>
-              <RootNavigator />
+              <TokenProvider>
+                <RootNavigator />
+              </TokenProvider>
             </CartProvider>
           </EventProvider>
         </AuthProvider>

@@ -197,6 +197,92 @@ export const PRODUCTS: Product[] = [
   },
 ];
 
+export type Hall = {
+  id: string;
+  type: string;
+  name: string;
+  verified: boolean;
+  rating: number;
+  reviews: number;
+  km: number;
+  area: string;
+  city: string;
+  blurb: string;
+  address: string;
+  cap: string;
+  ac: boolean;
+  facts: Array<{ k: string; v: string }>;
+  hasCrockery: boolean;
+  amenities: string;
+  rent: number;
+  token: number;
+};
+
+export const HALLS: Hall[] = [
+  {
+    id: 'h1',
+    type: 'Marriage hall',
+    name: 'Sri Kalyana Mandapam',
+    verified: true,
+    rating: 4.6,
+    reviews: 184,
+    km: 2.1,
+    area: 'Ameerpet',
+    city: 'Hyderabad',
+    blurb: 'A traditional marriage hall with a large main hall and separate dining area, popular for South Indian weddings and receptions.',
+    address: '4-6-12, Ameerpet Main Road, Hyderabad, Telangana 500016',
+    cap: '500–800 pax',
+    ac: true,
+    facts: [
+      { k: 'Capacity', v: '500–800 pax' },
+      { k: 'Parking', v: '150 cars' },
+      { k: 'Stage', v: 'Included' },
+      { k: 'Catering', v: 'Outside allowed' },
+      { k: 'Decoration', v: 'Outside allowed' },
+      { k: 'Music curfew', v: '10:30 PM' },
+      { k: 'Advance notice', v: '7 days' },
+      { k: 'Cancellation', v: 'Flexible' },
+    ],
+    hasCrockery: false,
+    amenities: 'AC halls, dressing rooms, elevator, power backup, valet parking',
+    rent: 85000,
+    token: 5000,
+  },
+  {
+    id: 'h2',
+    type: 'Banquet hall',
+    name: 'The Grand Banquet',
+    verified: true,
+    rating: 4.8,
+    reviews: 231,
+    km: 4.8,
+    area: 'Gachibowli',
+    city: 'Hyderabad',
+    blurb: 'A modern banquet hall with in-house catering and decor teams, ideal for receptions, birthdays and corporate events.',
+    address: 'Plot 22, Financial District, Gachibowli, Hyderabad, Telangana 500032',
+    cap: '200–350 pax',
+    ac: true,
+    facts: [
+      { k: 'Capacity', v: '200–350 pax' },
+      { k: 'Parking', v: '80 cars' },
+      { k: 'Stage', v: 'Included' },
+      { k: 'Catering', v: 'In-house only' },
+      { k: 'Decoration', v: 'In-house preferred' },
+      { k: 'Music curfew', v: '11:00 PM' },
+      { k: 'Advance notice', v: '3 days' },
+      { k: 'Cancellation', v: 'Moderate' },
+    ],
+    hasCrockery: true,
+    amenities: 'AC hall, in-house catering, DJ console, bridal suite, generator backup',
+    rent: 120000,
+    token: 8000,
+  },
+];
+
+export function getHall(id: string): Hall | undefined {
+  return HALLS.find((h) => h.id === id);
+}
+
 export const REVIEWS: Review[] = [
   { vendorId: 'v1', by: 'Priya K.', stars: 5, text: 'Shamiana and vessels were exactly as shown, setup was done well before our guests arrived.', date: '3 weeks ago' },
   { vendorId: 'v1', by: 'Ravi Teja', stars: 4, text: 'Good quality, slightly late pickup the next day but they apologised and waived the extra charge.', date: '2 months ago' },

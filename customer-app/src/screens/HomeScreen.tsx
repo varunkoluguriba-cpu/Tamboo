@@ -11,6 +11,7 @@ import type { IconName } from '../components/icons';
 import TabBar from '../components/TabBar';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useToken, msLeft, formatHoursLeft } from '../context/TokenContext';
 import { colors, gradients, shadow } from '../theme';
 import { HOME_MODE_KEY } from '../constants';
 
@@ -65,6 +66,7 @@ function Photo({ icon, height = 150, radius = 0 }: { icon: IconName; height?: nu
 export default function HomeScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { user, logout } = useAuth();
+  const { token } = useToken();
   const { lang, t } = useLanguage();
   const [mode, setMode] = useState<Mode>('rentals');
   const [ev, setEv] = useState({ date: '', guests: '100' });
@@ -151,6 +153,17 @@ export default function HomeScreen() {
 
         {mode === 'venues' ? (
           <>
+            {token && (
+              <TouchableOpacity style={styles.tokenBanner} activeOpacity={0.85} onPress={() => navigation.navigate('Token')}>
+                <View style={styles.tokenBannerTop}>
+                  <Text style={styles.tokenBannerLabel}>HALL PRE-BOOKED</Text>
+                  <Text style={styles.tokenBannerLeft}>{formatHoursLeft(msLeft(token))} left</Text>
+                </View>
+                <Text style={styles.tokenBannerHall}>{token.hallName}</Text>
+                <Text style={styles.tokenBannerSub}>Visit within {token.visitHours} hours to finalise your booking.</Text>
+              </TouchableOpacity>
+            )}
+
             <LinearGradient
               colors={[colors.maroon, '#8a1538', colors.pink]}
               locations={[0, 0.55, 1]}
@@ -182,7 +195,7 @@ export default function HomeScreen() {
                   />
                 </View>
               </View>
-              <TouchableOpacity style={styles.heroBtn} activeOpacity={0.85} onPress={soon}>
+              <TouchableOpacity style={styles.heroBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Venues')}>
                 <Text style={styles.heroBtnText}>Search halls</Text>
                 <Icon name="right" size={16} color={colors.maroon} />
               </TouchableOpacity>
@@ -190,7 +203,7 @@ export default function HomeScreen() {
 
             <View style={styles.tileGrid}>
               {VTYPE_TILES.map((x) => (
-                <TouchableOpacity key={x.key} style={styles.tile} activeOpacity={0.85} onPress={soon}>
+                <TouchableOpacity key={x.key} style={styles.tile} activeOpacity={0.85} onPress={() => navigation.navigate('Venues')}>
                   <Text style={styles.tileLabel}>{x.label}</Text>
                   <Text style={styles.tileCount}>{x.count}</Text>
                 </TouchableOpacity>
@@ -201,7 +214,7 @@ export default function HomeScreen() {
               <Text style={styles.sectionTitle}>Halls near you</Text>
               <View style={{ gap: 12 }}>
                 {NEAR_HALLS.map((v) => (
-                  <TouchableOpacity key={v.id} style={styles.hallCard} activeOpacity={0.85} onPress={soon}>
+                  <TouchableOpacity key={v.id} style={styles.hallCard} activeOpacity={0.85} onPress={() => navigation.navigate('Venue', { id: v.id })}>
                     <Photo icon="home" height={150} />
                     <View style={styles.hallBody}>
                       <View style={styles.hallTopRow}>
@@ -370,6 +383,12 @@ const styles = StyleSheet.create({
   addrPill: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.surface, borderRadius: 999, paddingVertical: 8, paddingHorizontal: 14, ...shadow.card },
   addrText: { fontSize: 13, fontWeight: '600', color: colors.text },
   modeToggle: { flexDirection: 'row', gap: 4, backgroundColor: colors.surface, borderRadius: 999, padding: 4, ...shadow.card },
+  tokenBanner: { borderWidth: 1.5, borderColor: '#f6c9d7', backgroundColor: '#fffafc', borderRadius: 18, padding: 14, gap: 4 },
+  tokenBannerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  tokenBannerLabel: { fontSize: 12, fontWeight: '700', color: colors.pinkStrong },
+  tokenBannerLeft: { fontSize: 12, fontWeight: '800', color: colors.amber },
+  tokenBannerHall: { fontSize: 15, fontWeight: '700', color: colors.text },
+  tokenBannerSub: { fontSize: 12.5, color: colors.textSoft },
   modeBtnWrap: { flex: 1 },
   modeBtn: { height: 40, borderRadius: 999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
   modeBtnText: { fontSize: 13.5, fontWeight: '700', color: colors.textSoft },

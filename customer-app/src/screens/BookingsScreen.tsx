@@ -155,7 +155,7 @@ export default function BookingsScreen({ navigation }: Props) {
                 </TouchableOpacity>
               ))
             )}
-            <TouchableOpacity style={styles.dashedBtn} activeOpacity={0.85} onPress={soon}>
+            <TouchableOpacity style={styles.dashedBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Venues')}>
               <Text style={styles.dashedBtnText}>+ Find a hall</Text>
             </TouchableOpacity>
           </View>

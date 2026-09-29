@@ -17,4 +17,9 @@ export type RootStackParamList = {
   Pay: undefined;
   Confirm: { orders: Array<{ id: string; vendor: string; total: number }> };
   Bookings: undefined;
+  Venues: undefined;
+  Venue: { id: string };
+  TokenPay: { hallId: string; date: string; slot: 'Morning' | 'Evening' };
+  TokenDone: undefined;
+  Token: undefined;
 };
