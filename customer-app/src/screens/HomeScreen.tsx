@@ -3,6 +3,9 @@ import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View 
 import LinearGradient from 'react-native-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import type { IconName } from '../components/icons';
 import { useAuth } from '../context/AuthContext';
@@ -67,6 +70,7 @@ function Photo({ icon, height = 150, radius = 0 }: { icon: IconName; height?: nu
 }
 
 export default function HomeScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { user, logout } = useAuth();
   const { lang, t } = useLanguage();
   const [mode, setMode] = useState<Mode>('rentals');
@@ -261,7 +265,7 @@ export default function HomeScreen() {
                   />
                 </View>
               </View>
-              <TouchableOpacity style={styles.heroBtn} activeOpacity={0.85} onPress={soon}>
+              <TouchableOpacity style={styles.heroBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Event')}>
                 <Text style={styles.heroBtnText}>{t.build}</Text>
                 <Icon name="right" size={16} color={colors.maroon} />
               </TouchableOpacity>

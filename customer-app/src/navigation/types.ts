@@ -8,4 +8,5 @@ export type AuthStackParamList = {
 
 export type RootStackParamList = {
   Home: undefined;
+  Event: undefined;
 };
