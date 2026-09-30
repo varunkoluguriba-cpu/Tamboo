@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tamboo – Partner (Android)</title>
+<script src="a33c331e-1197-4d80-a056-2929b4bea049"></script>
+</head>
+<body>
+
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<style>/* cyrillic-ext */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("d32e233f-98e0-4709-8c0f-4db64f0bdb89") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("3b9a2264-c7af-4859-a112-9b8ae8bc2e3b") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* devanagari */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("ac3efe32-8309-4ebe-802a-e27b3f069646") format('woff2');
+  unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B09;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("65c8372d-ee3a-49eb-a6e9-ae866af3d2b0") format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("b3e14a37-f209-4caa-a830-bcc5d0c7ec9c") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("3c30aaa2-2f1f-4879-b141-e52320319e8d") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("00d13a26-ea52-4eef-97b5-78a1d48a6afc") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("03b75da5-4500-4f9e-b728-3c0255ada53f") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("d32e233f-98e0-4709-8c0f-4db64f0bdb89") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("3b9a2264-c7af-4859-a112-9b8ae8bc2e3b") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* devanagari */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("ac3efe32-8309-4ebe-802a-e27b3f069646") format('woff2');
+  unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B09;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("65c8372d-ee3a-49eb-a6e9-ae866af3d2b0") format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("b3e14a37-f209-4caa-a830-bcc5d0c7ec9c") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("3c30aaa2-2f1f-4879-b141-e52320319e8d") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("00d13a26-ea52-4eef-97b5-78a1d48a6afc") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("03b75da5-4500-4f9e-b728-3c0255ada53f") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("d32e233f-98e0-4709-8c0f-4db64f0bdb89") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("3b9a2264-c7af-4859-a112-9b8ae8bc2e3b") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* devanagari */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("ac3efe32-8309-4ebe-802a-e27b3f069646") format('woff2');
+  unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B09;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("65c8372d-ee3a-49eb-a6e9-ae866af3d2b0") format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("b3e14a37-f209-4caa-a830-bcc5d0c7ec9c") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("3c30aaa2-2f1f-4879-b141-e52320319e8d") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("00d13a26-ea52-4eef-97b5-78a1d48a6afc") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("03b75da5-4500-4f9e-b728-3c0255ada53f") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("ee7c115a-b042-4985-b3e1-68debedb3025") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("f496de1e-40a7-4ec7-955a-ccaf9da23461") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("4c77afb9-5429-406a-8ea5-c784fffa7a6d") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("891da15e-889d-4d44-8d29-8c042019a13b") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("ee7c115a-b042-4985-b3e1-68debedb3025") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("f496de1e-40a7-4ec7-955a-ccaf9da23461") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("4c77afb9-5429-406a-8ea5-c784fffa7a6d") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("891da15e-889d-4d44-8d29-8c042019a13b") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("ee7c115a-b042-4985-b3e1-68debedb3025") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("f496de1e-40a7-4ec7-955a-ccaf9da23461") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("4c77afb9-5429-406a-8ea5-c784fffa7a6d") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("891da15e-889d-4d44-8d29-8c042019a13b") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("ee7c115a-b042-4985-b3e1-68debedb3025") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("f496de1e-40a7-4ec7-955a-ccaf9da23461") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("4c77afb9-5429-406a-8ea5-c784fffa7a6d") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("891da15e-889d-4d44-8d29-8c042019a13b") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("b6c4797d-c779-4e1e-87f5-b8dd70b700e6") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("d6ed9dbe-72b4-42f0-b94e-2d01c6e1dc13") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("b6c4797d-c779-4e1e-87f5-b8dd70b700e6") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("d6ed9dbe-72b4-42f0-b94e-2d01c6e1dc13") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("b6c4797d-c779-4e1e-87f5-b8dd70b700e6") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("d6ed9dbe-72b4-42f0-b94e-2d01c6e1dc13") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+<script src="d96562f5-4c79-4619-933b-b42523843a74"></script>
+<script src="9c8abf88-f167-4e3d-b761-3805d1105e44"></script>
+<script src="9a50b5d2-32b8-4efd-9de7-f9d8fc53a326"></script>
+<script src="50508fbd-d94a-4c21-9d86-e19b9fcacc2c"></script>
+<style>body{margin:0;background:#fdf3f6}
+a{color:#a0133f} a:hover{color:#4d0013}
+@keyframes floatBlob{0%,100%{transform:translate(0,0)}50%{transform:translate(14px,-18px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+input:focus,select:focus,textarea:focus{border-color:#e75480 !important;box-shadow:0 0 0 3px rgba(231,84,128,.15)}
+button:focus-visible{outline:2px solid #e75480;outline-offset:2px}
+@media (max-width:520px){[data-ut-root]{padding:0 !important;gap:0 !important}[data-ut-frame]{width:100vw !important;height:100dvh !important;padding:0 !important;border-radius:0 !important;box-shadow:none !important}[data-ut-phone]{border-radius:0 !important}[data-ut-status]{display:none !important}}</style>
+</helmet>
+<div data-ut-root="1" style="min-height:100vh;background:linear-gradient(160deg,#fff6f8 0%,#fdeef3 50%,#f8f0fb 100%);font-family:'Plus Jakarta Sans','Noto Sans',sans-serif;color:#1e1b2e;display:flex;gap:40px;justify-content:center;align-items:flex-start;padding:32px 24px;box-sizing:border-box;flex-wrap:wrap">
+
+<div data-ut-frame="1" style="width:412px;height:866px;border-radius:40px;background:#15121c;padding:11px;box-sizing:border-box;box-shadow:0 40px 80px -30px rgba(77,0,19,.45);flex:none">
+<div data-ut-phone="1" style="width:100%;height:100%;border-radius:30px;overflow:hidden;position:relative;display:flex;flex-direction:column;background:linear-gradient(160deg,#fff6f8 0%,#fdeef3 50%,#f8f0fb 100%)">
+<div data-ut-status="1" style="height:40px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-size:13.5px;font-weight:700;position:relative;z-index:5">
+<span>12:30</span>
+<div style="position:absolute;left:50%;top:13px;transform:translateX(-50%);width:14px;height:14px;border-radius:999px;background:#15121c"></div>
+<span style="display:flex;gap:5px;align-items:center">{{ Is.wifi }}<span style="width:22px;height:11px;border:1.5px solid #1e1b2e;border-radius:3px;display:inline-block;position:relative"><span style="position:absolute;inset:1.5px;right:5px;background:#1e1b2e;border-radius:1px"></span></span></span>
+</div>
+<sc-if value="{{ splashOn }}" hint-placeholder-val="{{ true }}"><div sc-camel-on-click="{{ dismissSplash }}" style="position:absolute;inset:0;z-index:40;background:linear-gradient(135deg,#4d0013,#e75480);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;cursor:pointer"><span data-no-tr="1" style="font-family:'Sora',sans-serif;font-weight:800;font-style:italic;font-size:64px;letter-spacing:-.05em;color:#fff;line-height:1;padding-right:.06em">tamboo</span><span style="font-size:12px;font-weight:800;letter-spacing:.3em;color:#fff">PARTNER</span></div></sc-if>
+<div ref="{{ scrollRef }}" style="flex:1;min-height:0;overflow-y:auto;position:relative">
+
+<sc-if value="{{ is.intro }}" hint-placeholder-val="{{ true }}">
+<div style="min-height:100%;display:flex;flex-direction:column;padding:12px 26px 30px;box-sizing:border-box;position:relative;overflow:hidden">
+<div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,#e75480,transparent 70%);opacity:.3;animation:floatBlob 7s ease-in-out infinite;pointer-events:none"></div>
+<div style="position:absolute;bottom:80px;left:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,#4d0013,transparent 70%);opacity:.18;animation:floatBlob 9s ease-in-out infinite reverse;pointer-events:none"></div>
+<div style="display:flex;justify-content:flex-end;align-items:center;position:relative">
+<button sc-camel-on-click="{{ introSkip }}" style="background:none;border:none;font-size:13.5px;font-weight:700;color:#6b6580;cursor:pointer;padding:6px;font-family:inherit">Skip</button>
+</div>
+<sc-for list="{{ introSlides }}" as="sl" hint-placeholder-count="1">
+<sc-if value="{{ sl.show }}" hint-placeholder-val="{{ true }}">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center;animation:fadeUp .45s ease;min-height:560px;position:relative">
+<div style="width:168px;height:168px;border-radius:40px;background:linear-gradient(135deg,#4d0013,#e75480);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#fff;box-shadow:0 24px 44px -18px rgba(231,84,128,.6)"><span data-no-tr="1" style="font-family:'Sora',sans-serif;font-weight:800;font-style:italic;font-size:40px;letter-spacing:-.05em;color:#fff;line-height:1;padding-right:.06em">tamboo</span><span style="font-size:11px;font-weight:800;letter-spacing:.3em;color:#fff">PARTNER</span></div>
+<div><h2 style="font-family:'Sora',sans-serif;font-size:25px;font-weight:800;margin:0 0 10px;line-height:1.25">{{ sl.title }}</h2><p style="margin:0 auto;color:#6b6580;font-size:14.5px;line-height:1.6;max-width:280px">{{ sl.body }}</p></div>
+</div>
+</sc-if>
+</sc-for>
+<div style="display:flex;justify-content:center;gap:6px;margin-bottom:20px;position:relative">
+<sc-for list="{{ dots }}" as="d" hint-placeholder-count="3"><div style="width:{{ d.w }};height:6px;border-radius:99px;background:{{ d.bg }};transition:width .2s"></div></sc-for>
+</div>
+<button sc-camel-on-click="{{ introNext }}" style="height:52px;border:none;border-radius:999px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;font-weight:700;font-size:15.5px;font-family:'Sora',sans-serif;cursor:pointer;box-shadow:0 10px 24px -10px rgba(231,84,128,.55);position:relative">{{ introBtn }}</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ is.lang }}" hint-placeholder-val="{{ false }}">
+<div style="padding:10px 20px 24px;display:flex;flex-direction:column;gap:16px;animation:fadeUp .35s ease">
+<div>
+<h2 style="font-family:'Sora',sans-serif;font-size:22px;font-weight:800;margin:0 0 4px">What is your business?</h2>
+<p style="margin:0 0 10px;color:#6b6580;font-size:13.5px">We’ll show the tools you need.</p>
+<div style="display:flex;flex-direction:column;gap:8px"><sc-for list="{{ roles }}" as="o" hint-placeholder-count="2"><button sc-camel-on-click="{{ o.pick }}" style="display:flex;align-items:center;gap:12px;min-height:60px;border:1.5px solid {{ o.border }};border-radius:16px;background:{{ o.bg }};color:{{ o.color }};padding:10px 14px;cursor:pointer;font-family:inherit;text-align:left"><span style="display:flex;flex:none">{{ o.icon }}</span><span style="flex:1"><span style="display:block;font-size:15px;font-weight:700">{{ o.label }}</span><span style="display:block;font-size:12px;color:{{ o.sub }}">{{ o.desc }}</span></span></button></sc-for></div>
+</div>
+<div>
+<div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:22px;margin-bottom:14px">अ</div>
+<h2 style="font-family:'Sora',sans-serif;font-size:24px;font-weight:800;margin:0 0 4px">Choose your language</h2>
+<p style="margin:0;color:#6b6580;font-size:13.5px">English + 22 Indian languages. You can change this anytime from Shop.</p>
+</div>
+<div data-no-tr="1" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<sc-for list="{{ langTiles }}" as="l" hint-placeholder-count="12">
+<button sc-camel-on-click="{{ l.pick }}" style="height:66px;border:none;border-radius:16px;background:{{ l.bg }};color:{{ l.color }};display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:0 14px;cursor:pointer;box-shadow:0 8px 18px -14px rgba(77,0,19,.35);font-family:'Noto Sans','Plus Jakarta Sans',sans-serif;text-align:left">
+<span style="font-size:17px;font-weight:700;line-height:1.2">{{ l.native }}</span>
+<span style="font-size:11.5px;font-weight:600;color:{{ l.sub }}">{{ l.en }}</span>
+</button>
+</sc-for>
+</div>
+<button sc-camel-on-click="{{ langCont }}" style="height:52px;border:none;border-radius:999px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;font-weight:700;font-size:15.5px;font-family:'Sora',sans-serif;cursor:pointer;box-shadow:0 10px 24px -10px rgba(231,84,128,.55);position:sticky;bottom:10px">Continue</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ is.login }}" hint-placeholder-val="{{ false }}">
+<div style="min-height:100%;padding:30px 24px;box-sizing:border-box;display:flex;flex-direction:column;gap:22px;animation:fadeUp .35s ease;position:relative;overflow:hidden">
+<div style="position:absolute;top:-60px;right:-50px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,#e75480,transparent 70%);opacity:.28;pointer-events:none"></div>
+<div style="display:flex;flex-direction:column;align-items:flex-start;gap:10px;position:relative"><div style="height:64px;padding:0 20px;border-radius:18px;background:#1e1b2e;display:flex;flex-direction:column;justify-content:center;flex:none"><span data-no-tr="1" style="font-family:'Sora',sans-serif;font-weight:800;font-style:italic;font-size:30px;letter-spacing:-.05em;color:#fff;line-height:1;padding-right:.06em">tamboo</span><span style="font-size:9.5px;font-weight:800;letter-spacing:.24em;color:#e75480">PARTNER</span></div></div>
+<div><h2 style="font-family:'Sora',sans-serif;font-size:26px;font-weight:800;margin:0 0 6px">Partner login</h2><p style="margin:0;color:#6b6580;font-size:14px">Enter your registered mobile number. We’ll send a one-time password.</p></div>
+<div style="display:flex;gap:10px;direction:ltr">
+<div style="height:52px;padding:0 14px;border-radius:14px;background:#fff;border:1.5px solid #f0e3ea;display:flex;align-items:center;font-weight:700;font-size:15px">🇮🇳 +91</div>
+<input type="tel" inputmode="numeric" placeholder="98490 12345" value="{{ phone }}" sc-camel-on-change="{{ setPhone }}" style="flex:1;height:52px;border-radius:14px;border:1.5px solid #f0e3ea;padding:0 16px;font-size:16px;font-weight:600;letter-spacing:.04em;box-sizing:border-box;font-family:inherit;background:#fff;outline:none;min-width:0">
+</div>
+<sc-if value="{{ err }}" hint-placeholder-val="{{ false }}"><div style="color:#dc2626;font-size:12.5px;margin-top:-12px">{{ err }}</div></sc-if>
+<button sc-camel-on-click="{{ sendOtp }}" style="height:52px;border:none;border-radius:999px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;font-weight:700;font-size:15.5px;font-family:'Sora',sans-serif;cursor:pointer;box-shadow:0 10px 24px -10px rgba(231,84,128,.55)">Send OTP</button>
+<div style="background:#fff;border-radius:14px;padding:10px 14px;font-size:12.5px;color:#6b6580;line-height:1.5">Demo: <b>98490 12345</b> signs in to an existing {{ roleNoun }}. Any other number starts a new partner registration.</div>
+<p style="margin:auto 0 0;font-size:11.5px;color:#8a8499;text-align:center;line-height:1.5">By continuing you agree to the Partner Terms, Commission Policy and Privacy Policy.</p>
+</div>
+</sc-if>
+
+<sc-if value="{{ is.otp }}" hint-placeholder-val="{{ false }}">
+<div style="padding:10px 24px 24px;display:flex;flex-direction:column;gap:22px;animation:fadeUp .35s ease">
+<button sc-camel-on-click="{{ back }}" style="width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 10px -6px rgba(30,27,46,.3);border:none;color:#1e1b2e">{{ I.left }}</button>
+<div><h2 style="font-family:'Sora',sans-serif;font-size:26px;font-weight:800;margin:0 0 6px">Enter OTP</h2><p style="margin:0;color:#6b6580;font-size:14px">Sent to {{ phoneMasked }}. Use <b>1234</b>.</p></div>
+<label style="position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;direction:ltr;cursor:text">
+<sc-for list="{{ otpBoxes }}" as="b" hint-placeholder-count="4"><div style="height:62px;border-radius:16px;background:#fff;border:2px solid {{ b.border }};display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:24px;font-weight:800">{{ b.d }}</div></sc-for>
+<input type="tel" inputmode="numeric" value="{{ otp }}" sc-camel-on-change="{{ setOtp }}" style="position:absolute;inset:0;opacity:0;font-size:16px">
+</label>
+<sc-if value="{{ err }}" hint-placeholder-val="{{ false }}"><div style="color:#dc2626;font-size:12.5px;margin-top:-10px">{{ err }}</div></sc-if>
+<button sc-camel-on-click="{{ verifyOtp }}" style="height:52px;border:none;border-radius:999px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;font-weight:700;font-size:15.5px;font-family:'Sora',sans-serif;cursor:pointer;box-shadow:0 10px 24px -10px rgba(231,84,128,.55)">Verify</button>
+<button sc-camel-on-click="{{ resend }}" style="background:none;border:none;color:#a0133f;font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit">Resend OTP</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ is.register }}" hint-placeholder-val="{{ false }}">
+<div style="padding:10px 24px 28px;display:flex;flex-direction:column;gap:16px;animation:fadeUp .35s ease">
+<div style="display:flex;align-items:center;gap:8px;background:#e8f7f0;color:#047857;border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:700;align-self:flex-start">{{ Is.check }} Mobile verified</div>
+<div><h2 style="font-family:'Sora',sans-serif;font-size:26px;font-weight:800;margin:0 0 6px">Register your {{ roleNoun }}</h2><p style="margin:0;color:#6b6580;font-size:14px">Our team verifies every partner before customers can book. Takes about 48 hours.</p></div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">Business name</label><input value="{{ reg.biz }}" sc-camel-on-change="{{ reg.setBiz }}" placeholder="Sri Balaji Tent House" style="width:100%;height:50px;border-radius:14px;border:1.5px solid #f0e3ea;padding:0 14px;font-size:15px;box-sizing:border-box;font-family:inherit;background:#fff;outline:none"></div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">Owner name</label><input value="{{ reg.owner }}" sc-camel-on-change="{{ reg.setOwner }}" placeholder="Ramesh Goud" style="width:100%;height:50px;border-radius:14px;border:1.5px solid #f0e3ea;padding:0 14px;font-size:15px;box-sizing:border-box;font-family:inherit;background:#fff;outline:none"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">City</label><sc-raw-select value="{{ reg.city }}" sc-camel-on-change="{{ reg.setCity }}" style="width:100%;height:50px;border-radius:14px;border:1.5px solid #f0e3ea;padding:0 14px;font-size:15px;box-sizing:border-box;font-family:inherit;background:#fff;outline:none"><option>Hyderabad</option><option>Secunderabad</option><option>Warangal</option><option>Karimnagar</option><option>Vijayawada</option></sc-raw-select></div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">Area</label><input value="{{ reg.area }}" sc-camel-on-change="{{ reg.setArea }}" placeholder="Dilsukhnagar" style="width:100%;height:50px;border-radius:14px;border:1.5px solid #f0e3ea;padding:0 14px;font-size:15px;box-sizing:border-box;font-family:inherit;background:#fff;outline:none"></div>
+</div>
+<sc-if value="{{ roleVenue }}" hint-placeholder-val="{{ false }}"><div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">Type of venue</label><div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ regVTypes }}" as="c" hint-placeholder-count="4"><button sc-camel-on-click="{{ c.pick }}" style="height:36px;padding:0 13px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;background:{{ c.bg }};color:{{ c.color }};border:1.5px solid {{ c.border }};white-space:nowrap">{{ c.label }}</button></sc-for></div></div></sc-if>
+<sc-if value="{{ roleTent }}" hint-placeholder-val="{{ true }}">
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">What do you rent out?</label>
+<div style="display:flex;flex-wrap:wrap;gap:6px"><sc-for list="{{ regCats }}" as="c" hint-placeholder-count="8"><button sc-camel-on-click="{{ c.pick }}" style="height:36px;padding:0 12px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;background:{{ c.bg }};color:{{ c.color }};border:1.5px solid {{ c.border }}">{{ c.label }}</button></sc-for></div>
+</div>
+</sc-if>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">GSTIN or PAN</label><input value="{{ reg.tax }}" sc-camel-on-change="{{ reg.setTax }}" placeholder="36ABCDE1234F1Z5" style="width:100%;height:50px;border-radius:14px;border:1.5px solid #f0e3ea;padding:0 14px;font-size:15px;box-sizing:border-box;font-family:inherit;background:#fff;outline:none;text-transform:uppercase"></div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">{{ regPhotoLabel }}</label><image-slot id="reg-shop-photo" shape="rounded" radius="16" placeholder="Tap to add a photo" style="width:100%;height:150px"></image-slot></div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">Bank account for payouts</label><input value="{{ reg.bank }}" sc-camel-on-change="{{ reg.setBank }}" placeholder="Account number or UPI ID" style="width:100%;height:50px;border-radius:14px;border:1.5px solid #f0e3ea;padding:0 14px;font-size:15px;box-sizing:border-box;font-family:inherit;background:#fff;outline:none"></div>
+<sc-if value="{{ err }}" hint-placeholder-val="{{ false }}"><div style="color:#dc2626;font-size:12.5px">{{ err }}</div></sc-if>
+<button sc-camel-on-click="{{ submitReg }}" style="height:52px;border:none;border-radius:999px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;font-weight:700;font-size:15.5px;font-family:'Sora',sans-serif;cursor:pointer;box-shadow:0 10px 24px -10px rgba(231,84,128,.55);margin-top:6px">Submit for verification</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ is.pendingReg }}" hint-placeholder-val="{{ false }}">
+<div style="min-height:100%;padding:40px 26px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;animation:fadeUp .35s ease">
+<div style="width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 20px 40px -16px rgba(231,84,128,.6)">{{ Ib.shield }}</div>
+<h2 style="font-family:'Sora',sans-serif;font-size:24px;font-weight:800;margin:0">Application submitted</h2>
+<p style="margin:0;font-size:14px;color:#6b6580;max-width:300px;line-height:1.55"><b style="color:#1e1b2e">{{ reg.biz }}</b> is under review. We’ll SMS you within 48 hours. Meanwhile you can add your items; they go live once you’re verified.</p>
+<div style="width:100%;background:#fff;border-radius:16px;padding:14px 16px;text-align:left;display:flex;flex-direction:column;gap:8px;font-size:13px">
+<div style="display:flex;justify-content:space-between"><span>Mobile verified</span><b style="color:#047857">Done</b></div>
+<div style="display:flex;justify-content:space-between"><span>Business details</span><b style="color:#047857">Done</b></div>
+<div style="display:flex;justify-content:space-between"><span>Document check</span><b style="color:#8a5a00">In review</b></div>
+<div style="display:flex;justify-content:space-between"><span>Shop visit / video call</span><b style="color:#8a8499">Pending</b></div>
+</div>
+<button sc-camel-on-click="{{ exploreDemo }}" style="height:52px;border:none;border-radius:999px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;font-weight:700;font-size:15.5px;font-family:'Sora',sans-serif;cursor:pointer;box-shadow:0 10px 24px -10px rgba(231,84,128,.55);width:100%">Explore the partner app</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ is.hhome }}" hint-placeholder-val="{{ false }}">
+<div style="padding:8px 18px 24px;display:flex;flex-direction:column;gap:16px;animation:fadeUp .35s ease">
+<div style="display:flex;align-items:center;gap:12px">
+<div style="width:48px;height:48px;flex:none;border-radius:14px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:16px">{{ V.initials }}</div>
+<div style="flex:1;min-width:0"><div style="font-size:12.5px;color:#6b6580">Namaste · {{ HV.type }}</div><div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;line-height:1.2">{{ V.name }}</div></div>
+<button sc-camel-on-click="{{ openLangSheet }}" aria-label="Change language" data-no-tr="1" style="height:34px;padding:0 11px;border-radius:999px;background:#fff;border:none;display:flex;align-items:center;gap:5px;cursor:pointer;box-shadow:0 6px 14px -8px rgba(30,27,46,.3);color:#1e1b2e;font-family:'Noto Sans','Plus Jakarta Sans',sans-serif;font-weight:700;font-size:12.5px;flex:none"><span style="color:#e75480">अ</span>{{ langShort }}</button>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<button sc-camel-on-click="{{ openTkNew }}" style="text-align:left;border:none;border-radius:18px;padding:14px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px">Pre-booked, visit pending</span><span style="font-family:'Sora',sans-serif;font-size:28px;font-weight:800">{{ hStats.active }}</span></button>
+<button sc-camel-on-click="{{ openTkVisited }}" style="text-align:left;border:none;border-radius:18px;padding:14px;background:#fff;border-radius:18px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);cursor:pointer;font-family:inherit;color:#1e1b2e;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#6b6580">Visited, to confirm</span><span style="font-family:'Sora',sans-serif;font-size:28px;font-weight:800">{{ hStats.visited }}</span></button>
+<div style="border-radius:18px;padding:14px;background:#fff;border-radius:18px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#6b6580">Confirmed bookings</span><span style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:#4d0013">{{ hStats.converted }}</span></div>
+<div style="border-radius:18px;padding:14px;background:#fff;border-radius:18px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#6b6580">Token income</span><span style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:#4d0013">{{ hStats.income }}</span><span style="font-size:11px;color:#8a8499">after {{ hStats.com }}% commission</span></div>
+</div>
+<button sc-camel-on-click="{{ openHall }}" style="height:52px;border:1.5px dashed #e75480;border-radius:18px;background:#fff;color:#a0133f;font-weight:700;font-size:14.5px;font-family:'Sora',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">{{ Is.camera }} Edit hall details, photos &amp; token</button>
+<button sc-camel-on-click="{{ openCal }}" style="height:52px;border:none;border-radius:18px;background:#fff;border-radius:18px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);color:#1e1b2e;font-weight:700;font-size:14px;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:10px;padding:0 16px"><span style="color:#e75480;display:flex">{{ Is.calendar }}</span><span style="flex:1;text-align:left">Calendar &amp; blocked dates</span><span style="color:#c9bfd0;display:flex">{{ Is.right }}</span></button>
+<div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:700">Needs your attention</div>
+<sc-for list="{{ hUpcoming }}" as="t" hint-placeholder-count="2"><button sc-camel-on-click="{{ t.open }}" style="text-align:left;border:none;background:#fff;border-radius:18px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);padding:14px 16px;cursor:pointer;font-family:inherit;color:#1e1b2e;display:flex;flex-direction:column;gap:5px">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-family:'Sora',sans-serif;font-weight:800;font-size:13px;color:#8a8499">{{ t.id }}</span><span style="padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;background:{{ t.sBg }};color:{{ t.sColor }};white-space:nowrap">{{ t.status }}</span></div>
+<div style="font-size:15px;font-weight:700">{{ t.event }}</div>
+<div style="font-size:12.5px;color:#6b6580">{{ t.customer }} · {{ t.date }} · {{ t.slot }} · {{ t.guests }} guests</div>
+<div style="display:flex;justify-content:space-between;font-size:12.5px;gap:8px"><span style="color:#4b4560">Visit: {{ t.visitTxt }}</span><sc-if value="{{ t.isActive }}" hint-placeholder-val="{{ false }}"><b style="color:#8a5a00;white-space:nowrap">{{ t.leftShort }}</b></sc-if></div>
+</button></sc-for>
+<sc-if value="{{ noHUpcoming }}" hint-placeholder-val="{{ false }}"><div style="background:#fff;border-radius:18px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);padding:18px;text-align:center;font-size:13px;color:#6b6580">No pending pre-bookings.</div></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ is.htokens }}" hint-placeholder-val="{{ false }}">
+<div style="padding:8px 18px 24px;display:flex;flex-direction:column;gap:12px;animation:fadeUp .35s ease">
+<div style="font-family:'Sora',sans-serif;font-size:22px;font-weight:800">Pre-bookings</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ tkTabs }}" as="c" hint-placeholder-count="5"><button sc-camel-on-click="{{ c.pick }}" style="height:36px;padding:0 13px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;background:{{ c.bg }};color:{{ c.color }};border:1.5px solid {{ c.border }};white-space:nowrap">{{ c.label }}</button></sc-for></div>
+<sc-for list="{{ tkList }}" as="t" hint-placeholder-count="3"><button sc-camel-on-click="{{ t.open }}" style="text-align:left;border:none;background:#fff;border-radius:18px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);padding:14px 16px;cursor:pointer;font-family:inherit;color:#1e1b2e;display:flex;flex-direction:column;gap:5px">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-family:'Sora',sans-serif;font-weight:800;font-size:13px;color:#8a8499">{{ t.id }}</span><span style="padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;background:{{ t.sBg }};color:{{ t.sColor }};white-space:nowrap">{{ t.status }}</span></div>
+<div style="font-size:15px;font-weight:700">{{ t.event }}</div>
+<div style="font-size:12.5px;color:#6b6580">{{ t.customer }} · {{ t.date }} · {{ t.slot }} · {{ t.guests }} guests</div>
+<div style="display:flex;justify-content:space-between;font-size:12.5px;gap:8px"><span style="color:#4b4560">Visit: {{ t.visitTxt }}</span><sc-if value="{{ t.isActive }}" hint-placeholder-val="{{ false }}"><b style="color:#8a5a00;white-space:nowrap">{{ t.leftShort }}</b></sc-if></div>
+</button></sc-for>
+<sc-if value="{{ noTk }}" hint-placeholder-val="{{ false }}"><div style="background:#fff;border-radius:18px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);padding:18px;text-align:center;font-size:13px;color:#6b6580">Nothing here.</div></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ is.htoken }}" hint-placeholder-val="{{ false }}">
+<div style="padding:8px 18px 28px;display:flex;flex-direction:column;gap:14px;animation:fadeUp .35s ease">
+<div style="display:flex;align-items:center;gap:12px"><button sc-camel-on-click="{{ back }}" style="width:36px;height:36px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:#1e1b2e;flex:none">{{ Is.left }}</button><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800">Pre-booking {{ TKV.id }}</div></div>
+<div style="background:#fff;border-radius:18px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);padding:16px;display:flex;flex-direction:column;gap:8px;font-size:13.5px">
+<span style="align-self:flex-start;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:700;background:{{ TKV.sBg }};color:{{ TKV.sColor }}">{{ TKV.status }}</span>
+<div style="font-size:16px;font-weight:700">{{ TKV.event }}</div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b6580">Customer</span><b>{{ TKV.customer }} · {{ TKV.phone }}</b></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b6580">Event date</span><b>{{ TKV.date }}</b></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b6580">Slot</span><b>{{ TKV.slot }}</b></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b6580">Guests</span><b>{{ TKV.guests }}</b></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b6580">Token received</span><b>{{ TKV.amount }}</b></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b6580">Paid at</span><b>{{ TKV.paidAt }}</b></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b6580">Visit</span><b>{{ TKV.visitTxt }}</b></div>
+<sc-if value="{{ TKV.isActive }}" hint-placeholder-val="{{ false }}"><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:#8a5a00">{{ TKV.left }}</div></sc-if>
+<div style="font-size:12.5px;color:#4b4560;line-height:1.5;background:#fffafc;border-radius:10px;padding:8px 10px">{{ TKV.note }}</div>
+</div>
+<sc-if value="{{ TKV.isActive }}" hint-placeholder-val="{{ false }}">
+<button sc-camel-on-click="{{ markVisited }}" style="height:50px;border:none;border-radius:999px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;font-weight:700;font-size:15px;font-family:'Sora',sans-serif;cursor:pointer">Customer visited the hall</button>
+</sc-if>
+<sc-if value="{{ TKV.isVisited }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border-radius:18px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+<label style="font-size:12.5px;font-weight:600;color:#6b6580">Final rent agreed with the customer (₹)</label>
+<input value="{{ finalRent }}" sc-camel-on-change="{{ setFinalRent }}" inputmode="numeric" style="width:100%;height:46px;border-radius:12px;border:1.5px solid #f0e3ea;padding:0 12px;font-size:14.5px;box-sizing:border-box;font-family:inherit;background:#fff;outline:none">
+<div style="font-size:12px;color:#6b6580">The {{ TKV.amount }} token is adjusted in this. The customer pays the balance to you at the hall.</div>
+<button sc-camel-on-click="{{ notBookedTk }}" style="height:44px;border:1.5px solid #f0e3ea;border-radius:999px;background:#fff;color:#1e1b2e;font-weight:700;font-size:13px;font-family:inherit;cursor:pointer">Customer decided not to book</button>
+<button sc-camel-on-click="{{ confirmHall }}" style="height:50px;border:none;border-radius:999px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;font-weight:700;font-size:15px;font-family:'Sora',sans-serif;cursor:pointer">Confirm booking</button>
+</div>
+</sc-if>
+<sc-if value="{{ TKV.canRelease }}" hint-placeholder-val="{{ false }}"><button sc-camel-on-click="{{ releaseTk }}" style="height:46px;border:1.5px solid #f0e3ea;border-radius:999px;background:#fff;color:#1e1b2e;font-weight:700;font-size:13.5px;font-family:inherit;cursor:pointer">Can’t host · release date &amp; refund token</button></sc-if>
+<button sc-camel-on-click="{{ callTkCustomer }}" style="height:46px;border:1.5px solid #f0e3ea;border-radius:999px;background:#fff;color:#1e1b2e;font-weight:700;font-size:13.5px;font-family:inherit;cursor:pointer">Call customer</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ is.hall }}" hint-placeholder-val="{{ false }}">
+<div style="padding:8px 18px 28px;display:flex;flex-direction:column;gap:12px;animation:fadeUp .35s ease">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div style="font-family:'Sora',sans-serif;font-size:22px;font-weight:800">My hall</div><button sc-camel-on-click="{{ openLangSheet }}" aria-label="Change language" data-no-tr="1" style="height:34px;padding:0 11px;border-radius:999px;background:#fff;border:none;display:flex;align-items:center;gap:5px;cursor:pointer;box-shadow:0 6px 14px -8px rgba(30,27,46,.3);color:#1e1b2e;font-family:'Noto Sans','Plus Jakarta Sans',sans-serif;font-weight:700;font-size:12.5px;flex:none"><span style="color:#e75480">अ</span>{{ langShort }}</button></div>
+<div style="font-size:12.5px;color:#6b6580;line-height:1.5">Everything here shows on your hall page in the customer app.</div>
+<div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:12.5px;font-weight:600;color:#6b6580">Photos (tap to upload from your phone)</label>
+<image-slot id="venue-{{ HV.id }}" shape="rounded" radius="16" placeholder="Main photo of the hall" src="{{ HV.img.src }}" credit="{{ HV.img.credit }}" credit-href="{{ HV.img.href }}" style="width:100%;height:170px"></image-slot>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><image-slot id="venue-{{ HV.id }}-2" shape="rounded" radius="14" placeholder="Stage / dining" style="width:100%;height:100px"></image-slot><image-slot id="venue-{{ HV.id }}-3" shape="rounded" radius="14" placeholder="Kitchen / parking" style="width:100%;height:100px"></image-slot></div></div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:5px">Venue type</label><div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ hTypeChips }}" as="c" hint-placeholder-count="4"><button sc-camel-on-click="{{ c.pick }}" style="height:36px;padding:0 13px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;background:{{ c.bg }};color:{{ c.color }};border:1.5px solid {{ c.border }};white-space:nowrap">{{ c.label }}</button></sc-for></div></div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:5px">Full address (used for the map)</label><textarea value="{{ HF.address }}" sc-camel-on-change="{{ hf.address }}" rows="2" style="width:100%;height:46px;border-radius:12px;border:1.5px solid #f0e3ea;padding:0 12px;font-size:14.5px;box-sizing:border-box;font-family:inherit;background:#fff;outline:none;height:auto;padding:10px 12px;resize:vertical"></textarea></div>
+<a href="{{ HV.mapUrl }}" target="_blank" rel="noopener" style="font-size:13px;font-weight:700;color:#a0133f;display:flex;align-items:center;gap:6px;text-decoration:none">{{ Is.pin }} Check the location on Google Maps</a>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<sc-for list="{{ hNums }}" as="n" hint-placeholder-count="6"><div><label style="font-size:12px;font-weight:600;color:#6b6580;display:block;margin-bottom:5px">{{ n.label }}</label><input value="{{ n.value }}" sc-camel-on-change="{{ n.set }}" inputmode="numeric" style="width:100%;height:46px;border-radius:12px;border:1.5px solid #f0e3ea;padding:0 12px;font-size:14.5px;box-sizing:border-box;font-family:inherit;background:#fff;outline:none"></div></sc-for>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px"><sc-for list="{{ hToggles }}" as="x" hint-placeholder-count="3"><button sc-camel-on-click="{{ x.pick }}" style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border-radius:18px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);border:none;padding:12px 14px;cursor:pointer;font-family:inherit;color:#1e1b2e;text-align:left"><span style="font-size:14px;font-weight:600">{{ x.label }}</span><span style="width:44px;height:26px;border-radius:999px;background:{{ x.track }};display:flex;align-items:center;padding:3px;box-sizing:border-box;justify-content:{{ x.justify }}"><span style="width:20px;height:20px;border-radius:50%;background:#fff"></span></span></button></sc-for></div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:5px">Crockery details for customers</label><input value="{{ HF.crockeryNote }}" sc-camel-on-change="{{ hf.crockeryNote }}" style="width:100%;height:46px;border-radius:12px;border:1.5px solid #f0e3ea;padding:0 12px;font-size:14.5px;box-sizing:border-box;font-family:inherit;background:#fff;outline:none"></div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:5px">Catering</label><div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ hCatChips }}" as="c" hint-placeholder-count="3"><button sc-camel-on-click="{{ c.pick }}" style="height:36px;padding:0 13px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;background:{{ c.bg }};color:{{ c.color }};border:1.5px solid {{ c.border }};white-space:nowrap">{{ c.label }}</button></sc-for></div></div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:5px">Amenities (comma separated)</label><input value="{{ HF.amenities }}" sc-camel-on-change="{{ hf.amenities }}" style="width:100%;height:46px;border-radius:12px;border:1.5px solid #f0e3ea;padding:0 12px;font-size:14.5px;box-sizing:border-box;font-family:inherit;background:#fff;outline:none"></div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:5px">About the hall</label><textarea value="{{ HF.blurb }}" sc-camel-on-change="{{ hf.blurb }}" rows="3" style="width:100%;height:46px;border-radius:12px;border:1.5px solid #f0e3ea;padding:0 12px;font-size:14.5px;box-sizing:border-box;font-family:inherit;background:#fff;outline:none;height:auto;padding:10px 12px;resize:vertical"></textarea></div>
+<div style="background:#fff;border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:5px"><div style="font-weight:700;font-size:13.5px">Token rules</div><sc-for list="{{ hallRules }}" as="r" hint-placeholder-count="6"><div style="font-size:12.5px;color:#4b4560;line-height:1.45">• {{ r }}</div></sc-for></div>
+<div style="background:#fffafc;border-radius:12px;padding:10px 12px;font-size:12px;color:#6b6580;line-height:1.5">Customers must visit within {{ visitHours }} hours of paying the token (set by Tamboo). The token goes to you minus {{ tkCom }}% Tamboo commission, whether they book or not. The rest of the payment you collect directly.</div>
+<sc-if value="{{ hErr }}" hint-placeholder-val="{{ false }}"><div style="color:#dc2626;font-size:12.5px">{{ hErr }}</div></sc-if>
+<button sc-camel-on-click="{{ saveHall }}" style="height:50px;border:none;border-radius:999px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;font-weight:700;font-size:15px;font-family:'Sora',sans-serif;cursor:pointer">Save hall page</button>
+<button sc-camel-on-click="{{ logout }}" style="height:46px;border:1.5px solid #f0e3ea;border-radius:999px;background:#fff;color:#1e1b2e;font-weight:700;font-size:13.5px;font-family:inherit;cursor:pointer">Log out</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ is.home }}" hint-placeholder-val="{{ false }}">
+<div style="padding:8px 18px 24px;display:flex;flex-direction:column;gap:16px;animation:fadeUp .35s ease">
+<div style="display:flex;align-items:center;gap:12px">
+<div style="width:48px;height:48px;flex:none;border-radius:14px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:16px">{{ V.initials }}</div>
+<div style="flex:1;min-width:0"><div style="font-size:12.5px;color:#6b6580">Namaste</div><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;line-height:1.2">{{ V.name }}</div></div>
+<button sc-camel-on-click="{{ openLangSheet }}" aria-label="Change language" data-no-tr="1" style="height:34px;padding:0 11px;border-radius:999px;background:#fff;border:none;display:flex;align-items:center;gap:5px;cursor:pointer;box-shadow:0 6px 14px -8px rgba(30,27,46,.3);color:#1e1b2e;font-family:'Noto Sans','Plus Jakarta Sans',sans-serif;font-weight:700;font-size:12.5px;flex:none"><span style="color:#e75480">अ</span>{{ langShort }}</button>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<button sc-camel-on-click="{{ openNew }}" style="text-align:left;border:none;border-radius:18px;padding:14px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px">New requests</span><span style="font-family:'Sora',sans-serif;font-size:28px;font-weight:800">{{ stats.newCount }}</span></button>
+<button sc-camel-on-click="{{ openActive }}" style="text-align:left;border:none;border-radius:18px;padding:14px;background:#fff;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);cursor:pointer;font-family:inherit;color:#1e1b2e;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#6b6580">Active jobs</span><span style="font-family:'Sora',sans-serif;font-size:28px;font-weight:800">{{ stats.activeCount }}</span></button>
+<div style="border-radius:18px;padding:14px;background:#fff;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#6b6580">Earnings this month</span><span style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:#4d0013">{{ stats.earnings }}</span><span style="font-size:11px;color:#8a8499">after commission</span></div>
+<button sc-camel-on-click="{{ openItems }}" style="text-align:left;border:none;border-radius:18px;padding:14px;background:#fff;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);cursor:pointer;font-family:inherit;color:#1e1b2e;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#6b6580">Items live</span><span style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800">{{ stats.liveItems }}</span><span style="font-size:11px;color:#8a8499">{{ stats.itemsNote }}</span></button>
+</div>
+<button sc-camel-on-click="{{ addItem }}" style="height:52px;border:1.5px dashed #e75480;border-radius:18px;background:#fff;color:#a0133f;font-weight:700;font-size:14.5px;font-family:'Sora',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">{{ Is.plus }} Add a new rental item</button>
+<button sc-camel-on-click="{{ openCal }}" style="height:52px;border:none;border-radius:18px;background:#fff;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);color:#1e1b2e;font-weight:700;font-size:14px;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:10px;padding:0 16px"><span style="color:#e75480;display:flex">{{ Is.calendar }}</span><span style="flex:1;text-align:left">Calendar &amp; blocked dates</span><span style="color:#c9bfd0;display:flex">{{ Is.right }}</span></button>
+<div>
+<div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px">Upcoming jobs</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ upcoming }}" as="b" hint-placeholder-count="2">
+<button sc-camel-on-click="{{ b.open }}" style="text-align:left;border:none;background:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 8px 18px -14px rgba(30,27,46,.25);cursor:pointer;font-family:inherit;color:#1e1b2e;display:flex;gap:12px;align-items:center">
+<div style="width:46px;flex:none;text-align:center;border-radius:12px;background:#fdeef3;padding:6px 0"><div style="font-size:10.5px;font-weight:700;color:#a0133f;text-transform:uppercase">{{ b.mon }}</div><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:#4d0013">{{ b.day }}</div></div>
+<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700">{{ b.event }}</div><div style="font-size:12px;color:#6b6580">{{ b.customer }} · {{ b.guests }} guests</div></div>
+<span style="padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;background:{{ b.sBg }};color:{{ b.sColor }};white-space:nowrap">{{ b.status }}</span>
+</button>
+</sc-for>
+<sc-if value="{{ noUpcoming }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:#8a8499;background:#fff;border-radius:16px;padding:16px;text-align:center">No upcoming jobs yet.</div></sc-if>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ is.orders }}" hint-placeholder-val="{{ false }}">
+<div style="padding:8px 18px 24px;display:flex;flex-direction:column;gap:14px;animation:fadeUp .35s ease">
+<h2 style="font-family:'Sora',sans-serif;font-size:22px;font-weight:800;margin:0">Orders</h2>
+<div style="display:flex;gap:6px">
+<sc-for list="{{ orderTabs }}" as="o" hint-placeholder-count="3"><button sc-camel-on-click="{{ o.pick }}" style="flex:1;height:38px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;background:{{ o.bg }};color:{{ o.color }};border:1.5px solid {{ o.border }}">{{ o.label }}</button></sc-for>
+</div>
+<sc-if value="{{ isQuoteTab }}" hint-placeholder-val="{{ false }}">
+<sc-for list="{{ vQuotes }}" as="q" hint-placeholder-count="2">
+<button sc-camel-on-click="{{ q.open }}" style="text-align:left;border:none;background:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);cursor:pointer;font-family:inherit;color:#1e1b2e;display:flex;flex-direction:column;gap:6px">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-family:'Sora',sans-serif;font-weight:800;font-size:13px;color:#8a8499">{{ q.id }}</span><span style="padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;background:{{ q.sBg }};color:{{ q.sColor }};white-space:nowrap">{{ q.status }}</span></div>
+<div style="font-size:15px;font-weight:700">{{ q.event }}</div>
+<div style="font-size:12.5px;color:#6b6580">{{ q.customer }} · {{ q.date }} · {{ q.guests }} guests</div>
+<div style="font-size:12.5px;color:#4b4560;background:#fffafc;border-radius:10px;padding:8px 10px">{{ q.need }}</div>
+</button>
+</sc-for>
+<sc-if value="{{ noQuotes }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:#8a8499;background:#fff;border-radius:16px;padding:18px;text-align:center">No quote requests yet.</div></sc-if>
+</sc-if>
+<sc-for list="{{ orders }}" as="b" hint-placeholder-count="3">
+<button sc-camel-on-click="{{ b.open }}" style="text-align:left;border:none;background:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);cursor:pointer;font-family:inherit;color:#1e1b2e;display:flex;flex-direction:column;gap:6px">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-family:'Sora',sans-serif;font-weight:800;font-size:13px;color:#8a8499">{{ b.id }}</span><span style="padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;background:{{ b.sBg }};color:{{ b.sColor }};white-space:nowrap">{{ b.status }}</span></div>
+<div style="font-size:15px;font-weight:700">{{ b.event }}</div>
+<div style="display:flex;justify-content:space-between;font-size:12.5px;color:#6b6580;gap:8px"><span>{{ b.dateTxt }} · {{ b.customer }}</span><b style="color:#1e1b2e">{{ b.earn }}</b></div>
+</button>
+</sc-for>
+<sc-if value="{{ noOrders }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:#8a8499;background:#fff;border-radius:16px;padding:18px;text-align:center">Nothing here right now.</div></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ is.order }}" hint-placeholder-val="{{ false }}">
+<div style="padding:6px 18px 24px;display:flex;flex-direction:column;gap:14px;animation:fadeUp .35s ease">
+<div style="display:flex;align-items:center;gap:12px"><button sc-camel-on-click="{{ back }}" style="width:36px;height:36px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:#1e1b2e;flex:none">{{ Is.left }}</button><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800">{{ B.id }}</div></div>
+<div style="border-radius:22px;padding:16px 18px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;display:flex;flex-direction:column;gap:4px">
+<div style="font-size:11.5px">Status</div><div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800">{{ B.status }}</div>
+<div style="font-size:13px">{{ B.event }} · {{ B.dateTxt }}</div>
+</div>
+<sc-if value="{{ B.isPending }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff7e6;color:#8a5a00;border-radius:14px;padding:10px 14px;font-size:12.5px;line-height:1.5">New request. Stock for this date is already held for 15 minutes. Accept to confirm it for the customer.</div>
+<div style="display:flex;gap:10px"><button sc-camel-on-click="{{ decline }}" style="flex:1;height:50px;border:1.5px solid #f0e3ea;border-radius:999px;background:#fff;color:#1e1b2e;font-weight:600;font-size:14.5px;font-family:'Sora',sans-serif;cursor:pointer">Decline</button><button sc-camel-on-click="{{ accept }}" style="flex:2;height:50px;border:none;border-radius:999px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;font-weight:700;font-size:15px;font-family:'Sora',sans-serif;cursor:pointer">Accept order</button></div>
+</sc-if>
+<sc-if value="{{ B.canAdvance }}" hint-placeholder-val="{{ false }}">
+<button sc-camel-on-click="{{ advance }}" style="height:52px;border:none;border-radius:999px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;font-weight:700;font-size:15px;font-family:'Sora',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">{{ B.nextLabel }} {{ Is.arrow }}</button>
+</sc-if>
+<div style="background:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);display:flex;flex-direction:column;gap:8px;font-size:13.5px">
+<div style="font-weight:700;font-size:14px">Customer</div>
+<div style="display:flex;justify-content:space-between;gap:8px"><span>{{ B.customer }}</span><span style="color:#6b6580">{{ B.phone }}</span></div>
+<div style="display:flex;gap:8px;color:#4b4560;line-height:1.45"><span style="color:#e75480;display:flex;margin-top:2px">{{ Is.pin }}</span>{{ B.address }}</div>
+<div style="color:#6b6580">{{ B.guests }} guests · {{ B.type }}</div>
+<div style="display:flex;gap:8px;margin-top:4px"><button sc-camel-on-click="{{ callCustomer }}" style="flex:1;height:42px;border:1.5px solid #f0e3ea;border-radius:999px;background:#fff;color:#1e1b2e;font-weight:600;font-size:13px;font-family:inherit;cursor:pointer">Call</button><button sc-camel-on-click="{{ navCustomer }}" style="flex:1;height:42px;border:1.5px solid #f0e3ea;border-radius:999px;background:#fff;color:#1e1b2e;font-weight:600;font-size:13px;font-family:inherit;cursor:pointer">Directions</button></div>
+</div>
+<div style="background:#fff;border-radius:18px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);overflow:hidden">
+<div style="padding:12px 16px;font-weight:700;font-size:14px;border-bottom:1px solid #f7edf1">Items to load</div>
+<sc-for list="{{ B.lines }}" as="l" hint-placeholder-count="3"><div style="display:flex;justify-content:space-between;gap:10px;padding:10px 16px;border-bottom:1px solid #f7edf1;font-size:13.5px"><span>{{ l.name }}</span><b style="white-space:nowrap">× {{ l.qty }}</b></div></sc-for>
+<sc-if value="{{ B.fromQuote }}" hint-placeholder-val="{{ false }}"><div style="padding:10px 16px;font-size:13px;color:#6b6580">Items as per accepted quote.</div></sc-if>
+<div style="padding:12px 16px;display:flex;flex-direction:column;gap:6px;font-size:13px;background:#fffafc">
+<div style="display:flex;justify-content:space-between"><span style="color:#6b6580">Order value</span><span>{{ B.value }}</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b6580">Platform commission</span><span>− {{ B.commission }}</span></div>
+<div style="display:flex;justify-content:space-between;font-weight:800;font-size:14.5px"><span>You receive</span><span style="color:#047857">{{ B.earn }}</span></div>
+<div style="font-size:11.5px;color:#8a8499">Paid out 2 days after pickup and return inspection.</div>
+</div>
+</div>
+<div style="background:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3)">
+<div style="font-weight:700;font-size:14px;margin-bottom:10px">Timeline</div>
+<sc-for list="{{ B.history }}" as="h" hint-placeholder-count="2"><div style="display:flex;gap:10px;align-items:center;font-size:13px;padding:4px 0"><span style="width:10px;height:10px;border-radius:50%;background:#e75480;flex:none"></span><span style="flex:1">{{ h.label }}</span><span style="color:#8a8499">{{ h.date }}</span></div></sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ is.quote }}" hint-placeholder-val="{{ false }}">
+<div style="padding:6px 18px 28px;display:flex;flex-direction:column;gap:14px;animation:fadeUp .35s ease">
+<div style="display:flex;align-items:center;gap:12px"><button sc-camel-on-click="{{ back }}" style="width:36px;height:36px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:#1e1b2e;flex:none">{{ Is.left }}</button><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800">Quote {{ Q.id }}</div></div>
+<div style="background:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);display:flex;flex-direction:column;gap:6px;font-size:13.5px">
+<div style="font-size:15px;font-weight:700">{{ Q.event }}</div>
+<div style="color:#6b6580">{{ Q.customer }} · {{ Q.date }} · {{ Q.guests }} guests</div>
+<div style="color:#4b4560;background:#fffafc;border-radius:10px;padding:8px 10px;line-height:1.5">“{{ Q.need }}”</div>
+<sc-if value="{{ Q.isRevision }}" hint-placeholder-val="{{ false }}"><div style="background:#fff7e6;color:#8a5a00;border-radius:10px;padding:8px 10px;font-size:12.5px">Customer asked for a revised price.</div></sc-if>
+<div style="font-size:12.5px;font-weight:700;color:#a0133f">{{ Q.status }}</div>
+</div>
+<sc-if value="{{ Q.editable }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);display:flex;flex-direction:column;gap:10px">
+<div style="font-weight:700;font-size:14px">Your price · version {{ Q.nextV }}</div>
+<sc-for list="{{ qLines }}" as="l" hint-placeholder-count="2">
+<div style="display:flex;gap:6px;align-items:center">
+<input value="{{ l.label }}" sc-camel-on-change="{{ l.setLabel }}" placeholder="Item or service" style="flex:1;min-width:0;height:44px;border:1.5px solid #f0e3ea;border-radius:12px;padding:0 10px;font-size:14px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box">
+<input value="{{ l.amount }}" sc-camel-on-change="{{ l.setAmount }}" inputmode="numeric" placeholder="₹" style="width:92px;height:44px;border:1.5px solid #f0e3ea;border-radius:12px;padding:0 10px;font-size:14px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box">
+<button sc-camel-on-click="{{ l.remove }}" aria-label="Remove line" style="width:36px;height:44px;border:none;background:none;color:#9b94ad;cursor:pointer;display:flex;align-items:center;justify-content:center">{{ Is.x }}</button>
+</div>
+</sc-for>
+<button sc-camel-on-click="{{ addQLine }}" style="height:40px;border:1.5px dashed #f0c4d3;border-radius:12px;background:#fff;color:#a0133f;font-weight:700;font-size:13px;font-family:inherit;cursor:pointer">+ Add line</button>
+<textarea value="{{ qNote }}" sc-camel-on-change="{{ setQNote }}" rows="2" placeholder="Note for the customer, e.g. includes site survey" style="width:100%;border:1.5px solid #f0e3ea;border-radius:12px;padding:10px 12px;font-size:14px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box;resize:vertical"></textarea>
+<div style="display:flex;justify-content:space-between;font-weight:800;font-size:15px"><span>Total</span><span style="color:#4d0013">{{ qTotal }}</span></div>
+<button sc-camel-on-click="{{ sendQuote }}" style="height:50px;border:none;border-radius:999px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;font-weight:700;font-size:15px;font-family:'Sora',sans-serif;cursor:pointer">Send quote to customer</button>
+<div style="font-size:11.5px;color:#8a8499;text-align:center">Valid for 48 hours. The customer can accept, decline or ask for a revision.</div>
+</div>
+</sc-if>
+<sc-for list="{{ Q.versions }}" as="v" hint-placeholder-count="1">
+<div style="background:#fff;border-radius:18px;padding:12px 16px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);font-size:13px;display:flex;flex-direction:column;gap:4px">
+<div style="display:flex;justify-content:space-between;font-weight:700"><span>Sent · v{{ v.v }}</span><span>{{ v.total }}</span></div>
+<sc-for list="{{ v.lines }}" as="l" hint-placeholder-count="2"><div style="display:flex;justify-content:space-between;color:#6b6580;gap:8px"><span>{{ l.label }}</span><span>{{ l.amount }}</span></div></sc-for>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ is.calendar }}" hint-placeholder-val="{{ false }}">
+<div style="padding:8px 18px 24px;display:flex;flex-direction:column;gap:14px;animation:fadeUp .35s ease">
+<div style="display:flex;align-items:center;gap:12px"><button sc-camel-on-click="{{ back }}" style="width:36px;height:36px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:#1e1b2e;flex:none">{{ Is.left }}</button><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800">Calendar</div></div>
+<div style="background:#fff;border-radius:20px;padding:14px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3)">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><button sc-camel-on-click="{{ calPrev }}" aria-label="Previous month" style="width:34px;height:34px;border-radius:50%;border:1.5px solid #f0e3ea;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#1e1b2e">{{ Is.left }}</button><div style="font-family:'Sora',sans-serif;font-weight:800;font-size:15px">{{ calTitle }}</div><button sc-camel-on-click="{{ calNext }}" aria-label="Next month" style="width:34px;height:34px;border-radius:50%;border:1.5px solid #f0e3ea;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#1e1b2e">{{ Is.right }}</button></div>
+<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;text-align:center;font-size:11px;font-weight:700;color:#8a8499;margin-bottom:4px"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
+<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px">
+<sc-for list="{{ calDays }}" as="c" hint-placeholder-count="35"><button sc-camel-on-click="{{ c.pick }}" style="height:44px;border-radius:12px;border:1.5px solid {{ c.border }};background:{{ c.bg }};color:{{ c.color }};font-weight:700;font-size:13px;font-family:inherit;cursor:pointer;visibility:{{ c.vis }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0">{{ c.n }}<span style="font-size:9px;font-weight:700">{{ c.tag }}</span></button></sc-for>
+</div>
+<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:#6b6580"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:#fdeef3"></span>Booked</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:#1e1b2e"></span>Blocked</span></div>
+</div>
+<div style="background:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);display:flex;flex-direction:column;gap:10px">
+<div style="font-weight:700;font-size:14px">{{ calSel.title }}</div>
+<sc-for list="{{ calSel.jobs }}" as="b" hint-placeholder-count="1"><button sc-camel-on-click="{{ b.open }}" style="text-align:left;border:none;background:#fffafc;border-radius:12px;padding:10px 12px;cursor:pointer;font-family:inherit;color:#1e1b2e;display:flex;justify-content:space-between;gap:8px;font-size:13px"><span><b>{{ b.event }}</b> · {{ b.customer }}</span><span style="color:#a0133f;font-weight:700">{{ b.status }}</span></button></sc-for>
+<sc-if value="{{ calSel.blocked }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:#4b4560">Blocked: {{ calSel.reason }}. Customers can’t book you on this day.</div></sc-if>
+<sc-if value="{{ calSel.canBlock }}" hint-placeholder-val="{{ false }}"><input value="{{ blockReason }}" sc-camel-on-change="{{ setBlockReason }}" placeholder="Reason (only you see this), e.g. Family function" style="height:46px;border:1.5px solid #f0e3ea;border-radius:12px;padding:0 12px;font-size:14px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box"></sc-if>
+<button sc-camel-on-click="{{ toggleBlock }}" style="height:46px;border:none;border-radius:999px;background:{{ calSel.btnBg }};color:#fff;font-weight:700;font-size:14px;font-family:'Sora',sans-serif;cursor:pointer">{{ calSel.btnLabel }}</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ is.items }}" hint-placeholder-val="{{ false }}">
+<div style="padding:8px 18px 24px;display:flex;flex-direction:column;gap:12px;animation:fadeUp .35s ease">
+<div style="display:flex;justify-content:space-between;align-items:center"><h2 style="font-family:'Sora',sans-serif;font-size:22px;font-weight:800;margin:0">My items</h2><button sc-camel-on-click="{{ addItem }}" style="height:40px;padding:0 16px;border:none;border-radius:999px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;font-weight:700;font-size:13.5px;font-family:'Sora',sans-serif;cursor:pointer;display:flex;align-items:center;gap:6px">{{ Is.plus }} Add item</button></div>
+<div style="font-size:12.5px;color:#6b6580">{{ itemsSummary }}</div>
+<sc-for list="{{ myItems }}" as="p" hint-placeholder-count="4">
+<div style="background:#fff;border-radius:18px;padding:12px;box-shadow:0 10px 22px -16px rgba(77,0,19,.3);display:flex;gap:12px;align-items:center">
+<div style="width:72px;height:72px;flex:none;pointer-events:none"><image-slot id="prod-{{ p.id }}" shape="rounded" radius="14" placeholder="Photo" src="{{ p.img.src }}" credit="{{ p.img.credit }}" credit-href="{{ p.img.href }}" style="width:72px;height:72px"></image-slot></div>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+<div style="font-size:14px;font-weight:700;line-height:1.3">{{ p.name }}</div>
+<div style="font-size:12px;color:#6b6580">{{ p.price }} {{ p.unit }} · stock {{ p.stock }}</div>
+<span style="align-self:flex-start;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;background:{{ p.sBg }};color:{{ p.sColor }}">{{ p.stateLabel }}</span>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px">
+<button sc-camel-on-click="{{ p.edit }}" style="height:32px;padding:0 12px;border:1.5px solid #f0e3ea;border-radius:999px;background:#fff;color:#1e1b2e;font-weight:600;font-size:12px;font-family:inherit;cursor:pointer">Edit</button>
+<button sc-camel-on-click="{{ p.toggle }}" style="height:32px;padding:0 12px;border:1.5px solid #f0e3ea;border-radius:999px;background:#fff;color:#1e1b2e;font-weight:600;font-size:12px;font-family:inherit;cursor:pointer">{{ p.toggleLabel }}</button>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ is.itemForm }}" hint-placeholder-val="{{ false }}">
+<div style="padding:6px 18px 28px;display:flex;flex-direction:column;gap:14px;animation:fadeUp .35s ease">
+<div style="display:flex;align-items:center;gap:12px"><button sc-camel-on-click="{{ back }}" style="width:36px;height:36px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:#1e1b2e;flex:none">{{ Is.left }}</button><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800">{{ formTitle }}</div></div>
+<div>
+<div style="font-size:12.5px;font-weight:600;color:#6b6580;margin-bottom:8px">Photos · first one is the cover customers see</div>
+<div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);grid-template-rows:88px 88px;gap:8px">
+<div style="grid-row:1 / 3;min-width:0"><image-slot id="prod-{{ F.id }}" shape="rounded" radius="16" placeholder="Tap to add cover photo" src="{{ F.img.src }}" style="width:100%;height:184px"></image-slot></div>
+<div style="min-width:0"><image-slot id="prod-{{ F.id }}-2" shape="rounded" radius="14" placeholder="+ Photo" style="width:100%;height:88px"></image-slot></div>
+<div style="min-width:0"><image-slot id="prod-{{ F.id }}-3" shape="rounded" radius="14" placeholder="+ Photo" style="width:100%;height:88px"></image-slot></div>
+</div>
+<div style="font-size:11.5px;color:#8a8499;margin-top:6px">Use real photos of your own stock, in daylight. Items with clear photos get booked more.</div>
+</div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">Item name</label><input value="{{ F.name }}" sc-camel-on-change="{{ f.name }}" placeholder="e.g. Iron Folding Chair (cushioned)" style="width:100%;height:50px;border:1.5px solid #f0e3ea;border-radius:14px;padding:0 14px;font-size:15px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box"></div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">Category</label>
+<sc-raw-select value="{{ F.cat }}" sc-camel-on-change="{{ f.cat }}" style="width:100%;height:50px;border:1.5px solid #f0e3ea;border-radius:14px;padding:0 12px;font-size:15px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box"><sc-for list="{{ catOptions }}" as="c" hint-placeholder-count="6"><option value="{{ c.id }}">{{ c.name }}</option></sc-for></sc-raw-select>
+<sc-if value="{{ F.newCat }}" hint-placeholder-val="{{ false }}"><input value="{{ F.catName }}" sc-camel-on-change="{{ f.catName }}" placeholder="New category name, e.g. Generators" style="width:100%;height:46px;margin-top:8px;border:1.5px solid #f0e3ea;border-radius:14px;padding:0 14px;font-size:14.5px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box"></sc-if>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">Rent (₹)</label><input value="{{ F.price }}" sc-camel-on-change="{{ f.price }}" inputmode="numeric" placeholder="25" style="width:100%;height:50px;border:1.5px solid #f0e3ea;border-radius:14px;padding:0 14px;font-size:15px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box"></div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">Charged</label><sc-raw-select value="{{ F.unit }}" sc-camel-on-change="{{ f.unit }}" style="width:100%;height:50px;border:1.5px solid #f0e3ea;border-radius:14px;padding:0 10px;font-size:14px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box"><sc-for list="{{ unitOptions }}" as="u" hint-placeholder-count="4"><option value="{{ u }}">{{ u }}</option></sc-for></sc-raw-select></div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">Stock you own</label><input value="{{ F.stock }}" sc-camel-on-change="{{ f.stock }}" inputmode="numeric" placeholder="200" style="width:100%;height:50px;border:1.5px solid #f0e3ea;border-radius:14px;padding:0 14px;font-size:15px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box"></div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">Minimum order</label><input value="{{ F.min }}" sc-camel-on-change="{{ f.min }}" inputmode="numeric" placeholder="1" style="width:100%;height:50px;border:1.5px solid #f0e3ea;border-radius:14px;padding:0 14px;font-size:15px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box"></div>
+<div style="grid-column:1 / 3"><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">Refundable deposit (₹, optional)</label><input value="{{ F.deposit }}" sc-camel-on-change="{{ f.deposit }}" inputmode="numeric" placeholder="0" style="width:100%;height:50px;border:1.5px solid #f0e3ea;border-radius:14px;padding:0 14px;font-size:15px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box"></div>
+</div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">Details for customers</label><textarea value="{{ F.specs }}" sc-camel-on-change="{{ f.specs }}" rows="3" placeholder="Size, material, what's included, setup notes" style="width:100%;border:1.5px solid #f0e3ea;border-radius:14px;padding:12px 14px;font-size:14.5px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box;resize:vertical"></textarea></div>
+<div style="background:#fff;border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:8px">
+<div style="font-size:13px;font-weight:700">How customers book it</div>
+<div style="display:flex;gap:6px"><sc-for list="{{ bookModes }}" as="m" hint-placeholder-count="2"><button sc-camel-on-click="{{ m.pick }}" style="flex:1;min-height:40px;border-radius:12px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;background:{{ m.bg }};color:{{ m.color }};border:1.5px solid {{ m.border }};padding:6px 8px">{{ m.label }}</button></sc-for></div>
+</div>
+<sc-if value="{{ F.needsReview }}" hint-placeholder-val="{{ false }}"><div style="background:#f3eefd;color:#5b21b6;border-radius:14px;padding:10px 14px;font-size:12.5px;line-height:1.5">Your account is not verified yet, so new items are checked by our team before customers can see them (usually within a day).</div></sc-if>
+<sc-if value="{{ formErr }}" hint-placeholder-val="{{ false }}"><div style="color:#dc2626;font-size:12.5px">{{ formErr }}</div></sc-if>
+<button sc-camel-on-click="{{ saveItem }}" style="height:52px;border:none;border-radius:999px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;font-weight:700;font-size:15.5px;font-family:'Sora',sans-serif;cursor:pointer">{{ saveLabel }}</button>
+<sc-if value="{{ F.editing }}" hint-placeholder-val="{{ false }}"><button sc-camel-on-click="{{ deleteItem }}" style="background:none;border:none;color:#dc2626;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">Delete this item</button></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ is.shop }}" hint-placeholder-val="{{ false }}">
+<div style="padding-bottom:28px;animation:fadeUp .35s ease">
+<div style="height:190px;position:relative"><image-slot id="vcover-{{ V.id }}" shape="rect" placeholder="Tap to add a photo of your shop, godown or a past setup" src="{{ V.img.src }}" credit="{{ V.img.credit }}" credit-href="{{ V.img.href }}" style="width:100%;height:190px"></image-slot></div>
+<div style="padding:14px 18px 0;position:relative;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;align-items:flex-end;gap:12px">
+<div style="width:76px;height:76px;flex:none;border-radius:20px;background:#fff;padding:3px;box-sizing:border-box;box-shadow:0 10px 22px -12px rgba(77,0,19,.4)"><image-slot id="vendor-{{ V.id }}" shape="rounded" radius="17" placeholder="Logo" style="width:70px;height:70px"></image-slot></div>
+<div style="padding-bottom:4px;min-width:0"><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;line-height:1.2">{{ V.name }}</div><div style="font-size:12.5px;color:#6b6580">{{ V.area }}, {{ V.city }}</div></div>
+</div>
+<div style="font-size:12px;color:#6b6580;line-height:1.5">Tap the cover or logo to upload from your phone. Customers see these on your shop page.</div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">About your business</label><textarea value="{{ S.blurb }}" sc-camel-on-change="{{ sf.blurb }}" rows="3" style="width:100%;border:1.5px solid #f0e3ea;border-radius:14px;padding:12px 14px;font-size:14.5px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box;resize:vertical"></textarea></div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">Working hours</label><input value="{{ S.hours }}" sc-camel-on-change="{{ sf.hours }}" style="width:100%;height:50px;border:1.5px solid #f0e3ea;border-radius:14px;padding:0 14px;font-size:15px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box"></div>
+<div><label style="font-size:12.5px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">Areas you serve (comma separated)</label><input value="{{ S.areas }}" sc-camel-on-change="{{ sf.areas }}" style="width:100%;height:50px;border:1.5px solid #f0e3ea;border-radius:14px;padding:0 14px;font-size:15px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+<div><label style="font-size:12px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">Delivery ₹</label><input value="{{ S.delivery }}" sc-camel-on-change="{{ sf.delivery }}" inputmode="numeric" style="width:100%;height:46px;border:1.5px solid #f0e3ea;border-radius:12px;padding:0 10px;font-size:14.5px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box"></div>
+<div><label style="font-size:12px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">Setup ₹</label><input value="{{ S.setup }}" sc-camel-on-change="{{ sf.setup }}" inputmode="numeric" style="width:100%;height:46px;border:1.5px solid #f0e3ea;border-radius:12px;padding:0 10px;font-size:14.5px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box"></div>
+<div><label style="font-size:12px;font-weight:600;color:#6b6580;display:block;margin-bottom:6px">Pickup ₹</label><input value="{{ S.pickup }}" sc-camel-on-change="{{ sf.pickup }}" inputmode="numeric" style="width:100%;height:46px;border:1.5px solid #f0e3ea;border-radius:12px;padding:0 10px;font-size:14.5px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box"></div>
+</div>
+<button sc-camel-on-click="{{ saveShop }}" style="height:52px;border:none;border-radius:999px;background:linear-gradient(135deg,#4d0013,#e75480);color:#fff;font-weight:700;font-size:15.5px;font-family:'Sora',sans-serif;cursor:pointer">Save shop page</button>
+<button sc-camel-on-click="{{ logout }}" style="height:46px;border:1.5px solid #f0e3ea;border-radius:999px;background:#fff;color:#1e1b2e;font-weight:600;font-size:14px;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">{{ Is.logout }} Log out</button>
+</div>
+</div>
+</sc-if>
+
+</div>
+<sc-if value="{{ langSheet }}" hint-placeholder-val="{{ false }}">
+<div sc-camel-on-click="{{ closeLangSheet }}" style="position:absolute;inset:0;background:rgba(30,10,20,.45);z-index:30;display:flex;align-items:flex-end">
+<div sc-camel-on-click="{{ stop }}" style="width:100%;max-height:78%;overflow-y:auto;background:#fff;border-radius:26px 26px 0 0;padding:20px 20px 28px;display:flex;flex-direction:column;gap:12px;box-sizing:border-box;animation:fadeUp .25s ease">
+<div style="font-family:'Sora',sans-serif;font-weight:800;font-size:19px">Language</div>
+<div data-no-tr="1" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><sc-for list="{{ langTiles }}" as="l" hint-placeholder-count="12"><button sc-camel-on-click="{{ l.pickClose }}" style="height:58px;border:1px solid #f3e6ec;border-radius:14px;background:{{ l.bg }};color:{{ l.color }};display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:0 12px;cursor:pointer;font-family:'Noto Sans','Plus Jakarta Sans',sans-serif;text-align:left"><span style="font-size:15.5px;font-weight:700;line-height:1.2">{{ l.native }}</span><span style="font-size:11px;font-weight:600;color:{{ l.sub }}">{{ l.en }}</span></button></sc-for></div>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ showTabs }}" hint-placeholder-val="{{ false }}">
+<div style="flex:none;display:flex;justify-content:space-around;padding:8px 10px 14px;background:rgba(255,255,255,.95);border-top:1px solid #f3e6ec">
+<sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4"><button sc-camel-on-click="{{ t.go }}" style="position:relative;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;font-family:inherit;color:{{ t.color }};font-size:11px;font-weight:700;min-width:60px;padding:4px 0">{{ t.icon }}<span>{{ t.label }}</span><sc-if value="{{ t.badge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:0;right:12px;min-width:16px;height:16px;border-radius:999px;background:#e75480;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0 4px;box-sizing:border-box">{{ t.badge }}</span></sc-if></button></sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:18px;right:18px;bottom:90px;background:#1e1b2e;color:#fff;border-radius:14px;padding:12px 16px;font-size:13.5px;text-align:center;z-index:20;animation:fadeUp .25s ease">{{ toast }}</div></sc-if>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="">
+const UNITS = ['per unit / day', 'per unit / event', 'per event', 'per set / event'];
+const UI_KEY = 'utsaviyana_vendor_ui';
+const ACTIVE_ST = (st) => !['PENDING', 'CANCELLED', 'COMPLETED', 'DISPUTED'].includes(st);
+const S_COLORS = { PENDING: ['#fff7e6', '#8a5a00'], CANCELLED: ['#f3f4f6', '#6b7280'], COMPLETED: ['#e8f7f0', '#047857'], DISPUTED: ['#fdecec', '#b91c1c'] };
+class Component extends DCLogic {
+  state = { role: 'tent', tkTab: 'ACTIVE', tokenId: null, finalRent: '', hform: null, hErr: '', langSheet: false, splashOn: true, ready: false, screen: 'intro', intro: 0, lang: 'en', err: '', reg: { biz: '', owner: '', city: 'Hyderabad', area: '', cats: [], tax: '', bank: '' }, stack: [], vid: 'v1', phone: '98490 12345', otp: '', otpSent: false, orderTab: 'new', bookingId: null, form: null, formErr: '', shop: null, toast: '' };
+  scrollRef = React.createRef();
+  componentDidMount() {
+    this.st0 = setTimeout(() => this.setState({ splashOn: false }), 1800);
+    const init = () => {
+      if (!window.TM) return setTimeout(init, 40);
+      this.unsub = TM.subscribe(() => this.forceUpdate());
+      let sv = null; try { sv = JSON.parse(localStorage.getItem(UI_KEY) || 'null'); } catch (e) { }
+      if (sv && !TM.VENDORS.some(v => v.id === sv.vid) && !TM.VENUES.some(v => v.id === sv.vid)) sv.vid = 'v1';
+      if (sv && ['otp', 'register', 'pendingReg'].includes(sv.screen)) sv.screen = 'login';
+      this.setState({ ready: true, ...(sv || {}) });
+    };
+    init();
+    const tr = () => { const el = document.querySelector('[data-ut-phone]'); if (!window.UTX || !el || !this.state.ready) return setTimeout(tr, 100); this.trOn = true; UTX.attach(el, () => { }); UTX.setLang(this.state.lang); };
+    tr();
+    this.tick = setInterval(() => { if (['hhome', 'htokens', 'htoken'].includes(this.state.screen)) this.forceUpdate(); }, 20000);
+  }
+  componentWillUnmount() { this.unsub && this.unsub(); clearInterval(this.tick); }
+  componentDidUpdate() {
+    const st = this.state; const ps = this._ps || {}; this._ps = { ...st };
+    if (ps.screen !== st.screen && this.scrollRef.current) this.scrollRef.current.scrollTop = 0;
+    if (ps.lang !== st.lang && window.UTX && this.trOn) UTX.setLang(st.lang);
+    if (st.ready) localStorage.setItem(UI_KEY, JSON.stringify({ screen: st.screen === 'itemForm' ? 'items' : st.screen, vid: st.vid, bookingId: st.bookingId, orderTab: st.orderTab, lang: st.lang, role: st.role, tokenId: st.tokenId }));
+  }
+  flash(m) { clearTimeout(this.tt); this.setState({ toast: m }); this.tt = setTimeout(() => this.setState({ toast: '' }), 2600); }
+  go(screen, extra) { this.setState(s => ({ screen, stack: [...s.stack, s.screen], ...(extra || {}) })); }
+  tab(screen, extra) { this.setState({ screen, stack: [], ...(extra || {}) }); }
+  back() { this.setState(s => { const st = s.stack.slice(); const prev = st.pop() || 'home'; return { screen: prev, stack: st, formErr: '' }; }); }
+  now() { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+  openForm(p) {
+    const T = window.TM, vid = this.state.vid;
+    const f = p ? { id: p.id, editing: true, custom: !T.BASE_PRODUCTS.some(x => x.id === p.id), name: p.name, cat: p.cat, catName: '', price: String(p.price), unit: p.unit, stock: String(p.stock), min: String(p.min || 1), deposit: String(p.deposit || ''), specs: p.specs || '', instant: p.instant !== false }
+      : { id: vid + 'x' + Date.now().toString(36), editing: false, custom: true, name: '', cat: 'seat', catName: '', price: '', unit: UNITS[0], stock: '', min: '1', deposit: '', specs: '', instant: true };
+    this.go('itemForm', { form: f, formErr: '' });
+  }
+  renderVals() {
+    const T = window.TM, st = this.state, self = this;
+    if (!st.ready || !T) return { splashOn: st.splashOn !== false, dismissSplash: () => self.setState({ splashOn: false }), is: { intro: true }, introSlides: [], dots: [], accounts: [], jumps: [], tabs: [], I: {}, Is: {}, Ib: {} };
+    const s = T.load(), I = T.iconSet(React, 22), Is = T.iconSet(React, 18), Ib = T.iconSet(React, 30);
+    const U = window.UI18N;
+    const chip = (on) => on ? { bg: 'linear-gradient(135deg,#4d0013,#e75480)', color: '#fff', border: 'transparent' } : { bg: '#fff', color: '#1e1b2e', border: '#f0e3ea' };
+    const vid = st.vid, V0 = T.vendor(vid), verified = s.vendorStatus[vid] === 'VERIFIED';
+    const isVenue = vid[0] === 'h', HV0 = T.venue(isVenue ? vid : 'h1'), NM = isVenue ? HV0.name : V0.name;
+    const mapUrl = (x) => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(x.name + ', ' + x.address);
+    const fmtTs = (ms) => new Date(ms).toLocaleString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+    const myTk = (s.tokens || []).filter(t => t.h === vid).sort((a, b) => b.paidAt.localeCompare(a.paidAt));
+    const tkR = (t) => { const stt = T.tokenStatus(t, s), col = T.TOKEN_COLOR[stt], vb = T.visitBy(t, s), left = T.leftTxt(vb - T.nowTs());
+      return { id: t.id, stt, event: t.event, customer: t.customer, phone: t.phone, date: T.fmtShort(t.date), slot: t.slot, guests: t.guests, amount: T.inr(t.amount), paidAt: fmtTs(new Date(t.paidAt).getTime()), status: T.TOKEN_LABEL[stt], sBg: col[0], sColor: col[1], isActive: stt === 'ACTIVE', isVisited: stt === 'VISITED', canRelease: ['ACTIVE', 'VISITED'].includes(stt), left, leftShort: left.replace(' to visit', ''),
+        visitTxt: t.visit ? T.fmtShort(t.visit.date) + ', ' + t.visit.time : stt === 'ACTIVE' ? 'Not scheduled yet' : '—',
+        note: { ACTIVE: 'The date is held for this customer until ' + fmtTs(vb) + '. If they don’t visit by then, the token is yours and the date opens again.', VISITED: 'Agree the final rent and confirm. The token is adjusted in the rent.', CONVERTED: 'Booking confirmed' + (t.finalRent ? ' at ' + T.inr(t.finalRent) + ' rent.' : '.') + ' Collect the balance at the hall.', EXPIRED: 'The customer didn’t visit in time. The token (less Tamboo commission) is paid out to you. The date is open again.', CANCELLED: 'You released this date. The customer is refunded in full and your hall rating drops slightly.', CUST_CANCELLED: 'The customer cancelled within the free ' + (s.config.cancelWindowMin / 60) + '-hour window and got a full refund. The date is open again.', NOT_BOOKED: 'The customer visited and didn’t book. You receive ' + T.inr(t.amount * s.config.noBookHallPct / 100) + ' (' + s.config.noBookHallPct + '% of the token) for your time. The date is open again.', CLAIM: 'The customer says the hall didn’t match your listing. Tamboo support will contact you. Keep your photos and details accurate.', CLAIM_REFUNDED: 'Support confirmed the listing issue. The customer got a full refund. Please update your hall page.' }[stt],
+        open: () => self.go('htoken', { tokenId: t.id, finalRent: String(HV0.rent) }) }; };
+    const TKo = myTk.find(t => t.id === st.tokenId) || myTk[0];
+    const updTk = (fn, msg, cmsg) => { T.update(x => { const k = x.tokens.find(y => y.id === TKo.id); fn(k); x.notifications.push({ to: 'customer', text: HV0.name + ': ' + cmsg, at: T.TODAY + ' ' + self.now() }); x.audit.unshift({ at: T.TODAY + ' ' + self.now(), who: HV0.owner + ' (Venue)', what: msg, target: k.id, before: 'ACTIVE', after: k.status }); }); self.flash(msg); };
+    const HF = st.hform || { type: HV0.type, address: HV0.address, seated: String(HV0.seated), floating: String(HV0.floating), sqft: String(HV0.sqft), parking: String(HV0.parking), rooms: String(HV0.rooms), rent: String(HV0.rent), token: String(HV0.token), ac: HV0.ac, crockery: HV0.crockery, kitchen: HV0.kitchen, crockeryNote: HV0.crockeryNote, catering: HV0.catering, amenities: HV0.amenities, blurb: HV0.blurb };
+    const setHF = (k, v) => self.setState(x => ({ hform: { ...(x.hform || HF), [k]: v }, hErr: '' }));
+    const hf = {}; ['address', 'crockeryNote', 'amenities', 'blurb'].forEach(k => hf[k] = (e) => setHF(k, e.target.value));
+    const venueJobs = (dt) => myTk.filter(t => t.date === dt && ['ACTIVE', 'VISITED', 'CONVERTED'].includes(T.tokenStatus(t, s))).map(t => ({ event: t.event, customer: t.customer, status: T.TOKEN_LABEL[T.tokenStatus(t, s)], open: () => self.go('htoken', { tokenId: t.id }) }));
+    const is = {}; is[st.screen] = true;
+    const sCol = (x) => S_COLORS[x] || ['#fdeef3', '#a0133f'];
+    const mine = s.bookings.filter(b => b.v === vid);
+    const money = (b) => { if (!b.lines.length) { const tot = b.quoteTotal || 0; const com = Math.round(tot * s.config.commission / 100); return { value: tot, commission: com, earn: tot - com }; } const p = T.price(s, b.lines); return { value: p.subtotal + p.delivery + p.setup + p.pickup - p.discount, commission: p.commission, earn: p.vendorPayable }; };
+    const row = (b) => { const [bg, c] = sCol(b.status); const d = new Date(b.date); return { id: b.id, event: b.event, customer: b.customer, guests: b.guests, status: T.STATUS_LABEL[b.status] || b.status, sBg: bg, sColor: c, dateTxt: T.fmtShort(b.date), mon: d.toLocaleDateString('en-IN', { month: 'short' }), day: d.getDate(), earn: T.inr(money(b).earn), open: () => self.go('order', { bookingId: b.id }) }; };
+    const newB = mine.filter(b => b.status === 'PENDING'), actB = mine.filter(b => ACTIVE_ST(b.status)), doneB = mine.filter(b => !ACTIVE_ST(b.status) && b.status !== 'PENDING');
+    const earnings = mine.filter(b => b.status !== 'CANCELLED' && b.status !== 'PENDING').reduce((a, b) => a + money(b).earn, 0);
+    const items = T.allProducts().filter(p => p.v === vid);
+    const liveN = items.filter(p => (p.state || 'LIVE') === 'LIVE').length, revN = items.filter(p => p.state === 'REVIEW').length, pauseN = items.filter(p => p.state === 'PAUSED').length;
+    const stateMeta = { LIVE: ['Live', '#e8f7f0', '#047857', 'Pause'], PAUSED: ['Paused · hidden', '#f3f4f6', '#6b7280', 'Resume'], REVIEW: ['Awaiting approval', '#f3eefd', '#5b21b6', 'Pause'] };
+    const myItems = items.map(p => { const k = p.state || 'LIVE', m = stateMeta[k]; return { id: p.id, name: p.name, price: T.inr(p.price), unit: p.unit, stock: p.stock, img: T.photo(p.id), stateLabel: m[0], sBg: m[1], sColor: m[2], toggleLabel: m[3], edit: () => self.openForm(p), toggle: () => self.setItemState(p, k === 'PAUSED' ? (verified || !p.custom ? 'LIVE' : 'REVIEW') : 'PAUSED') }; });
+    // order detail
+    const Bk = s.bookings.find(b => b.id === st.bookingId);
+    let B = {};
+    if (Bk) { const m = money(Bk), fi = T.FLOW.indexOf(Bk.status), next = fi >= 0 && fi < T.FLOW.length - 1 ? T.FLOW[fi + 1] : null;
+      B = { id: Bk.id, event: Bk.event, customer: Bk.customer, phone: Bk.phone, address: Bk.address, guests: Bk.guests, type: Bk.type, dateTxt: T.fmtDate(Bk.date), status: T.STATUS_LABEL[Bk.status] || Bk.status, isPending: Bk.status === 'PENDING', canAdvance: !!next, nextLabel: next ? 'Mark as ' + T.STATUS_LABEL[next].toLowerCase() : '', fromQuote: !Bk.lines.length,
+        lines: Bk.lines.map(([id, q]) => ({ name: (T.prod(id) || { name: id }).name, qty: q })), value: T.inr(m.value), commission: T.inr(m.commission), earn: T.inr(m.earn),
+        history: (Bk.history || []).slice().reverse().map(([k, d]) => ({ label: T.STATUS_LABEL[k] || k, date: T.fmtShort(d) })) }; }
+    const setStatus = (to, msg) => { T.update(x => { const b = x.bookings.find(y => y.id === Bk.id); b.status = to; (b.history = b.history || []).push([to, T.TODAY]); x.notifications.push({ to: 'customer', booking: b.id, text: `${V0.name}: ${msg}`, at: T.TODAY + ' ' + self.now() }); }); };
+    // item form
+    const F0 = st.form || {};
+    const F = { ...F0, img: T.photo(F0.id), newCat: F0.cat === '__new', needsReview: !verified && !F0.editing };
+    const upF = (k) => (e) => { const v = e.target.value; self.setState(x => ({ form: { ...x.form, [k]: v } })); };
+    const f = {}; ['name', 'cat', 'catName', 'price', 'unit', 'stock', 'min', 'deposit', 'specs'].forEach(k => f[k] = upF(k));
+    // shop form
+    const S = st.shop || { blurb: V0.blurb, hours: V0.hours, areas: V0.areas.join(', '), delivery: String(V0.delivery), setup: String(V0.setup), pickup: String(V0.pickup) };
+    const sf = {}; ['blurb', 'hours', 'areas', 'delivery', 'setup', 'pickup'].forEach(k => sf[k] = (e) => { const v = e.target.value; self.setState(x => ({ shop: { ...(x.shop || S), [k]: v } })); });
+    // quotes
+    const QST = { REQUESTED: ['New request', '#fff7e6', '#8a5a00'], REVISION: ['Revision asked', '#fff7e6', '#8a5a00'], QUOTED: ['Quote sent', '#fdeef3', '#a0133f'], ACCEPTED: ['Accepted', '#e8f7f0', '#047857'], REJECTED: ['Declined', '#f3f4f6', '#6b7280'] };
+    const myQ = (s.quotes || []).filter(q => q.v === vid);
+    const qRow = (q) => { const m = QST[q.status] || [q.status, '#fdeef3', '#a0133f']; return { id: q.id, event: q.event, customer: q.customer, date: T.fmtShort(q.date), guests: q.guests, need: q.need, status: m[0], sBg: m[1], sColor: m[2], open: () => self.go('quote', { quoteId: q.id, qLines: null, qNote: '' }) }; };
+    const Qk = myQ.find(q => q.id === st.quoteId) || myQ[0];
+    let Q = {}, qLines = [], qSum = 0;
+    if (Qk) {
+      const lv = Qk.versions[Qk.versions.length - 1];
+      Q = { id: Qk.id, event: Qk.event, customer: Qk.customer, date: T.fmtShort(Qk.date), guests: Qk.guests, need: Qk.need, status: (QST[Qk.status] || [Qk.status])[0], isRevision: Qk.status === 'REVISION', editable: ['REQUESTED', 'REVISION'].includes(Qk.status), nextV: Qk.versions.length + 1,
+        versions: Qk.versions.slice().reverse().map(v => ({ v: v.v, total: T.inr(v.total), lines: v.lines.map(l => ({ label: l.label, amount: T.inr(l.amount) })) })) };
+      const src = st.qLines || (lv ? lv.lines.map(l => ({ label: l.label, amount: String(l.amount) })) : [{ label: '', amount: '' }]);
+      qLines = src.map((l, i) => ({ label: l.label, amount: l.amount,
+        setLabel: (e) => { const v = e.target.value; self.setState(x => { const a = (x.qLines || src).slice(); a[i] = { ...a[i], label: v }; return { qLines: a }; }); },
+        setAmount: (e) => { const v = e.target.value.replace(/\D/g, ''); self.setState(x => { const a = (x.qLines || src).slice(); a[i] = { ...a[i], amount: v }; return { qLines: a }; }); },
+        remove: () => self.setState(x => ({ qLines: (x.qLines || src).filter((_, j) => j !== i) })) }));
+      qSum = src.reduce((a, l) => a + (parseInt(l.amount, 10) || 0), 0);
+    }
+    // calendar
+    const base = new Date(T.TODAY + 'T00:00:00'), calM = new Date(base.getFullYear(), base.getMonth() + (st.calOff || 0), 1);
+    const iso = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const lead = (calM.getDay() + 6) % 7, dim = new Date(calM.getFullYear(), calM.getMonth() + 1, 0).getDate();
+    const selDate = st.calDate || T.TODAY;
+    const jobsOn = (dt) => isVenue ? venueJobs(dt) : mine.filter(b => b.date === dt && b.status !== 'CANCELLED').map(b => ({ event: b.event, customer: b.customer, status: T.STATUS_LABEL[b.status], open: () => self.go('order', { bookingId: b.id }) }));
+    const blockOn = (dt) => (s.blocks || []).find(b => b.v === vid && b.date === dt);
+    const calDays = [];
+    for (let i = 0; i < lead; i++) calDays.push({ n: '', tag: '', vis: 'hidden', bg: '#fff', color: '#1e1b2e', border: 'transparent', pick: () => { } });
+    for (let dd = 1; dd <= dim; dd++) { const dt = iso(new Date(calM.getFullYear(), calM.getMonth(), dd)); const j = jobsOn(dt).length, bl = blockOn(dt), sel = dt === selDate, past = dt < T.TODAY;
+      const vs = isVenue && !bl ? ['Morning', 'Evening'].map(p => myTk.some(t => t.date === dt && (t.slot.startsWith(p) || t.slot === 'Full day') && ['ACTIVE', 'VISITED', 'CONVERTED'].includes(T.tokenStatus(t, s)))) : null;
+      calDays.push({ n: dd, tag: bl ? 'Off' : vs ? (vs[0] ? 'M' : '·') + ' ' + (vs[1] ? 'E' : '·') : j ? j + ' job' + (j > 1 ? 's' : '') : '', vis: 'visible', bg: bl ? '#1e1b2e' : j ? '#fdeef3' : '#fff', color: bl ? '#fff' : past ? '#b8b2c4' : j ? '#a0133f' : '#1e1b2e', border: sel ? '#e75480' : '#f3e6ec', pick: () => self.setState({ calDate: dt }) }); }
+    const selJobs = jobsOn(selDate), selBlock = blockOn(selDate);
+    const calSel = { title: T.fmtDate(selDate), jobs: selJobs, blocked: !!selBlock, reason: selBlock ? selBlock.reason : '', canBlock: !selBlock && !selJobs.length, btnLabel: selBlock ? 'Open this date for bookings' : 'Block this date', btnBg: selBlock ? 'linear-gradient(135deg,#4d0013,#e75480)' : '#1e1b2e' };
+    const tabDefs = isVenue ? [['hhome', 'home', 'Home'], ['htokens', 'list', 'Pre-bookings'], ['calendar', 'calendar', 'Calendar'], ['hall', 'camera', 'My hall']] : [['home', 'home', 'Home'], ['orders', 'list', 'Orders'], ['items', 'package', 'Items'], ['shop', 'tent', 'Shop']];
+    const jumpDefs = [['intro', 'Welcome'], ['lang', 'Business type + language'], ['hhome', 'Hall owner: home'], ['htokens', 'Hall owner: pre-bookings'], ['htoken', 'Hall owner: pre-booking detail'], ['hall', 'Hall owner: edit hall'], ['login', 'Login'], ['register', 'Partner registration'], ['home', 'Home'], ['orders', 'Orders'], ['order', 'Order detail'], ['quote', 'Reply to quote'], ['calendar', 'Calendar & blocked dates'], ['items', 'My items'], ['itemForm', 'Add item'], ['shop', 'Shop page & photos']];
+    return {
+      I, Is, is, toast: st.toast, scrollRef: this.scrollRef,
+      accounts: [...T.VENUES.map(v => ({ name: v.name, sub: v.type + ' · ' + v.area, subColor: '#6d28d9', bg: v.id === vid ? '#fdeef3' : '#fff', border: v.id === vid ? '#e75480' : '#f0e3ea', pick: () => self.setState({ vid: v.id, role: 'venue', hform: null, screen: 'hhome', stack: [] }) })).slice(0, 2)].concat(T.VENDORS.map(v => ({ name: v.name, sub: s.vendorStatus[v.id] === 'VERIFIED' ? 'Verified · ' + v.area : 'Not verified · ' + v.area, subColor: s.vendorStatus[v.id] === 'VERIFIED' ? '#047857' : '#b45309', bg: v.id === vid ? '#fdeef3' : '#fff', border: v.id === vid ? '#e75480' : '#f0e3ea', pick: () => self.setState({ vid: v.id, shop: null, form: null, bookingId: null, role: 'tent', screen: ['login', 'order', 'itemForm', 'hhome', 'htokens', 'htoken', 'hall', 'calendar'].includes(st.screen) ? 'home' : st.screen, stack: [] }) }))),
+      jumps: jumpDefs.map(([sc, label]) => ({ label, bg: st.screen === sc ? '#fdeef3' : 'transparent', color: st.screen === sc ? '#a0133f' : '#1e1b2e', weight: st.screen === sc ? 700 : 500, go: () => {
+        if (sc[0] === 'h' && sc !== 'home') { const hv = isVenue ? vid : 'h1', t0 = (s.tokens || []).find(t => t.h === hv); return self.setState({ vid: hv, role: 'venue', screen: sc, stack: sc === 'htoken' ? ['htokens'] : [], tokenId: t0 ? t0.id : null, finalRent: String(T.venue(hv).rent), hform: null }); }
+        if (['home', 'orders', 'order', 'items', 'itemForm', 'shop', 'quote'].includes(sc) && isVenue) self.setState({ vid: 'v1', role: 'tent' }); if (sc === 'itemForm') return self.openForm(null); if (sc === 'order') return self.go('order', { bookingId: (newB[0] || mine[0] || {}).id });
+        if (sc === 'quote') { const q = myQ[0] || (s.quotes || [])[0]; if (!q) return self.flash('No quote requests yet'); return self.setState({ vid: q.v, screen: 'quote', stack: ['orders'], quoteId: q.id, qLines: null, qNote: '', orderTab: 'quotes' }); } self.tab(sc, sc === 'login' ? { otpSent: false, otp: '' } : {}); } })),
+      resetAll: () => { T.reset(); self.setState({ shop: null, form: null }); self.flash('Demo data reset'); },
+      Ib, err: st.err, splashOn: st.splashOn !== false, dismissSplash: () => self.setState({ splashOn: false }),
+      // intro & language
+      introSlides: [['Grow your tent house', 'Get bookings from customers across Hyderabad. No more missed calls or lost diaries.', 'tent'], ['Your stock, always right', 'Live availability for every date, so you never double-book chairs or a shamiana.', 'calendar'], ['Get paid on time', 'Advance collected at booking. Balance paid out 2 days after pickup.', 'wallet']].map(([title, body, ic], i) => ({ title, body, icon: T.icon(React, ic, 54, 1.5), show: (st.intro || 0) === i })),
+      dots: [0, 1, 2].map(i => ({ w: (st.intro || 0) === i ? '22px' : '6px', bg: (st.intro || 0) === i ? '#e75480' : '#ecdde5' })),
+      introBtn: (st.intro || 0) === 2 ? 'Get started' : 'Next',
+      introNext: () => (st.intro || 0) < 2 ? self.setState({ intro: (st.intro || 0) + 1 }) : self.tab('lang'), introSkip: () => self.tab('lang'),
+      langTiles: U ? U.LANGS.map(([code, native, en]) => ({ pickClose: () => self.setState({ lang: code, langSheet: false }), native, en, bg: st.lang === code ? 'linear-gradient(135deg,#4d0013,#e75480)' : '#fff', color: st.lang === code ? '#fff' : '#1e1b2e', sub: st.lang === code ? 'rgba(255,255,255,.85)' : '#8a8499', pick: () => self.setState({ lang: code }) })) : [],
+      langCont: () => self.tab('login', { err: '' }),
+      roles: [['tent', 'Tent house & rentals', 'Shamiana, chairs, vessels, lights, decor', 'tent'], ['venue', 'Function hall, banquet or hotel', 'Get token pre-bookings for your hall', 'home']].map(([k, label, desc, ic]) => ({ label, desc, icon: T.icon(React, ic, 24, 1.5), bg: st.role === k ? 'linear-gradient(135deg,#4d0013,#e75480)' : '#fff', color: st.role === k ? '#fff' : '#1e1b2e', sub: st.role === k ? 'rgba(255,255,255,.85)' : '#8a8499', border: st.role === k ? 'transparent' : '#f0e3ea', pick: () => self.setState({ role: k }) })),
+      roleNoun: st.role === 'venue' ? 'hall' : 'tent house', roleVenue: st.role === 'venue', roleTent: st.role !== 'venue', regPhotoLabel: st.role === 'venue' ? 'Photo of your hall' : 'Photo of your shop or godown',
+      regVTypes: T.VENUE_TYPES.map(ty => ({ label: ty, ...chip(st.reg.vtype === ty), pick: () => self.setState(x => ({ reg: { ...x.reg, vtype: ty }, err: '' })) })),
+      langSheet: st.langSheet, openLangSheet: () => self.setState({ langSheet: true }), closeLangSheet: () => self.setState({ langSheet: false }), stop: (e) => e.stopPropagation(), langShort: U ? U.name(st.lang)[1] : 'English',
+      // venue owner
+      HV: { ...HV0, img: T.photo(HV0.id), mapUrl: mapUrl(HV0) }, tkCom: s.config.venueCommission || 5, visitHours: s.config.tokenVisitHours || 48,
+      hStats: (() => { const ss = myTk.map(t => [t, T.tokenStatus(t, s)]); const com = s.config.venueCommission || 5; const earned = ss.filter(([, x]) => x === 'CONVERTED' || x === 'EXPIRED').reduce((a, [t]) => a + t.amount * (100 - com) / 100, 0) + ss.filter(([, x]) => x === 'NOT_BOOKED').reduce((a, [t]) => a + t.amount * s.config.noBookHallPct / 100, 0); return { active: ss.filter(([, x]) => x === 'ACTIVE').length, visited: ss.filter(([, x]) => x === 'VISITED').length, converted: ss.filter(([, x]) => x === 'CONVERTED').length, income: T.inr(earned), com }; })(),
+      hUpcoming: myTk.filter(t => ['ACTIVE', 'VISITED'].includes(T.tokenStatus(t, s))).map(tkR), noHUpcoming: !myTk.some(t => ['ACTIVE', 'VISITED'].includes(T.tokenStatus(t, s))),
+      openTkNew: () => self.tab('htokens', { tkTab: 'ACTIVE' }), openTkVisited: () => self.tab('htokens', { tkTab: 'VISITED' }), openHall: () => self.tab('hall', { hform: null }),
+      tkTabs: [['ACTIVE', 'Visit pending'], ['VISITED', 'Visited'], ['CONVERTED', 'Confirmed'], ['EXPIRED', 'Expired'], ['ALL', 'All']].map(([k, l]) => ({ label: l + ' · ' + (k === 'ALL' ? myTk.length : myTk.filter(t => T.tokenStatus(t, s) === k).length), ...chip(st.tkTab === k), pick: () => self.setState({ tkTab: k }) })),
+      tkList: myTk.filter(t => st.tkTab === 'ALL' || T.tokenStatus(t, s) === st.tkTab).map(tkR), noTk: !myTk.some(t => st.tkTab === 'ALL' || T.tokenStatus(t, s) === st.tkTab),
+      TKV: TKo ? tkR(TKo) : {}, finalRent: st.finalRent, setFinalRent: (e) => self.setState({ finalRent: e.target.value.replace(/\D/g, '') }),
+      markVisited: () => updTk(k => { k.status = 'VISITED'; }, 'Marked as visited', 'thanks for visiting. The owner will confirm your booking.'),
+      confirmHall: () => { const r = parseInt(st.finalRent, 10); if (!(r > 0)) return self.flash('Enter the final rent'); updTk(k => { k.status = 'CONVERTED'; k.finalRent = r; }, 'Booking confirmed', 'your booking ' + TKo.id + ' is confirmed at ' + T.inr(r) + ' rent. Token adjusted.'); },
+      releaseTk: () => { updTk(k => { k.status = 'CANCELLED'; k.refund = k.amount; }, 'Date released. Customer refunded', 'the hall cancelled your date. Full token refund started.'); T.update(x => { const e = ((x.venueEdits = x.venueEdits || {})[vid] = x.venueEdits[vid] || {}); e.rating = Math.round(((e.rating ?? HV0.rating) - 0.1) * 10) / 10; }); },
+      notBookedTk: () => updTk(k => { k.status = 'NOT_BOOKED'; k.refund = Math.round(k.amount * s.config.noBookRefundPct / 100); }, 'Marked as not booked', 'you visited and didn’t book. ' + s.config.noBookRefundPct + '% of your token is being refunded.'),
+      hallRules: ['Token max ' + T.inr(s.config.maxToken) + ', paid to you minus ' + (s.config.venueCommission || 5) + '% Tamboo commission', 'Customer doesn’t visit in ' + (s.config.tokenVisitHours || 48) + ' hours: you keep the token', 'Customer visits, doesn’t book: you get ' + s.config.noBookHallPct + '%, customer gets ' + s.config.noBookRefundPct + '% back', 'Customer cancels within ' + (s.config.cancelWindowMin / 60) + ' hours: full refund to customer', 'Hall doesn’t match listing: full refund to customer', 'You cancel: full refund, rating drops'],
+      callTkCustomer: () => self.flash('Calling ' + (TKo ? TKo.customer : '') + ' via masked number'),
+      HF, hf,
+      hTypeChips: T.VENUE_TYPES.map(ty => ({ label: ty, ...chip(HF.type === ty), pick: () => setHF('type', ty) })),
+      hCatChips: ['In-house catering only', 'Outside caterers allowed', 'Both allowed'].map(ty => ({ label: ty, ...chip(HF.catering === ty), pick: () => setHF('catering', ty) })),
+      hNums: [['seated', 'Seating capacity'], ['floating', 'Floating capacity'], ['sqft', 'Hall size (sq ft)'], ['parking', 'Parking (cars)'], ['rooms', 'Rooms'], ['rent', 'Rent per slot (₹)'], ['token', 'Token amount (₹, max ' + T.inr(s.config.maxToken || 10000).slice(1) + ')']].map(([k, label]) => ({ label, value: HF[k], set: (e) => setHF(k, e.target.value.replace(/\D/g, '')) })),
+      hToggles: [['ac', 'Air conditioned'], ['crockery', 'Crockery available'], ['kitchen', 'Kitchen available']].map(([k, label]) => ({ label, track: HF[k] ? 'linear-gradient(135deg,#4d0013,#e75480)' : '#e5dde3', justify: HF[k] ? 'flex-end' : 'flex-start', pick: () => setHF(k, !HF[k]) })),
+      hErr: st.hErr,
+      saveHall: () => { const n = (k) => parseInt(HF[k], 10) || 0; if (!(n('seated') > 0) || !(n('floating') > 0)) return self.setState({ hErr: 'Enter seating and floating capacity' }); if (!(n('rent') > 0)) return self.setState({ hErr: 'Enter the rent' }); if (!(n('token') > 0)) return self.setState({ hErr: 'Enter the token amount' }); if (n('token') > n('rent')) return self.setState({ hErr: 'Token can’t be more than the rent' }); if (n('token') > (s.config.maxToken || 10000)) return self.setState({ hErr: 'Token can’t be more than ' + T.inr(s.config.maxToken || 10000) + ' (Tamboo limit)' }); if (HF.address.trim().length < 10) return self.setState({ hErr: 'Enter the full address so customers can find you' });
+        T.update(x => { (x.venueEdits = x.venueEdits || {})[vid] = { type: HF.type, address: HF.address.trim(), seated: n('seated'), floating: n('floating'), sqft: n('sqft'), parking: n('parking'), rooms: n('rooms'), rent: n('rent'), token: n('token'), ac: HF.ac, crockery: HF.crockery, kitchen: HF.kitchen, crockeryNote: HF.crockeryNote.trim() || (HF.crockery ? 'Crockery available' : 'No crockery'), catering: HF.catering, amenities: HF.amenities, blurb: HF.blurb }; });
+        self.setState({ hform: null }); self.flash('Hall page updated for customers'); },
+      // login & otp
+      phone: st.phone, otp: st.otp, phoneMasked: '+91 ' + st.phone.replace(/\D/g, '').replace(/^(\d{5})(\d+)/, '$1 $2'),
+      otpBoxes: [0, 1, 2, 3].map(i => ({ d: st.otp[i] || '', border: st.otp.length === i ? '#e75480' : '#f0e3ea' })),
+      setPhone: (e) => self.setState({ phone: e.target.value, err: '' }), setOtp: (e) => self.setState({ otp: e.target.value.replace(/\D/g, '').slice(0, 4), err: '' }),
+      sendOtp: () => { if (st.phone.replace(/\D/g, '').length !== 10) return self.setState({ err: 'Enter a valid 10-digit mobile number' }); self.go('otp', { otp: '', err: '' }); },
+      verifyOtp: () => { if (st.otp !== '1234') return self.setState({ err: 'Incorrect OTP. Use 1234 for the demo.' }); if (st.phone.replace(/\D/g, '') === '9849012345') return st.role === 'venue' ? self.tab('hhome', { vid: 'h1', otp: '', err: '' }) : self.tab('home', { vid: 'v1', otp: '', err: '' }); self.tab('register', { otp: '', err: '' }); },
+      resend: () => self.flash('OTP resent to ' + st.phone),
+      // registration
+      reg: { ...st.reg, ...Object.fromEntries(['biz', 'owner', 'city', 'area', 'tax', 'bank'].map(k => ['set' + k[0].toUpperCase() + k.slice(1), (e) => { const v = e.target.value; self.setState(x => ({ reg: { ...x.reg, [k]: v }, err: '' })); }])) },
+      regCats: T.CATEGORIES.slice(0, 11).map(c => ({ label: c.name, ...chip(st.reg.cats.includes(c.id)), pick: () => self.setState(x => ({ reg: { ...x.reg, cats: x.reg.cats.includes(c.id) ? x.reg.cats.filter(y => y !== c.id) : [...x.reg.cats, c.id] } })) })),
+      submitReg: () => { const r = st.reg; if (r.biz.trim().length < 3) return self.setState({ err: 'Enter your business name' }); if (r.owner.trim().length < 2) return self.setState({ err: 'Enter the owner’s name' }); if (st.role === 'venue' ? !r.vtype : !r.cats.length) return self.setState({ err: st.role === 'venue' ? 'Pick the type of venue' : 'Pick at least one thing you rent out' }); if (!/^([0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9A-Z]{3}|[A-Z]{5}[0-9]{4}[A-Z])$/.test(r.tax.trim().toUpperCase())) return self.setState({ err: 'Enter a valid 15-character GSTIN or 10-character PAN' });
+        T.update(x => { x.applicants.unshift({ id: 'a' + Date.now().toString(36), name: r.biz.trim(), owner: r.owner.trim(), city: r.city, phone: '+91 ' + st.phone, cats: st.role === 'venue' ? r.vtype + ' (venue)' : r.cats.map(id => (T.CATEGORIES.find(c => c.id === id) || {}).name).join(', '), docs: r.tax.trim().length === 15 ? 'GSTIN' : 'PAN', submitted: T.TODAY, status: 'PENDING' }); });
+        self.tab('pendingReg', { err: '' }); },
+      exploreDemo: () => { self.tab('home', { vid: 'v4' }); self.flash('Showing a not-yet-verified partner account (Sonic Light & Sound)'); },
+      // home
+      V: { id: vid, initials: NM.split(' ').map(w => w[0]).slice(0, 2).join(''), name: NM, area: V0.area, city: V0.city, img: T.photo(vid), vLabel: verified ? 'Verified' : 'Not verified', vBg: verified ? '#e8f7f0' : '#fff7e6', vColor: verified ? '#047857' : '#8a5a00' },
+      stats: { newCount: newB.length, activeCount: actB.length, earnings: T.inr(earnings), liveItems: liveN, itemsNote: revN ? revN + ' awaiting approval' : pauseN ? pauseN + ' paused' : 'all visible' },
+      upcoming: [...newB, ...actB].sort((a, b) => a.date.localeCompare(b.date)).slice(0, 4).map(row), noUpcoming: !newB.length && !actB.length,
+      openNew: () => self.tab('orders', { orderTab: 'new' }), openActive: () => self.tab('orders', { orderTab: 'active' }), openItems: () => self.tab('items'), addItem: () => self.openForm(null),
+      // orders
+      orderTabs: [['new', 'New · ' + newB.length], ['active', 'Active · ' + actB.length], ['quotes', 'Quotes · ' + myQ.filter(q => ['REQUESTED', 'REVISION'].includes(q.status)).length], ['done', 'Past']].map(([k, l]) => ({ label: l, ...chip(st.orderTab === k), pick: () => self.setState({ orderTab: k }) })),
+      orders: ({ new: newB, active: actB, done: doneB }[st.orderTab] || []).map(row), noOrders: !({ new: newB, active: actB, done: doneB }[st.orderTab] || []).length,
+      B, back: () => self.back(),
+      accept: () => { setStatus('CONFIRMED', `your booking ${Bk.id} is confirmed`); self.flash('Order accepted. Customer notified'); },
+      decline: () => { setStatus('CANCELLED', `could not take booking ${Bk.id}. Full refund started`); self.flash('Order declined. Customer gets a full refund'); },
+      advance: () => { const fi = T.FLOW.indexOf(Bk.status), nx = T.FLOW[fi + 1]; setStatus(nx, `${Bk.id} is now "${T.STATUS_LABEL[nx]}"`); self.flash('Updated: ' + T.STATUS_LABEL[nx]); },
+      callCustomer: () => self.flash('Calling via masked number ' + (Bk ? Bk.phone : '')), navCustomer: () => self.flash('Opening Google Maps directions'),
+      // items
+      myItems, itemsSummary: `${liveN} live` + (pauseN ? ` · ${pauseN} paused` : '') + (revN ? ` · ${revN} awaiting approval` : '') + '. Paused items are hidden from customers.',
+      F, f, formErr: st.formErr, formTitle: F0.editing ? 'Edit item' : 'Add rental item', saveLabel: F0.editing ? 'Save changes' : (verified ? 'Publish item' : 'Submit for approval'),
+      catOptions: [...T.CATEGORIES.map(c => ({ id: c.id, name: c.name })), { id: '__new', name: '+ Add new category…' }],
+      unitOptions: UNITS,
+      bookModes: [[true, 'Instant booking'], [false, 'Customer asks for a quote']].map(([k, l]) => ({ label: l, ...chip(F0.instant === k), pick: () => self.setState(x => ({ form: { ...x.form, instant: k } })) })),
+      saveItem: () => self.saveItem(verified), deleteItem: () => self.deleteItem(),
+      // shop
+      S, sf,
+      saveShop: () => { const n = (x) => Math.max(0, parseInt(x, 10) || 0); T.update(x => { (x.vendorEdits = x.vendorEdits || {})[vid] = { blurb: S.blurb.trim(), hours: S.hours.trim(), areas: S.areas.split(',').map(a => a.trim()).filter(Boolean), delivery: n(S.delivery), setup: n(S.setup), pickup: n(S.pickup) }; }); self.setState({ shop: null }); self.flash('Shop page updated for customers'); },
+      logout: () => self.tab('login', { otpSent: false, otp: '' }),
+      isQuoteTab: st.orderTab === 'quotes', vQuotes: myQ.map(qRow), noQuotes: !myQ.length,
+      Q, qLines, qTotal: T.inr(qSum), qNote: st.qNote || '', setQNote: (e) => self.setState({ qNote: e.target.value }),
+      addQLine: () => self.setState(x => ({ qLines: [...(x.qLines || []), { label: '', amount: '' }] })),
+      sendQuote: () => { const ls = (st.qLines || []).map(l => ({ label: l.label.trim(), amount: parseInt(String(l.amount).replace(/\D/g, ''), 10) || 0 })).filter(l => l.label && l.amount); if (!ls.length) return self.flash('Add at least one priced line'); T.update(x => { const q = x.quotes.find(y => y.id === Qk.id); q.versions.push({ v: q.versions.length + 1, lines: ls, total: ls.reduce((a, l) => a + l.amount, 0), note: (st.qNote || '').trim(), at: T.TODAY }); q.status = 'QUOTED'; x.notifications.push({ to: 'customer', text: `${V0.name} sent a quote for ${q.event}: ${T.inr(ls.reduce((a, l) => a + l.amount, 0))}`, at: T.TODAY + ' ' + self.now() }); }); self.setState({ qLines: null, qNote: '' }); self.flash('Quote sent. Customer notified'); },
+      openCal: () => self.go('calendar'), calTitle: calM.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }), calDays, calSel, blockReason: st.blockReason || '', setBlockReason: (e) => self.setState({ blockReason: e.target.value }),
+      calPrev: () => self.setState({ calOff: (st.calOff || 0) - 1 }), calNext: () => self.setState({ calOff: (st.calOff || 0) + 1 }),
+      toggleBlock: () => { const dt = selDate; if (selJobs.length && !selBlock) return self.flash('You have jobs this day. Cancel them first to block it'); T.update(x => { x.blocks = x.blocks || []; if (selBlock) x.blocks = x.blocks.filter(b => !(b.v === vid && b.date === dt)); else x.blocks.push({ v: vid, date: dt, reason: (st.blockReason || '').trim() || 'Not available' }); }); self.setState({ blockReason: '' }); self.flash(selBlock ? 'Date opened for bookings' : 'Date blocked'); },
+      showTabs: ['home', 'orders', 'items', 'shop', 'hhome', 'htokens', 'hall'].includes(st.screen) || (isVenue && st.screen === 'calendar'),
+      tabs: tabDefs.map(([sc, ic, label]) => ({ label, icon: I[ic], color: st.screen === sc ? '#a0133f' : '#9b94ad', badge: sc === 'orders' && newB.length ? String(newB.length) : sc === 'htokens' && myTk.filter(t => T.tokenStatus(t, s) === 'ACTIVE').length ? String(myTk.filter(t => T.tokenStatus(t, s) === 'ACTIVE').length) : '', go: () => self.tab(sc) })),
+    };
+  }
+  setItemState(p, to) {
+    const T = window.TM;
+    T.update(x => { if (T.BASE_PRODUCTS.some(b => b.id === p.id)) { (x.itemEdits = x.itemEdits || {})[p.id] = { ...(x.itemEdits[p.id] || {}), state: to }; } else { const it = (x.customItems || []).find(c => c.id === p.id); if (it) it.state = to; } });
+    this.flash(to === 'PAUSED' ? 'Paused. Customers can’t see it now' : to === 'LIVE' ? 'Live again' : 'Sent for approval');
+  }
+  saveItem(verified) {
+    const T = window.TM, F = this.state.form, n = (x) => parseInt(String(x).replace(/\D/g, ''), 10);
+    if (F.name.trim().length < 3) return this.setState({ formErr: 'Give the item a name customers will understand' });
+    if (F.cat === '__new' && F.catName.trim().length < 3) return this.setState({ formErr: 'Type the new category name' });
+    if (!(n(F.price) > 0)) return this.setState({ formErr: 'Enter the rent amount' });
+    if (!(n(F.stock) > 0)) return this.setState({ formErr: 'Enter how many you own' });
+    let cat = F.cat;
+    const data = { name: F.name.trim(), price: n(F.price), unit: F.unit, stock: n(F.stock), min: n(F.min) || 1, deposit: n(F.deposit) || 0, specs: F.specs.trim(), instant: F.instant };
+    T.update(x => {
+      if (cat === '__new') { const id = 'cc' + Date.now().toString(36); (x.customCats = x.customCats || []).push({ id, name: F.catName.trim(), ex: '' }); cat = id; }
+      data.cat = cat;
+      if (!F.custom) { (x.itemEdits = x.itemEdits || {})[F.id] = { ...(x.itemEdits[F.id] || {}), ...data }; }
+      else { x.customItems = x.customItems || []; const ex = x.customItems.find(c => c.id === F.id); if (ex) Object.assign(ex, data); else x.customItems.push({ id: F.id, v: this.state.vid, maint: 0, ...data, state: verified ? 'LIVE' : 'REVIEW', created: T.TODAY }); }
+    });
+    this.back();
+    this.flash(F.editing ? 'Changes saved' : verified ? 'Published. Customers can book it now' : 'Submitted. Our team will review it');
+  }
+  deleteItem() {
+    const T = window.TM, F = this.state.form;
+    T.update(x => { if (!F.custom) (x.itemEdits = x.itemEdits || {})[F.id] = { ...(x.itemEdits[F.id] || {}), deleted: true }; else x.customItems = (x.customItems || []).filter(c => c.id !== F.id); });
+    this.back(); this.flash('Item deleted');
+  }
+}
+</script>
+
+
+</body></html>
