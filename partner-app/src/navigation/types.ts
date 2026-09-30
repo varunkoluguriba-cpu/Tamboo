@@ -9,4 +9,15 @@ export type AuthStackParamList = {
 
 export type RootStackParamList = {
   Home: undefined;
+  Orders: undefined;
+  Order: { id: string };
+  Quote: { id: string };
+  Calendar: undefined;
+  Items: undefined;
+  ItemForm: { id?: string };
+  Shop: undefined;
+  HHome: undefined;
+  HTokens: undefined;
+  HToken: { id: string };
+  Hall: undefined;
 };

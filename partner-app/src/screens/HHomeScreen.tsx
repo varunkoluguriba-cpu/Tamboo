@@ -1,30 +1,28 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
-import { TentTabBar } from '../components/TabBar';
+import { VenueTabBar } from '../components/TabBar';
 import { useAuth } from '../context/AuthContext';
-import { ORDERS, MY_ITEMS, statusColors } from '../data/catalog';
-import { colors, gradients, shadow } from '../theme';
+import { HALL_TOKENS, statusColors } from '../data/catalog';
+import { colors, shadow } from '../theme';
 
-const ACTIVE_STATUSES = ['CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED'];
-
+const COMMISSION_PCT = 10;
 const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 
-export default function HomeScreen() {
+export default function HHomeScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { partner } = useAuth();
 
-  const newCount = ORDERS.filter((o) => o.status === 'PENDING').length;
-  const activeCount = ORDERS.filter((o) => ACTIVE_STATUSES.includes(o.status)).length;
-  const earnings = ORDERS.filter((o) => o.status === 'COMPLETED').reduce((sum, o) => sum + o.earn, 0);
-  const liveItems = MY_ITEMS.filter((i) => i.state === 'LIVE').length;
-  const reviewItems = MY_ITEMS.filter((i) => i.state === 'REVIEW').length;
-  const upcoming = ORDERS.filter((o) => ACTIVE_STATUSES.includes(o.status));
+  const active = HALL_TOKENS.filter((t) => t.status === 'ACTIVE');
+  const visited = HALL_TOKENS.filter((t) => t.status === 'VISITED');
+  const converted = HALL_TOKENS.filter((t) => t.status === 'CONFIRMED');
+  const totalTokenAmount = HALL_TOKENS.reduce((sum, t) => sum + t.amount, 0);
+  const income = Math.round(totalTokenAmount * (1 - COMMISSION_PCT / 100));
+  const needsAttention = [...active, ...visited];
 
   const initials = (partner?.businessName || '?')
     .split(' ')
@@ -42,7 +40,7 @@ export default function HomeScreen() {
             <Text style={styles.avatarText}>{initials}</Text>
           </View>
           <View style={{ flex: 1, minWidth: 0 }}>
-            <Text style={styles.hello}>Namaste</Text>
+            <Text style={styles.hello}>Namaste · {partner?.venueType || 'Function Hall'}</Text>
             <Text style={styles.name}>{partner?.businessName}</Text>
           </View>
           <View style={styles.langChip}>
@@ -52,31 +50,30 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.statGrid}>
-          <TouchableOpacity style={styles.statGrad} activeOpacity={0.85} onPress={() => navigation.navigate('Orders')}>
-            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.statGradInner}>
-              <Text style={styles.statGradLabel}>New requests</Text>
-              <Text style={styles.statGradValue}>{newCount}</Text>
-            </LinearGradient>
+          <TouchableOpacity style={styles.statGrad} activeOpacity={0.85} onPress={() => navigation.navigate('HTokens')}>
+            <View style={styles.statGradInner}>
+              <Text style={styles.statGradLabel}>Pre-booked, visit pending</Text>
+              <Text style={styles.statGradValue}>{active.length}</Text>
+            </View>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.statCard} activeOpacity={0.85} onPress={() => navigation.navigate('Orders')}>
-            <Text style={styles.statLabel}>Active jobs</Text>
-            <Text style={styles.statValue}>{activeCount}</Text>
+          <TouchableOpacity style={styles.statCard} activeOpacity={0.85} onPress={() => navigation.navigate('HTokens')}>
+            <Text style={styles.statLabel}>Visited, to confirm</Text>
+            <Text style={styles.statValue}>{visited.length}</Text>
           </TouchableOpacity>
           <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Earnings this month</Text>
-            <Text style={[styles.statValueSm, { color: colors.maroon }]}>{inr(earnings)}</Text>
-            <Text style={styles.statNote}>after commission</Text>
+            <Text style={styles.statLabel}>Confirmed bookings</Text>
+            <Text style={[styles.statValueSm, { color: colors.maroon }]}>{converted.length}</Text>
           </View>
-          <TouchableOpacity style={styles.statCard} activeOpacity={0.85} onPress={() => navigation.navigate('Items')}>
-            <Text style={styles.statLabel}>Items live</Text>
-            <Text style={styles.statValueSm}>{liveItems}</Text>
-            <Text style={styles.statNote}>{reviewItems > 0 ? `${reviewItems} in review` : 'all approved'}</Text>
-          </TouchableOpacity>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Token income</Text>
+            <Text style={[styles.statValueSm, { color: colors.maroon }]}>{inr(income)}</Text>
+            <Text style={styles.statNote}>after {COMMISSION_PCT}% commission</Text>
+          </View>
         </View>
 
-        <TouchableOpacity style={styles.dashedBtn} activeOpacity={0.85} onPress={() => navigation.navigate('ItemForm', {})}>
-          <Icon name="plus" size={16} color={colors.pinkStrong} />
-          <Text style={styles.dashedBtnText}>Add a new rental item</Text>
+        <TouchableOpacity style={styles.dashedBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Hall')}>
+          <Icon name="camera" size={16} color={colors.pinkStrong} />
+          <Text style={styles.dashedBtnText}>Edit hall details, photos & token</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.linkRow} activeOpacity={0.85} onPress={() => navigation.navigate('Calendar')}>
@@ -86,29 +83,26 @@ export default function HomeScreen() {
         </TouchableOpacity>
 
         <View>
-          <Text style={styles.sectionTitle}>Upcoming jobs</Text>
-          {upcoming.length === 0 ? (
+          <Text style={styles.sectionTitle}>Needs your attention</Text>
+          {needsAttention.length === 0 ? (
             <View style={styles.emptyCard}>
-              <Text style={styles.emptyText}>No upcoming jobs yet.</Text>
+              <Text style={styles.emptyText}>No pending pre-bookings.</Text>
             </View>
           ) : (
             <View style={{ gap: 8 }}>
-              {upcoming.map((o) => {
-                const sc = statusColors(o.status);
-                const [day, mon] = o.dateTxt.split(' ');
+              {needsAttention.map((t) => {
+                const sc = statusColors(t.status);
                 return (
-                  <TouchableOpacity key={o.id} style={styles.jobRow} activeOpacity={0.85} onPress={() => navigation.navigate('Order', { id: o.id })}>
-                    <View style={styles.dateBox}>
-                      <Text style={styles.dateMon}>{mon}</Text>
-                      <Text style={styles.dateDay}>{day}</Text>
+                  <TouchableOpacity key={t.id} style={styles.tokenCard} activeOpacity={0.85} onPress={() => navigation.navigate('HToken', { id: t.id })}>
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.tokenId}>{t.id}</Text>
+                      <View style={[styles.pill, { backgroundColor: sc.bg }]}>
+                        <Text style={[styles.pillText, { color: sc.color }]}>{t.status}</Text>
+                      </View>
                     </View>
-                    <View style={{ flex: 1, minWidth: 0 }}>
-                      <Text style={styles.jobEvent}>{o.event}</Text>
-                      <Text style={styles.jobMeta}>{o.customer} · {o.guests} guests</Text>
-                    </View>
-                    <View style={[styles.pill, { backgroundColor: sc.bg }]}>
-                      <Text style={[styles.pillText, { color: sc.color }]}>{o.status.replace(/_/g, ' ')}</Text>
-                    </View>
+                    <Text style={styles.tokenEvent}>{t.event}</Text>
+                    <Text style={styles.tokenMeta}>{t.customer} · {t.date} · {t.slot} · {t.guests} guests</Text>
+                    <Text style={styles.tokenVisit}>Visit: {t.visitTxt}</Text>
                   </TouchableOpacity>
                 );
               })}
@@ -117,7 +111,7 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
 
-      <TentTabBar active="home" navigation={navigation} badge={{ orders: newCount || undefined }} />
+      <VenueTabBar active="hhome" navigation={navigation} badge={{ htokens: active.length || undefined }} />
     </SafeAreaView>
   );
 }
@@ -129,19 +123,19 @@ const styles = StyleSheet.create({
   avatar: { width: 48, height: 48, borderRadius: 14, backgroundColor: colors.maroon, alignItems: 'center', justifyContent: 'center' },
   avatarText: { color: '#fff', fontFamily: 'Sora', fontWeight: '800', fontSize: 16 },
   hello: { fontSize: 12.5, color: colors.textSoft },
-  name: { fontFamily: 'Sora', fontSize: 18, fontWeight: '800', color: colors.text },
+  name: { fontFamily: 'Sora', fontSize: 17, fontWeight: '800', color: colors.text },
   langChip: { height: 34, paddingHorizontal: 11, borderRadius: 999, backgroundColor: colors.surface, flexDirection: 'row', alignItems: 'center', gap: 5, ...shadow.card },
   langDevanagari: { color: colors.pink, fontWeight: '700' },
   langText: { fontWeight: '700', fontSize: 12.5, color: colors.text },
   statGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  statGrad: { width: '47%' },
+  statGrad: { width: '47%', borderRadius: 18, backgroundColor: colors.maroon },
   statGradInner: { borderRadius: 18, padding: 14, gap: 4 },
   statGradLabel: { color: '#fff', fontSize: 12 },
   statGradValue: { color: '#fff', fontFamily: 'Sora', fontSize: 28, fontWeight: '800' },
   statCard: { width: '47%', backgroundColor: colors.surface, borderRadius: 18, padding: 14, gap: 4, ...shadow.card },
   statLabel: { fontSize: 12, color: colors.textSoft },
   statValue: { fontFamily: 'Sora', fontSize: 28, fontWeight: '800', color: colors.text },
-  statValueSm: { fontFamily: 'Sora', fontSize: 20, fontWeight: '800', color: colors.text },
+  statValueSm: { fontFamily: 'Sora', fontSize: 20, fontWeight: '800' },
   statNote: { fontSize: 11, color: colors.textMuted },
   dashedBtn: { height: 52, borderRadius: 18, borderWidth: 1.5, borderColor: colors.pink, borderStyle: 'dashed', backgroundColor: colors.surface, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   dashedBtnText: { color: colors.pinkStrong, fontWeight: '700', fontSize: 14.5, fontFamily: 'Sora' },
@@ -150,12 +144,12 @@ const styles = StyleSheet.create({
   sectionTitle: { fontFamily: 'Sora', fontSize: 16, fontWeight: '700', color: colors.text, marginBottom: 10 },
   emptyCard: { backgroundColor: colors.surface, borderRadius: 18, padding: 18, alignItems: 'center' },
   emptyText: { color: colors.textSoft, fontSize: 13 },
-  jobRow: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.surface, borderRadius: 16, padding: 12, ...shadow.card },
-  dateBox: { width: 46, alignItems: 'center', backgroundColor: colors.pinkBg, borderRadius: 12, paddingVertical: 6 },
-  dateMon: { fontSize: 10.5, fontWeight: '700', color: colors.pinkStrong, textTransform: 'uppercase' },
-  dateDay: { fontFamily: 'Sora', fontSize: 18, fontWeight: '800', color: colors.maroon },
-  jobEvent: { fontSize: 14, fontWeight: '700', color: colors.text },
-  jobMeta: { fontSize: 12, color: colors.textSoft },
+  tokenCard: { backgroundColor: colors.surface, borderRadius: 18, padding: 14, gap: 5, ...shadow.card },
+  rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
+  tokenId: { fontFamily: 'Sora', fontWeight: '800', fontSize: 13, color: colors.textMuted },
+  tokenEvent: { fontSize: 15, fontWeight: '700', color: colors.text },
+  tokenMeta: { fontSize: 12.5, color: colors.textSoft },
+  tokenVisit: { fontSize: 12.5, color: '#4b4560' },
   pill: { borderRadius: 999, paddingVertical: 4, paddingHorizontal: 10 },
-  pillText: { fontSize: 11, fontWeight: '700', textTransform: 'capitalize' },
+  pillText: { fontSize: 11, fontWeight: '700' },
 });
