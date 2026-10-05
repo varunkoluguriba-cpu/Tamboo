@@ -53,7 +53,7 @@ router.post('/verify', async (req, res) => {
 });
 
 router.post('/register', requirePartnerAuth, async (req, res) => {
-  const { role, businessName, ownerName, city, area, venueType, categories, taxId, bankAccount } = req.body || {};
+  const { role, businessName, ownerName, city, area, venueType, categories, taxId, bankAccount, photos } = req.body || {};
   if (!businessName || businessName.trim().length < 3) return res.status(400).json({ error: 'Enter your business name' });
   if (!ownerName || !ownerName.trim()) return res.status(400).json({ error: 'Enter the owner name' });
 
@@ -67,6 +67,7 @@ router.post('/register', requirePartnerAuth, async (req, res) => {
   if (Array.isArray(categories)) p.categories = categories;
   if (taxId) p.taxId = taxId.trim().toUpperCase();
   if (bankAccount) p.bankAccount = bankAccount.trim();
+  if (Array.isArray(photos)) p.registrationPhotos = photos.slice(0, 3);
   p.registered = true;
   await p.save();
   res.json({ partner: serialize(p) });

@@ -107,6 +107,7 @@ export type Quote = {
   id: string;
   event: string;
   customer: string;
+  customerId?: string;
   date: string;
   guests: number;
   need: string;

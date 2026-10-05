@@ -14,6 +14,7 @@ function serializeTokenOwn(b) {
     hallId: b.hallId,
     hallName: b.hallName,
     customer: b.customerName,
+    customerId: String(b.customer),
     phone: b.customerPhone,
     date: b.date,
     slot: b.slot,
@@ -57,6 +58,7 @@ function serializePublic(hall, partner) {
     city: partner.city,
     blurb: hall.blurb,
     address: hall.address,
+    photos: hall.photos || [],
     cap: `${hall.seated}–${hall.floating} pax`,
     ac: hall.ac,
     facts: [
@@ -100,6 +102,7 @@ function serializeOwn(hall) {
     catering: hall.catering,
     amenities: hall.amenities,
     blurb: hall.blurb,
+    photos: hall.photos || [],
   };
 }
 
@@ -120,20 +123,23 @@ router.put('/me', requirePartnerAuth, async (req, res) => {
   if (req.partner.role !== 'venue') return res.status(403).json({ error: 'Only venue partners have a hall page' });
   const {
     venueType, address, seated, floating, sqft, parking, rooms, pricingMode, rent, platePrice, minPlates, token,
-    ac, crockery, kitchen, crockeryNote, catering, amenities, blurb,
+    ac, crockery, kitchen, crockeryNote, catering, amenities, blurb, photos,
   } = req.body || {};
   if (!(seated > 0) || !(floating > 0)) return res.status(400).json({ error: 'Enter seating and floating capacity' });
   if (pricingMode === 'perPlate' && !(platePrice > 0)) return res.status(400).json({ error: 'Enter the price per plate' });
   if (pricingMode !== 'perPlate' && !(rent > 0)) return res.status(400).json({ error: 'Enter the hall rent' });
 
+  const update = {
+    venueType, address, seated, floating, sqft, parking, rooms,
+    pricingMode: pricingMode === 'perPlate' ? 'perPlate' : 'rent',
+    rent, platePrice, minPlates, token,
+    ac, crockery, kitchen, crockeryNote, catering, amenities, blurb,
+  };
+  if (Array.isArray(photos)) update.photos = photos.slice(0, 3);
+
   const hall = await Hall.findOneAndUpdate(
     { partner: req.partner.id },
-    {
-      venueType, address, seated, floating, sqft, parking, rooms,
-      pricingMode: pricingMode === 'perPlate' ? 'perPlate' : 'rent',
-      rent, platePrice, minPlates, token,
-      ac, crockery, kitchen, crockeryNote, catering, amenities, blurb,
-    },
+    update,
     { new: true, upsert: true, setDefaultsOnInsert: true },
   );
   res.json(serializeOwn(hall));

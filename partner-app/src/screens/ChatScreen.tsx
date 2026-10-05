@@ -15,13 +15,6 @@ type RemoteMsg = { id: string; sender: 'customer' | 'partner'; text: string; at:
 
 const POLL_MS = 4000;
 
-function timeNow(): string {
-  const d = new Date();
-  const hh = d.getHours() % 12 || 12;
-  const ampm = d.getHours() >= 12 ? 'PM' : 'AM';
-  return `${hh}:${String(d.getMinutes()).padStart(2, '0')} ${ampm}`;
-}
-
 function fmtTime(iso: string): string {
   const d = new Date(iso);
   const hh = d.getHours() % 12 || 12;
@@ -31,31 +24,15 @@ function fmtTime(iso: string): string {
 
 export default function ChatScreen({ navigation, route }: Props) {
   const { t } = useLanguage();
-  const { peerName, vendorId } = route.params;
-  const isSupport = peerName.toLowerCase().includes('support');
-  const isLive = !!vendorId;
-
-  // Simulated thread (mock vendors and Tamboo Support — no real backend conversation yet).
-  const [msgs, setMsgs] = useState<Msg[]>(
-    isLive
-      ? []
-      : [
-          {
-            id: 'seed',
-            text: isSupport ? t.chatSupportGreeting : t.chatVendorGreeting.replace('{name}', peerName),
-            mine: false,
-            at: timeNow(),
-          },
-        ],
-  );
+  const { customerId, customerName } = route.params;
+  const [msgs, setMsgs] = useState<Msg[]>([]);
   const [draft, setDraft] = useState('');
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (!isLive || !vendorId) return undefined;
     const load = () => {
-      api.get<RemoteMsg[]>(`/api/messages/${vendorId}`)
-        .then((res) => setMsgs(res.map((m) => ({ id: m.id, text: m.text, mine: m.sender === 'customer', at: fmtTime(m.at) }))))
+      api.get<RemoteMsg[]>(`/api/messages/vendor/${customerId}`)
+        .then((res) => setMsgs(res.map((m) => ({ id: m.id, text: m.text, mine: m.sender === 'partner', at: fmtTime(m.at) }))))
         .catch(() => {});
     };
     load();
@@ -63,31 +40,14 @@ export default function ChatScreen({ navigation, route }: Props) {
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
     };
-  }, [isLive, vendorId]);
+  }, [customerId]);
 
   const send = () => {
     const text = draft.trim();
     if (!text) return;
     setDraft('');
-
-    if (isLive && vendorId) {
-      setMsgs((m) => [...m, { id: `tmp-${Date.now()}`, text, mine: true, at: timeNow() }]);
-      api.post(`/api/messages/${vendorId}`, { text }).catch(() => {});
-      return;
-    }
-
-    setMsgs((m) => [...m, { id: String(Date.now()), text, mine: true, at: timeNow() }]);
-    setTimeout(() => {
-      setMsgs((m) => [
-        ...m,
-        {
-          id: String(Date.now() + 1),
-          text: isSupport ? t.chatSupportReply : t.chatVendorReply,
-          mine: false,
-          at: timeNow(),
-        },
-      ]);
-    }, 900);
+    setMsgs((m) => [...m, { id: `tmp-${Date.now()}`, text, mine: true, at: 'now' }]);
+    api.post(`/api/messages/vendor/${customerId}`, { text }).catch(() => {});
   };
 
   return (
@@ -97,10 +57,7 @@ export default function ChatScreen({ navigation, route }: Props) {
           <TouchableOpacity style={styles.backBtn} activeOpacity={0.8} onPress={() => navigation.goBack()}>
             <Icon name="left" size={18} color={colors.text} />
           </TouchableOpacity>
-          <View>
-            <Text style={styles.peerName}>{peerName}</Text>
-            <Text style={styles.peerSub}>{t.chatPrivacyNote}</Text>
-          </View>
+          <Text style={styles.peerName}>{customerName}</Text>
         </View>
 
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -122,9 +79,6 @@ export default function ChatScreen({ navigation, route }: Props) {
         </ScrollView>
 
         <View style={styles.inputRow}>
-          <View style={styles.cameraBtn}>
-            <Icon name="camera" size={18} color={colors.textSoft} />
-          </View>
           <TextInput
             value={draft}
             onChangeText={setDraft}
@@ -149,7 +103,6 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 18, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.divider },
   backBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
   peerName: { fontFamily: 'Sora', fontWeight: '800', fontSize: 15, color: colors.text },
-  peerSub: { fontSize: 11.5, color: colors.textSoft },
   scroll: { padding: 18, gap: 8, flexGrow: 1 },
   bubbleMineWrap: { alignSelf: 'flex-end', maxWidth: '78%' },
   bubbleMine: { borderRadius: 18, borderBottomRightRadius: 4, paddingVertical: 9, paddingHorizontal: 13 },
@@ -159,7 +112,6 @@ const styles = StyleSheet.create({
   bubbleTheirsText: { fontSize: 13.5, lineHeight: 19, color: colors.text },
   bubbleTheirsTime: { fontSize: 10, color: colors.textMuted, marginTop: 2 },
   inputRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 10 },
-  cameraBtn: { width: 44, height: 44, borderRadius: 22, borderWidth: 1.5, borderColor: colors.divider, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   input: { flex: 1, height: 44, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, backgroundColor: colors.surface, paddingHorizontal: 16, fontSize: 14, color: colors.text },
   sendBtnWrap: {},
   sendBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },

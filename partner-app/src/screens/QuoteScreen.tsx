@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
-import { getQuote, type QuoteVersion } from '../data/catalog';
+import { api, ApiError } from '../api/client';
+import { useQuotes } from '../hooks/useQuotes';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
 
@@ -16,11 +17,19 @@ const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 
 export default function QuoteScreen({ navigation, route }: Props) {
   const { t } = useLanguage();
-  const quote = getQuote(route.params.id);
-  const [editable, setEditable] = useState(true);
-  const [versions, setVersions] = useState<QuoteVersion[]>(quote?.versions || []);
+  const { quotes, loading, reload } = useQuotes();
+  const quote = quotes.find((q) => q.id === route.params.id);
   const [lines, setLines] = useState<Line[]>([{ label: '', amount: '' }]);
   const [note, setNote] = useState('');
+  const [sending, setSending] = useState(false);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator style={{ marginTop: 40 }} color={colors.maroon} />
+      </SafeAreaView>
+    );
+  }
 
   if (!quote) {
     return (
@@ -30,6 +39,8 @@ export default function QuoteScreen({ navigation, route }: Props) {
     );
   }
 
+  const editable = quote.status === 'AWAITING VENDOR' || quote.status === 'REVISION REQUESTED';
+  const versions = quote.versions;
   const total = lines.reduce((sum, l) => sum + (parseInt(l.amount, 10) || 0), 0);
 
   const updateLine = (i: number, patch: Partial<Line>) => {
@@ -38,12 +49,23 @@ export default function QuoteScreen({ navigation, route }: Props) {
   const addLine = () => setLines((prev) => [...prev, { label: '', amount: '' }]);
   const removeLine = (i: number) => setLines((prev) => prev.filter((_, idx) => idx !== i));
 
-  const sendQuote = () => {
+  const sendQuote = async () => {
     const validLines = lines.filter((l) => l.label.trim() && parseInt(l.amount, 10) > 0);
     if (validLines.length === 0) return;
-    const nextV = (versions[versions.length - 1]?.v || 0) + 1;
-    setVersions((v) => [...v, { v: nextV, total, lines: validLines.map((l) => ({ label: l.label, amount: parseInt(l.amount, 10) })) }]);
-    setEditable(false);
+    setSending(true);
+    try {
+      await api.patch(`/api/quotes/vendor/me/${quote.id}`, {
+        lines: validLines.map((l) => ({ label: l.label, amount: parseInt(l.amount, 10) })),
+        note,
+      });
+      await reload();
+      setLines([{ label: '', amount: '' }]);
+      setNote('');
+    } catch (e) {
+      Alert.alert(t.quoteNotFound, e instanceof ApiError ? e.message : t.tryAgain);
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -68,6 +90,15 @@ export default function QuoteScreen({ navigation, route }: Props) {
             </View>
           )}
           <Text style={styles.statusText}>{editable ? quote.status : t.quoteOfferSent}</Text>
+          {!!quote.customerId && (
+            <TouchableOpacity
+              style={styles.chatLink}
+              activeOpacity={0.7}
+              onPress={() => navigation.navigate('Chat', { customerId: quote.customerId!, customerName: quote.customer })}
+            >
+              <Text style={styles.chatLinkText}>{t.chatWithCustomer}</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {editable && (
@@ -111,9 +142,9 @@ export default function QuoteScreen({ navigation, route }: Props) {
               <Text style={styles.totalLabel}>{t.quoteTotal}</Text>
               <Text style={styles.totalValue}>{inr(total)}</Text>
             </View>
-            <TouchableOpacity activeOpacity={0.85} onPress={sendQuote}>
+            <TouchableOpacity activeOpacity={0.85} onPress={sendQuote} disabled={sending}>
               <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.sendBtn}>
-                <Text style={styles.sendBtnText}>{t.quoteSendButton}</Text>
+                {sending ? <ActivityIndicator color="#fff" /> : <Text style={styles.sendBtnText}>{t.quoteSendButton}</Text>}
               </LinearGradient>
             </TouchableOpacity>
             <Text style={styles.hint}>{t.quoteValidHint}</Text>
@@ -154,6 +185,8 @@ const styles = StyleSheet.create({
   revisionBox: { backgroundColor: '#fff7e6', borderRadius: 10, padding: 10 },
   revisionText: { color: '#8a5a00', fontSize: 12.5 },
   statusText: { fontSize: 12.5, fontWeight: '700', color: colors.pinkStrong },
+  chatLink: { alignSelf: 'flex-start', marginTop: 4 },
+  chatLinkText: { fontSize: 12.5, fontWeight: '700', color: colors.pink, textDecorationLine: 'underline' },
   lineRow: { flexDirection: 'row', gap: 6, alignItems: 'center' },
   input: { height: 44, borderRadius: 12, borderWidth: 1.5, borderColor: colors.divider, paddingHorizontal: 10, fontSize: 14, color: colors.text },
   textarea: { height: undefined, minHeight: 60, paddingTop: 10, textAlignVertical: 'top' },

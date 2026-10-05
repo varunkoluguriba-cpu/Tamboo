@@ -24,6 +24,9 @@ const hallSchema = new mongoose.Schema({
   catering: { type: String, default: '' },
   amenities: { type: String, default: '' },
   blurb: { type: String, default: '' },
+  // Data-URI strings (base64) — no separate object-storage service yet, see server.js's
+  // raised JSON body limit. Fixed slots: [main, stage/dining, kitchen/parking].
+  photos: { type: [String], default: [] },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Hall', hallSchema);

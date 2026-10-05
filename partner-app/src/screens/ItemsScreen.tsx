@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
@@ -23,6 +23,7 @@ type Item = {
   stock: number;
   instant: boolean;
   state: ItemState;
+  photo: string;
 };
 
 const STATE_STYLE: Record<ItemState, { bg: string; color: string }> = {
@@ -104,7 +105,11 @@ export default function ItemsScreen({ navigation }: Props) {
                   return (
                     <View key={p.id} style={styles.card}>
                       <View style={styles.photo}>
-                        <Icon name="package" size={26} color={colors.pinkStrong} strokeWidth={1.5} />
+                        {p.photo ? (
+                          <Image source={{ uri: p.photo }} style={styles.photoImg} />
+                        ) : (
+                          <Icon name="package" size={26} color={colors.pinkStrong} strokeWidth={1.5} />
+                        )}
                       </View>
                       <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
                         <Text style={styles.name}>{p.name}</Text>
@@ -146,7 +151,8 @@ const styles = StyleSheet.create({
   emptyCard: { backgroundColor: colors.surface, borderRadius: 18, padding: 20, alignItems: 'center' },
   emptyText: { color: colors.textSoft, fontSize: 13, textAlign: 'center', lineHeight: 19 },
   card: { flexDirection: 'row', gap: 12, alignItems: 'center', backgroundColor: colors.surface, borderRadius: 18, padding: 12, ...shadow.card },
-  photo: { width: 72, height: 72, borderRadius: 14, backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center' },
+  photo: { width: 72, height: 72, borderRadius: 14, backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  photoImg: { width: '100%', height: '100%' },
   name: { fontSize: 14, fontWeight: '700', color: colors.text, lineHeight: 18 },
   meta: { fontSize: 12, color: colors.textSoft },
   pill: { alignSelf: 'flex-start', borderRadius: 999, paddingVertical: 3, paddingHorizontal: 9 },

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,6 +9,7 @@ import Icon from '../components/Icon';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { ApiError } from '../api/client';
+import { pickImageBase64 } from '../utils/pickImage';
 import { ROLE_KEY } from '../constants';
 import type { PartnerRole } from '../types';
 import { colors, gradients, shadow } from '../theme';
@@ -52,10 +53,6 @@ export default function RegisterScreen({ navigation }: Props) {
   const { register } = useAuth();
   const { t } = useLanguage();
 
-  function soon() {
-    Alert.alert(t.comingSoon, t.pRegisterComingSoonMsg);
-  }
-
   const [role, setRole] = useState<PartnerRole>('tent');
   const [biz, setBiz] = useState('');
   const [owner, setOwner] = useState('');
@@ -65,8 +62,14 @@ export default function RegisterScreen({ navigation }: Props) {
   const [cats, setCats] = useState<string[]>([]);
   const [tax, setTax] = useState('');
   const [bank, setBank] = useState('');
+  const [photos, setPhotos] = useState<string[]>([]);
   const [err, setErr] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  const addPhoto = async () => {
+    const uri = await pickImageBase64();
+    if (uri) setPhotos((prev) => [...prev, uri].slice(0, 2));
+  };
 
   useEffect(() => {
     AsyncStorage.getItem(ROLE_KEY).then((v) => {
@@ -99,6 +102,7 @@ export default function RegisterScreen({ navigation }: Props) {
         categories: role === 'tent' ? cats : undefined,
         taxId: tax.trim().toUpperCase(),
         bankAccount: bank.trim(),
+        photos,
       });
       navigation.replace('PendingReview');
     } catch (e) {
@@ -163,10 +167,21 @@ export default function RegisterScreen({ navigation }: Props) {
           <TextInput value={tax} onChangeText={(v) => setTax(v.toUpperCase())} style={styles.input} placeholder="36ABCDE1234F1Z5" placeholderTextColor={colors.textMuted} autoCapitalize="characters" />
         </Field>
 
-        <TouchableOpacity style={styles.photoBtn} activeOpacity={0.85} onPress={soon}>
-          <Icon name="camera" size={16} color={colors.textSoft} />
-          <Text style={styles.photoBtnText}>{role === 'venue' ? t.pRegisterPhotosHallOptional : t.pRegisterPhotoSetupOptional}</Text>
-        </TouchableOpacity>
+        <View style={{ gap: 8 }}>
+          {photos.length > 0 && (
+            <View style={styles.photoPreviewRow}>
+              {photos.map((p, i) => (
+                <Image key={i} source={{ uri: p }} style={styles.photoPreview} />
+              ))}
+            </View>
+          )}
+          {photos.length < 2 && (
+            <TouchableOpacity style={styles.photoBtn} activeOpacity={0.85} onPress={addPhoto}>
+              <Icon name="camera" size={16} color={colors.textSoft} />
+              <Text style={styles.photoBtnText}>{role === 'venue' ? t.pRegisterPhotosHallOptional : t.pRegisterPhotoSetupOptional}</Text>
+            </TouchableOpacity>
+          )}
+        </View>
 
         <Field label={t.pRegisterBankAccount}>
           <TextInput value={bank} onChangeText={setBank} style={styles.input} placeholder={t.pRegisterBankPlaceholder} placeholderTextColor={colors.textMuted} />
@@ -202,6 +217,8 @@ const styles = StyleSheet.create({
   chipTextSel: { color: '#fff' },
   photoBtn: { height: 44, borderRadius: 14, borderWidth: 1.5, borderColor: colors.dividerStrong, borderStyle: 'dashed', backgroundColor: colors.surface, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   photoBtnText: { color: colors.textSoft, fontWeight: '600', fontSize: 13 },
+  photoPreviewRow: { flexDirection: 'row', gap: 8 },
+  photoPreview: { width: 72, height: 72, borderRadius: 12 },
   error: { color: colors.dangerStrong, fontSize: 12.5 },
   submitBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', marginTop: 4, ...shadow.primaryButton },
   submitBtnDisabled: { opacity: 0.7 },

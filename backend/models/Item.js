@@ -12,6 +12,8 @@ const itemSchema = new mongoose.Schema({
   specs: { type: String, default: '' },
   instant: { type: Boolean, default: true },
   paused: { type: Boolean, default: false },
+  // Data-URI (base64) cover photo — no separate object-storage service yet.
+  photo: { type: String, default: '' },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Item', itemSchema);

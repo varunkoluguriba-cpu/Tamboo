@@ -1,5 +1,5 @@
-import React from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -8,6 +8,7 @@ import Icon from '../components/Icon';
 import { reviewsByVendor, availBadge } from '../data/catalog';
 import { useCatalog } from '../context/CatalogContext';
 import { useLanguage } from '../context/LanguageContext';
+import RequestQuoteModal from '../components/RequestQuoteModal';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Vendor'>;
@@ -18,6 +19,7 @@ export default function VendorScreen({ navigation, route }: Props) {
   const vendor = getVendor(route.params.id);
   const items = productsByVendor(route.params.id);
   const reviews = reviewsByVendor(route.params.id);
+  const [quoteModal, setQuoteModal] = useState(false);
 
   if (!vendor) {
     return (
@@ -92,10 +94,14 @@ export default function VendorScreen({ navigation, route }: Props) {
             </View>
 
             <View style={styles.actionRow}>
-              <TouchableOpacity style={styles.chatBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Chat', { peerName: vendor.name })}>
+              <TouchableOpacity
+                style={styles.chatBtn}
+                activeOpacity={0.85}
+                onPress={() => navigation.navigate('Chat', { peerName: vendor.name, vendorId: /^[0-9a-f]{24}$/.test(vendor.id) ? vendor.id : undefined })}
+              >
                 <Text style={styles.chatBtnText}>{t.vendorChat}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.quoteBtnWrap} activeOpacity={0.85} onPress={() => Alert.alert(t.comingSoon, t.vendorComingSoonMsg)}>
+              <TouchableOpacity style={styles.quoteBtnWrap} activeOpacity={0.85} onPress={() => setQuoteModal(true)}>
                 <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.quoteBtn}>
                   <Text style={styles.quoteBtnText}>{t.vendorRequestQuote}</Text>
                 </LinearGradient>
@@ -139,6 +145,7 @@ export default function VendorScreen({ navigation, route }: Props) {
           </View>
         </View>
       </ScrollView>
+      <RequestQuoteModal visible={quoteModal} onClose={() => setQuoteModal(false)} vendorId={vendor.id} vendorName={vendor.name} />
     </SafeAreaView>
   );
 }

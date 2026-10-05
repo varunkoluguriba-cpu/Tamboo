@@ -8,6 +8,7 @@ import Icon from '../components/Icon';
 import { useCatalog } from '../context/CatalogContext';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
+import RequestQuoteModal from '../components/RequestQuoteModal';
 import { colors, gradients, shadow } from '../theme';
 import type { LangStrings } from '../i18n';
 
@@ -27,6 +28,7 @@ export default function ProductScreen({ navigation, route }: Props) {
   const product = getProduct(route.params.id);
   const vendor = product ? getVendor(product.vendorId) : undefined;
   const [qty, setQty] = useState(() => (product ? parseMin(product.min) : 1));
+  const [quoteModal, setQuoteModal] = useState(false);
   const { addToCart } = useCart();
   const { t } = useLanguage();
 
@@ -173,7 +175,7 @@ export default function ProductScreen({ navigation, route }: Props) {
                   <Text style={styles.addBtnText}>{t.productAddToCart.replace('{param}', total.toLocaleString('en-IN'))}</Text>
                 </LinearGradient>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.quoteOutlineBtn} activeOpacity={0.85} onPress={() => soon(t)}>
+              <TouchableOpacity style={styles.quoteOutlineBtn} activeOpacity={0.85} onPress={() => setQuoteModal(true)}>
                 <Text style={styles.quoteOutlineText}>{t.productAskForQuote}</Text>
               </TouchableOpacity>
             </>
@@ -182,7 +184,7 @@ export default function ProductScreen({ navigation, route }: Props) {
               <View style={styles.quoteNote}>
                 <Text style={styles.quoteNoteText}>{t.productQuoteNote}</Text>
               </View>
-              <TouchableOpacity style={styles.addBtnWrap} activeOpacity={0.85} onPress={() => soon(t)}>
+              <TouchableOpacity style={styles.addBtnWrap} activeOpacity={0.85} onPress={() => setQuoteModal(true)}>
                 <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.addBtn}>
                   <Text style={styles.addBtnText}>{t.productRequestQuote}</Text>
                 </LinearGradient>
@@ -191,6 +193,13 @@ export default function ProductScreen({ navigation, route }: Props) {
           )}
         </View>
       </ScrollView>
+      <RequestQuoteModal
+        visible={quoteModal}
+        onClose={() => setQuoteModal(false)}
+        vendorId={vendor.id}
+        vendorName={vendor.name}
+        productName={product.name}
+      />
     </SafeAreaView>
   );
 }

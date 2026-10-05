@@ -27,4 +27,5 @@ export interface RegisterPayload {
   categories?: string[];
   taxId: string;
   bankAccount: string;
+  photos?: string[];
 }

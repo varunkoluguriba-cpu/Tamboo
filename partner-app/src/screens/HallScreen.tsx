@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -10,6 +10,7 @@ import LanguageSheet from '../components/LanguageSheet';
 import { api, ApiError } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { pickImageBase64 } from '../utils/pickImage';
 import { colors, gradients, shadow } from '../theme';
 
 type PricingMode = 'rent' | 'perPlate';
@@ -34,16 +35,13 @@ type RemoteHall = {
   catering: string;
   amenities: string;
   blurb: string;
+  photos: string[];
 };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Hall'>;
 
 const VENUE_TYPES = ['Function Hall', 'Banquet Hall', 'Marriage Hall', 'Hotel'];
 const CATERING_OPTIONS = ['In-house catering only', 'Outside caterers allowed', 'Both allowed'];
-
-function soon(t: import('../i18n').LangStrings) {
-  Alert.alert(t.comingSoon, t.hallComingSoonMsg);
-}
 
 export default function HallScreen({ navigation }: Props) {
   const { partner, logout } = useAuth();
@@ -86,6 +84,7 @@ export default function HallScreen({ navigation }: Props) {
   const [catering, setCatering] = useState(CATERING_OPTIONS[0]);
   const [amenities, setAmenities] = useState('');
   const [blurb, setBlurb] = useState('');
+  const [photos, setPhotos] = useState<string[]>([]);
   const [err, setErr] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -113,6 +112,7 @@ export default function HallScreen({ navigation }: Props) {
         setCatering(hall.catering || CATERING_OPTIONS[0]);
         setAmenities(hall.amenities);
         setBlurb(hall.blurb);
+        setPhotos(hall.photos || []);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -120,6 +120,20 @@ export default function HallScreen({ navigation }: Props) {
 
   const setNum = (key: string, v: string) => setNums((n) => ({ ...n, [key]: v.replace(/\D/g, '') }));
   const toggle = (key: string) => setToggles((t) => ({ ...t, [key]: !t[key] }));
+
+  const pickPhoto = async (slot: number) => {
+    const uri = await pickImageBase64();
+    if (!uri) return;
+    setPhotos((prev) => {
+      const next = [...prev];
+      next[slot] = uri;
+      return next;
+    });
+  };
+
+  const openMap = () => {
+    if (address.trim()) Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`);
+  };
 
   const save = async () => {
     const seated = parseInt(nums.seated || '0', 10);
@@ -156,6 +170,7 @@ export default function HallScreen({ navigation }: Props) {
         catering,
         amenities,
         blurb,
+        photos,
       });
       Alert.alert(t.hallSavedTitle, t.hallSavedMsg);
     } catch (e) {
@@ -179,16 +194,22 @@ export default function HallScreen({ navigation }: Props) {
 
         <View style={{ gap: 8 }}>
           <Text style={styles.fieldLabel}>{t.hallPhotosLabel}</Text>
-          <TouchableOpacity style={styles.mainPhoto} activeOpacity={0.85} onPress={() => soon(t)}>
-            <Icon name="camera" size={26} color={colors.pinkStrong} strokeWidth={1.5} />
-            <Text style={styles.photoText}>{t.hallMainPhotoText}</Text>
+          <TouchableOpacity style={styles.mainPhoto} activeOpacity={0.85} onPress={() => pickPhoto(0)}>
+            {photos[0] ? (
+              <Image source={{ uri: photos[0] }} style={styles.mainPhotoImg} />
+            ) : (
+              <>
+                <Icon name="camera" size={26} color={colors.pinkStrong} strokeWidth={1.5} />
+                <Text style={styles.photoText}>{t.hallMainPhotoText}</Text>
+              </>
+            )}
           </TouchableOpacity>
           <View style={styles.photoRow}>
-            <TouchableOpacity style={styles.subPhoto} activeOpacity={0.85} onPress={() => soon(t)}>
-              <Text style={styles.photoTextSm}>{t.hallPhotoStageDining}</Text>
+            <TouchableOpacity style={styles.subPhoto} activeOpacity={0.85} onPress={() => pickPhoto(1)}>
+              {photos[1] ? <Image source={{ uri: photos[1] }} style={styles.subPhotoImg} /> : <Text style={styles.photoTextSm}>{t.hallPhotoStageDining}</Text>}
             </TouchableOpacity>
-            <TouchableOpacity style={styles.subPhoto} activeOpacity={0.85} onPress={() => soon(t)}>
-              <Text style={styles.photoTextSm}>{t.hallPhotoKitchenParking}</Text>
+            <TouchableOpacity style={styles.subPhoto} activeOpacity={0.85} onPress={() => pickPhoto(2)}>
+              {photos[2] ? <Image source={{ uri: photos[2] }} style={styles.subPhotoImg} /> : <Text style={styles.photoTextSm}>{t.hallPhotoKitchenParking}</Text>}
             </TouchableOpacity>
           </View>
         </View>
@@ -209,7 +230,7 @@ export default function HallScreen({ navigation }: Props) {
           <TextInput value={address} onChangeText={setAddress} multiline numberOfLines={2} style={[styles.input, styles.textarea]} />
         </View>
 
-        <TouchableOpacity style={styles.mapLink} activeOpacity={0.7} onPress={() => soon(t)}>
+        <TouchableOpacity style={styles.mapLink} activeOpacity={0.7} onPress={openMap}>
           <Icon name="pin" size={14} color={colors.pinkStrong} />
           <Text style={styles.mapLinkText}>{t.hallMapLinkText}</Text>
         </TouchableOpacity>
@@ -341,10 +362,12 @@ const styles = StyleSheet.create({
   hint: { fontSize: 12.5, color: colors.textSoft, lineHeight: 19 },
   fieldLabel: { fontSize: 12.5, fontWeight: '600', color: colors.textSoft },
   fieldLabelSm: { fontSize: 12, fontWeight: '600', color: colors.textSoft, marginBottom: 5 },
-  mainPhoto: { height: 170, borderRadius: 16, backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center', gap: 6 },
+  mainPhoto: { height: 170, borderRadius: 16, backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center', gap: 6, overflow: 'hidden' },
+  mainPhotoImg: { width: '100%', height: '100%' },
   photoText: { fontSize: 12, color: colors.pinkStrong, fontWeight: '600' },
   photoRow: { flexDirection: 'row', gap: 8 },
-  subPhoto: { flex: 1, height: 100, borderRadius: 14, backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center' },
+  subPhoto: { flex: 1, height: 100, borderRadius: 14, backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  subPhotoImg: { width: '100%', height: '100%' },
   photoTextSm: { fontSize: 11, color: colors.pinkStrong, fontWeight: '600', textAlign: 'center' },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   chip: { height: 36, paddingHorizontal: 13, borderRadius: 999, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5 },

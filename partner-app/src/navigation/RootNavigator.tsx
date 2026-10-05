@@ -17,6 +17,7 @@ import HTokensScreen from '../screens/HTokensScreen';
 import HTokenScreen from '../screens/HTokenScreen';
 import HallScreen from '../screens/HallScreen';
 import EarningsScreen from '../screens/EarningsScreen';
+import ChatScreen from '../screens/ChatScreen';
 import { useAuth } from '../context/AuthContext';
 import { colors } from '../theme';
 
@@ -55,6 +56,7 @@ export default function RootNavigator() {
               <Stack.Screen name="Hall" component={HallScreen} />
               <Stack.Screen name="Calendar" component={CalendarScreen} />
               <Stack.Screen name="Earnings" component={EarningsScreen} />
+              <Stack.Screen name="Chat" component={ChatScreen} />
             </>
           ) : (
             <>
@@ -67,6 +69,7 @@ export default function RootNavigator() {
               <Stack.Screen name="ItemForm" component={ItemFormScreen} />
               <Stack.Screen name="Shop" component={ShopScreen} />
               <Stack.Screen name="Earnings" component={EarningsScreen} />
+              <Stack.Screen name="Chat" component={ChatScreen} />
             </>
           )}
         </Stack.Navigator>

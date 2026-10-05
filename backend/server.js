@@ -11,10 +11,14 @@ const adminAuthRoutes = require('./routes/adminAuth');
 const adminRoutes = require('./routes/admin');
 const hallsRoutes = require('./routes/halls');
 const vendorsRoutes = require('./routes/vendors');
+const quotesRoutes = require('./routes/quotes');
+const messagesRoutes = require('./routes/messages');
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+// Raised from the 100kb default — photo uploads are sent as base64 data URIs in JSON bodies
+// (no separate file-storage service yet, see Hall/Item/Shop/Partner `photos` fields).
+app.use(express.json({ limit: '15mb' }));
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 app.use('/api/auth', authRoutes);
@@ -24,6 +28,8 @@ app.use('/api/admin-auth', adminAuthRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/halls', hallsRoutes);
 app.use('/api/vendors', vendorsRoutes);
+app.use('/api/quotes', quotesRoutes);
+app.use('/api/messages', messagesRoutes);
 
 app.use((req, res) => res.status(404).json({ error: 'Not found' }));
 

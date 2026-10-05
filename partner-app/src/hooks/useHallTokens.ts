@@ -8,6 +8,7 @@ export type RemoteHallToken = {
   hallId: string;
   hallName: string;
   customer: string;
+  customerId: string;
   phone: string;
   date: string;
   slot: string;

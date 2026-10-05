@@ -12,6 +12,7 @@ import TabBar from '../components/TabBar';
 import LanguageSheet from '../components/LanguageSheet';
 import { useAuth } from '../context/AuthContext';
 import { useCatalog } from '../context/CatalogContext';
+import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useToken, msLeft, formatHoursLeft } from '../context/TokenContext';
 import type { LangStrings } from '../i18n';
@@ -46,9 +47,11 @@ const CATEGORIES = (t: LangStrings) => [
   { n: '06', name: t.homeScreenCatDecor, ex: t.homeScreenCatDecorEx, navName: 'Decor' },
 ];
 
-const PACKAGES = (t: LangStrings) => [
-  { id: 'p1', name: t.homeScreenPkgWeddingEssentials, items: 'Shamiana, 200 chairs, lighting, sound', vendor: 'Sai Tent House', price: '₹42,000' },
-  { id: 'p2', name: t.homeScreenPkgBirthdayStarter, items: '50 chairs, decor, sound system', vendor: 'Balaji Decorators', price: '₹9,500' },
+// Each package is a real bundle of catalog products from one vendor, priced from their
+// actual unit prices — not a standalone description, so "Add" adds real cart lines.
+const PACKAGE_DEFS: Array<{ id: string; nameKey: 'homeScreenPkgWeddingEssentials' | 'homeScreenPkgBirthdayStarter'; vendorId: string; lines: Array<{ productId: string; qty: number }> }> = [
+  { id: 'p1', nameKey: 'homeScreenPkgWeddingEssentials', vendorId: 'v1', lines: [{ productId: 'i1', qty: 1 }, { productId: 'i4', qty: 1 }] },
+  { id: 'p2', nameKey: 'homeScreenPkgBirthdayStarter', vendorId: 'v2', lines: [{ productId: 'i2', qty: 50 }, { productId: 'i6', qty: 1 }] },
 ];
 
 function soon(t: LangStrings) {
@@ -68,13 +71,33 @@ export default function HomeScreen() {
   const { user } = useAuth();
   const { token } = useToken();
   const { lang, t } = useLanguage();
-  const { halls, vendors } = useCatalog();
+  const { halls, vendors, getProduct, getVendor } = useCatalog();
+  const { addToCart } = useCart();
   const [mode, setMode] = useState<Mode>('rentals');
   const [langSheet, setLangSheet] = useState(false);
   const [ev, setEv] = useState({ date: '', guests: '100' });
 
   const nearHalls = halls.slice(0, 4);
   const nearVendors = vendors.slice(0, 4);
+
+  const packages = PACKAGE_DEFS.map((def) => {
+    const vendor = getVendor(def.vendorId);
+    const products = def.lines.map((l) => ({ line: l, product: getProduct(l.productId) }));
+    const price = products.reduce((sum, { line, product }) => sum + (product ? product.price * line.qty : 0), 0);
+    const itemsText = products
+      .filter(({ product }) => product)
+      .map(({ line, product }) => (line.qty > 1 ? `${line.qty} × ${product!.name}` : product!.name))
+      .join(', ');
+    return { id: def.id, name: t[def.nameKey], items: itemsText, vendor: vendor?.name || '', price, lines: def.lines };
+  });
+
+  const addPackage = (pkg: (typeof packages)[number]) => {
+    pkg.lines.forEach((l) => addToCart(l.productId, l.qty));
+    Alert.alert(t.homeScreenPkgAdded, pkg.name, [
+      { text: t.productKeepBrowsing, style: 'cancel' },
+      { text: t.productViewCart, onPress: () => navigation.navigate('Cart') },
+    ]);
+  };
 
   useEffect(() => {
     AsyncStorage.getItem(HOME_MODE_KEY)
@@ -328,15 +351,15 @@ export default function HomeScreen() {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>{t.packages}</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
-                {PACKAGES(t).map((k) => (
+                {packages.map((k) => (
                   <View key={k.id} style={styles.pkgCard}>
                     <Photo icon="package" height={130} radius={14} />
                     <Text style={styles.pkgName}>{k.name}</Text>
                     <Text style={styles.pkgItems}>{k.items}</Text>
                     <Text style={styles.pkgVendor}>{k.vendor}</Text>
                     <View style={styles.pkgFooter}>
-                      <Text style={styles.pkgPrice}>{k.price}</Text>
-                      <TouchableOpacity style={styles.pkgAddBtn} activeOpacity={0.85} onPress={() => soon(t)}>
+                      <Text style={styles.pkgPrice}>₹{k.price.toLocaleString('en-IN')}</Text>
+                      <TouchableOpacity style={styles.pkgAddBtn} activeOpacity={0.85} onPress={() => addPackage(k)}>
                         <Text style={styles.pkgAddText}>{t.add}</Text>
                       </TouchableOpacity>
                     </View>

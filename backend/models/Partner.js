@@ -14,6 +14,8 @@ const partnerSchema = new mongoose.Schema({
   bankAccount: { type: String, default: '' }, // account number or UPI ID
   verificationStatus: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
   registered: { type: Boolean, default: false }, // false until the registration form is submitted
+  // Data-URI (base64) photos submitted at registration time, for Tamboo's review team.
+  registrationPhotos: { type: [String], default: [] },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Partner', partnerSchema);

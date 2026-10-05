@@ -19,6 +19,7 @@ function serializeOrderOwn(o) {
     status: o.status,
     event: o.eventName || o.eventType || 'Event',
     customer: o.customerName,
+    customerId: String(o.customer),
     phone: o.customerPhone,
     address: o.address,
     guests: o.guests,
@@ -50,6 +51,8 @@ function serializeVendorPublic(shop, partner) {
     setup: shop.setupFee > 0 ? `₹${shop.setupFee}` : 'Included',
     minOrder: '—',
     areas: (shop.areas || '').split(',').map((s) => s.trim()).filter(Boolean),
+    coverPhoto: shop.coverPhoto || '',
+    logoPhoto: shop.logoPhoto || '',
   };
 }
 
@@ -67,6 +70,7 @@ function serializeItemPublic(item, vendorId) {
     min: String(item.min),
     isInstant: item.instant,
     avail: { total: item.stock, reserved: 0, maint: 0, free: item.stock },
+    photo: item.photo || '',
   };
 }
 
@@ -83,6 +87,7 @@ function serializeItemOwn(item, partner) {
     specs: item.specs,
     instant: item.instant,
     state: item.paused ? 'PAUSED' : partner.verificationStatus === 'verified' ? 'LIVE' : 'REVIEW',
+    photo: item.photo || '',
   };
 }
 
@@ -98,19 +103,30 @@ router.get('/', async (req, res) => {
   res.json(live.map((s) => serializeVendorPublic(s, s.partner)));
 });
 
+function serializeShopOwn(shop) {
+  return {
+    blurb: shop.blurb, hours: shop.hours, areas: shop.areas,
+    deliveryFee: shop.deliveryFee, setupFee: shop.setupFee, pickupFee: shop.pickupFee,
+    coverPhoto: shop.coverPhoto || '', logoPhoto: shop.logoPhoto || '',
+  };
+}
+
 router.get('/me/shop', requirePartnerAuth, requireTentRole, async (req, res) => {
   const shop = await Shop.findOne({ partner: req.partner.id });
-  res.json(shop ? { blurb: shop.blurb, hours: shop.hours, areas: shop.areas, deliveryFee: shop.deliveryFee, setupFee: shop.setupFee, pickupFee: shop.pickupFee } : null);
+  res.json(shop ? serializeShopOwn(shop) : null);
 });
 
 router.put('/me/shop', requirePartnerAuth, requireTentRole, async (req, res) => {
-  const { blurb, hours, areas, deliveryFee, setupFee, pickupFee } = req.body || {};
+  const { blurb, hours, areas, deliveryFee, setupFee, pickupFee, coverPhoto, logoPhoto } = req.body || {};
+  const update = { blurb, hours, areas, deliveryFee, setupFee, pickupFee };
+  if (typeof coverPhoto === 'string') update.coverPhoto = coverPhoto;
+  if (typeof logoPhoto === 'string') update.logoPhoto = logoPhoto;
   const shop = await Shop.findOneAndUpdate(
     { partner: req.partner.id },
-    { blurb, hours, areas, deliveryFee, setupFee, pickupFee },
+    update,
     { new: true, upsert: true, setDefaultsOnInsert: true },
   );
-  res.json({ blurb: shop.blurb, hours: shop.hours, areas: shop.areas, deliveryFee: shop.deliveryFee, setupFee: shop.setupFee, pickupFee: shop.pickupFee });
+  res.json(serializeShopOwn(shop));
 });
 
 router.get('/me/items', requirePartnerAuth, requireTentRole, async (req, res) => {
@@ -119,17 +135,17 @@ router.get('/me/items', requirePartnerAuth, requireTentRole, async (req, res) =>
 });
 
 router.post('/me/items', requirePartnerAuth, requireTentRole, async (req, res) => {
-  const { name, cat, price, unit, stock, min, deposit, specs, instant } = req.body || {};
+  const { name, cat, price, unit, stock, min, deposit, specs, instant, photo } = req.body || {};
   if (!name || !name.trim()) return res.status(400).json({ error: 'Enter an item name' });
   if (instant && !(price > 0)) return res.status(400).json({ error: 'Enter the rent amount' });
-  const item = await Item.create({ partner: req.partner.id, name: name.trim(), cat, price, unit, stock, min, deposit, specs, instant });
+  const item = await Item.create({ partner: req.partner.id, name: name.trim(), cat, price, unit, stock, min, deposit, specs, instant, photo: photo || '' });
   res.status(201).json(serializeItemOwn(item, req.partner));
 });
 
 router.put('/me/items/:itemId', requirePartnerAuth, requireTentRole, async (req, res) => {
   const item = await Item.findOne({ _id: req.params.itemId, partner: req.partner.id });
   if (!item) return res.status(404).json({ error: 'Item not found' });
-  const { name, cat, price, unit, stock, min, deposit, specs, instant, paused } = req.body || {};
+  const { name, cat, price, unit, stock, min, deposit, specs, instant, paused, photo } = req.body || {};
   if (name !== undefined) item.name = name.trim();
   if (cat !== undefined) item.cat = cat;
   if (price !== undefined) item.price = price;
@@ -140,6 +156,7 @@ router.put('/me/items/:itemId', requirePartnerAuth, requireTentRole, async (req,
   if (specs !== undefined) item.specs = specs;
   if (instant !== undefined) item.instant = instant;
   if (paused !== undefined) item.paused = paused;
+  if (photo !== undefined) item.photo = photo;
   await item.save();
   res.json(serializeItemOwn(item, req.partner));
 });

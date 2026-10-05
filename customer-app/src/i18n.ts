@@ -244,6 +244,7 @@ const EN = {
   homeScreenReviews: 'reviews',
   homeScreenComingSoonMsg: 'This is being built next.',
   homeScreenGuestFallback: 'there',
+  homeScreenPkgAdded: 'Package added to cart',
 
   // ---- language / login / notifications ----
   langScreenIntentTitle: 'What are you looking for?',
@@ -467,6 +468,12 @@ const EN = {
   venuesNoCrockery: 'No crockery',
   venuesTokenLabel: 'Token',
   venuesAvailableBadge: 'Available',
+
+  // ---- quote request modal ----
+  quoteItemOrService: 'Describe what you need',
+  quoteSendButton: 'Send request',
+  quoteValidHint: 'Sent! The vendor will reply with a price within 48 hours.',
+  bookingsQuoteAcceptedMsg: 'Accepted! The vendor will contact you to collect payment and confirm the details.',
 } as const;
 
 export type Key = keyof typeof EN;
@@ -590,7 +597,7 @@ const TE: Partial<Record<Key, string>> = {
   homeScreenCatCrockeryVesselsEx: 'దేక్ష, బొగ్గన, ప్లేట్లు', homeScreenCatLighting: 'లైటింగ్', homeScreenCatLightingEx: 'డెకొరేటివ్, స్టేజ్, స్ట్రింగ్',
   homeScreenCatSoundDJ: 'సౌండ్ & DJ', homeScreenCatSoundDJEx: 'స్పీకర్లు, మైక్, DJ సెటప్', homeScreenCatDecor: 'డెకర్', homeScreenCatDecorEx: 'పూలు, బెలూన్లు, థీమ్‌లు',
   homeScreenPkgWeddingEssentials: 'వివాహ అవసరాలు', homeScreenPkgBirthdayStarter: 'బర్త్‌డే స్టార్టర్', homeScreenReviews: 'రివ్యూలు',
-  homeScreenComingSoonMsg: 'ఇది త్వరలో అందుబాటులో ఉంటుంది.', homeScreenGuestFallback: 'మిత్రమా',
+  homeScreenComingSoonMsg: 'ఇది త్వరలో అందుబాటులో ఉంటుంది.', homeScreenGuestFallback: 'మిత్రమా', homeScreenPkgAdded: 'ప్యాకేజీ కార్ట్‌కు జోడించబడింది',
 
   langScreenIntentTitle: 'మీరు ఏమి కోరుకుంటున్నారు?', langScreenIntentSubtitle: 'దాని కోసం మేము మీ హోమ్ స్క్రీన్‌ను సెట్ చేస్తాము. మీరు ఎప్పుడైనా మార్చుకోవచ్చు.',
   langScreenRentalsLabel: 'టెంట్ హౌస్ & అద్దె సామాగ్రి', langScreenRentalsDesc: 'షామియానా, కుర్చీలు, పాత్రలు, అలంకరణ', langScreenVenuesLabel: 'ఫంక్షన్ హాళ్లు & వేదికలు',
@@ -671,6 +678,8 @@ const TE: Partial<Record<Key, string>> = {
   venuesSortNearest: 'సమీపంలో ఉన్నవి', venuesSortTopRated: 'అత్యధిక రేటింగ్', venuesSortTokenLow: 'టోకెన్: తక్కువ నుండి', venuesSortTokenHigh: 'టోకెన్: ఎక్కువ నుండి',
   venuesVerifiedOnlyChip: 'ధృవీకరించినవి మాత్రమే', venuesCountFound: '{count} హాళ్లు కనుగొనబడ్డాయి', venuesNoHallsMatch: 'ఏ హాళ్లు సరిపోలలేదు. తక్కువ ఫిల్టర్లు లేదా తక్కువ అతిథుల సంఖ్యతో ప్రయత్నించండి.',
   venuesAC: 'AC', venuesNonAC: 'నాన్-AC', venuesHasCrockery: 'క్రాకరీ ఉంది', venuesNoCrockery: 'క్రాకరీ లేదు', venuesTokenLabel: 'టోకెన్', venuesAvailableBadge: 'అందుబాటులో ఉంది',
+  quoteItemOrService: 'మీకు ఏమి కావాలో వివరించండి', quoteSendButton: 'రిక్వెస్ట్ పంపండి', quoteValidHint: 'పంపబడింది! వెండర్ 48 గంటల్లో ధరతో స్పందిస్తారు.',
+  bookingsQuoteAcceptedMsg: 'ఆమోదించారు! వెండర్ చెల్లింపు తీసుకోవడానికి మరియు వివరాలను నిర్ధారించడానికి మిమ్మల్ని సంప్రదిస్తారు.',
 };
 
 const HI: Partial<Record<Key, string>> = {
@@ -789,7 +798,7 @@ const HI: Partial<Record<Key, string>> = {
   homeScreenCatCrockeryVesselsEx: 'देक्षा, बोगना, प्लेट्स', homeScreenCatLighting: 'लाइटिंग', homeScreenCatLightingEx: 'डेकोरेटिव, स्टेज, स्ट्रिंग',
   homeScreenCatSoundDJ: 'साउंड और DJ', homeScreenCatSoundDJEx: 'स्पीकर, माइक, DJ सेटअप', homeScreenCatDecor: 'डेकोर', homeScreenCatDecorEx: 'फूल, गुब्बारे, थीम',
   homeScreenPkgWeddingEssentials: 'शादी की ज़रूरी चीज़ें', homeScreenPkgBirthdayStarter: 'बर्थडे स्टार्टर', homeScreenReviews: 'रिव्यू',
-  homeScreenComingSoonMsg: 'यह जल्द ही बनाया जा रहा है।', homeScreenGuestFallback: 'दोस्त',
+  homeScreenComingSoonMsg: 'यह जल्द ही बनाया जा रहा है।', homeScreenGuestFallback: 'दोस्त', homeScreenPkgAdded: 'पैकेज कार्ट में जोड़ा गया',
 
   langScreenIntentTitle: 'आप क्या ढूंढ रहे हैं?', langScreenIntentSubtitle: 'हम उसके लिए आपकी होम स्क्रीन सेट कर देंगे। आप इसे कभी भी बदल सकते हैं।',
   langScreenRentalsLabel: 'टेंट हाउस और किराये का सामान', langScreenRentalsDesc: 'शामियाना, कुर्सियाँ, बर्तन, सजावट', langScreenVenuesLabel: 'फंक्शन हॉल और वेन्यू',
@@ -868,6 +877,8 @@ const HI: Partial<Record<Key, string>> = {
   venuesSortNearest: 'सबसे नज़दीक', venuesSortTopRated: 'टॉप रेटेड', venuesSortTokenLow: 'टोकन: कम से ज़्यादा', venuesSortTokenHigh: 'टोकन: ज़्यादा से कम',
   venuesVerifiedOnlyChip: 'केवल सत्यापित', venuesCountFound: '{count} हॉल मिले', venuesNoHallsMatch: 'कोई हॉल मेल नहीं खाता. कम फ़िल्टर या कम मेहमानों के साथ कोशिश करें.',
   venuesAC: 'AC', venuesNonAC: 'नॉन-AC', venuesHasCrockery: 'बर्तन उपलब्ध', venuesNoCrockery: 'बर्तन नहीं', venuesTokenLabel: 'टोकन', venuesAvailableBadge: 'उपलब्ध',
+  quoteItemOrService: 'आपको क्या चाहिए, बताएं', quoteSendButton: 'अनुरोध भेजें', quoteValidHint: 'भेज दिया! वेंडर 48 घंटों में कीमत के साथ जवाब देगा।',
+  bookingsQuoteAcceptedMsg: 'स्वीकार किया! वेंडर भुगतान लेने और विवरण पक्का करने के लिए आपसे संपर्क करेगा।',
 };
 
 const UR: Partial<Record<Key, string>> = {
@@ -986,7 +997,7 @@ const UR: Partial<Record<Key, string>> = {
   homeScreenCatCrockeryVesselsEx: 'دیکشا، بوگنا، پلیٹیں', homeScreenCatLighting: 'لائٹنگ', homeScreenCatLightingEx: 'ڈیکوریٹیو، اسٹیج، اسٹرنگ',
   homeScreenCatSoundDJ: 'ساؤنڈ اور ڈی جے', homeScreenCatSoundDJEx: 'اسپیکرز، مائیک، ڈی جے سیٹ اپ', homeScreenCatDecor: 'سجاوٹ', homeScreenCatDecorEx: 'پھول، غبارے، تھیمز',
   homeScreenPkgWeddingEssentials: 'شادی کی ضروری اشیاء', homeScreenPkgBirthdayStarter: 'برتھ ڈے اسٹارٹر', homeScreenReviews: 'ریویوز',
-  homeScreenComingSoonMsg: 'یہ جلد ہی تیار کیا جا رہا ہے۔', homeScreenGuestFallback: 'دوست',
+  homeScreenComingSoonMsg: 'یہ جلد ہی تیار کیا جا رہا ہے۔', homeScreenGuestFallback: 'دوست', homeScreenPkgAdded: 'پیکج کارٹ میں شامل کر دیا گیا',
 
   langScreenIntentTitle: 'آپ کیا تلاش کر رہے ہیں؟', langScreenIntentSubtitle: 'ہم اس کے لیے آپ کی ہوم اسکرین سیٹ کر دیں گے۔ آپ اسے کسی بھی وقت بدل سکتے ہیں۔',
   langScreenRentalsLabel: 'ٹینٹ ہاؤس اور کرائے کا سامان', langScreenRentalsDesc: 'شامیانہ، کرسیاں، برتن، سجاوٹ', langScreenVenuesLabel: 'فنکشن ہالز اور وینیوز',
@@ -1065,6 +1076,8 @@ const UR: Partial<Record<Key, string>> = {
   venuesSortNearest: 'قریب ترین', venuesSortTopRated: 'ٹاپ ریٹڈ', venuesSortTokenLow: 'ٹوکن: کم سے زیادہ', venuesSortTokenHigh: 'ٹوکن: زیادہ سے کم',
   venuesVerifiedOnlyChip: 'صرف تصدیق شدہ', venuesCountFound: '{count} ہال ملے', venuesNoHallsMatch: 'کوئی ہال میچ نہیں ہوا۔ کم فلٹرز یا کم مہمانوں کے ساتھ کوشش کریں۔',
   venuesAC: 'AC', venuesNonAC: 'نان-AC', venuesHasCrockery: 'برتن دستیاب ہیں', venuesNoCrockery: 'برتن دستیاب نہیں', venuesTokenLabel: 'ٹوکن', venuesAvailableBadge: 'دستیاب',
+  quoteItemOrService: 'آپ کو کیا چاہیے، بتائیں', quoteSendButton: 'درخواست بھیجیں', quoteValidHint: 'بھیج دیا گیا! وینڈر 48 گھنٹوں میں قیمت کے ساتھ جواب دے گا۔',
+  bookingsQuoteAcceptedMsg: 'منظور کر لیا! وینڈر ادائیگی لینے اور تفصیلات طے کرنے کے لیے آپ سے رابطہ کرے گا۔',
 };
 
 const TA: Partial<Record<Key, string>> = {

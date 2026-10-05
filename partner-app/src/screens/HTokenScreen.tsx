@@ -158,6 +158,14 @@ export default function HTokenScreen({ navigation, route }: Props) {
         <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={callCustomer}>
           <Text style={styles.outlineBtnText}>{t.htokenCallCustomer}</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.outlineBtn}
+          activeOpacity={0.85}
+          onPress={() => navigation.navigate('Chat', { customerId: original.customerId, customerName: original.customer })}
+        >
+          <Text style={styles.outlineBtnText}>{t.chatWithCustomer}</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );

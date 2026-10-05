@@ -166,6 +166,13 @@ export default function OrderScreen({ navigation, route }: Props) {
             >
               <Text style={styles.outlineBtnSmText}>{t.orderDirections}</Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.outlineBtnSm}
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate('Chat', { customerId: original.customerId, customerName: original.customer })}
+            >
+              <Text style={styles.outlineBtnSmText}>{t.chatWithCustomer}</Text>
+            </TouchableOpacity>
           </View>
         </View>
 

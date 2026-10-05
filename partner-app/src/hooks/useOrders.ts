@@ -9,6 +9,7 @@ export type RemoteOrder = {
   status: OrderStatus;
   event: string;
   customer: string;
+  customerId: string;
   phone: string;
   address: string;
   guests: number;

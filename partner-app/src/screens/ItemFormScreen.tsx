@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -9,6 +9,7 @@ import { CATEGORY_OPTIONS, UNIT_OPTIONS } from '../data/catalog';
 import { api, ApiError } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { pickImageBase64 } from '../utils/pickImage';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ItemForm'>;
@@ -24,6 +25,7 @@ type RemoteItem = {
   deposit: number;
   specs: string;
   instant: boolean;
+  photo: string;
 };
 
 function soon(t: import('../i18n').LangStrings) {
@@ -54,6 +56,7 @@ export default function ItemFormScreen({ navigation, route }: Props) {
   const [deposit, setDeposit] = useState('');
   const [specs, setSpecs] = useState('');
   const [instant, setInstant] = useState(true);
+  const [photo, setPhoto] = useState('');
   const [err, setErr] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -72,12 +75,18 @@ export default function ItemFormScreen({ navigation, route }: Props) {
         setDeposit(String(editing.deposit));
         setSpecs(editing.specs);
         setInstant(editing.instant);
+        setPhoto(editing.photo || '');
       })
       .catch(() => {})
       .finally(() => setLoadingItem(false));
   }, [editingId]);
 
   const needsReview = partner?.verificationStatus !== 'verified';
+
+  const pickCoverPhoto = async () => {
+    const uri = await pickImageBase64();
+    if (uri) setPhoto(uri);
+  };
 
   const save = async () => {
     if (!name.trim()) return setErr(t.itemFormErrName);
@@ -94,6 +103,7 @@ export default function ItemFormScreen({ navigation, route }: Props) {
       deposit: parseInt(deposit, 10) || 0,
       specs,
       instant,
+      photo,
     };
     try {
       if (editingId) await api.put(`/api/vendors/me/items/${editingId}`, payload);
@@ -143,9 +153,15 @@ export default function ItemFormScreen({ navigation, route }: Props) {
         <View>
           <Text style={styles.photoLabel}>{t.itemFormPhotosLabel}</Text>
           <View style={styles.photoGrid}>
-            <TouchableOpacity style={styles.coverPhoto} activeOpacity={0.85} onPress={() => soon(t)}>
-              <Icon name="camera" size={24} color={colors.pinkStrong} strokeWidth={1.5} />
-              <Text style={styles.photoText}>{t.itemFormCoverPhotoText}</Text>
+            <TouchableOpacity style={styles.coverPhoto} activeOpacity={0.85} onPress={pickCoverPhoto}>
+              {photo ? (
+                <Image source={{ uri: photo }} style={styles.coverPhotoImg} />
+              ) : (
+                <>
+                  <Icon name="camera" size={24} color={colors.pinkStrong} strokeWidth={1.5} />
+                  <Text style={styles.photoText}>{t.itemFormCoverPhotoText}</Text>
+                </>
+              )}
             </TouchableOpacity>
             <View style={{ gap: 8, flex: 1 }}>
               <TouchableOpacity style={styles.smallPhoto} activeOpacity={0.85} onPress={() => soon(t)}>
@@ -264,7 +280,8 @@ const styles = StyleSheet.create({
   headerTitle: { fontFamily: 'Sora', fontSize: 18, fontWeight: '800', color: colors.text },
   photoLabel: { fontSize: 12.5, fontWeight: '600', color: colors.textSoft, marginBottom: 8 },
   photoGrid: { flexDirection: 'row', gap: 8 },
-  coverPhoto: { flex: 2, height: 184, borderRadius: 16, backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center', gap: 6, padding: 10 },
+  coverPhoto: { flex: 2, height: 184, borderRadius: 16, backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center', gap: 6, padding: 10, overflow: 'hidden' },
+  coverPhotoImg: { width: '100%', height: '100%' },
   photoText: { fontSize: 11.5, color: colors.pinkStrong, textAlign: 'center', fontWeight: '600' },
   smallPhoto: { height: 88, borderRadius: 14, backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center' },
   photoHint: { fontSize: 11.5, color: colors.textMuted, marginTop: 6 },

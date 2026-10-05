@@ -8,6 +8,9 @@ const shopSchema = new mongoose.Schema({
   deliveryFee: { type: Number, default: 0 },
   setupFee: { type: Number, default: 0 },
   pickupFee: { type: Number, default: 0 },
+  // Data-URI (base64) images — no separate object-storage service yet.
+  coverPhoto: { type: String, default: '' },
+  logoPhoto: { type: String, default: '' },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Shop', shopSchema);

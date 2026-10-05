@@ -1,12 +1,27 @@
-import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
+import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import TabBar from '../components/TabBar';
+import { api, ApiError } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
+
+type RemoteQuote = {
+  id: string;
+  code: string;
+  vendorName: string;
+  productName: string;
+  dateTxt: string;
+  guests: number;
+  need: string;
+  status: 'AWAITING_VENDOR' | 'OFFER_SENT' | 'REVISION_REQUESTED' | 'ACCEPTED' | 'DECLINED';
+  quotedTotal: number;
+  versions: Array<{ v: number; total: number; note: string; lines: Array<{ label: string; amount: number }> }>;
+};
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Bookings'>;
 type Tab = 'active' | 'past' | 'halls' | 'quotes';
@@ -25,36 +40,6 @@ const TOKENS = [
   { id: 'TK-88213', hall: 'Sri Kalyana Mandapam', date: '20 Dec 2026', slot: 'Evening', amount: '₹5,000', status: 'HELD', isActive: true, left: 'Visit within 31 hours' },
 ];
 
-const QUOTES = [
-  {
-    id: 'QT-5521',
-    version: 'v1',
-    status: 'AWAITING VENDOR',
-    event: 'Custom Mandap Design',
-    vendor: 'Sai Tent House',
-    date: '12 Nov 2026',
-    need: 'Traditional South Indian mandap with floral drapes, budget ₹25,000',
-    hasOffer: false,
-  },
-  {
-    id: 'QT-5498',
-    version: 'v2',
-    status: 'OFFER RECEIVED',
-    event: 'Corporate Stage Setup',
-    vendor: 'Hyderabad Sound & Light',
-    date: '5 Dec 2026',
-    need: 'Stage + lighting + sound for 300 guests',
-    hasOffer: true,
-    lines: [
-      { label: 'Stage & backdrop', amount: '₹18,000' },
-      { label: 'Lighting rig', amount: '₹9,000' },
-      { label: 'Sound system', amount: '₹7,500' },
-    ],
-    total: '₹34,500',
-    note: 'Valid for 48 hours',
-  },
-];
-
 function StatusPill({ label, ok }: { label: string; ok: boolean }) {
   return (
     <View style={[styles.pill, ok ? styles.pillOk : styles.pillWarn]}>
@@ -66,8 +51,35 @@ function StatusPill({ label, ok }: { label: string; ok: boolean }) {
 export default function BookingsScreen({ navigation }: Props) {
   const { t } = useLanguage();
   const [tab, setTab] = useState<Tab>('active');
+  const [quotes, setQuotes] = useState<RemoteQuote[]>([]);
+  const [quotesLoading, setQuotesLoading] = useState(true);
+  const [busyQuoteId, setBusyQuoteId] = useState<string | null>(null);
 
   const soon = () => Alert.alert(t.comingSoon, t.bookingsComingSoonBody);
+
+  const loadQuotes = useCallback(() => {
+    api.get<RemoteQuote[]>('/api/quotes/me')
+      .then(setQuotes)
+      .catch(() => {})
+      .finally(() => setQuotesLoading(false));
+  }, []);
+
+  useFocusEffect(useCallback(() => { loadQuotes(); }, [loadQuotes]));
+
+  const respondToQuote = async (id: string, action: 'accept' | 'decline' | 'requestRevision') => {
+    setBusyQuoteId(id);
+    try {
+      await api.patch(`/api/quotes/me/${id}`, { action });
+      loadQuotes();
+      // Custom quotes are settled directly with the vendor — there's no in-app payment
+      // step for these yet (unlike catalog items), so make that explicit on accept.
+      if (action === 'accept') Alert.alert(t.bookingsAcceptPay, t.bookingsQuoteAcceptedMsg);
+    } catch (e) {
+      Alert.alert(t.tryAgain, e instanceof ApiError ? e.message : t.tryAgain);
+    } finally {
+      setBusyQuoteId(null);
+    }
+  };
 
   const TABS: Array<{ key: Tab; label: string }> = [
     { key: 'active', label: t.bookingsTabActive },
@@ -161,56 +173,63 @@ export default function BookingsScreen({ navigation }: Props) {
 
         {tab === 'quotes' && (
           <View style={{ gap: 10 }}>
-            <TouchableOpacity style={styles.dashedBtn} activeOpacity={0.85} onPress={soon}>
+            <TouchableOpacity style={styles.dashedBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Browse', {})}>
               <Text style={styles.dashedBtnText}>{t.bookingsNewQuote}</Text>
             </TouchableOpacity>
-            {QUOTES.length === 0 ? (
+            {quotesLoading ? (
+              <ActivityIndicator color={colors.pink} style={{ marginTop: 10 }} />
+            ) : quotes.length === 0 ? (
               <Text style={styles.emptyText}>{t.bookingsEmptyQuotes}</Text>
             ) : (
-              QUOTES.map((q) => (
-                <View key={q.id} style={styles.card}>
-                  <View style={styles.cardTop}>
-                    <Text style={styles.cardId}>{q.id} {q.version}</Text>
-                    <View style={[styles.pill, styles.pillQuote]}>
-                      <Text style={[styles.pillText, styles.pillTextQuote]}>{q.status}</Text>
+              quotes.map((q) => {
+                const latest = q.versions[q.versions.length - 1];
+                const hasOffer = !!latest && (q.status === 'OFFER_SENT' || q.status === 'REVISION_REQUESTED');
+                const busy = busyQuoteId === q.id;
+                return (
+                  <View key={q.id} style={styles.card}>
+                    <View style={styles.cardTop}>
+                      <Text style={styles.cardId}>{q.code} {latest ? `v${latest.v}` : ''}</Text>
+                      <View style={[styles.pill, styles.pillQuote]}>
+                        <Text style={[styles.pillText, styles.pillTextQuote]}>{q.status.replace(/_/g, ' ')}</Text>
+                      </View>
                     </View>
-                  </View>
-                  <Text style={styles.cardTitle}>{q.event}</Text>
-                  <Text style={styles.cardMeta}>{q.vendor} · {q.date}</Text>
-                  <View style={styles.needBox}>
-                    <Text style={styles.needText}>{q.need}</Text>
-                  </View>
+                    <Text style={styles.cardTitle}>{q.productName || q.vendorName}</Text>
+                    <Text style={styles.cardMeta}>{q.vendorName} · {q.dateTxt}</Text>
+                    <View style={styles.needBox}>
+                      <Text style={styles.needText}>{q.need}</Text>
+                    </View>
 
-                  {q.hasOffer && (
-                    <View style={styles.offerBlock}>
-                      {q.lines!.map((l) => (
-                        <View key={l.label} style={styles.offerLine}>
-                          <Text style={styles.offerLabel}>{l.label}</Text>
-                          <Text style={styles.offerAmount}>{l.amount}</Text>
+                    {hasOffer && latest && (
+                      <View style={styles.offerBlock}>
+                        {latest.lines.map((l) => (
+                          <View key={l.label} style={styles.offerLine}>
+                            <Text style={styles.offerLabel}>{l.label}</Text>
+                            <Text style={styles.offerAmount}>₹{l.amount.toLocaleString('en-IN')}</Text>
+                          </View>
+                        ))}
+                        <View style={styles.offerTotalRow}>
+                          <Text style={styles.offerTotalLabel}>{t.bookingsQuotedTotal}</Text>
+                          <Text style={styles.offerTotalValue}>₹{latest.total.toLocaleString('en-IN')}</Text>
                         </View>
-                      ))}
-                      <View style={styles.offerTotalRow}>
-                        <Text style={styles.offerTotalLabel}>{t.bookingsQuotedTotal}</Text>
-                        <Text style={styles.offerTotalValue}>{q.total}</Text>
+                        {!!latest.note && <Text style={styles.offerNote}>{latest.note}</Text>}
+                        <View style={styles.offerActions}>
+                          <TouchableOpacity style={styles.offerOutlineBtn} activeOpacity={0.85} disabled={busy} onPress={() => respondToQuote(q.id, 'decline')}>
+                            <Text style={styles.offerOutlineText}>{t.bookingsDecline}</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity style={styles.offerOutlineBtn} activeOpacity={0.85} disabled={busy} onPress={() => respondToQuote(q.id, 'requestRevision')}>
+                            <Text style={styles.offerOutlineText}>{t.bookingsAskChanges}</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity style={styles.offerAcceptBtnWrap} activeOpacity={0.85} disabled={busy} onPress={() => respondToQuote(q.id, 'accept')}>
+                            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.offerAcceptBtn}>
+                              <Text style={styles.offerAcceptText}>{t.bookingsAcceptPay}</Text>
+                            </LinearGradient>
+                          </TouchableOpacity>
+                        </View>
                       </View>
-                      <Text style={styles.offerNote}>{q.note}</Text>
-                      <View style={styles.offerActions}>
-                        <TouchableOpacity style={styles.offerOutlineBtn} activeOpacity={0.85} onPress={soon}>
-                          <Text style={styles.offerOutlineText}>{t.bookingsDecline}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.offerOutlineBtn} activeOpacity={0.85} onPress={soon}>
-                          <Text style={styles.offerOutlineText}>{t.bookingsAskChanges}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.offerAcceptBtnWrap} activeOpacity={0.85} onPress={soon}>
-                          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.offerAcceptBtn}>
-                            <Text style={styles.offerAcceptText}>{t.bookingsAcceptPay}</Text>
-                          </LinearGradient>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  )}
-                </View>
-              ))
+                    )}
+                  </View>
+                );
+              })
             )}
           </View>
         )}
