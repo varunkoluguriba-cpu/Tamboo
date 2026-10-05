@@ -4,6 +4,8 @@ const Partner = require('../models/Partner');
 const PayoutEntry = require('../models/PayoutEntry');
 const Booking = require('../models/Booking');
 const Order = require('../models/Order');
+const Message = require('../models/Message');
+const User = require('../models/User');
 
 const router = express.Router();
 router.use(requireAdminAuth);
@@ -127,6 +129,48 @@ router.get('/bookings', async (req, res) => {
       createdAt: o.createdAt,
     })),
   });
+});
+
+// Support inbox: every open thread (one per customer or partner who has messaged Tamboo),
+// newest activity first, with a preview so the team can triage without opening each one.
+router.get('/support', async (req, res) => {
+  const messages = await Message.find({ kind: 'support' }).sort({ createdAt: -1 });
+  const threads = new Map(); // key: `customer:<id>` or `partner:<id>`
+  for (const m of messages) {
+    const type = m.customer ? 'customer' : 'partner';
+    const id = String(m.customer || m.partner);
+    const key = `${type}:${id}`;
+    if (!threads.has(key)) {
+      threads.set(key, { type, id, lastMessage: m.text, lastSender: m.sender, lastAt: m.createdAt, unread: m.sender !== 'admin' });
+    }
+  }
+  const list = Array.from(threads.values());
+  const [users, partners] = await Promise.all([
+    User.find({ _id: { $in: list.filter((t) => t.type === 'customer').map((t) => t.id) } }),
+    Partner.find({ _id: { $in: list.filter((t) => t.type === 'partner').map((t) => t.id) } }),
+  ]);
+  const nameById = new Map([
+    ...users.map((u) => [u.id, u.name || u.phone]),
+    ...partners.map((p) => [p.id, p.businessName || p.phone]),
+  ]);
+  res.json(list.map((t) => ({ ...t, name: nameById.get(t.id) || t.id })).sort((a, b) => new Date(b.lastAt) - new Date(a.lastAt)));
+});
+
+router.get('/support/:type/:id', async (req, res) => {
+  const { type, id } = req.params;
+  if (type !== 'customer' && type !== 'partner') return res.status(400).json({ error: 'Invalid thread type' });
+  const filter = { kind: 'support', [type]: id };
+  const messages = await Message.find(filter).sort({ createdAt: 1 });
+  res.json(messages.map((m) => ({ id: m.id, sender: m.sender, text: m.text, at: m.createdAt })));
+});
+
+router.post('/support/:type/:id', async (req, res) => {
+  const { type, id } = req.params;
+  const { text } = req.body || {};
+  if (type !== 'customer' && type !== 'partner') return res.status(400).json({ error: 'Invalid thread type' });
+  if (!text || !text.trim()) return res.status(400).json({ error: 'Message is empty' });
+  const message = await Message.create({ kind: 'support', [type]: id, sender: 'admin', text: text.trim() });
+  res.status(201).json({ id: message.id, sender: message.sender, text: message.text, at: message.createdAt });
 });
 
 module.exports = router;

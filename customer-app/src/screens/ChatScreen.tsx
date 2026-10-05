@@ -11,7 +11,7 @@ import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Chat'>;
 type Msg = { id: string; text: string; mine: boolean; at: string };
-type RemoteMsg = { id: string; sender: 'customer' | 'partner'; text: string; at: string };
+type RemoteMsg = { id: string; sender: 'customer' | 'partner' | 'admin'; text: string; at: string };
 
 const POLL_MS = 4000;
 
@@ -33,16 +33,18 @@ export default function ChatScreen({ navigation, route }: Props) {
   const { t } = useLanguage();
   const { peerName, vendorId } = route.params;
   const isSupport = peerName.toLowerCase().includes('support');
-  const isLive = !!vendorId;
+  // Real backend thread for: a real (Mongo-backed) vendor, or Tamboo Support.
+  // Mock-catalog vendors fall back to the simulated local-only experience below.
+  const isLive = !!vendorId || isSupport;
+  const endpoint = isSupport ? '/api/messages/support/me' : `/api/messages/${vendorId}`;
 
-  // Simulated thread (mock vendors and Tamboo Support — no real backend conversation yet).
   const [msgs, setMsgs] = useState<Msg[]>(
     isLive
       ? []
       : [
           {
             id: 'seed',
-            text: isSupport ? t.chatSupportGreeting : t.chatVendorGreeting.replace('{name}', peerName),
+            text: t.chatVendorGreeting.replace('{name}', peerName),
             mine: false,
             at: timeNow(),
           },
@@ -52,9 +54,9 @@ export default function ChatScreen({ navigation, route }: Props) {
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (!isLive || !vendorId) return undefined;
+    if (!isLive) return undefined;
     const load = () => {
-      api.get<RemoteMsg[]>(`/api/messages/${vendorId}`)
+      api.get<RemoteMsg[]>(endpoint)
         .then((res) => setMsgs(res.map((m) => ({ id: m.id, text: m.text, mine: m.sender === 'customer', at: fmtTime(m.at) }))))
         .catch(() => {});
     };
@@ -63,30 +65,22 @@ export default function ChatScreen({ navigation, route }: Props) {
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
     };
-  }, [isLive, vendorId]);
+  }, [isLive, endpoint]);
 
   const send = () => {
     const text = draft.trim();
     if (!text) return;
     setDraft('');
 
-    if (isLive && vendorId) {
+    if (isLive) {
       setMsgs((m) => [...m, { id: `tmp-${Date.now()}`, text, mine: true, at: timeNow() }]);
-      api.post(`/api/messages/${vendorId}`, { text }).catch(() => {});
+      api.post(endpoint, { text }).catch(() => {});
       return;
     }
 
     setMsgs((m) => [...m, { id: String(Date.now()), text, mine: true, at: timeNow() }]);
     setTimeout(() => {
-      setMsgs((m) => [
-        ...m,
-        {
-          id: String(Date.now() + 1),
-          text: isSupport ? t.chatSupportReply : t.chatVendorReply,
-          mine: false,
-          at: timeNow(),
-        },
-      ]);
+      setMsgs((m) => [...m, { id: String(Date.now() + 1), text: t.chatVendorReply, mine: false, at: timeNow() }]);
     }, 900);
   };
 
@@ -104,6 +98,11 @@ export default function ChatScreen({ navigation, route }: Props) {
         </View>
 
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+          {isSupport && msgs.length === 0 && (
+            <View style={styles.bubbleTheirsWrap}>
+              <Text style={styles.bubbleTheirsText}>{t.chatSupportGreeting}</Text>
+            </View>
+          )}
           {msgs.map((m) =>
             m.mine ? (
               <View key={m.id} style={styles.bubbleMineWrap}>

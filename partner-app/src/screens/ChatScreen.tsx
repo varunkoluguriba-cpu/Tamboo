@@ -11,7 +11,7 @@ import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Chat'>;
 type Msg = { id: string; text: string; mine: boolean; at: string };
-type RemoteMsg = { id: string; sender: 'customer' | 'partner'; text: string; at: string };
+type RemoteMsg = { id: string; sender: 'customer' | 'partner' | 'admin'; text: string; at: string };
 
 const POLL_MS = 4000;
 
@@ -25,13 +25,15 @@ function fmtTime(iso: string): string {
 export default function ChatScreen({ navigation, route }: Props) {
   const { t } = useLanguage();
   const { customerId, customerName } = route.params;
+  // No customerId means this is the partner's own Tamboo Support thread, not a customer chat.
+  const endpoint = customerId ? `/api/messages/vendor/${customerId}` : '/api/messages/support/vendor/me';
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [draft, setDraft] = useState('');
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     const load = () => {
-      api.get<RemoteMsg[]>(`/api/messages/vendor/${customerId}`)
+      api.get<RemoteMsg[]>(endpoint)
         .then((res) => setMsgs(res.map((m) => ({ id: m.id, text: m.text, mine: m.sender === 'partner', at: fmtTime(m.at) }))))
         .catch(() => {});
     };
@@ -40,14 +42,14 @@ export default function ChatScreen({ navigation, route }: Props) {
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
     };
-  }, [customerId]);
+  }, [endpoint]);
 
   const send = () => {
     const text = draft.trim();
     if (!text) return;
     setDraft('');
     setMsgs((m) => [...m, { id: `tmp-${Date.now()}`, text, mine: true, at: 'now' }]);
-    api.post(`/api/messages/vendor/${customerId}`, { text }).catch(() => {});
+    api.post(endpoint, { text }).catch(() => {});
   };
 
   return (

@@ -47,6 +47,7 @@ const EN = {
   or: 'or',
   chatWithCustomer: 'Chat',
   chatMessagePlaceholder: 'Message…',
+  tambooSupport: 'Tamboo Support',
 
   // ---- calendar / earnings / hhome / htoken ----
   calendarTitle: 'Calendar', calendarMon: 'Mo', calendarTue: 'Tu', calendarWed: 'We', calendarThu: 'Th', calendarFri: 'Fr', calendarSat: 'Sa', calendarSun: 'Su',
@@ -175,7 +176,7 @@ const TE: Partial<Record<Key, string>> = {
   noResults: 'ఫలితాలు కనుగొనబడలేదు', tryAgain: 'ఏదో తప్పు జరిగింది. దయచేసి మళ్లీ ప్రయత్నించండి.', required: 'తప్పనిసరి',
   yes: 'అవును', no: 'కాదు', ok: 'సరే', back: 'వెనక్కి', done: 'పూర్తయింది', close: 'మూసివేయండి',
   submit: 'సమర్పించండి', update: 'నవీకరించండి', viewDetails: 'వివరాలు చూడండి', comingSoon: 'త్వరలో వస్తుంది',
-  logout: 'లాగ్ అవుట్', or: 'లేదా', chatWithCustomer: 'చాట్', chatMessagePlaceholder: 'మెసేజ్…',
+  logout: 'లాగ్ అవుట్', or: 'లేదా', chatWithCustomer: 'చాట్', chatMessagePlaceholder: 'మెసేజ్…', tambooSupport: 'టాంబూ సపోర్ట్',
 
   calendarTitle: 'క్యాలెండర్', calendarMon: 'సోమ', calendarTue: 'మంగళ', calendarWed: 'బుధ', calendarThu: 'గురు', calendarFri: 'శుక్ర', calendarSat: 'శని', calendarSun: 'ఆది',
   calendarBooked: 'బుక్ అయింది', calendarBlocked: 'బ్లాక్ చేయబడింది', calendarBlockedNote: 'బ్లాక్ చేయబడింది: {reason}. కస్టమర్లు ఈ రోజున మీను బుక్ చేయలేరు.',
@@ -294,7 +295,7 @@ const HI: Partial<Record<Key, string>> = {
   noResults: 'कोई परिणाम नहीं मिला', tryAgain: 'कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।', required: 'आवश्यक',
   yes: 'हाँ', no: 'नहीं', ok: 'ठीक है', back: 'वापस', done: 'पूर्ण', close: 'बंद करें',
   submit: 'जमा करें', update: 'अपडेट करें', viewDetails: 'विवरण देखें', comingSoon: 'जल्द आ रहा है',
-  logout: 'लॉगआउट', or: 'या', chatWithCustomer: 'चैट', chatMessagePlaceholder: 'मैसेज…',
+  logout: 'लॉगआउट', or: 'या', chatWithCustomer: 'चैट', chatMessagePlaceholder: 'मैसेज…', tambooSupport: 'टैम्बू सपोर्ट',
 
   calendarTitle: 'कैलेंडर', calendarMon: 'सोम', calendarTue: 'मंगल', calendarWed: 'बुध', calendarThu: 'गुरु', calendarFri: 'शुक्र', calendarSat: 'शनि', calendarSun: 'रवि',
   calendarBooked: 'बुक है', calendarBlocked: 'ब्लॉक है', calendarBlockedNote: 'ब्लॉक किया गया: {reason}. ग्राहक इस दिन आपको बुक नहीं कर सकते।',
@@ -413,7 +414,7 @@ const UR: Partial<Record<Key, string>> = {
   noResults: 'کوئی نتیجہ نہیں ملا', tryAgain: 'کچھ غلط ہو گیا۔ براہ کرم دوبارہ کوشش کریں۔', required: 'ضروری',
   yes: 'جی ہاں', no: 'نہیں', ok: 'ٹھیک ہے', back: 'واپس', done: 'مکمل', close: 'بند کریں',
   submit: 'جمع کریں', update: 'اپ ڈیٹ کریں', viewDetails: 'تفصیلات دیکھیں', comingSoon: 'آنے والا ہے',
-  logout: 'لاگ آؤٹ', or: 'یا', chatWithCustomer: 'چیٹ', chatMessagePlaceholder: 'پیغام…',
+  logout: 'لاگ آؤٹ', or: 'یا', chatWithCustomer: 'چیٹ', chatMessagePlaceholder: 'پیغام…', tambooSupport: 'ٹیمبو سپورٹ',
 
   calendarTitle: 'کیلنڈر', calendarMon: 'پیر', calendarTue: 'منگل', calendarWed: 'بدھ', calendarThu: 'جمعرات', calendarFri: 'جمعہ', calendarSat: 'ہفتہ', calendarSun: 'اتوار',
   calendarBooked: 'بک ہے', calendarBlocked: 'بلاک ہے', calendarBlockedNote: 'بلاک کر دیا گیا: {reason}۔ گاہک اس دن آپ کو بک نہیں کر سکتے۔',

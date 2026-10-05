@@ -151,6 +151,14 @@ export default function ShopScreen({ navigation }: Props) {
             </LinearGradient>
           </TouchableOpacity>
 
+          <TouchableOpacity
+            style={styles.logoutBtn}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('Chat', { customerName: t.tambooSupport })}
+          >
+            <Text style={styles.logoutText}>{t.tambooSupport}</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.logoutBtn} activeOpacity={0.85} onPress={logout}>
             <Icon name="logout" size={16} color={colors.text} />
             <Text style={styles.logoutText}>{t.logout}</Text>

@@ -349,3 +349,31 @@
   margin-bottom: 16px;
   display: inline-block;
 }
+
+.support-bubble {
+  max-width: 70%;
+  border-radius: 14px;
+  padding: 10px 14px;
+}
+
+.support-bubble.theirs {
+  align-self: flex-start;
+  background: var(--bg);
+}
+
+.support-bubble.mine {
+  align-self: flex-end;
+  background: linear-gradient(135deg, var(--maroon), var(--pink));
+  color: #fff;
+}
+
+.support-bubble-text {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.support-bubble-time {
+  font-size: 11px;
+  opacity: 0.7;
+  margin-top: 4px;
+}

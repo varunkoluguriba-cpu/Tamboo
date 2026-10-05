@@ -21,5 +21,5 @@ export type RootStackParamList = {
   HToken: { id: string };
   Hall: undefined;
   Earnings: undefined;
-  Chat: { customerId: string; customerName: string };
+  Chat: { customerId?: string; customerName: string };
 };

@@ -6,6 +6,8 @@ import Layout from './pages/Layout';
 import Partners from './pages/Partners';
 import PartnerDetail from './pages/PartnerDetail';
 import Bookings from './pages/Bookings';
+import Support from './pages/Support';
+import SupportThread from './pages/SupportThread';
 
 function Gate({ children }: { children: React.ReactNode }) {
   const { loggedIn } = useAuth();
@@ -22,6 +24,8 @@ function AppRoutes() {
         <Route path="partners" element={<Partners />} />
         <Route path="partners/:id" element={<PartnerDetail />} />
         <Route path="bookings" element={<Bookings />} />
+        <Route path="support" element={<Support />} />
+        <Route path="support/:type/:id" element={<SupportThread />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

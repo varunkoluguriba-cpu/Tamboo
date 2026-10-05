@@ -14,6 +14,9 @@ export default function Layout() {
         <NavLink to="/bookings" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
           Bookings & revenue
         </NavLink>
+        <NavLink to="/support" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+          Support
+        </NavLink>
         <div className="sidebar-footer">
           <button className="btn-secondary" onClick={logout} style={{ width: '100%' }}>
             Log out
