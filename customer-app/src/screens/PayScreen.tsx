@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
+import RazorpayCheckout from 'react-native-razorpay';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
+import { api, ApiError } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useEvent } from '../context/EventContext';
+import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Pay'>;
@@ -15,17 +20,21 @@ type Method = 'upi' | 'card' | 'netbanking';
 const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 const HOLD_SECONDS = 15 * 60;
 
-const METHODS: Array<{ key: Method; label: string; sub: string }> = [
-  { key: 'upi', label: 'UPI', sub: 'Google Pay, PhonePe, Paytm and more' },
-  { key: 'card', label: 'Credit / Debit card', sub: 'Visa, Mastercard, RuPay' },
-  { key: 'netbanking', label: 'Netbanking', sub: 'All major Indian banks' },
-];
-
 export default function PayScreen({ navigation }: Props) {
-  const { pricing, groups, clearCart } = useCart();
+  const { user } = useAuth();
+  const { event } = useEvent();
+  const { pricing, groups, deliveryMode, clearCart } = useCart();
+  const { t } = useLanguage();
+
+  const METHODS: Array<{ key: Method; label: string; sub: string }> = [
+    { key: 'upi', label: t.payMethodUpi, sub: t.payMethodUpiSub },
+    { key: 'card', label: t.payMethodCard, sub: t.payMethodCardSub },
+    { key: 'netbanking', label: t.payMethodNetbanking, sub: t.payMethodNetbankingSub },
+  ];
   const [payMode, setPayMode] = useState<PayMode>('full');
   const [method, setMethod] = useState<Method>('upi');
   const [secondsLeft, setSecondsLeft] = useState(HOLD_SECONDS);
+  const [paying, setPaying] = useState(false);
 
   useEffect(() => {
     const id = setInterval(() => setSecondsLeft((s) => Math.max(0, s - 1)), 1000);
@@ -36,20 +45,78 @@ export default function PayScreen({ navigation }: Props) {
   const ss = String(secondsLeft % 60).padStart(2, '0');
 
   const due = payMode === 'full' ? pricing.total : Math.round(pricing.total * 0.3);
+  const perGroupDelivery = deliveryMode === 'delivery' ? 300 : 0;
 
-  const paySuccess = () => {
-    const base = 'TB-' + (250100 + Math.floor(Math.random() * 900));
-    const orders = groups.map((g, i) => ({
-      id: groups.length > 1 ? `${base}-${String.fromCharCode(65 + i)}` : base,
-      vendor: g.vendorName,
-      total: g.subtotal,
-    }));
-    clearCart();
-    navigation.reset({ index: 0, routes: [{ name: 'Confirm', params: { orders } }] });
-  };
+  const pay = async () => {
+    if (paying) return;
+    setPaying(true);
+    try {
+      const order = await api.post<{ orderId: string; amount: number; currency: string; keyId: string }>(
+        '/api/payments/create-order',
+        { amount: due },
+      );
 
-  const payFail = () => {
-    Alert.alert('Payment failed', 'The payment could not be completed. Your items are still held — please try again.');
+      let checkoutResult: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string };
+      try {
+        checkoutResult = await RazorpayCheckout.open({
+          key: order.keyId,
+          order_id: order.orderId,
+          amount: order.amount,
+          currency: order.currency,
+          name: 'Tamboo',
+          description: `${groups.length} vendor${groups.length > 1 ? 's' : ''} · rental order`,
+          prefill: { name: user?.name, contact: user?.phone },
+          theme: { color: colors.maroon },
+        });
+      } catch (checkoutErr: any) {
+        const description: string = checkoutErr?.description || '';
+        if (!/cancel/i.test(description)) {
+          Alert.alert(t.payPaymentFailedTitle, description || t.payPaymentFailedDefaultMsg);
+        }
+        return;
+      }
+
+      const res = await api.post<{ verified: boolean; orders?: Array<{ id: string; code: string; vendor: string; total: number }> }>(
+        '/api/payments/verify',
+        {
+          razorpay_order_id: checkoutResult.razorpay_order_id,
+          razorpay_payment_id: checkoutResult.razorpay_payment_id,
+          razorpay_signature: checkoutResult.razorpay_signature,
+          cart: {
+            payMode,
+            due,
+            customerName: user?.name,
+            customerPhone: user?.phone,
+            eventType: event.venueType,
+            eventName: event.name,
+            dateTxt: event.date,
+            address: event.address,
+            guests: parseInt(event.guests, 10) || 0,
+            groups: groups.map((g) => ({
+              vendorId: g.vendorId,
+              vendorName: g.vendorName,
+              subtotal: g.subtotal,
+              deliveryFee: perGroupDelivery,
+              lines: g.lines.map((l) => ({ name: l.name, qty: l.qty, unitPrice: l.unitPrice })),
+            })),
+          },
+        },
+      );
+
+      if (!res.verified) {
+        Alert.alert(t.payVerifyFailedTitle, t.payVerifyFailedMsg);
+        return;
+      }
+
+      const orders = (res.orders || []).map((o) => ({ id: o.code, vendor: o.vendor, total: o.total }));
+      clearCart();
+      navigation.reset({ index: 0, routes: [{ name: 'Confirm', params: { orders } }] });
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : t.tryAgain;
+      Alert.alert(t.payPaymentFailedTitle, message);
+    } finally {
+      setPaying(false);
+    }
   };
 
   return (
@@ -59,19 +126,19 @@ export default function PayScreen({ navigation }: Props) {
           <TouchableOpacity style={styles.backBtn} activeOpacity={0.8} onPress={() => navigation.goBack()}>
             <Icon name="left" size={18} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Payment</Text>
+          <Text style={styles.headerTitle}>{t.payHeaderTitle}</Text>
         </View>
 
         <View style={styles.holdBanner}>
           <Icon name="clock" size={16} color={colors.amber} />
-          <Text style={styles.holdText}>Your items are held for you</Text>
+          <Text style={styles.holdText}>{t.payHoldText}</Text>
           <Text style={styles.holdTime}>{mm}:{ss}</Text>
         </View>
 
         <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.dueCard}>
-          <Text style={styles.dueLabel}>{payMode === 'full' ? 'Amount due now' : 'Advance due now (30%)'}</Text>
+          <Text style={styles.dueLabel}>{payMode === 'full' ? t.payAmountDueNow : t.payAdvanceDueNow}</Text>
           <Text style={styles.dueAmount}>{inr(due)}</Text>
-          <Text style={styles.dueSub}>of {inr(pricing.total)} total</Text>
+          <Text style={styles.dueSub}>{t.payOfTotal.replace('{param}', inr(pricing.total))}</Text>
         </LinearGradient>
 
         <View style={styles.modeRow}>
@@ -80,16 +147,22 @@ export default function PayScreen({ navigation }: Props) {
             activeOpacity={0.85}
             onPress={() => setPayMode('full')}
           >
-            <Text style={[styles.modeBtnText, payMode === 'full' && styles.modeBtnTextSel]}>Pay in full</Text>
+            <Text style={[styles.modeBtnText, payMode === 'full' && styles.modeBtnTextSel]}>{t.payInFull}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.modeBtn, payMode === 'advance' ? styles.modeBtnSel : styles.modeBtnUnsel]}
             activeOpacity={0.85}
             onPress={() => setPayMode('advance')}
           >
-            <Text style={[styles.modeBtnText, payMode === 'advance' && styles.modeBtnTextSel]}>Pay 30% advance</Text>
+            <Text style={[styles.modeBtnText, payMode === 'advance' && styles.modeBtnTextSel]}>{t.payAdvance30}</Text>
           </TouchableOpacity>
         </View>
+
+        {payMode === 'advance' && (
+          <Text style={styles.advanceNote}>
+            {t.payAdvanceNote.replace('{param}', inr(pricing.total - due))}
+          </Text>
+        )}
 
         <View style={{ gap: 8 }}>
           {METHODS.map((m) => {
@@ -108,16 +181,12 @@ export default function PayScreen({ navigation }: Props) {
           })}
         </View>
 
-        <Text style={styles.disclaimer}>Payments are handled by a secure payment provider. Tamboo never stores your card details.</Text>
+        <Text style={styles.disclaimer}>{t.payDisclaimer}</Text>
 
-        <TouchableOpacity style={styles.payBtnWrap} activeOpacity={0.85} onPress={paySuccess}>
-          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.payBtn}>
-            <Text style={styles.payBtnText}>Pay {inr(due)}</Text>
+        <TouchableOpacity style={styles.payBtnWrap} activeOpacity={paying ? 1 : 0.85} disabled={paying} onPress={pay}>
+          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={[styles.payBtn, paying && styles.payBtnDisabled]}>
+            {paying ? <ActivityIndicator color="#fff" /> : <Text style={styles.payBtnText}>{t.payPayAmount.replace('{param}', inr(due))}</Text>}
           </LinearGradient>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.failBtn} activeOpacity={0.85} onPress={payFail}>
-          <Text style={styles.failBtnText}>Demo: simulate a failed payment</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -143,6 +212,7 @@ const styles = StyleSheet.create({
   modeBtnSel: { backgroundColor: colors.maroon, borderColor: colors.maroon },
   modeBtnText: { fontSize: 13, fontWeight: '700', color: colors.pinkStrong },
   modeBtnTextSel: { color: '#fff' },
+  advanceNote: { fontSize: 11.5, color: colors.textSoft, lineHeight: 17 },
   methodRow: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.surface, borderRadius: 16, borderWidth: 1.5, padding: 14 },
   radio: { width: 18, height: 18, borderRadius: 9, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   radioDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: colors.pink },
@@ -151,7 +221,6 @@ const styles = StyleSheet.create({
   disclaimer: { fontSize: 11.5, color: colors.textMuted, textAlign: 'center' },
   payBtnWrap: {},
   payBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  payBtnDisabled: { opacity: 0.6 },
   payBtnText: { color: '#fff', fontWeight: '700', fontSize: 15.5, fontFamily: 'Sora' },
-  failBtn: { height: 44, borderRadius: 999, borderWidth: 1.5, borderColor: colors.dividerStrong, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center' },
-  failBtnText: { color: colors.textSoft, fontWeight: '600', fontSize: 13 },
 });

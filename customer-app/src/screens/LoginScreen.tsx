@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -13,14 +13,15 @@ type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
 export default function LoginScreen({ navigation }: Props) {
   const { t } = useLanguage();
-  const { sendOtp } = useAuth();
+  const { sendOtp, continueWithGoogle, continueAsGuest } = useAuth();
   const [phone, setPhone] = useState('');
   const [err, setErr] = useState('');
   const [sending, setSending] = useState(false);
+  const [altLoading, setAltLoading] = useState<'google' | 'guest' | null>(null);
 
   const submit = async () => {
     if (phone.length !== 10) {
-      setErr('Enter a valid 10-digit mobile number');
+      setErr(t.loginScreenInvalidPhone);
       return;
     }
     setErr('');
@@ -29,9 +30,36 @@ export default function LoginScreen({ navigation }: Props) {
       await sendOtp(`+91${phone}`);
       navigation.navigate('Otp', { phone });
     } catch (e) {
-      setErr(e instanceof ApiError ? e.message : 'Could not send OTP. Check your connection.');
+      setErr(e instanceof ApiError ? e.message : t.loginScreenOtpError);
     } finally {
       setSending(false);
+    }
+  };
+
+  const google = async () => {
+    setErr('');
+    setAltLoading('google');
+    try {
+      await continueWithGoogle();
+      // RootNavigator swaps to Home automatically once the user is set + registered.
+    } catch (e: any) {
+      if (e?.code !== 'SIGN_IN_CANCELLED' && e?.code !== '-5') {
+        setErr(e instanceof ApiError ? e.message : t.loginScreenGoogleError);
+      }
+    } finally {
+      setAltLoading(null);
+    }
+  };
+
+  const guest = async () => {
+    setErr('');
+    setAltLoading('guest');
+    try {
+      await continueAsGuest();
+    } catch (e) {
+      setErr(e instanceof ApiError ? e.message : t.loginScreenGuestError);
+    } finally {
+      setAltLoading(null);
     }
   };
 
@@ -44,7 +72,7 @@ export default function LoginScreen({ navigation }: Props) {
           <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.brandPill}>
             <Text style={styles.brandText}>tamboo</Text>
           </LinearGradient>
-          <Text style={styles.tagline}>Everything for your event</Text>
+          <Text style={styles.tagline}>{t.loginScreenTagline}</Text>
         </View>
 
         <View>
@@ -76,20 +104,20 @@ export default function LoginScreen({ navigation }: Props) {
 
         <View style={styles.dividerRow}>
           <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>or</Text>
+          <Text style={styles.dividerText}>{t.or}</Text>
           <View style={styles.dividerLine} />
         </View>
 
         <View style={styles.altRow}>
-          <TouchableOpacity style={styles.altButton} onPress={() => Alert.alert('Coming soon', 'Google sign-in will be available soon.')}>
-            <Text style={styles.altButtonText}>Continue with Google</Text>
+          <TouchableOpacity style={styles.altButton} activeOpacity={0.85} onPress={google} disabled={altLoading !== null}>
+            <Text style={styles.altButtonText}>{altLoading === 'google' ? '…' : t.continueWithGoogle}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.altButton} onPress={() => Alert.alert('Coming soon', 'Guest browsing will be available soon.')}>
-            <Text style={styles.altButtonText}>Browse as guest</Text>
+          <TouchableOpacity style={styles.altButton} activeOpacity={0.85} onPress={guest} disabled={altLoading !== null}>
+            <Text style={styles.altButtonText}>{altLoading === 'guest' ? '…' : t.browseAsGuest}</Text>
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.terms}>By continuing you agree to the Customer Terms and Privacy Policy.</Text>
+        <Text style={styles.terms}>{t.loginScreenTerms}</Text>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );

@@ -1,18 +1,33 @@
-import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
-import { getItem, CATEGORY_OPTIONS, UNIT_OPTIONS } from '../data/catalog';
+import { CATEGORY_OPTIONS, UNIT_OPTIONS } from '../data/catalog';
+import { api, ApiError } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ItemForm'>;
 
-function soon() {
-  Alert.alert('Coming soon', 'This is being built next.');
+type RemoteItem = {
+  id: string;
+  name: string;
+  cat: string;
+  price: number;
+  unit: string;
+  stock: number;
+  min: number;
+  deposit: number;
+  specs: string;
+  instant: boolean;
+};
+
+function soon(t: import('../i18n').LangStrings) {
+  Alert.alert(t.comingSoon, t.itemFormComingSoonMsg);
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -26,34 +41,88 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 export default function ItemFormScreen({ navigation, route }: Props) {
   const { partner } = useAuth();
-  const editing = route.params?.id ? getItem(route.params.id) : undefined;
+  const { t } = useLanguage();
+  const editingId = route.params?.id;
 
-  const [name, setName] = useState(editing?.name || '');
-  const [cat, setCat] = useState(editing?.cat || CATEGORY_OPTIONS[0].id);
-  const [price, setPrice] = useState(editing ? String(editing.price) : '');
+  const [loadingItem, setLoadingItem] = useState(!!editingId);
+  const [name, setName] = useState('');
+  const [cat, setCat] = useState(CATEGORY_OPTIONS[0].id);
+  const [price, setPrice] = useState('');
   const [unit, setUnit] = useState(UNIT_OPTIONS[0]);
-  const [stock, setStock] = useState(editing ? String(editing.stock) : '');
-  const [min, setMin] = useState(editing ? String(editing.min) : '1');
-  const [deposit, setDeposit] = useState(editing ? String(editing.deposit) : '');
-  const [specs, setSpecs] = useState(editing?.specs || '');
-  const [instant, setInstant] = useState(editing ? editing.instant : true);
+  const [stock, setStock] = useState('');
+  const [min, setMin] = useState('1');
+  const [deposit, setDeposit] = useState('');
+  const [specs, setSpecs] = useState('');
+  const [instant, setInstant] = useState(true);
   const [err, setErr] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!editingId) return;
+    api.get<RemoteItem[]>('/api/vendors/me/items')
+      .then((items) => {
+        const editing = items.find((i) => i.id === editingId);
+        if (!editing) return;
+        setName(editing.name);
+        setCat(editing.cat);
+        setPrice(String(editing.price));
+        setUnit(editing.unit || UNIT_OPTIONS[0]);
+        setStock(String(editing.stock));
+        setMin(String(editing.min));
+        setDeposit(String(editing.deposit));
+        setSpecs(editing.specs);
+        setInstant(editing.instant);
+      })
+      .catch(() => {})
+      .finally(() => setLoadingItem(false));
+  }, [editingId]);
 
   const needsReview = partner?.verificationStatus !== 'verified';
 
-  const save = () => {
-    if (!name.trim()) return setErr('Enter an item name');
-    if (instant && (!price || parseInt(price, 10) <= 0)) return setErr('Enter the rent amount');
+  const save = async () => {
+    if (!name.trim()) return setErr(t.itemFormErrName);
+    if (instant && (!price || parseInt(price, 10) <= 0)) return setErr(t.itemFormErrRent);
     setErr('');
-    Alert.alert(editing ? 'Item updated' : 'Item added', needsReview ? "It'll go live once your account or this item is verified." : "It's live now.", [
-      { text: 'OK', onPress: () => navigation.goBack() },
-    ]);
+    setSaving(true);
+    const payload = {
+      name: name.trim(),
+      cat,
+      price: parseInt(price, 10) || 0,
+      unit,
+      stock: parseInt(stock, 10) || 0,
+      min: parseInt(min, 10) || 1,
+      deposit: parseInt(deposit, 10) || 0,
+      specs,
+      instant,
+    };
+    try {
+      if (editingId) await api.put(`/api/vendors/me/items/${editingId}`, payload);
+      else await api.post('/api/vendors/me/items', payload);
+      Alert.alert(editingId ? t.itemFormUpdatedTitle : t.itemFormAddedTitle, needsReview ? t.itemFormPendingReviewMsg : t.itemFormLiveMsg, [
+        { text: t.ok, onPress: () => navigation.goBack() },
+      ]);
+    } catch (e) {
+      setErr(e instanceof ApiError ? e.message : t.itemFormErrSaveFailed);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const deleteItem = () => {
-    Alert.alert('Delete this item?', 'This cannot be undone.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => navigation.goBack() },
+    Alert.alert(t.itemFormDeleteConfirmTitle, t.itemFormDeleteConfirmMsg, [
+      { text: t.cancel, style: 'cancel' },
+      {
+        text: t.delete,
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await api.delete(`/api/vendors/me/items/${editingId}`);
+            navigation.goBack();
+          } catch (e) {
+            Alert.alert(t.itemFormErrDeleteTitle, e instanceof ApiError ? e.message : t.tryAgain);
+          }
+        },
+      },
     ]);
   };
 
@@ -64,33 +133,37 @@ export default function ItemFormScreen({ navigation, route }: Props) {
           <TouchableOpacity style={styles.backBtn} activeOpacity={0.8} onPress={() => navigation.goBack()}>
             <Icon name="left" size={18} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{editing ? 'Edit item' : 'Add item'}</Text>
+          <Text style={styles.headerTitle}>{editingId ? t.itemFormEditTitle : t.itemFormAddTitle}</Text>
         </View>
 
+        {loadingItem ? (
+          <ActivityIndicator color={colors.pink} style={{ marginTop: 24 }} />
+        ) : (
+        <>
         <View>
-          <Text style={styles.photoLabel}>Photos · first one is the cover customers see</Text>
+          <Text style={styles.photoLabel}>{t.itemFormPhotosLabel}</Text>
           <View style={styles.photoGrid}>
-            <TouchableOpacity style={styles.coverPhoto} activeOpacity={0.85} onPress={soon}>
+            <TouchableOpacity style={styles.coverPhoto} activeOpacity={0.85} onPress={() => soon(t)}>
               <Icon name="camera" size={24} color={colors.pinkStrong} strokeWidth={1.5} />
-              <Text style={styles.photoText}>Tap to add cover photo</Text>
+              <Text style={styles.photoText}>{t.itemFormCoverPhotoText}</Text>
             </TouchableOpacity>
             <View style={{ gap: 8, flex: 1 }}>
-              <TouchableOpacity style={styles.smallPhoto} activeOpacity={0.85} onPress={soon}>
+              <TouchableOpacity style={styles.smallPhoto} activeOpacity={0.85} onPress={() => soon(t)}>
                 <Icon name="plus" size={18} color={colors.pinkStrong} />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.smallPhoto} activeOpacity={0.85} onPress={soon}>
+              <TouchableOpacity style={styles.smallPhoto} activeOpacity={0.85} onPress={() => soon(t)}>
                 <Icon name="plus" size={18} color={colors.pinkStrong} />
               </TouchableOpacity>
             </View>
           </View>
-          <Text style={styles.photoHint}>Use real photos of your own stock, in daylight. Items with clear photos get booked more.</Text>
+          <Text style={styles.photoHint}>{t.itemFormPhotoHint}</Text>
         </View>
 
-        <Field label="Item name">
-          <TextInput value={name} onChangeText={setName} style={styles.input} placeholder="e.g. Iron Folding Chair (cushioned)" placeholderTextColor={colors.textMuted} />
+        <Field label={t.itemFormNameLabel}>
+          <TextInput value={name} onChangeText={setName} style={styles.input} placeholder={t.itemFormNamePlaceholder} placeholderTextColor={colors.textMuted} />
         </Field>
 
-        <Field label="Category">
+        <Field label={t.itemFormCategoryLabel}>
           <View style={styles.chipRow}>
             {CATEGORY_OPTIONS.map((c) => (
               <TouchableOpacity key={c.id} style={[styles.chip, cat === c.id ? styles.chipSel : styles.chipUnsel]} activeOpacity={0.85} onPress={() => setCat(c.id)}>
@@ -102,28 +175,28 @@ export default function ItemFormScreen({ navigation, route }: Props) {
 
         <View style={styles.grid2}>
           <View style={styles.gridItem}>
-            <Field label="Rent (₹)">
+            <Field label={t.itemFormRentLabel}>
               <TextInput value={price} onChangeText={(v) => setPrice(v.replace(/\D/g, ''))} keyboardType="number-pad" style={styles.input} placeholder="25" placeholderTextColor={colors.textMuted} />
             </Field>
           </View>
           <View style={styles.gridItem}>
-            <Field label="Stock you own">
+            <Field label={t.itemFormStockLabel}>
               <TextInput value={stock} onChangeText={(v) => setStock(v.replace(/\D/g, ''))} keyboardType="number-pad" style={styles.input} placeholder="200" placeholderTextColor={colors.textMuted} />
             </Field>
           </View>
           <View style={styles.gridItem}>
-            <Field label="Minimum order">
+            <Field label={t.itemFormMinOrderLabel}>
               <TextInput value={min} onChangeText={(v) => setMin(v.replace(/\D/g, ''))} keyboardType="number-pad" style={styles.input} placeholder="1" placeholderTextColor={colors.textMuted} />
             </Field>
           </View>
           <View style={styles.gridItem}>
-            <Field label="Deposit (₹, optional)">
+            <Field label={t.itemFormDepositLabel}>
               <TextInput value={deposit} onChangeText={(v) => setDeposit(v.replace(/\D/g, ''))} keyboardType="number-pad" style={styles.input} placeholder="0" placeholderTextColor={colors.textMuted} />
             </Field>
           </View>
         </View>
 
-        <Field label="Charged">
+        <Field label={t.itemFormChargedLabel}>
           <View style={styles.chipRow}>
             {UNIT_OPTIONS.map((u) => (
               <TouchableOpacity key={u} style={[styles.chip, unit === u ? styles.chipSel : styles.chipUnsel]} activeOpacity={0.85} onPress={() => setUnit(u)}>
@@ -133,48 +206,50 @@ export default function ItemFormScreen({ navigation, route }: Props) {
           </View>
         </Field>
 
-        <Field label="Details for customers">
+        <Field label={t.itemFormDetailsLabel}>
           <TextInput
             value={specs}
             onChangeText={setSpecs}
             multiline
             numberOfLines={3}
             style={[styles.input, styles.textarea]}
-            placeholder="Size, material, what's included, setup notes"
+            placeholder={t.itemFormDetailsPlaceholder}
             placeholderTextColor={colors.textMuted}
           />
         </Field>
 
         <View style={styles.bookModeCard}>
-          <Text style={styles.bookModeTitle}>How customers book it</Text>
+          <Text style={styles.bookModeTitle}>{t.itemFormBookModeTitle}</Text>
           <View style={styles.chipRow}>
             <TouchableOpacity style={[styles.modeBtn, instant ? styles.chipSel : styles.chipUnsel]} activeOpacity={0.85} onPress={() => setInstant(true)}>
-              <Text style={[styles.chipText, instant && styles.chipTextSel]}>Instant book</Text>
+              <Text style={[styles.chipText, instant && styles.chipTextSel]}>{t.itemFormInstantBook}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.modeBtn, !instant ? styles.chipSel : styles.chipUnsel]} activeOpacity={0.85} onPress={() => setInstant(false)}>
-              <Text style={[styles.chipText, !instant && styles.chipTextSel]}>Quote only</Text>
+              <Text style={[styles.chipText, !instant && styles.chipTextSel]}>{t.itemFormQuoteOnly}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {needsReview && (
           <View style={styles.reviewBox}>
-            <Text style={styles.reviewText}>Your account is not verified yet, so new items are checked by our team before customers can see them (usually within a day).</Text>
+            <Text style={styles.reviewText}>{t.itemFormReviewText}</Text>
           </View>
         )}
 
         {!!err && <Text style={styles.error}>{err}</Text>}
 
-        <TouchableOpacity activeOpacity={0.85} onPress={save}>
+        <TouchableOpacity activeOpacity={0.85} onPress={save} disabled={saving}>
           <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.saveBtn}>
-            <Text style={styles.saveBtnText}>{editing ? 'Save changes' : 'Add item'}</Text>
+            {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>{editingId ? t.itemFormSaveChanges : t.itemFormAddTitle}</Text>}
           </LinearGradient>
         </TouchableOpacity>
 
-        {editing && (
+        {editingId && (
           <TouchableOpacity activeOpacity={0.7} onPress={deleteItem}>
-            <Text style={styles.deleteText}>Delete this item</Text>
+            <Text style={styles.deleteText}>{t.itemFormDeleteThisItem}</Text>
           </TouchableOpacity>
+        )}
+        </>
         )}
       </ScrollView>
     </SafeAreaView>

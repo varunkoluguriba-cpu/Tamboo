@@ -4,11 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
+import { useLanguage } from '../context/LanguageContext';
 import { colors, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Calendar'>;
 
-const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 function dateKey(d: Date): string {
@@ -23,6 +23,8 @@ function bookedJobsFor(d: Date): Array<{ event: string; customer: string; status
 }
 
 export default function CalendarScreen({ navigation }: Props) {
+  const { t } = useLanguage();
+  const WEEKDAYS = [t.calendarMon, t.calendarTue, t.calendarWed, t.calendarThu, t.calendarFri, t.calendarSat, t.calendarSun];
   const today = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
@@ -62,7 +64,7 @@ export default function CalendarScreen({ navigation }: Props) {
         return next;
       });
     } else {
-      setBlocked((b) => ({ ...b, [selKey]: reasonDraft.trim() || 'Not available' }));
+      setBlocked((b) => ({ ...b, [selKey]: reasonDraft.trim() || t.calendarNotAvailable }));
       setReasonDraft('');
     }
   };
@@ -74,7 +76,7 @@ export default function CalendarScreen({ navigation }: Props) {
           <TouchableOpacity style={styles.backBtn} activeOpacity={0.8} onPress={() => navigation.goBack()}>
             <Icon name="left" size={18} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Calendar</Text>
+          <Text style={styles.headerTitle}>{t.calendarTitle}</Text>
         </View>
 
         <View style={styles.calCard}>
@@ -121,11 +123,11 @@ export default function CalendarScreen({ navigation }: Props) {
           <View style={styles.legendRow}>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: colors.pinkBg }]} />
-              <Text style={styles.legendText}>Booked</Text>
+              <Text style={styles.legendText}>{t.calendarBooked}</Text>
             </View>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: '#1e1b2e' }]} />
-              <Text style={styles.legendText}>Blocked</Text>
+              <Text style={styles.legendText}>{t.calendarBlocked}</Text>
             </View>
           </View>
         </View>
@@ -139,19 +141,19 @@ export default function CalendarScreen({ navigation }: Props) {
             {selJobs.map((j, i) => (
               <TouchableOpacity key={i} style={styles.jobRow} activeOpacity={0.85} onPress={() => navigation.navigate('Orders')}>
                 <Text style={styles.jobText}><Text style={{ fontWeight: '700' }}>{j.event}</Text> · {j.customer}</Text>
-                <Text style={styles.jobStatus}>{j.status}</Text>
+                <Text style={styles.jobStatus}>{j.status === 'PENDING' ? t.calendarStatusPending : j.status === 'CONFIRMED' ? t.calendarStatusConfirmed : j.status}</Text>
               </TouchableOpacity>
             ))}
 
             {isBlocked && (
-              <Text style={styles.blockedNote}>Blocked: {blocked[selKey]}. Customers can't book you on this day.</Text>
+              <Text style={styles.blockedNote}>{t.calendarBlockedNote.replace('{reason}', blocked[selKey])}</Text>
             )}
 
             {canBlock && !isBlocked && (
               <TextInput
                 value={reasonDraft}
                 onChangeText={setReasonDraft}
-                placeholder="Reason (only you see this), e.g. Family function"
+                placeholder={t.calendarReasonPlaceholder}
                 placeholderTextColor={colors.textMuted}
                 style={styles.input}
               />
@@ -163,7 +165,7 @@ export default function CalendarScreen({ navigation }: Props) {
                 activeOpacity={0.85}
                 onPress={toggleBlock}
               >
-                <Text style={styles.blockBtnText}>{isBlocked ? 'Unblock this day' : 'Block this day'}</Text>
+                <Text style={styles.blockBtnText}>{isBlocked ? t.calendarUnblockDay : t.calendarBlockDay}</Text>
               </TouchableOpacity>
             )}
           </View>

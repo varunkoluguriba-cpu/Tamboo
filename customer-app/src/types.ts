@@ -5,4 +5,6 @@ export interface AuthUser {
   email: string;
   city: string;
   registered: boolean;
+  authMethod?: 'phone' | 'google' | 'guest';
+  isGuest?: boolean;
 }

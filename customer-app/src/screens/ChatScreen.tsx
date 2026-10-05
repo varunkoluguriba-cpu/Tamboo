@@ -5,6 +5,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
+import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Chat'>;
@@ -18,14 +19,15 @@ function timeNow(): string {
 }
 
 export default function ChatScreen({ navigation, route }: Props) {
+  const { t } = useLanguage();
   const { peerName } = route.params;
   const isSupport = peerName.toLowerCase().includes('support');
   const [msgs, setMsgs] = useState<Msg[]>([
     {
       id: 'seed',
       text: isSupport
-        ? "Hi! I'm Tamboo Support. How can I help with your booking today?"
-        : `Hi, thanks for reaching out to ${peerName}! Happy to help with your event.`,
+        ? t.chatSupportGreeting
+        : t.chatVendorGreeting.replace('{name}', peerName),
       mine: false,
       at: timeNow(),
     },
@@ -43,8 +45,8 @@ export default function ChatScreen({ navigation, route }: Props) {
         {
           id: String(Date.now() + 1),
           text: isSupport
-            ? "Got it — I've noted this down and will follow up shortly."
-            : "Thanks for the details, we'll confirm availability and get back to you soon.",
+            ? t.chatSupportReply
+            : t.chatVendorReply,
           mine: false,
           at: timeNow(),
         },
@@ -61,7 +63,7 @@ export default function ChatScreen({ navigation, route }: Props) {
           </TouchableOpacity>
           <View>
             <Text style={styles.peerName}>{peerName}</Text>
-            <Text style={styles.peerSub}>Your number is kept private</Text>
+            <Text style={styles.peerSub}>{t.chatPrivacyNote}</Text>
           </View>
         </View>
 
@@ -90,7 +92,7 @@ export default function ChatScreen({ navigation, route }: Props) {
           <TextInput
             value={draft}
             onChangeText={setDraft}
-            placeholder="Message…"
+            placeholder={t.chatMessagePlaceholder}
             placeholderTextColor={colors.textMuted}
             style={styles.input}
             onSubmitEditing={send}

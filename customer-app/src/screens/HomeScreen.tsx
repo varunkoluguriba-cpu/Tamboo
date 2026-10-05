@@ -9,55 +9,55 @@ import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import type { IconName } from '../components/icons';
 import TabBar from '../components/TabBar';
+import LanguageSheet from '../components/LanguageSheet';
 import { useAuth } from '../context/AuthContext';
+import { useCatalog } from '../context/CatalogContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useToken, msLeft, formatHoursLeft } from '../context/TokenContext';
+import type { LangStrings } from '../i18n';
 import { colors, gradients, shadow } from '../theme';
 import { HOME_MODE_KEY } from '../constants';
 
 type Mode = 'venues' | 'rentals';
 
-const VTYPE_TILES: Array<{ key: string; label: string; count: string }> = [
-  { key: 'banquet', label: 'Banquet halls', count: '32 nearby' },
-  { key: 'marriage', label: 'Marriage halls', count: '18 nearby' },
-  { key: 'hotel', label: 'Hotels', count: '21 nearby' },
-  { key: 'lawn', label: 'Lawns & gardens', count: '14 nearby' },
+type Option = { value: string; label: string };
+
+const VTYPE_TILES = (t: LangStrings): Array<{ key: string; label: string; count: string }> => [
+  { key: 'banquet', label: t.homeScreenBanquetHalls, count: t.homeScreenNearbyCount.replace('{n}', '32') },
+  { key: 'marriage', label: t.homeScreenMarriageHalls, count: t.homeScreenNearbyCount.replace('{n}', '18') },
+  { key: 'hotel', label: t.homeScreenHotels, count: t.homeScreenNearbyCount.replace('{n}', '21') },
+  { key: 'lawn', label: t.homeScreenLawnsGardens, count: t.homeScreenNearbyCount.replace('{n}', '14') },
 ];
 
-const NEAR_HALLS = [
-  { id: 'h1', name: 'Sri Kalyana Mandapam', type: 'Marriage hall', area: 'Ameerpet', km: '2.1 km', rating: '4.6', cap: '500–800 pax', ac: 'AC', crowd: 'Filling fast', crowdOk: false, token: '₹5,000', avail: 'Available', availOk: true },
-  { id: 'h2', name: 'The Grand Banquet', type: 'Banquet hall', area: 'Gachibowli', km: '4.8 km', rating: '4.8', cap: '200–350 pax', ac: 'AC', crowd: 'Open dates', crowdOk: true, token: '₹8,000', avail: '3 dates left', availOk: false },
+const EV_TYPES = (t: LangStrings): Option[] => [
+  { value: 'Wedding', label: t.homeScreenOccasionWedding },
+  { value: 'Reception', label: t.homeScreenOccasionReception },
+  { value: 'Birthday', label: t.homeScreenOccasionBirthday },
+  { value: 'House party', label: t.homeScreenOccasionHouseParty },
+  { value: 'Corporate', label: t.homeScreenOccasionCorporate },
 ];
 
-const EV_TYPES = ['Wedding', 'Reception', 'Birthday', 'House party', 'Corporate'];
-
-const CATEGORIES = [
-  { n: '01', name: 'Shamiana & Tents', ex: 'Mandap, canopy, backdrop' },
-  { n: '02', name: 'Chairs & Tables', ex: 'Steel, plastic, banquet' },
-  { n: '03', name: 'Crockery & Vessels', ex: 'Deksha, bogana, plates' },
-  { n: '04', name: 'Lighting', ex: 'Decorative, stage, string' },
-  { n: '05', name: 'Sound & DJ', ex: 'Speakers, mic, DJ setup' },
-  { n: '06', name: 'Decor', ex: 'Flowers, balloons, themes' },
+const CATEGORIES = (t: LangStrings) => [
+  { n: '01', name: t.homeScreenCatTents, ex: t.homeScreenCatTentsEx, navName: 'Shamiana & Tents' },
+  { n: '02', name: t.homeScreenCatChairsTables, ex: t.homeScreenCatChairsTablesEx, navName: 'Chairs & Tables' },
+  { n: '03', name: t.homeScreenCatCrockeryVessels, ex: t.homeScreenCatCrockeryVesselsEx, navName: 'Crockery & Vessels' },
+  { n: '04', name: t.homeScreenCatLighting, ex: t.homeScreenCatLightingEx, navName: 'Lighting' },
+  { n: '05', name: t.homeScreenCatSoundDJ, ex: t.homeScreenCatSoundDJEx, navName: 'Sound & DJ' },
+  { n: '06', name: t.homeScreenCatDecor, ex: t.homeScreenCatDecorEx, navName: 'Decor' },
 ];
 
-const PACKAGES = [
-  { id: 'p1', name: 'Wedding essentials', items: 'Shamiana, 200 chairs, lighting, sound', vendor: 'Sai Tent House', price: '₹42,000' },
-  { id: 'p2', name: 'Birthday starter', items: '50 chairs, decor, sound system', vendor: 'Balaji Decorators', price: '₹9,500' },
+const PACKAGES = (t: LangStrings) => [
+  { id: 'p1', name: t.homeScreenPkgWeddingEssentials, items: 'Shamiana, 200 chairs, lighting, sound', vendor: 'Sai Tent House', price: '₹42,000' },
+  { id: 'p2', name: t.homeScreenPkgBirthdayStarter, items: '50 chairs, decor, sound system', vendor: 'Balaji Decorators', price: '₹9,500' },
 ];
 
-const NEARBY_VENDORS = [
-  { id: 'v1', name: 'Sai Tent House', verified: true, rating: '4.7', reviews: 210, km: '3.2 km' },
-  { id: 'v2', name: 'Balaji Decorators', verified: true, rating: '4.5', reviews: 128, km: '5.6 km' },
-  { id: 'v3', name: 'Hyderabad Sound & Light', verified: false, rating: '4.3', reviews: 64, km: '6.9 km' },
-];
-
-function soon() {
-  Alert.alert('Coming soon', 'This is being built next.');
+function soon(t: LangStrings) {
+  Alert.alert(t.comingSoon, t.homeScreenComingSoonMsg);
 }
 
-function Photo({ icon, height = 150, radius = 0 }: { icon: IconName; height?: number; radius?: number }) {
+function Photo({ icon, height = 150, radius = 0, width }: { icon: IconName; height?: number; radius?: number; width?: number }) {
   return (
-    <View style={[styles.photo, { height, borderRadius: radius }]}>
+    <View style={[styles.photo, { height, borderRadius: radius }, width !== undefined && { width }]}>
       <Icon name={icon} size={26} color={colors.pinkStrong} strokeWidth={1.5} />
     </View>
   );
@@ -68,8 +68,13 @@ export default function HomeScreen() {
   const { user } = useAuth();
   const { token } = useToken();
   const { lang, t } = useLanguage();
+  const { halls, vendors } = useCatalog();
   const [mode, setMode] = useState<Mode>('rentals');
+  const [langSheet, setLangSheet] = useState(false);
   const [ev, setEv] = useState({ date: '', guests: '100' });
+
+  const nearHalls = halls.slice(0, 4);
+  const nearVendors = vendors.slice(0, 4);
 
   useEffect(() => {
     AsyncStorage.getItem(HOME_MODE_KEY)
@@ -82,7 +87,7 @@ export default function HomeScreen() {
     AsyncStorage.setItem(HOME_MODE_KEY, m).catch(() => {});
   };
 
-  const firstName = (user?.name || '').split(' ')[0] || 'there';
+  const firstName = (user?.name || '').split(' ')[0] || t.homeScreenGuestFallback;
   const initials = (user?.name || '?')
     .split(' ')
     .map((p) => p[0])
@@ -100,7 +105,7 @@ export default function HomeScreen() {
             <Text style={styles.helloName}>{firstName}</Text>
           </View>
           <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.langChip} activeOpacity={0.8} onPress={soon}>
+            <TouchableOpacity style={styles.langChip} activeOpacity={0.8} onPress={() => setLangSheet(true)}>
               <Text style={styles.langChipDevanagari}>अ</Text>
               <Text style={styles.langChipText}>{lang.toUpperCase()}</Text>
             </TouchableOpacity>
@@ -116,9 +121,9 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.addrPill} activeOpacity={0.85} onPress={soon}>
+        <TouchableOpacity style={styles.addrPill} activeOpacity={0.85} onPress={() => soon(t)}>
           <Icon name="pin" size={14} color={colors.pink} />
-          <Text style={styles.addrText}>{user?.city || 'Hyderabad'}</Text>
+          <Text style={styles.addrText}>{user?.city || t.homeScreenDefaultCity}</Text>
           <Icon name="down" size={14} color={colors.text} />
         </TouchableOpacity>
 
@@ -127,12 +132,12 @@ export default function HomeScreen() {
             {mode === 'venues' ? (
               <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.modeBtn}>
                 <Icon name="home" size={15} color="#fff" />
-                <Text style={styles.modeBtnTextSel}>Halls & venues</Text>
+                <Text style={styles.modeBtnTextSel}>{t.homeScreenHallsVenues}</Text>
               </LinearGradient>
             ) : (
               <View style={styles.modeBtn}>
                 <Icon name="home" size={15} color={colors.textSoft} />
-                <Text style={styles.modeBtnText}>Halls & venues</Text>
+                <Text style={styles.modeBtnText}>{t.homeScreenHallsVenues}</Text>
               </View>
             )}
           </TouchableOpacity>
@@ -140,12 +145,12 @@ export default function HomeScreen() {
             {mode === 'rentals' ? (
               <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.modeBtn}>
                 <Icon name="tent" size={15} color="#fff" />
-                <Text style={styles.modeBtnTextSel}>Rentals</Text>
+                <Text style={styles.modeBtnTextSel}>{t.homeScreenRentals}</Text>
               </LinearGradient>
             ) : (
               <View style={styles.modeBtn}>
                 <Icon name="tent" size={15} color={colors.textSoft} />
-                <Text style={styles.modeBtnText}>Rentals</Text>
+                <Text style={styles.modeBtnText}>{t.homeScreenRentals}</Text>
               </View>
             )}
           </TouchableOpacity>
@@ -156,11 +161,11 @@ export default function HomeScreen() {
             {token && (
               <TouchableOpacity style={styles.tokenBanner} activeOpacity={0.85} onPress={() => navigation.navigate('Token')}>
                 <View style={styles.tokenBannerTop}>
-                  <Text style={styles.tokenBannerLabel}>HALL PRE-BOOKED</Text>
-                  <Text style={styles.tokenBannerLeft}>{formatHoursLeft(msLeft(token))} left</Text>
+                  <Text style={styles.tokenBannerLabel}>{t.homeScreenHallPreBooked}</Text>
+                  <Text style={styles.tokenBannerLeft}>{t.homeScreenTimeLeft.replace('{time}', formatHoursLeft(msLeft(token)))}</Text>
                 </View>
                 <Text style={styles.tokenBannerHall}>{token.hallName}</Text>
-                <Text style={styles.tokenBannerSub}>Visit within {token.visitHours} hours to finalise your booking.</Text>
+                <Text style={styles.tokenBannerSub}>{t.homeScreenVisitWithin.replace('{hours}', String(token.visitHours))}</Text>
               </TouchableOpacity>
             )}
 
@@ -171,9 +176,9 @@ export default function HomeScreen() {
               end={{ x: 1, y: 1 }}
               style={styles.hero}
             >
-              <Text style={styles.heroLabel}>Halls & venues</Text>
-              <Text style={styles.heroHeadline}>Hold a hall for your date with a small token</Text>
-              <Text style={styles.heroSub}>Visit within 48 hours to finalise. If you don’t visit, the token expires.</Text>
+              <Text style={styles.heroLabel}>{t.homeScreenHallsVenues}</Text>
+              <Text style={styles.heroHeadline}>{t.homeScreenHoldHallHeadline}</Text>
+              <Text style={styles.heroSub}>{t.homeScreenHoldHallSub}</Text>
               <View style={styles.heroInputs}>
                 <View style={styles.heroInput}>
                   <Text style={styles.heroInputLabel}>{t.date}</Text>
@@ -196,13 +201,13 @@ export default function HomeScreen() {
                 </View>
               </View>
               <TouchableOpacity style={styles.heroBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Venues')}>
-                <Text style={styles.heroBtnText}>Search halls</Text>
+                <Text style={styles.heroBtnText}>{t.homeScreenSearchHalls}</Text>
                 <Icon name="right" size={16} color={colors.maroon} />
               </TouchableOpacity>
             </LinearGradient>
 
             <View style={styles.tileGrid}>
-              {VTYPE_TILES.map((x) => (
+              {VTYPE_TILES(t).map((x) => (
                 <TouchableOpacity key={x.key} style={styles.tile} activeOpacity={0.85} onPress={() => navigation.navigate('Venues')}>
                   <Text style={styles.tileLabel}>{x.label}</Text>
                   <Text style={styles.tileCount}>{x.count}</Text>
@@ -211,27 +216,27 @@ export default function HomeScreen() {
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Halls near you</Text>
+              <Text style={styles.sectionTitle}>{t.homeScreenHallsNearYou}</Text>
               <View style={{ gap: 12 }}>
-                {NEAR_HALLS.map((v) => (
+                {nearHalls.map((v) => (
                   <TouchableOpacity key={v.id} style={styles.hallCard} activeOpacity={0.85} onPress={() => navigation.navigate('Venue', { id: v.id })}>
                     <Photo icon="home" height={150} />
                     <View style={styles.hallBody}>
                       <View style={styles.hallTopRow}>
                         <View style={{ flex: 1, minWidth: 0 }}>
                           <Text style={styles.hallName}>{v.name}</Text>
-                          <Text style={styles.hallMeta}>{v.type} · {v.area} · {v.km}</Text>
+                          <Text style={styles.hallMeta}>{v.type} · {v.area} · {v.km} km</Text>
                         </View>
                         <Text style={styles.hallRating}>★ {v.rating}</Text>
                       </View>
                       <View style={styles.chipRow}>
                         <Text style={styles.chip}>{v.cap}</Text>
-                        <Text style={styles.chip}>{v.ac}</Text>
-                        <Text style={[styles.chip, v.crowdOk ? styles.chipOk : styles.chipWarn]}>{v.crowd}</Text>
+                        <Text style={styles.chip}>{v.ac ? t.homeScreenAC : t.homeScreenNonAC}</Text>
+                        {v.verified && <Text style={[styles.chip, styles.chipOk]}>{t.homeScreenVerified}</Text>}
                       </View>
                       <View style={styles.hallBottomRow}>
-                        <Text style={styles.tokenText}>Token <Text style={styles.tokenAmount}>{v.token}</Text></Text>
-                        <Text style={[styles.availBadge, v.availOk ? styles.chipOk : styles.chipWarn]}>{v.avail}</Text>
+                        <Text style={styles.tokenText}>{t.homeScreenToken} <Text style={styles.tokenAmount}>₹{v.token.toLocaleString('en-IN')}</Text></Text>
+                        <Text style={[styles.availBadge, styles.chipOk]}>{t.homeScreenAvailable}</Text>
                       </View>
                     </View>
                   </TouchableOpacity>
@@ -279,21 +284,21 @@ export default function HomeScreen() {
 
             <View style={styles.statGrid}>
               <TouchableOpacity style={styles.statCard} activeOpacity={0.85} onPress={() => navigation.navigate('Bookings')}>
-                <Text style={styles.statLabel}>Active bookings</Text>
+                <Text style={styles.statLabel}>{t.homeScreenActiveBookings}</Text>
                 <Text style={styles.statValue}>0</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.statCard, styles.statCardPink]} activeOpacity={0.85} onPress={() => navigation.navigate('Bookings')}>
-                <Text style={styles.statLabel}>Quotes to review</Text>
+                <Text style={styles.statLabel}>{t.homeScreenQuotesToReview}</Text>
                 <Text style={[styles.statValue, { color: colors.pinkStrong }]}>0</Text>
               </TouchableOpacity>
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>What’s the occasion?</Text>
+              <Text style={styles.sectionTitle}>{t.homeScreenOccasionQuestion}</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
-                {EV_TYPES.map((e) => (
-                  <TouchableOpacity key={e} style={styles.occasionChip} activeOpacity={0.85} onPress={soon}>
-                    <Text style={styles.occasionChipText}>{e}</Text>
+                {EV_TYPES(t).map((e) => (
+                  <TouchableOpacity key={e.value} style={styles.occasionChip} activeOpacity={0.85} onPress={() => soon(t)}>
+                    <Text style={styles.occasionChipText}>{e.label}</Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
@@ -302,12 +307,12 @@ export default function HomeScreen() {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>{t.cats}</Text>
               <View style={styles.catCard}>
-                {CATEGORIES.map((c, i) => (
+                {CATEGORIES(t).map((c, i) => (
                   <TouchableOpacity
                     key={c.n}
-                    style={[styles.catRow, i === CATEGORIES.length - 1 && { borderBottomWidth: 0 }]}
+                    style={[styles.catRow, i === CATEGORIES(t).length - 1 && { borderBottomWidth: 0 }]}
                     activeOpacity={0.85}
-                    onPress={() => navigation.navigate('Browse', { category: c.name })}
+                    onPress={() => navigation.navigate('Browse', { category: c.navName })}
                   >
                     <Text style={styles.catNum}>{c.n}</Text>
                     <View style={{ flex: 1, minWidth: 0 }}>
@@ -323,7 +328,7 @@ export default function HomeScreen() {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>{t.packages}</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
-                {PACKAGES.map((k) => (
+                {PACKAGES(t).map((k) => (
                   <View key={k.id} style={styles.pkgCard}>
                     <Photo icon="package" height={130} radius={14} />
                     <Text style={styles.pkgName}>{k.name}</Text>
@@ -331,8 +336,8 @@ export default function HomeScreen() {
                     <Text style={styles.pkgVendor}>{k.vendor}</Text>
                     <View style={styles.pkgFooter}>
                       <Text style={styles.pkgPrice}>{k.price}</Text>
-                      <TouchableOpacity style={styles.pkgAddBtn} activeOpacity={0.85} onPress={soon}>
-                        <Text style={styles.pkgAddText}>Add</Text>
+                      <TouchableOpacity style={styles.pkgAddBtn} activeOpacity={0.85} onPress={() => soon(t)}>
+                        <Text style={styles.pkgAddText}>{t.add}</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -343,15 +348,15 @@ export default function HomeScreen() {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>{t.vendors}</Text>
               <View style={{ gap: 8 }}>
-                {NEARBY_VENDORS.map((v) => (
-                  <TouchableOpacity key={v.id} style={styles.vendorRow} activeOpacity={0.85} onPress={soon}>
-                    <Photo icon="tent" height={48} radius={12} />
+                {nearVendors.map((v) => (
+                  <TouchableOpacity key={v.id} style={styles.vendorRow} activeOpacity={0.85} onPress={() => navigation.navigate('Vendor', { id: v.id })}>
+                    <Photo icon="tent" height={48} width={48} radius={12} />
                     <View style={{ flex: 1, minWidth: 0 }}>
                       <View style={styles.vendorNameRow}>
                         <Text style={styles.vendorName}>{v.name}</Text>
                         {v.verified && <Icon name="shield" size={14} color={colors.green} />}
                       </View>
-                      <Text style={styles.vendorMeta}>★ {v.rating} · {v.reviews} reviews · {v.km}</Text>
+                      <Text style={styles.vendorMeta}>★ {v.rating} · {v.reviews} {t.homeScreenReviews} · {v.km} km</Text>
                     </View>
                     <Icon name="right" size={16} color={colors.dividerStrong} />
                   </TouchableOpacity>
@@ -363,6 +368,7 @@ export default function HomeScreen() {
       </ScrollView>
 
       <TabBar active="home" navigation={navigation} />
+      <LanguageSheet visible={langSheet} onClose={() => setLangSheet(false)} />
     </SafeAreaView>
   );
 }

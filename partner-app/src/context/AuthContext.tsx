@@ -21,7 +21,10 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [partner, setPartner] = useState<PartnerUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [pendingAck, setPendingAck] = useState(false);
+  // Stores which partner id has dismissed the pending-review screen — must be scoped
+  // per-account, since a global flag would let a second partner (e.g. after logout and
+  // logging in as a different business) inherit the first partner's acknowledgment.
+  const [ackedPartnerId, setAckedPartnerId] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<ConfirmationResult | null>(null);
 
   const loadMe = useCallback(async () => {
@@ -36,17 +39,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     (async () => {
-      const [token, ack] = await Promise.all([getToken(), AsyncStorage.getItem(PENDING_ACK_KEY)]);
-      if (ack === '1') setPendingAck(true);
+      const [token, ackedId] = await Promise.all([getToken(), AsyncStorage.getItem(PENDING_ACK_KEY)]);
+      if (ackedId) setAckedPartnerId(ackedId);
       if (token) await loadMe();
       setLoading(false);
     })();
   }, [loadMe]);
 
   const acknowledgePending = useCallback(() => {
-    setPendingAck(true);
-    AsyncStorage.setItem(PENDING_ACK_KEY, '1').catch(() => {});
-  }, []);
+    if (!partner) return;
+    setAckedPartnerId(partner.id);
+    AsyncStorage.setItem(PENDING_ACK_KEY, partner.id).catch(() => {});
+  }, [partner]);
+
+  const pendingAck = !!partner && ackedPartnerId === partner.id;
 
   const sendOtp = useCallback(async (e164Phone: string) => {
     const conf = await fbSendOtp(e164Phone);

@@ -11,17 +11,6 @@ import { colors, gradients, shadow } from '../theme';
 type Props = NativeStackScreenProps<RootStackParamList, 'Bookings'>;
 type Tab = 'active' | 'past' | 'halls' | 'quotes';
 
-function soon() {
-  Alert.alert('Coming soon', 'This is being built next.');
-}
-
-const TABS: Array<{ key: Tab; label: string }> = [
-  { key: 'active', label: 'Active' },
-  { key: 'past', label: 'Past' },
-  { key: 'halls', label: 'Halls' },
-  { key: 'quotes', label: 'Quotes' },
-];
-
 const ACTIVE = [
   { id: 'TB-250142', event: 'Priya & Karthik Wedding', date: '12 Nov 2026', vendor: 'Sai Tent House', total: '₹42,000', status: 'CONFIRMED', ok: true },
   { id: 'TB-250138', event: 'Ananya Birthday', date: '28 Oct 2026', vendor: 'Balaji Decorators', total: '₹9,500', status: 'PENDING', ok: false },
@@ -78,6 +67,15 @@ export default function BookingsScreen({ navigation }: Props) {
   const { t } = useLanguage();
   const [tab, setTab] = useState<Tab>('active');
 
+  const soon = () => Alert.alert(t.comingSoon, t.bookingsComingSoonBody);
+
+  const TABS: Array<{ key: Tab; label: string }> = [
+    { key: 'active', label: t.bookingsTabActive },
+    { key: 'past', label: t.bookingsTabPast },
+    { key: 'halls', label: t.bookingsTabHalls },
+    { key: 'quotes', label: t.bookingsTabQuotes },
+  ];
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -93,7 +91,7 @@ export default function BookingsScreen({ navigation }: Props) {
 
         {tab === 'active' && (
           ACTIVE.length === 0 ? (
-            <Text style={styles.emptyText}>No active bookings yet.</Text>
+            <Text style={styles.emptyText}>{t.bookingsEmptyActive}</Text>
           ) : (
             <View style={{ gap: 10 }}>
               {ACTIVE.map((b) => (
@@ -115,7 +113,7 @@ export default function BookingsScreen({ navigation }: Props) {
 
         {tab === 'past' && (
           PAST.length === 0 ? (
-            <Text style={styles.emptyText}>No past bookings.</Text>
+            <Text style={styles.emptyText}>{t.bookingsEmptyPast}</Text>
           ) : (
             <View style={{ gap: 10 }}>
               {PAST.map((b) => (
@@ -138,7 +136,7 @@ export default function BookingsScreen({ navigation }: Props) {
         {tab === 'halls' && (
           <View style={{ gap: 10 }}>
             {TOKENS.length === 0 ? (
-              <Text style={styles.emptyText}>No hall pre-bookings yet.</Text>
+              <Text style={styles.emptyText}>{t.bookingsEmptyHalls}</Text>
             ) : (
               TOKENS.map((b) => (
                 <TouchableOpacity key={b.id} style={styles.card} activeOpacity={0.85} onPress={soon}>
@@ -156,7 +154,7 @@ export default function BookingsScreen({ navigation }: Props) {
               ))
             )}
             <TouchableOpacity style={styles.dashedBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Venues')}>
-              <Text style={styles.dashedBtnText}>+ Find a hall</Text>
+              <Text style={styles.dashedBtnText}>{t.bookingsFindHall}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -164,10 +162,10 @@ export default function BookingsScreen({ navigation }: Props) {
         {tab === 'quotes' && (
           <View style={{ gap: 10 }}>
             <TouchableOpacity style={styles.dashedBtn} activeOpacity={0.85} onPress={soon}>
-              <Text style={styles.dashedBtnText}>+ New quote request</Text>
+              <Text style={styles.dashedBtnText}>{t.bookingsNewQuote}</Text>
             </TouchableOpacity>
             {QUOTES.length === 0 ? (
-              <Text style={styles.emptyText}>No quote requests yet.</Text>
+              <Text style={styles.emptyText}>{t.bookingsEmptyQuotes}</Text>
             ) : (
               QUOTES.map((q) => (
                 <View key={q.id} style={styles.card}>
@@ -192,20 +190,20 @@ export default function BookingsScreen({ navigation }: Props) {
                         </View>
                       ))}
                       <View style={styles.offerTotalRow}>
-                        <Text style={styles.offerTotalLabel}>Quoted total</Text>
+                        <Text style={styles.offerTotalLabel}>{t.bookingsQuotedTotal}</Text>
                         <Text style={styles.offerTotalValue}>{q.total}</Text>
                       </View>
                       <Text style={styles.offerNote}>{q.note}</Text>
                       <View style={styles.offerActions}>
                         <TouchableOpacity style={styles.offerOutlineBtn} activeOpacity={0.85} onPress={soon}>
-                          <Text style={styles.offerOutlineText}>Decline</Text>
+                          <Text style={styles.offerOutlineText}>{t.bookingsDecline}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.offerOutlineBtn} activeOpacity={0.85} onPress={soon}>
-                          <Text style={styles.offerOutlineText}>Ask changes</Text>
+                          <Text style={styles.offerOutlineText}>{t.bookingsAskChanges}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.offerAcceptBtnWrap} activeOpacity={0.85} onPress={soon}>
                           <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.offerAcceptBtn}>
-                            <Text style={styles.offerAcceptText}>Accept & pay</Text>
+                            <Text style={styles.offerAcceptText}>{t.bookingsAcceptPay}</Text>
                           </LinearGradient>
                         </TouchableOpacity>
                       </View>

@@ -7,6 +7,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { ApiError } from '../api/client';
 import { ROLE_KEY } from '../constants';
 import type { PartnerRole } from '../types';
@@ -30,10 +31,6 @@ const CATEGORIES = [
   { id: 'staff', name: 'Staff & Services' },
 ];
 
-function soon() {
-  Alert.alert('Coming soon', 'This is being built next.');
-}
-
 function Chip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
   return (
     <TouchableOpacity activeOpacity={0.85} onPress={onPress} style={[styles.chip, selected ? styles.chipSel : styles.chipUnsel]}>
@@ -53,6 +50,12 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 export default function RegisterScreen({ navigation }: Props) {
   const { register } = useAuth();
+  const { t } = useLanguage();
+
+  function soon() {
+    Alert.alert(t.comingSoon, t.pRegisterComingSoonMsg);
+  }
+
   const [role, setRole] = useState<PartnerRole>('tent');
   const [biz, setBiz] = useState('');
   const [owner, setOwner] = useState('');
@@ -71,18 +74,18 @@ export default function RegisterScreen({ navigation }: Props) {
     }).catch(() => {});
   }, []);
 
-  const roleNoun = role === 'venue' ? 'hall' : 'tent house';
+  const roleNoun = role === 'venue' ? t.pRegisterRoleHall : t.pRegisterRoleTentHouse;
 
   const toggleCat = (id: string) => {
     setCats((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
   };
 
   const submit = async () => {
-    if (biz.trim().length < 3) return setErr('Enter your business name');
-    if (!owner.trim()) return setErr('Enter the owner name');
-    if (role === 'venue' && !venueType) return setErr('Pick the type of venue');
-    if (!tax.trim()) return setErr('Enter your GSTIN or PAN');
-    if (!bank.trim()) return setErr('Enter a bank account or UPI ID for payouts');
+    if (biz.trim().length < 3) return setErr(t.pRegisterErrBizName);
+    if (!owner.trim()) return setErr(t.pRegisterErrOwnerName);
+    if (role === 'venue' && !venueType) return setErr(t.pRegisterErrVenueType);
+    if (!tax.trim()) return setErr(t.pRegisterErrTaxId);
+    if (!bank.trim()) return setErr(t.pRegisterErrBank);
     setErr('');
     setSubmitting(true);
     try {
@@ -99,7 +102,7 @@ export default function RegisterScreen({ navigation }: Props) {
       });
       navigation.replace('PendingReview');
     } catch (e) {
-      setErr(e instanceof ApiError ? e.message : 'Could not submit. Check your connection.');
+      setErr(e instanceof ApiError ? e.message : t.pRegisterErrSubmit);
     } finally {
       setSubmitting(false);
     }
@@ -110,23 +113,23 @@ export default function RegisterScreen({ navigation }: Props) {
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.verifiedBadge}>
           <Icon name="check" size={14} color={colors.green} strokeWidth={3} />
-          <Text style={styles.verifiedText}>Mobile verified</Text>
+          <Text style={styles.verifiedText}>{t.pRegisterMobileVerified}</Text>
         </View>
 
         <View>
-          <Text style={styles.title}>Register your {roleNoun}</Text>
-          <Text style={styles.subtitle}>Our team verifies every partner before customers can book. Takes about 48 hours.</Text>
+          <Text style={styles.title}>{t.pRegisterTitle.replace('{roleNoun}', roleNoun)}</Text>
+          <Text style={styles.subtitle}>{t.pRegisterSubtitle}</Text>
         </View>
 
-        <Field label="Business name">
-          <TextInput value={biz} onChangeText={setBiz} style={styles.input} placeholder="Sri Balaji Tent House" placeholderTextColor={colors.textMuted} />
+        <Field label={t.pRegisterBusinessName}>
+          <TextInput value={biz} onChangeText={setBiz} style={styles.input} placeholder={t.pRegisterBizNamePlaceholder} placeholderTextColor={colors.textMuted} />
         </Field>
 
-        <Field label="Owner name">
-          <TextInput value={owner} onChangeText={setOwner} style={styles.input} placeholder="Ramesh Goud" placeholderTextColor={colors.textMuted} />
+        <Field label={t.pRegisterOwnerName}>
+          <TextInput value={owner} onChangeText={setOwner} style={styles.input} placeholder={t.pRegisterOwnerNamePlaceholder} placeholderTextColor={colors.textMuted} />
         </Field>
 
-        <Field label="City">
+        <Field label={t.pRegisterCity}>
           <View style={styles.chipRow}>
             {CITIES.map((c) => (
               <Chip key={c} label={c} selected={city === c} onPress={() => setCity(c)} />
@@ -134,12 +137,12 @@ export default function RegisterScreen({ navigation }: Props) {
           </View>
         </Field>
 
-        <Field label="Area">
-          <TextInput value={area} onChangeText={setArea} style={styles.input} placeholder="Dilsukhnagar" placeholderTextColor={colors.textMuted} />
+        <Field label={t.pRegisterArea}>
+          <TextInput value={area} onChangeText={setArea} style={styles.input} placeholder={t.pRegisterAreaPlaceholder} placeholderTextColor={colors.textMuted} />
         </Field>
 
         {role === 'venue' ? (
-          <Field label="Type of venue">
+          <Field label={t.pRegisterVenueType}>
             <View style={styles.chipRow}>
               {VENUE_TYPES.map((v) => (
                 <Chip key={v} label={v} selected={venueType === v} onPress={() => setVenueType(v)} />
@@ -147,7 +150,7 @@ export default function RegisterScreen({ navigation }: Props) {
             </View>
           </Field>
         ) : (
-          <Field label="What do you rent out?">
+          <Field label={t.pRegisterCategoriesLabel}>
             <View style={styles.chipRow}>
               {CATEGORIES.map((c) => (
                 <Chip key={c.id} label={c.name} selected={cats.includes(c.id)} onPress={() => toggleCat(c.id)} />
@@ -156,24 +159,24 @@ export default function RegisterScreen({ navigation }: Props) {
           </Field>
         )}
 
-        <Field label="GSTIN or PAN">
+        <Field label={t.pRegisterTaxId}>
           <TextInput value={tax} onChangeText={(v) => setTax(v.toUpperCase())} style={styles.input} placeholder="36ABCDE1234F1Z5" placeholderTextColor={colors.textMuted} autoCapitalize="characters" />
         </Field>
 
         <TouchableOpacity style={styles.photoBtn} activeOpacity={0.85} onPress={soon}>
           <Icon name="camera" size={16} color={colors.textSoft} />
-          <Text style={styles.photoBtnText}>{role === 'venue' ? 'Photos of the hall' : 'Photo of your setup'} (optional)</Text>
+          <Text style={styles.photoBtnText}>{role === 'venue' ? t.pRegisterPhotosHallOptional : t.pRegisterPhotoSetupOptional}</Text>
         </TouchableOpacity>
 
-        <Field label="Bank account for payouts">
-          <TextInput value={bank} onChangeText={setBank} style={styles.input} placeholder="Account number or UPI ID" placeholderTextColor={colors.textMuted} />
+        <Field label={t.pRegisterBankAccount}>
+          <TextInput value={bank} onChangeText={setBank} style={styles.input} placeholder={t.pRegisterBankPlaceholder} placeholderTextColor={colors.textMuted} />
         </Field>
 
         {!!err && <Text style={styles.error}>{err}</Text>}
 
         <TouchableOpacity activeOpacity={0.85} onPress={submit} disabled={submitting}>
           <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={[styles.submitBtn, submitting && styles.submitBtnDisabled]}>
-            <Text style={styles.submitBtnText}>{submitting ? '…' : 'Submit for verification'}</Text>
+            <Text style={styles.submitBtnText}>{submitting ? '…' : t.pRegisterSubmitButton}</Text>
           </LinearGradient>
         </TouchableOpacity>
       </ScrollView>

@@ -7,6 +7,10 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const paymentsRoutes = require('./routes/payments');
 const partnerAuthRoutes = require('./routes/partnerAuth');
+const adminAuthRoutes = require('./routes/adminAuth');
+const adminRoutes = require('./routes/admin');
+const hallsRoutes = require('./routes/halls');
+const vendorsRoutes = require('./routes/vendors');
 
 const app = express();
 app.use(cors());
@@ -16,6 +20,10 @@ app.get('/health', (req, res) => res.json({ ok: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api/partner-auth', partnerAuthRoutes);
+app.use('/api/admin-auth', adminAuthRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/halls', hallsRoutes);
+app.use('/api/vendors', vendorsRoutes);
 
 app.use((req, res) => res.status(404).json({ error: 'Not found' }));
 

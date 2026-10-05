@@ -5,14 +5,16 @@ import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
-import { getProduct, getVendor } from '../data/catalog';
+import { useCatalog } from '../context/CatalogContext';
 import { useCart } from '../context/CartContext';
+import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
+import type { LangStrings } from '../i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Product'>;
 
-function soon() {
-  Alert.alert('Coming soon', 'This is being built next.');
+function soon(t: LangStrings) {
+  Alert.alert(t.comingSoon, t.productComingSoonMsg);
 }
 
 function parseMin(min: string): number {
@@ -21,10 +23,12 @@ function parseMin(min: string): number {
 }
 
 export default function ProductScreen({ navigation, route }: Props) {
+  const { getProduct, getVendor } = useCatalog();
   const product = getProduct(route.params.id);
   const vendor = product ? getVendor(product.vendorId) : undefined;
   const [qty, setQty] = useState(() => (product ? parseMin(product.min) : 1));
   const { addToCart } = useCart();
+  const { t } = useLanguage();
 
   const pct = useMemo(() => {
     if (!product || product.avail.total <= 0) return 0;
@@ -34,7 +38,7 @@ export default function ProductScreen({ navigation, route }: Props) {
   if (!product || !vendor) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.notFound}>Item not found.</Text>
+        <Text style={styles.notFound}>{t.productNotFound}</Text>
       </SafeAreaView>
     );
   }
@@ -80,9 +84,9 @@ export default function ProductScreen({ navigation, route }: Props) {
           {product.isInstant && (
             <View style={styles.availCard}>
               <View style={styles.availHead}>
-                <Text style={styles.availTitle}>Availability on DD/MM/YYYY</Text>
+                <Text style={styles.availTitle}>{t.productAvailabilityOn}</Text>
                 <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('Event')}>
-                  <Text style={styles.changeLink}>Change</Text>
+                  <Text style={styles.changeLink}>{t.productChange}</Text>
                 </TouchableOpacity>
               </View>
               <View style={styles.barTrack}>
@@ -91,33 +95,33 @@ export default function ProductScreen({ navigation, route }: Props) {
               <View style={styles.statsGrid}>
                 <View style={styles.statCell}>
                   <Text style={styles.statNum}>{product.avail.total}</Text>
-                  <Text style={styles.statLbl}>Total</Text>
+                  <Text style={styles.statLbl}>{t.productTotal}</Text>
                 </View>
                 <View style={styles.statCell}>
                   <Text style={styles.statNum}>{product.avail.reserved}</Text>
-                  <Text style={styles.statLbl}>Booked</Text>
+                  <Text style={styles.statLbl}>{t.productBooked}</Text>
                 </View>
                 <View style={styles.statCell}>
                   <Text style={styles.statNum}>{product.avail.maint}</Text>
-                  <Text style={styles.statLbl}>In repair</Text>
+                  <Text style={styles.statLbl}>{t.productInRepair}</Text>
                 </View>
                 <View style={styles.statCell}>
                   <Text style={[styles.statNum, { color: colors.green }]}>{product.avail.free}</Text>
-                  <Text style={styles.statLbl}>Free</Text>
+                  <Text style={styles.statLbl}>{t.productFree}</Text>
                 </View>
               </View>
-              <Text style={styles.availNote}>Includes a 1-day setup and pickup buffer. Stock is checked again when you pay.</Text>
+              <Text style={styles.availNote}>{t.productAvailNote}</Text>
             </View>
           )}
 
           {product.isInstant && (
             <View style={styles.grid2}>
               <View style={styles.smallStat}>
-                <Text style={styles.smallStatLabel}>Security deposit</Text>
+                <Text style={styles.smallStatLabel}>{t.productSecurityDeposit}</Text>
                 <Text style={styles.smallStatValue}>{product.deposit}</Text>
               </View>
               <View style={styles.smallStat}>
-                <Text style={styles.smallStatLabel}>Minimum quantity</Text>
+                <Text style={styles.smallStatLabel}>{t.productMinQty}</Text>
                 <Text style={styles.smallStatValue}>{product.min}</Text>
               </View>
             </View>
@@ -126,7 +130,7 @@ export default function ProductScreen({ navigation, route }: Props) {
           {product.isInstant ? (
             <>
               <View style={styles.qtyRow}>
-                <Text style={styles.qtyLabel}>Quantity</Text>
+                <Text style={styles.qtyLabel}>{t.productQuantity}</Text>
                 <View style={styles.qtyControls}>
                   <TouchableOpacity style={styles.qtyBtn} activeOpacity={0.8} onPress={dec}>
                     <Icon name="minus" size={16} color={colors.text} />
@@ -140,7 +144,7 @@ export default function ProductScreen({ navigation, route }: Props) {
 
               {over && (
                 <View style={styles.warnBox}>
-                  <Text style={styles.warnText}>Only {product.avail.free} left for your date. Reduce the quantity or change your date.</Text>
+                  <Text style={styles.warnText}>{t.productOnlyLeft.replace('{param}', String(product.avail.free))}</Text>
                 </View>
               )}
 
@@ -150,10 +154,14 @@ export default function ProductScreen({ navigation, route }: Props) {
                 disabled={cantAdd}
                 onPress={() => {
                   addToCart(product.id, qty);
-                  Alert.alert('Added to cart', `${qty} × ${product.name} added.`, [
-                    { text: 'Keep browsing', style: 'cancel' },
-                    { text: 'View cart', onPress: () => navigation.navigate('Cart') },
-                  ]);
+                  Alert.alert(
+                    t.productAddedToCartTitle,
+                    t.productAddedToCartMsg.replace('{qty}', String(qty)).replace('{name}', product.name),
+                    [
+                      { text: t.productKeepBrowsing, style: 'cancel' },
+                      { text: t.productViewCart, onPress: () => navigation.navigate('Cart') },
+                    ],
+                  );
                 }}
               >
                 <LinearGradient
@@ -162,21 +170,21 @@ export default function ProductScreen({ navigation, route }: Props) {
                   end={gradients.primaryButton.end}
                   style={[styles.addBtn, cantAdd && styles.addBtnDisabled]}
                 >
-                  <Text style={styles.addBtnText}>Add to cart · ₹{total.toLocaleString('en-IN')}</Text>
+                  <Text style={styles.addBtnText}>{t.productAddToCart.replace('{param}', total.toLocaleString('en-IN'))}</Text>
                 </LinearGradient>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.quoteOutlineBtn} activeOpacity={0.85} onPress={soon}>
-                <Text style={styles.quoteOutlineText}>Need a custom deal? Ask for a quote</Text>
+              <TouchableOpacity style={styles.quoteOutlineBtn} activeOpacity={0.85} onPress={() => soon(t)}>
+                <Text style={styles.quoteOutlineText}>{t.productAskForQuote}</Text>
               </TouchableOpacity>
             </>
           ) : (
             <>
               <View style={styles.quoteNote}>
-                <Text style={styles.quoteNoteText}>This item needs a site survey, so the vendor sends you a price quote. You won’t be charged until you accept it.</Text>
+                <Text style={styles.quoteNoteText}>{t.productQuoteNote}</Text>
               </View>
-              <TouchableOpacity style={styles.addBtnWrap} activeOpacity={0.85} onPress={soon}>
+              <TouchableOpacity style={styles.addBtnWrap} activeOpacity={0.85} onPress={() => soon(t)}>
                 <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.addBtn}>
-                  <Text style={styles.addBtnText}>Request quote</Text>
+                  <Text style={styles.addBtnText}>{t.productRequestQuote}</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </>

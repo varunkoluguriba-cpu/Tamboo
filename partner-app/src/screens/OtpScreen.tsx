@@ -6,12 +6,14 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { ApiError } from '../api/client';
 import { colors, gradients } from '../theme';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Otp'>;
 
 export default function OtpScreen({ navigation, route }: Props) {
+  const { t } = useLanguage();
   const { phone } = route.params;
   const { verifyOtp, sendOtp } = useAuth();
   const [otp, setOtp] = useState('');
@@ -20,7 +22,7 @@ export default function OtpScreen({ navigation, route }: Props) {
 
   const submit = async () => {
     if (otp.length !== 6 && otp.length !== 4) {
-      setErr('Enter the code sent to your phone');
+      setErr(t.pOtpEnterCode);
       return;
     }
     setErr('');
@@ -31,7 +33,7 @@ export default function OtpScreen({ navigation, route }: Props) {
       // AuthContext's `partner` updates — nothing to navigate to here.
       if (!partner.registered) navigation.replace('Register');
     } catch (e) {
-      setErr(e instanceof ApiError ? e.message : 'Incorrect code. Please try again.');
+      setErr(e instanceof ApiError ? e.message : t.pOtpIncorrectCode);
     } finally {
       setVerifying(false);
     }
@@ -42,7 +44,7 @@ export default function OtpScreen({ navigation, route }: Props) {
     try {
       await sendOtp(`+91${phone}`);
     } catch {
-      setErr('Could not resend. Check your connection.');
+      setErr(t.pOtpResendFailed);
     }
   };
 
@@ -55,8 +57,8 @@ export default function OtpScreen({ navigation, route }: Props) {
       </TouchableOpacity>
 
       <View>
-        <Text style={styles.title}>Enter OTP</Text>
-        <Text style={styles.subtitle}>Sent to {maskedPhone}.</Text>
+        <Text style={styles.title}>{t.pOtpTitle}</Text>
+        <Text style={styles.subtitle}>{t.pOtpSentTo.replace('{phone}', maskedPhone)}</Text>
       </View>
 
       <View style={styles.boxWrap}>
@@ -80,12 +82,12 @@ export default function OtpScreen({ navigation, route }: Props) {
 
       <TouchableOpacity activeOpacity={0.85} onPress={submit} disabled={verifying}>
         <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={[styles.button, verifying && styles.buttonDisabled]}>
-          <Text style={styles.buttonText}>{verifying ? '…' : 'Verify'}</Text>
+          <Text style={styles.buttonText}>{verifying ? '…' : t.pOtpVerify}</Text>
         </LinearGradient>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={resend} style={styles.resendWrap}>
-        <Text style={styles.resend}>Resend OTP</Text>
+        <Text style={styles.resend}>{t.pOtpResendOtp}</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );

@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
-import { getHall } from '../data/catalog';
+import { useCatalog } from '../context/CatalogContext';
+import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Venue'>;
@@ -14,10 +15,6 @@ type Slot = 'Morning' | 'Evening';
 
 const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-function soon() {
-  Alert.alert('Coming soon', 'This is being built next.');
-}
 
 function dayAvailability(date: Date): { morning: SlotState; evening: SlotState } {
   const today = new Date();
@@ -35,6 +32,8 @@ function fmtDate(d: Date): string {
 }
 
 export default function VenueScreen({ navigation, route }: Props) {
+  const { t } = useLanguage();
+  const { getHall } = useCatalog();
   const hall = getHall(route.params.id);
   const today = useMemo(() => {
     const d = new Date();
@@ -66,10 +65,14 @@ export default function VenueScreen({ navigation, route }: Props) {
   if (!hall) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.notFound}>Hall not found.</Text>
+        <Text style={styles.notFound}>{t.venueNotFound}</Text>
       </SafeAreaView>
     );
   }
+
+  const openDirections = () => {
+    Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hall.address)}`).catch(() => {});
+  };
 
   const pickDay = (d: Date) => {
     const avail = dayAvailability(d);
@@ -102,20 +105,20 @@ export default function VenueScreen({ navigation, route }: Props) {
               {hall.verified && (
                 <View style={styles.verifiedRow}>
                   <Icon name="shield" size={13} color={colors.green} />
-                  <Text style={styles.verifiedText}>Verified</Text>
+                  <Text style={styles.verifiedText}>{t.venueVerified}</Text>
                 </View>
               )}
             </View>
             <Text style={styles.name}>{hall.name}</Text>
-            <Text style={styles.ratingLine}>★ {hall.rating} · {hall.reviews} reviews · {hall.km} km</Text>
+            <Text style={styles.ratingLine}>★ {hall.rating} · {hall.reviews} {t.venueReviewsLabel} · {hall.km} km</Text>
           </View>
 
           <Text style={styles.blurb}>{hall.blurb}</Text>
 
-          <TouchableOpacity style={styles.addressRow} activeOpacity={0.85} onPress={soon}>
+          <TouchableOpacity style={styles.addressRow} activeOpacity={0.85} onPress={openDirections}>
             <Icon name="pin" size={16} color={colors.pink} />
             <Text style={styles.addressText}>{hall.address}</Text>
-            <Text style={styles.openMap}>Open map</Text>
+            <Text style={styles.openMap}>{t.directions}</Text>
           </TouchableOpacity>
 
           <View style={styles.factsGrid}>
@@ -129,23 +132,23 @@ export default function VenueScreen({ navigation, route }: Props) {
 
           <View style={[styles.crockeryBox, hall.hasCrockery ? styles.crockeryOk : styles.crockeryWarn]}>
             <Text style={styles.crockeryText}>
-              <Text style={{ fontWeight: '700' }}>Crockery: </Text>
-              {hall.hasCrockery ? 'Available at this hall for an extra charge.' : 'Not provided by this hall.'}
+              <Text style={{ fontWeight: '700' }}>{t.venueCrockeryLabel}</Text>
+              {hall.hasCrockery ? t.venueCrockeryAvailable : t.venueCrockeryNotProvided}
             </Text>
           </View>
           {!hall.hasCrockery && (
             <TouchableOpacity style={styles.rentBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Browse', { category: 'Crockery & Vessels' })}>
-              <Text style={styles.rentBtnText}>Rent crockery & vessels from a tent house</Text>
+              <Text style={styles.rentBtnText}>{t.venueRentCrockeryBtn}</Text>
             </TouchableOpacity>
           )}
 
           <Text style={styles.amenities}>
-            <Text style={{ fontWeight: '700', color: colors.text }}>Amenities: </Text>
+            <Text style={{ fontWeight: '700', color: colors.text }}>{t.venueAmenitiesLabel}</Text>
             {hall.amenities}
           </Text>
 
           <View style={styles.calCard}>
-            <Text style={styles.calTitle}>Availability calendar</Text>
+            <Text style={styles.calTitle}>{t.venueAvailabilityCalendarTitle}</Text>
 
             <View style={styles.calNavRow}>
               <TouchableOpacity
@@ -197,10 +200,10 @@ export default function VenueScreen({ navigation, route }: Props) {
             </View>
 
             <View style={styles.legendRow}>
-              <Text style={styles.legendME}><Text style={{ fontWeight: '800', color: colors.text }}>M</Text> Morning · <Text style={{ fontWeight: '800', color: colors.text }}>E</Text> Evening</Text>
-              <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: '#34b37a' }]} /><Text style={styles.legendText}>Free</Text></View>
-              <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: '#e35d6a' }]} /><Text style={styles.legendText}>Booked</Text></View>
-              <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: '#1e1b2e' }]} /><Text style={styles.legendText}>Closed</Text></View>
+              <Text style={styles.legendME}><Text style={{ fontWeight: '800', color: colors.text }}>M</Text> {t.venueMorning} · <Text style={{ fontWeight: '800', color: colors.text }}>E</Text> {t.venueEvening}</Text>
+              <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: '#34b37a' }]} /><Text style={styles.legendText}>{t.venueSlotFree}</Text></View>
+              <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: '#e35d6a' }]} /><Text style={styles.legendText}>{t.venueSlotBooked}</Text></View>
+              <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: '#1e1b2e' }]} /><Text style={styles.legendText}>{t.venueSlotClosed}</Text></View>
             </View>
 
             {selectedDate && selectedAvail && (
@@ -216,9 +219,9 @@ export default function VenueScreen({ navigation, route }: Props) {
                       disabled={state !== 'free'}
                       onPress={() => setSelectedSlot(s)}
                     >
-                      <Text style={styles.slotLabel}>{s}</Text>
+                      <Text style={styles.slotLabel}>{s === 'Morning' ? t.venueMorning : t.venueEvening}</Text>
                       <Text style={[styles.slotState, { color: state === 'free' ? colors.green : colors.dangerStrong }]}>
-                        {state === 'free' ? 'Free' : state === 'booked' ? 'Booked' : 'Closed'}
+                        {state === 'free' ? t.venueSlotFree : state === 'booked' ? t.venueSlotBooked : t.venueSlotClosed}
                       </Text>
                     </TouchableOpacity>
                   );
@@ -230,26 +233,36 @@ export default function VenueScreen({ navigation, route }: Props) {
               <Text style={styles.availText}>
                 {selectedDate
                   ? canPay
-                    ? `Available for ${fmtDate(selectedDate)} · ${selectedSlot}`
-                    : 'Pick a free slot to continue'
-                  : 'Pick a date on the calendar to check availability'}
+                    ? t.venueAvailableFor.replace('{date}', fmtDate(selectedDate)).replace('{slot}', selectedSlot === 'Morning' ? t.venueMorning : t.venueEvening)
+                    : t.venuePickFreeSlot
+                  : t.venuePickDateToCheck}
               </Text>
             </View>
 
+            {hall.pricingMode === 'perPlate' ? (
+              <>
+                <View style={styles.priceRow}>
+                  <Text style={styles.priceLabel}>{t.venueCateringPerPlate}</Text>
+                  <Text style={styles.priceValue}>₹{(hall.platePrice || 0).toLocaleString('en-IN')}</Text>
+                </View>
+                <Text style={styles.plateNote}>
+                  {t.venuePlateNote.replace('{count}', String(hall.minPlates || 0))}
+                </Text>
+              </>
+            ) : (
+              <View style={styles.priceRow}>
+                <Text style={styles.priceLabel}>{t.venueHallRentPerSlot}</Text>
+                <Text style={styles.priceValue}>₹{hall.rent.toLocaleString('en-IN')}</Text>
+              </View>
+            )}
             <View style={styles.priceRow}>
-              <Text style={styles.priceLabel}>Hall rent (per slot)</Text>
-              <Text style={styles.priceValue}>₹{hall.rent.toLocaleString('en-IN')}</Text>
-            </View>
-            <View style={styles.priceRow}>
-              <Text style={styles.priceLabel}>Token to pre-book</Text>
+              <Text style={styles.priceLabel}>{t.venueTokenToPrebook}</Text>
               <Text style={styles.tokenValue}>₹{hall.token.toLocaleString('en-IN')}</Text>
             </View>
 
             <View style={styles.policyBox}>
               <Text style={styles.policyText}>
-                Cancel within 2 hours for a full refund. Visit and don't book: 80% back. The token holds this date for 48 hours. Visit
-                the hall in that time to see it and fix the final price. The token is adjusted in your rent. If you don't visit, the
-                token expires and is not refunded.
+                {t.venuePolicyText}
               </Text>
             </View>
 
@@ -265,7 +278,7 @@ export default function VenueScreen({ navigation, route }: Props) {
                 end={gradients.primaryButton.end}
                 style={[styles.payBtn, !canPay && styles.payBtnDisabled]}
               >
-                <Text style={styles.payBtnText}>Pay ₹{hall.token.toLocaleString('en-IN')} token & pre-book</Text>
+                <Text style={styles.payBtnText}>{t.venuePayTokenBtn.replace('{amount}', hall.token.toLocaleString('en-IN'))}</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
@@ -341,6 +354,7 @@ const styles = StyleSheet.create({
   priceRow: { flexDirection: 'row', justifyContent: 'space-between' },
   priceLabel: { fontSize: 13.5, color: colors.textSoft },
   priceValue: { fontSize: 13.5, fontWeight: '700', color: colors.text },
+  plateNote: { fontSize: 12, color: colors.textMuted, lineHeight: 17, marginTop: -4 },
   tokenValue: { fontFamily: 'Sora', fontWeight: '800', fontSize: 17, color: colors.maroon },
   policyBox: { backgroundColor: colors.bg, borderRadius: 10, padding: 10 },
   policyText: { fontSize: 12, color: colors.textSoft, lineHeight: 18 },

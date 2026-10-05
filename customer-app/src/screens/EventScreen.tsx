@@ -6,16 +6,40 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { useEvent } from '../context/EventContext';
+import { useLanguage } from '../context/LanguageContext';
+import type { LangStrings } from '../i18n';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Event'>;
 
-const EVENT_TYPES = ['Wedding', 'Reception', 'Birthday', 'House party', 'Corporate'];
-const VENUE_TYPES = ['Banquet hall', 'Marriage hall', 'Outdoor / Lawn', 'Home / Backyard'];
-const NEED_CATS = ['Shamiana & Tents', 'Chairs & Tables', 'Crockery & Vessels', 'Lighting', 'Sound & DJ', 'Decor'];
+type Option = { value: string; label: string };
 
-function soon() {
-  Alert.alert('Coming soon', 'This is being built next.');
+const eventTypeOptions = (t: LangStrings): Option[] => [
+  { value: 'Wedding', label: t.eventTypeWedding },
+  { value: 'Reception', label: t.eventTypeReception },
+  { value: 'Birthday', label: t.eventTypeBirthday },
+  { value: 'House party', label: t.eventTypeHouseParty },
+  { value: 'Corporate', label: t.eventTypeCorporate },
+];
+
+const venueTypeOptions = (t: LangStrings): Option[] => [
+  { value: 'Banquet hall', label: t.eventVenueBanquetHall },
+  { value: 'Marriage hall', label: t.eventVenueMarriageHall },
+  { value: 'Outdoor / Lawn', label: t.eventVenueOutdoorLawn },
+  { value: 'Home / Backyard', label: t.eventVenueHomeBackyard },
+];
+
+const needCatOptions = (t: LangStrings): Option[] => [
+  { value: 'Shamiana & Tents', label: t.eventNeedTents },
+  { value: 'Chairs & Tables', label: t.eventNeedChairsTables },
+  { value: 'Crockery & Vessels', label: t.eventNeedCrockeryVessels },
+  { value: 'Lighting', label: t.eventNeedLighting },
+  { value: 'Sound & DJ', label: t.eventNeedSoundDJ },
+  { value: 'Decor', label: t.eventNeedDecor },
+];
+
+function soon(t: LangStrings) {
+  Alert.alert(t.comingSoon, t.eventComingSoonMsg);
 }
 
 function Chip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
@@ -40,6 +64,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 export default function EventScreen({ navigation }: Props) {
+  const { t } = useLanguage();
   const { event, setEvent } = useEvent();
   const [name, setName] = useState(event.name);
   const [type, setType] = useState(event.type);
@@ -60,7 +85,7 @@ export default function EventScreen({ navigation }: Props) {
   };
 
   const persist = () => {
-    setEvent({ name: name.trim() || 'My event', type, date, guests, setup, pickup, start, end, venueType, address, budget, notes });
+    setEvent({ name: name.trim() || t.eventDefaultName, type, date, guests, setup, pickup, start, end, venueType, address, budget, notes });
   };
 
   return (
@@ -70,65 +95,65 @@ export default function EventScreen({ navigation }: Props) {
           <TouchableOpacity style={styles.backBtn} activeOpacity={0.8} onPress={() => navigation.goBack()}>
             <Icon name="left" size={18} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Event requirements</Text>
+          <Text style={styles.headerTitle}>{t.eventHeaderTitle}</Text>
         </View>
-        <Text style={styles.sub}>We use these details to show real availability and suggest quantities.</Text>
+        <Text style={styles.sub}>{t.eventSub}</Text>
 
         <View style={styles.card}>
-          <Field label="Event name">
-            <TextInput value={name} onChangeText={setName} style={styles.input} placeholder="e.g. Priya & Karthik's wedding" placeholderTextColor={colors.textMuted} />
+          <Field label={t.eventFieldNameLabel}>
+            <TextInput value={name} onChangeText={setName} style={styles.input} placeholder={t.eventNamePlaceholder} placeholderTextColor={colors.textMuted} />
           </Field>
 
-          <Field label="Event type">
+          <Field label={t.eventFieldTypeLabel}>
             <View style={styles.chipRow}>
-              {EVENT_TYPES.map((e) => (
-                <Chip key={e} label={e} selected={type === e} onPress={() => setType(e)} />
+              {eventTypeOptions(t).map((e) => (
+                <Chip key={e.value} label={e.label} selected={type === e.value} onPress={() => setType(e.value)} />
               ))}
             </View>
           </Field>
 
           <View style={styles.grid2}>
             <View style={styles.gridItem}>
-              <Field label="Event date">
+              <Field label={t.date}>
                 <TextInput value={date} onChangeText={setDate} style={styles.input} placeholder="DD/MM/YYYY" placeholderTextColor={colors.textMuted} />
               </Field>
             </View>
             <View style={styles.gridItem}>
-              <Field label="Guests">
+              <Field label={t.guests}>
                 <TextInput value={guests} onChangeText={setGuests} keyboardType="number-pad" style={styles.input} />
               </Field>
             </View>
             <View style={styles.gridItem}>
-              <Field label="Setup time">
+              <Field label={t.eventFieldSetupLabel}>
                 <TextInput value={setup} onChangeText={setSetup} style={styles.input} placeholder="HH:MM" placeholderTextColor={colors.textMuted} />
               </Field>
             </View>
             <View style={styles.gridItem}>
-              <Field label="Pickup date">
+              <Field label={t.eventFieldPickupDateLabel}>
                 <TextInput value={pickup} onChangeText={setPickup} style={styles.input} placeholder="DD/MM/YYYY" placeholderTextColor={colors.textMuted} />
               </Field>
             </View>
             <View style={styles.gridItem}>
-              <Field label="Starts">
+              <Field label={t.eventFieldStartsLabel}>
                 <TextInput value={start} onChangeText={setStart} style={styles.input} placeholder="HH:MM" placeholderTextColor={colors.textMuted} />
               </Field>
             </View>
             <View style={styles.gridItem}>
-              <Field label="Ends">
+              <Field label={t.eventFieldEndsLabel}>
                 <TextInput value={end} onChangeText={setEnd} style={styles.input} placeholder="HH:MM" placeholderTextColor={colors.textMuted} />
               </Field>
             </View>
           </View>
 
-          <Field label="Venue type">
+          <Field label={t.eventFieldVenueTypeLabel}>
             <View style={styles.chipRow}>
-              {VENUE_TYPES.map((v) => (
-                <Chip key={v} label={v} selected={venueType === v} onPress={() => setVenueType(v)} />
+              {venueTypeOptions(t).map((v) => (
+                <Chip key={v.value} label={v.label} selected={venueType === v.value} onPress={() => setVenueType(v.value)} />
               ))}
             </View>
           </Field>
 
-          <Field label="Event address">
+          <Field label={t.eventFieldAddressLabel}>
             <TextInput
               value={address}
               onChangeText={setAddress}
@@ -139,19 +164,19 @@ export default function EventScreen({ navigation }: Props) {
             />
           </Field>
 
-          <Field label="What do you need?">
+          <Field label={t.eventFieldNeedsLabel}>
             <View style={styles.chipRow}>
-              {NEED_CATS.map((c) => (
-                <Chip key={c} label={c} selected={needs.includes(c)} onPress={() => toggleNeed(c)} />
+              {needCatOptions(t).map((c) => (
+                <Chip key={c.value} label={c.label} selected={needs.includes(c.value)} onPress={() => toggleNeed(c.value)} />
               ))}
             </View>
           </Field>
 
-          <Field label="Budget (optional)">
+          <Field label={t.eventFieldBudgetLabel}>
             <TextInput value={budget} onChangeText={setBudget} keyboardType="number-pad" style={styles.input} placeholder="₹" placeholderTextColor={colors.textMuted} />
           </Field>
 
-          <Field label="Special instructions">
+          <Field label={t.eventFieldNotesLabel}>
             <TextInput
               value={notes}
               onChangeText={setNotes}
@@ -159,24 +184,24 @@ export default function EventScreen({ navigation }: Props) {
               multiline
               numberOfLines={2}
               textAlignVertical="top"
-              placeholder="e.g. Narrow lane, truck can’t enter after 6 PM"
+              placeholder={t.eventNotesPlaceholder}
               placeholderTextColor={colors.textMuted}
             />
           </Field>
 
-          <TouchableOpacity style={styles.photoBtn} activeOpacity={0.85} onPress={soon}>
+          <TouchableOpacity style={styles.photoBtn} activeOpacity={0.85} onPress={() => soon(t)}>
             <Icon name="camera" size={16} color={colors.textSoft} />
-            <Text style={styles.photoBtnText}>Add site photos (optional)</Text>
+            <Text style={styles.photoBtnText}>{t.eventAddPhotos}</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.footerRow}>
           <TouchableOpacity style={styles.saveBtn} activeOpacity={0.85} onPress={() => { persist(); navigation.goBack(); }}>
-            <Text style={styles.saveBtnText}>Save</Text>
+            <Text style={styles.saveBtnText}>{t.save}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.findBtnWrap} activeOpacity={0.85} onPress={() => { persist(); navigation.navigate('Browse', {}); }}>
             <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.findBtn}>
-              <Text style={styles.findBtnText}>Find available items</Text>
+              <Text style={styles.findBtnText}>{t.eventFindAvailableItems}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>

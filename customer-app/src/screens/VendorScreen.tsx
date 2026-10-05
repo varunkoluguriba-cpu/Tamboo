@@ -5,16 +5,16 @@ import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
-import { getVendor, productsByVendor, reviewsByVendor, availBadge } from '../data/catalog';
+import { reviewsByVendor, availBadge } from '../data/catalog';
+import { useCatalog } from '../context/CatalogContext';
+import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Vendor'>;
 
-function soon() {
-  Alert.alert('Coming soon', 'This is being built next.');
-}
-
 export default function VendorScreen({ navigation, route }: Props) {
+  const { t } = useLanguage();
+  const { getVendor, productsByVendor } = useCatalog();
   const vendor = getVendor(route.params.id);
   const items = productsByVendor(route.params.id);
   const reviews = reviewsByVendor(route.params.id);
@@ -22,7 +22,7 @@ export default function VendorScreen({ navigation, route }: Props) {
   if (!vendor) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.notFound}>Vendor not found.</Text>
+        <Text style={styles.notFound}>{t.vendorNotFound}</Text>
       </SafeAreaView>
     );
   }
@@ -54,14 +54,14 @@ export default function VendorScreen({ navigation, route }: Props) {
             <View style={styles.badgeRow}>
               {vendor.verified && (
                 <View style={[styles.badge, styles.badgeGreen]}>
-                  <Text style={styles.badgeGreenText}>✓ Verified business</Text>
+                  <Text style={styles.badgeGreenText}>✓ {t.vendorVerifiedBusiness}</Text>
                 </View>
               )}
               <View style={[styles.badge, styles.badgePink]}>
-                <Text style={styles.badgePinkText}>★ {vendor.rating} · {vendor.reviews} reviews</Text>
+                <Text style={styles.badgePinkText}>★ {vendor.rating} · {vendor.reviews} {t.vendorReviewsLabel}</Text>
               </View>
               <View style={[styles.badge, styles.badgeGrey]}>
-                <Text style={styles.badgeGreyText}>{vendor.years} (self-declared)</Text>
+                <Text style={styles.badgeGreyText}>{vendor.years} {t.vendorSelfDeclared}</Text>
               </View>
             </View>
 
@@ -69,21 +69,21 @@ export default function VendorScreen({ navigation, route }: Props) {
 
             <View style={styles.statGrid}>
               <View style={styles.statBox}>
-                <Text style={styles.statLabel}>Delivery</Text>
+                <Text style={styles.statLabel}>{t.vendorDeliveryLabel}</Text>
                 <Text style={styles.statValue}>{vendor.delivery}</Text>
               </View>
               <View style={styles.statBox}>
-                <Text style={styles.statLabel}>Setup</Text>
+                <Text style={styles.statLabel}>{t.vendorSetupLabel}</Text>
                 <Text style={styles.statValue}>{vendor.setup}</Text>
               </View>
               <View style={styles.statBox}>
-                <Text style={styles.statLabel}>Min order</Text>
+                <Text style={styles.statLabel}>{t.vendorMinOrderLabel}</Text>
                 <Text style={styles.statValue}>{vendor.minOrder}</Text>
               </View>
             </View>
 
             <View style={styles.servesRow}>
-              <Text style={styles.servesLabel}>Serves: </Text>
+              <Text style={styles.servesLabel}>{t.vendorServesLabel}</Text>
               {vendor.areas.map((a) => (
                 <View key={a} style={styles.areaChip}>
                   <Text style={styles.areaChipText}>{a}</Text>
@@ -93,17 +93,17 @@ export default function VendorScreen({ navigation, route }: Props) {
 
             <View style={styles.actionRow}>
               <TouchableOpacity style={styles.chatBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Chat', { peerName: vendor.name })}>
-                <Text style={styles.chatBtnText}>Chat</Text>
+                <Text style={styles.chatBtnText}>{t.vendorChat}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.quoteBtnWrap} activeOpacity={0.85} onPress={soon}>
+              <TouchableOpacity style={styles.quoteBtnWrap} activeOpacity={0.85} onPress={() => Alert.alert(t.comingSoon, t.vendorComingSoonMsg)}>
                 <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.quoteBtn}>
-                  <Text style={styles.quoteBtnText}>Request a custom quote</Text>
+                  <Text style={styles.quoteBtnText}>{t.vendorRequestQuote}</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
           </View>
 
-          <Text style={styles.sectionTitle}>Rental items</Text>
+          <Text style={styles.sectionTitle}>{t.vendorRentalItemsTitle}</Text>
           <View style={{ gap: 8 }}>
             {items.map((p) => {
               const badge = availBadge(p);
@@ -114,7 +114,7 @@ export default function VendorScreen({ navigation, route }: Props) {
                   </View>
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <Text style={styles.itemName}>{p.name}</Text>
-                    <Text style={styles.itemPrice}>{p.isInstant ? `₹${p.price.toLocaleString('en-IN')} ${p.unit}` : 'Price on request'}</Text>
+                    <Text style={styles.itemPrice}>{p.isInstant ? `₹${p.price.toLocaleString('en-IN')} ${p.unit}` : t.vendorPriceOnRequest}</Text>
                   </View>
                   <View style={[styles.itemBadge, badge.ok ? styles.chipOk : styles.chipWarn]}>
                     <Text style={[styles.itemBadgeText, badge.ok ? styles.chipOkText : styles.chipWarnText]}>{badge.label}</Text>
@@ -124,7 +124,7 @@ export default function VendorScreen({ navigation, route }: Props) {
             })}
           </View>
 
-          <Text style={styles.sectionTitle}>Reviews</Text>
+          <Text style={styles.sectionTitle}>{t.vendorReviewsTitle}</Text>
           <View style={{ gap: 8 }}>
             {reviews.map((r, i) => (
               <View key={i} style={styles.reviewCard}>
@@ -133,7 +133,7 @@ export default function VendorScreen({ navigation, route }: Props) {
                   <Text style={styles.reviewStars}>{'★'.repeat(r.stars)}{'☆'.repeat(5 - r.stars)}</Text>
                 </View>
                 <Text style={styles.reviewText}>{r.text}</Text>
-                <Text style={styles.reviewDate}>{r.date} · Verified booking</Text>
+                <Text style={styles.reviewDate}>{r.date} · {t.vendorVerifiedBooking}</Text>
               </View>
             ))}
           </View>

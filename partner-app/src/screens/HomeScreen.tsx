@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,8 +7,12 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { TentTabBar } from '../components/TabBar';
+import LanguageSheet from '../components/LanguageSheet';
 import { useAuth } from '../context/AuthContext';
-import { ORDERS, MY_ITEMS, statusColors } from '../data/catalog';
+import { useLanguage } from '../context/LanguageContext';
+import { useOrders } from '../hooks/useOrders';
+import { api } from '../api/client';
+import { statusColors } from '../data/catalog';
 import { colors, gradients, shadow } from '../theme';
 
 const ACTIVE_STATUSES = ['CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED'];
@@ -18,12 +22,25 @@ const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 export default function HomeScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { partner } = useAuth();
+  const { lang, t } = useLanguage();
+  const [langSheet, setLangSheet] = useState(false);
+  const { orders: ORDERS } = useOrders();
+  const [itemCounts, setItemCounts] = useState({ live: 0, review: 0 });
+
+  useEffect(() => {
+    api.get<Array<{ state: string }>>('/api/vendors/me/items')
+      .then((items) => setItemCounts({
+        live: items.filter((i) => i.state === 'LIVE').length,
+        review: items.filter((i) => i.state === 'REVIEW').length,
+      }))
+      .catch(() => {});
+  }, []);
 
   const newCount = ORDERS.filter((o) => o.status === 'PENDING').length;
   const activeCount = ORDERS.filter((o) => ACTIVE_STATUSES.includes(o.status)).length;
   const earnings = ORDERS.filter((o) => o.status === 'COMPLETED').reduce((sum, o) => sum + o.earn, 0);
-  const liveItems = MY_ITEMS.filter((i) => i.state === 'LIVE').length;
-  const reviewItems = MY_ITEMS.filter((i) => i.state === 'REVIEW').length;
+  const liveItems = itemCounts.live;
+  const reviewItems = itemCounts.review;
   const upcoming = ORDERS.filter((o) => ACTIVE_STATUSES.includes(o.status));
 
   const initials = (partner?.businessName || '?')
@@ -42,54 +59,54 @@ export default function HomeScreen() {
             <Text style={styles.avatarText}>{initials}</Text>
           </View>
           <View style={{ flex: 1, minWidth: 0 }}>
-            <Text style={styles.hello}>Namaste</Text>
+            <Text style={styles.hello}>{t.pHomeGreeting}</Text>
             <Text style={styles.name}>{partner?.businessName}</Text>
           </View>
-          <View style={styles.langChip}>
+          <TouchableOpacity style={styles.langChip} activeOpacity={0.8} onPress={() => setLangSheet(true)}>
             <Text style={styles.langDevanagari}>अ</Text>
-            <Text style={styles.langText}>EN</Text>
-          </View>
+            <Text style={styles.langText}>{lang.toUpperCase()}</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.statGrid}>
           <TouchableOpacity style={styles.statGrad} activeOpacity={0.85} onPress={() => navigation.navigate('Orders')}>
             <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.statGradInner}>
-              <Text style={styles.statGradLabel}>New requests</Text>
+              <Text style={styles.statGradLabel}>{t.pHomeNewRequests}</Text>
               <Text style={styles.statGradValue}>{newCount}</Text>
             </LinearGradient>
           </TouchableOpacity>
           <TouchableOpacity style={styles.statCard} activeOpacity={0.85} onPress={() => navigation.navigate('Orders')}>
-            <Text style={styles.statLabel}>Active jobs</Text>
+            <Text style={styles.statLabel}>{t.pHomeActiveJobs}</Text>
             <Text style={styles.statValue}>{activeCount}</Text>
           </TouchableOpacity>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Earnings this month</Text>
+          <TouchableOpacity style={styles.statCard} activeOpacity={0.85} onPress={() => navigation.navigate('Earnings')}>
+            <Text style={styles.statLabel}>{t.pHomeEarningsMonth}</Text>
             <Text style={[styles.statValueSm, { color: colors.maroon }]}>{inr(earnings)}</Text>
-            <Text style={styles.statNote}>after commission</Text>
-          </View>
+            <Text style={styles.statNote}>{t.pHomeAfterCommission}</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.statCard} activeOpacity={0.85} onPress={() => navigation.navigate('Items')}>
-            <Text style={styles.statLabel}>Items live</Text>
+            <Text style={styles.statLabel}>{t.pHomeItemsLive}</Text>
             <Text style={styles.statValueSm}>{liveItems}</Text>
-            <Text style={styles.statNote}>{reviewItems > 0 ? `${reviewItems} in review` : 'all approved'}</Text>
+            <Text style={styles.statNote}>{reviewItems > 0 ? t.pHomeInReview.replace('{count}', String(reviewItems)) : t.pHomeAllApproved}</Text>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={styles.dashedBtn} activeOpacity={0.85} onPress={() => navigation.navigate('ItemForm', {})}>
           <Icon name="plus" size={16} color={colors.pinkStrong} />
-          <Text style={styles.dashedBtnText}>Add a new rental item</Text>
+          <Text style={styles.dashedBtnText}>{t.pHomeAddRentalItem}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.linkRow} activeOpacity={0.85} onPress={() => navigation.navigate('Calendar')}>
           <Icon name="calendar" size={18} color={colors.pink} />
-          <Text style={styles.linkRowText}>Calendar & blocked dates</Text>
+          <Text style={styles.linkRowText}>{t.pHomeCalendarLink}</Text>
           <Icon name="right" size={16} color={colors.dividerStrong} />
         </TouchableOpacity>
 
         <View>
-          <Text style={styles.sectionTitle}>Upcoming jobs</Text>
+          <Text style={styles.sectionTitle}>{t.pHomeUpcomingJobs}</Text>
           {upcoming.length === 0 ? (
             <View style={styles.emptyCard}>
-              <Text style={styles.emptyText}>No upcoming jobs yet.</Text>
+              <Text style={styles.emptyText}>{t.pHomeNoUpcomingJobs}</Text>
             </View>
           ) : (
             <View style={{ gap: 8 }}>
@@ -104,7 +121,7 @@ export default function HomeScreen() {
                     </View>
                     <View style={{ flex: 1, minWidth: 0 }}>
                       <Text style={styles.jobEvent}>{o.event}</Text>
-                      <Text style={styles.jobMeta}>{o.customer} · {o.guests} guests</Text>
+                      <Text style={styles.jobMeta}>{o.customer} · {t.pHomeGuestsCount.replace('{count}', String(o.guests))}</Text>
                     </View>
                     <View style={[styles.pill, { backgroundColor: sc.bg }]}>
                       <Text style={[styles.pillText, { color: sc.color }]}>{o.status.replace(/_/g, ' ')}</Text>
@@ -118,6 +135,7 @@ export default function HomeScreen() {
       </ScrollView>
 
       <TentTabBar active="home" navigation={navigation} badge={{ orders: newCount || undefined }} />
+      <LanguageSheet visible={langSheet} onClose={() => setLangSheet(false)} />
     </SafeAreaView>
   );
 }

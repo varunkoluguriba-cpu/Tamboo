@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
@@ -17,6 +18,8 @@ const PAYMENT_HISTORY = [
   { id: 'TB-249981', event: 'Office Diwali Party', status: 'COMPLETED', amount: '₹12,300' },
 ];
 
+const NOTIF_PREFS_KEY = 'tamboo-customer-notif-prefs';
+
 function Toggle({ on, onPress }: { on: boolean; onPress: () => void }) {
   return (
     <TouchableOpacity activeOpacity={0.85} onPress={onPress} style={[styles.toggleTrack, on && styles.toggleTrackOn]}>
@@ -27,11 +30,27 @@ function Toggle({ on, onPress }: { on: boolean; onPress: () => void }) {
 
 export default function ProfileScreen({ navigation }: Props) {
   const { user, logout } = useAuth();
-  const { lang, setLang } = useLanguage();
+  const { t, lang, setLang } = useLanguage();
   const [langModal, setLangModal] = useState(false);
   const [addrs, setAddrs] = useState<string[]>(['12-3-45, Ameerpet, Hyderabad, Telangana 500016']);
   const [newAddr, setNewAddr] = useState('');
   const [toggles, setToggles] = useState({ booking: true, offers: true, whatsapp: false });
+
+  useEffect(() => {
+    AsyncStorage.getItem(NOTIF_PREFS_KEY).then((raw) => {
+      if (raw) {
+        try { setToggles(JSON.parse(raw)); } catch { /* ignore corrupt local prefs */ }
+      }
+    });
+  }, []);
+
+  const updateToggle = (key: keyof typeof toggles) => {
+    setToggles((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      AsyncStorage.setItem(NOTIF_PREFS_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  };
 
   const initials = (user?.name || '?')
     .split(' ')
@@ -56,7 +75,7 @@ export default function ProfileScreen({ navigation }: Props) {
             <Text style={styles.avatarText}>{initials}</Text>
           </View>
           <View>
-            <Text style={styles.userName}>{user?.name || 'there'}</Text>
+            <Text style={styles.userName}>{user?.name || t.profileScreenThere}</Text>
             <Text style={styles.userPhone}>{user?.phone || ''}</Text>
           </View>
         </View>
@@ -65,19 +84,19 @@ export default function ProfileScreen({ navigation }: Props) {
           <View style={styles.rowIcon}>
             <Text style={styles.rowIconText}>अ</Text>
           </View>
-          <Text style={styles.rowLabel}>Language</Text>
+          <Text style={styles.rowLabel}>{t.profileScreenLanguage}</Text>
           <Text style={styles.rowValue}>{langName(lang)[1]}</Text>
           <Icon name="right" size={16} color={colors.dividerStrong} />
         </TouchableOpacity>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Saved addresses</Text>
+          <Text style={styles.cardTitle}>{t.profileScreenSavedAddresses}</Text>
           {addrs.map((a, i) => (
             <View key={i} style={styles.addrRow}>
               <Icon name="pin" size={15} color={colors.pink} />
               <Text style={styles.addrText}>{a}</Text>
               <TouchableOpacity activeOpacity={0.7} onPress={() => setAddrs((list) => list.filter((_, idx) => idx !== i))}>
-                <Text style={styles.removeText}>Remove</Text>
+                <Text style={styles.removeText}>{t.remove}</Text>
               </TouchableOpacity>
             </View>
           ))}
@@ -85,34 +104,34 @@ export default function ProfileScreen({ navigation }: Props) {
             <TextInput
               value={newAddr}
               onChangeText={setNewAddr}
-              placeholder="Add a new address"
+              placeholder={t.profileScreenAddAddressPlaceholder}
               placeholderTextColor={colors.textMuted}
               style={styles.addrInput}
             />
             <TouchableOpacity style={styles.addBtn} activeOpacity={0.85} onPress={addAddress}>
-              <Text style={styles.addBtnText}>Add</Text>
+              <Text style={styles.addBtnText}>{t.add}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Notifications</Text>
+          <Text style={styles.cardTitle}>{t.profileScreenNotifications}</Text>
           <View style={styles.toggleRow}>
-            <Text style={styles.toggleLabel}>Booking updates</Text>
-            <Toggle on={toggles.booking} onPress={() => setToggles((t) => ({ ...t, booking: !t.booking }))} />
+            <Text style={styles.toggleLabel}>{t.profileScreenBookingUpdates}</Text>
+            <Toggle on={toggles.booking} onPress={() => updateToggle('booking')} />
           </View>
           <View style={styles.toggleRow}>
-            <Text style={styles.toggleLabel}>Offers & promotions</Text>
-            <Toggle on={toggles.offers} onPress={() => setToggles((t) => ({ ...t, offers: !t.offers }))} />
+            <Text style={styles.toggleLabel}>{t.profileScreenOffersPromotions}</Text>
+            <Toggle on={toggles.offers} onPress={() => updateToggle('offers')} />
           </View>
           <View style={styles.toggleRow}>
-            <Text style={styles.toggleLabel}>WhatsApp reminders</Text>
-            <Toggle on={toggles.whatsapp} onPress={() => setToggles((t) => ({ ...t, whatsapp: !t.whatsapp }))} />
+            <Text style={styles.toggleLabel}>{t.profileScreenWhatsappReminders}</Text>
+            <Toggle on={toggles.whatsapp} onPress={() => updateToggle('whatsapp')} />
           </View>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Payment history</Text>
+          <Text style={styles.cardTitle}>{t.profileScreenPaymentHistory}</Text>
           {PAYMENT_HISTORY.map((p) => (
             <View key={p.id} style={styles.payRow}>
               <View>
@@ -128,12 +147,12 @@ export default function ProfileScreen({ navigation }: Props) {
           <View style={styles.rowIcon}>
             <Icon name="chat" size={17} color={colors.pinkStrong} />
           </View>
-          <Text style={styles.rowLabel}>Help & support</Text>
+          <Text style={styles.rowLabel}>{t.profileScreenHelpSupport}</Text>
           <Icon name="right" size={16} color={colors.dividerStrong} />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.logoutBtn} activeOpacity={0.85} onPress={logout}>
-          <Text style={styles.logoutText}>Log out</Text>
+          <Text style={styles.logoutText}>{t.logout}</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -142,7 +161,7 @@ export default function ProfileScreen({ navigation }: Props) {
       <Modal visible={langModal} animationType="slide" transparent onRequestClose={() => setLangModal(false)}>
         <View style={styles.modalBackdrop}>
           <View style={styles.modalSheet}>
-            <Text style={styles.modalTitle}>Choose your language</Text>
+            <Text style={styles.modalTitle}>{t.chooseLang}</Text>
             <ScrollView style={{ maxHeight: 420 }}>
               {LANGS.map(([code, native, en]) => (
                 <TouchableOpacity
@@ -161,7 +180,7 @@ export default function ProfileScreen({ navigation }: Props) {
               ))}
             </ScrollView>
             <TouchableOpacity style={styles.modalClose} activeOpacity={0.85} onPress={() => setLangModal(false)}>
-              <Text style={styles.modalCloseText}>Close</Text>
+              <Text style={styles.modalCloseText}>{t.close}</Text>
             </TouchableOpacity>
           </View>
         </View>

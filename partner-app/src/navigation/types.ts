@@ -20,4 +20,5 @@ export type RootStackParamList = {
   HTokens: undefined;
   HToken: { id: string };
   Hall: undefined;
+  Earnings: undefined;
 };

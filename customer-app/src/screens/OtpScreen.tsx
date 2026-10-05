@@ -22,7 +22,7 @@ export default function OtpScreen({ navigation, route }: Props) {
 
   const submit = async () => {
     if (otp.length !== 6 && otp.length !== 4) {
-      setErr('Enter the code sent to your phone');
+      setErr(t.otpScreenEnterCode);
       return;
     }
     setErr('');
@@ -33,7 +33,7 @@ export default function OtpScreen({ navigation, route }: Props) {
       // AuthContext's `user` updates — nothing to navigate to here.
       if (!user.registered) navigation.replace('Register');
     } catch (e) {
-      setErr(e instanceof ApiError ? e.message : 'Incorrect code. Please try again.');
+      setErr(e instanceof ApiError ? e.message : t.otpScreenIncorrectCode);
     } finally {
       setVerifying(false);
     }
@@ -44,7 +44,7 @@ export default function OtpScreen({ navigation, route }: Props) {
     try {
       await sendOtp(`+91${phone}`);
     } catch {
-      setErr('Could not resend. Check your connection.');
+      setErr(t.otpScreenResendFailed);
     }
   };
 
@@ -58,7 +58,7 @@ export default function OtpScreen({ navigation, route }: Props) {
 
       <View>
         <Text style={styles.title}>{t.otpT}</Text>
-        <Text style={styles.subtitle}>Sent to {maskedPhone}.</Text>
+        <Text style={styles.subtitle}>{t.otpScreenSentTo.replace('{param}', maskedPhone)}</Text>
       </View>
 
       <View style={styles.boxWrap}>
@@ -87,7 +87,7 @@ export default function OtpScreen({ navigation, route }: Props) {
       </TouchableOpacity>
 
       <TouchableOpacity onPress={resend} style={styles.resendWrap}>
-        <Text style={styles.resend}>Resend OTP</Text>
+        <Text style={styles.resend}>{t.otpScreenResendOtp}</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );

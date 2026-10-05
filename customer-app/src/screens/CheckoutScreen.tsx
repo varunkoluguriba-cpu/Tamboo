@@ -7,20 +7,17 @@ import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { useCart } from '../context/CartContext';
 import { useEvent } from '../context/EventContext';
+import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Checkout'>;
-type Delivery = 'delivery' | 'pickup';
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 
-const POLICY =
-  'Full refund if cancelled 7+ days before your event. 50% refund within 3–7 days. No refund inside 72 hours, except vendor-caused issues. Security deposits are refunded within 3 business days of pickup, minus any documented damage.';
-
 export default function CheckoutScreen({ navigation }: Props) {
-  const { pricing } = useCart();
+  const { t } = useLanguage();
+  const { pricing, deliveryMode: delivery, setDeliveryMode: setDelivery } = useCart();
   const { event } = useEvent();
-  const [delivery, setDelivery] = useState<Delivery>('delivery');
   const [agree, setAgree] = useState(false);
 
   return (
@@ -30,84 +27,84 @@ export default function CheckoutScreen({ navigation }: Props) {
           <TouchableOpacity style={styles.backBtn} activeOpacity={0.8} onPress={() => navigation.goBack()}>
             <Icon name="left" size={18} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Review & confirm</Text>
+          <Text style={styles.headerTitle}>{t.checkoutTitle}</Text>
         </View>
 
         <View style={styles.card}>
           <View style={styles.cardTop}>
             <Text style={styles.eventName}>{event.name}</Text>
             <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('Event')}>
-              <Text style={styles.editLink}>Edit</Text>
+              <Text style={styles.editLink}>{t.edit}</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.detailRow}>
             <Icon name="calendar" size={15} color={colors.pink} />
             <Text style={styles.detailText}>
-              {event.date || 'DD/MM/YYYY'} · setup {event.setup || '—'} · {event.start || '—'}–{event.end || '—'}
+              {event.date || 'DD/MM/YYYY'} · {t.checkoutSetupLabel} {event.setup || '—'} · {event.start || '—'}–{event.end || '—'}
             </Text>
           </View>
           <View style={styles.detailRow}>
             <Icon name="users" size={15} color={colors.pink} />
-            <Text style={styles.detailText}>{event.guests} guests · {event.venueType}</Text>
+            <Text style={styles.detailText}>{event.guests} {t.guests} · {event.venueType}</Text>
           </View>
           <View style={styles.detailRow}>
             <Icon name="pin" size={15} color={colors.pink} />
-            <Text style={styles.detailText}>{event.address || 'No address added yet'}</Text>
+            <Text style={styles.detailText}>{event.address || t.checkoutNoAddress}</Text>
           </View>
         </View>
 
         <View>
-          <Text style={styles.sectionLabel}>Service</Text>
+          <Text style={styles.sectionLabel}>{t.checkoutService}</Text>
           <View style={styles.serviceRow}>
             <TouchableOpacity
               style={[styles.serviceBtn, delivery === 'delivery' ? styles.serviceBtnSel : styles.serviceBtnUnsel]}
               activeOpacity={0.85}
               onPress={() => setDelivery('delivery')}
             >
-              <Text style={[styles.serviceBtnText, delivery === 'delivery' && styles.serviceBtnTextSel]}>Delivery & pickup</Text>
+              <Text style={[styles.serviceBtnText, delivery === 'delivery' && styles.serviceBtnTextSel]}>{t.checkoutDeliveryPickup}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.serviceBtn, delivery === 'pickup' ? styles.serviceBtnSel : styles.serviceBtnUnsel]}
               activeOpacity={0.85}
               onPress={() => setDelivery('pickup')}
             >
-              <Text style={[styles.serviceBtnText, delivery === 'pickup' && styles.serviceBtnTextSel]}>Self pickup</Text>
+              <Text style={[styles.serviceBtnText, delivery === 'pickup' && styles.serviceBtnTextSel]}>{t.checkoutSelfPickup}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={styles.breakdownCard}>
           <View style={styles.breakdownRow}>
-            <Text style={styles.breakdownLabel}>Subtotal</Text>
+            <Text style={styles.breakdownLabel}>{t.checkoutSubtotal}</Text>
             <Text style={styles.breakdownValue}>{inr(pricing.subtotal)}</Text>
           </View>
           {pricing.discount > 0 && (
             <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>Coupon discount</Text>
+              <Text style={styles.breakdownLabel}>{t.checkoutCouponDiscount}</Text>
               <Text style={styles.breakdownValue}>-{inr(pricing.discount)}</Text>
             </View>
           )}
           <View style={styles.breakdownRow}>
-            <Text style={styles.breakdownLabel}>{delivery === 'delivery' ? 'Delivery & pickup' : 'Self pickup'}</Text>
-            <Text style={styles.breakdownValue}>{delivery === 'delivery' ? inr(pricing.delivery) : inr(0)}</Text>
+            <Text style={styles.breakdownLabel}>{delivery === 'delivery' ? t.checkoutDeliveryPickup : t.checkoutSelfPickup}</Text>
+            <Text style={styles.breakdownValue}>{inr(pricing.delivery)}</Text>
           </View>
           <View style={styles.breakdownRow}>
-            <Text style={styles.breakdownLabel}>Platform fee</Text>
+            <Text style={styles.breakdownLabel}>{t.checkoutPlatformFee}</Text>
             <Text style={styles.breakdownValue}>{inr(pricing.platformFee)}</Text>
           </View>
           <View style={styles.breakdownRow}>
-            <Text style={styles.breakdownLabel}>Taxes</Text>
+            <Text style={styles.breakdownLabel}>{t.checkoutTaxes}</Text>
             <Text style={styles.breakdownValue}>{inr(pricing.tax)}</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total payable</Text>
-            <Text style={styles.totalValue}>{inr(delivery === 'delivery' ? pricing.total : pricing.total - pricing.delivery)}</Text>
+            <Text style={styles.totalLabel}>{t.checkoutTotalPayable}</Text>
+            <Text style={styles.totalValue}>{inr(pricing.total)}</Text>
           </View>
         </View>
 
         <View style={styles.policyBox}>
-          <Text style={styles.policyText}>{POLICY}</Text>
+          <Text style={styles.policyText}>{t.checkoutPolicyText}</Text>
         </View>
 
         <TouchableOpacity style={styles.agreeRow} activeOpacity={0.85} onPress={() => setAgree((a) => !a)}>
@@ -115,7 +112,7 @@ export default function CheckoutScreen({ navigation }: Props) {
             {agree && <Icon name="check" size={13} color="#fff" strokeWidth={3} />}
           </View>
           <Text style={styles.agreeText}>
-            I agree to the Cancellation & Refund Policy, the Security Deposit & Damage Policy and the Customer Terms (v1.0).
+            {t.checkoutAgreeText}
           </Text>
         </TouchableOpacity>
 
@@ -126,7 +123,7 @@ export default function CheckoutScreen({ navigation }: Props) {
             end={gradients.primaryButton.end}
             style={[styles.payBtn, !agree && styles.payBtnDisabled]}
           >
-            <Text style={styles.payBtnText}>Continue to payment</Text>
+            <Text style={styles.payBtnText}>{t.checkoutContinueToPayment}</Text>
           </LinearGradient>
         </TouchableOpacity>
       </ScrollView>

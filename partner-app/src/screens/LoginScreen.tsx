@@ -7,18 +7,20 @@ import type { AuthStackParamList } from '../navigation/types';
 import { useAuth } from '../context/AuthContext';
 import { ApiError } from '../api/client';
 import { colors, gradients } from '../theme';
+import { useLanguage } from '../context/LanguageContext';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
 export default function LoginScreen({ navigation }: Props) {
   const { sendOtp } = useAuth();
+  const { t } = useLanguage();
   const [phone, setPhone] = useState('');
   const [err, setErr] = useState('');
   const [sending, setSending] = useState(false);
 
   const submit = async () => {
     if (phone.length !== 10) {
-      setErr('Enter a valid 10-digit mobile number');
+      setErr(t.pLoginInvalidPhone);
       return;
     }
     setErr('');
@@ -27,7 +29,7 @@ export default function LoginScreen({ navigation }: Props) {
       await sendOtp(`+91${phone}`);
       navigation.navigate('Otp', { phone });
     } catch (e) {
-      setErr(e instanceof ApiError ? e.message : 'Could not send OTP. Check your connection.');
+      setErr(e instanceof ApiError ? e.message : t.pLoginOtpError);
     } finally {
       setSending(false);
     }
@@ -40,12 +42,12 @@ export default function LoginScreen({ navigation }: Props) {
 
         <View style={styles.brandPill}>
           <Text style={styles.brandText}>tamboo</Text>
-          <Text style={styles.brandBadge}>PARTNER</Text>
+          <Text style={styles.brandBadge}>{t.pLoginBrandBadge}</Text>
         </View>
 
         <View>
-          <Text style={styles.title}>Partner login</Text>
-          <Text style={styles.subtitle}>Enter your registered mobile number. We’ll send a one-time password.</Text>
+          <Text style={styles.title}>{t.pLoginTitle}</Text>
+          <Text style={styles.subtitle}>{t.pLoginSubtitle}</Text>
         </View>
 
         <View style={styles.phoneRow}>
@@ -66,11 +68,11 @@ export default function LoginScreen({ navigation }: Props) {
 
         <TouchableOpacity activeOpacity={0.85} onPress={submit} disabled={sending}>
           <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={[styles.button, sending && styles.buttonDisabled]}>
-            <Text style={styles.buttonText}>{sending ? '…' : 'Send OTP'}</Text>
+            <Text style={styles.buttonText}>{sending ? '…' : t.pLoginSendOtp}</Text>
           </LinearGradient>
         </TouchableOpacity>
 
-        <Text style={styles.terms}>By continuing you agree to the Partner Terms, Commission Policy and Privacy Policy.</Text>
+        <Text style={styles.terms}>{t.pLoginTerms}</Text>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );

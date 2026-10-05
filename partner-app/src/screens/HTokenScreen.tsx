@@ -1,55 +1,91 @@
 import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
-import { getToken, statusColors, type TokenStatus } from '../data/catalog';
+import { useLanguage } from '../context/LanguageContext';
+import { api, ApiError } from '../api/client';
+import { statusColors } from '../data/catalog';
+import { useHallTokens, tokenUiStatus, type RemoteHallToken } from '../hooks/useHallTokens';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'HToken'>;
 
-function soon() {
-  Alert.alert('Coming soon', 'This is being built next.');
-}
-
 export default function HTokenScreen({ navigation, route }: Props) {
-  const original = getToken(route.params.id);
-  const [status, setStatus] = useState<TokenStatus | undefined>(original?.status);
+  const { t } = useLanguage();
+  const { tokens, loading, reload } = useHallTokens();
+  const original = tokens.find((tok) => tok.id === route.params.id);
   const [finalRent, setFinalRent] = useState('');
+  const [busy, setBusy] = useState(false);
 
-  if (!original) {
+  if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.notFound}>Pre-booking not found.</Text>
+        <ActivityIndicator style={{ marginTop: 40 }} color={colors.maroon} />
       </SafeAreaView>
     );
   }
 
+  if (!original) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text style={styles.notFound}>{t.htokenNotFound}</Text>
+      </SafeAreaView>
+    );
+  }
+
+  const status = tokenUiStatus(original);
   const isActive = status === 'ACTIVE';
   const isVisited = status === 'VISITED';
-  const sc = statusColors(status || '');
+  const sc = statusColors(status);
+  const statusLabel = (s?: string) => {
+    switch (s) {
+      case 'ACTIVE': return t.htokenStatusActive;
+      case 'VISITED': return t.htokenStatusVisited;
+      case 'CONFIRMED': return t.htokenStatusConfirmed;
+      case 'NOT_BOOKED': return t.htokenStatusNotBooked;
+      case 'CANCELLED': return t.htokenStatusCancelled;
+      default: return s;
+    }
+  };
 
-  const markVisited = () => setStatus('VISITED');
+  const act = async (action: 'visited' | 'confirm' | 'notBooked' | 'cantHost', body?: Record<string, unknown>) => {
+    setBusy(true);
+    try {
+      await api.patch(`/api/halls/me/tokens/${original.id}`, { action, ...body });
+      await reload();
+    } catch (e) {
+      Alert.alert(t.htokenEnterRentTitle, e instanceof ApiError ? e.message : t.tryAgain);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const markVisited = () => act('visited');
 
   const notBooked = () => {
-    Alert.alert('Customer not booking?', "You'll keep the token per policy; this pre-booking will close.", [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Confirm', onPress: () => { setStatus('NOT_BOOKED'); navigation.goBack(); } },
+    Alert.alert(t.htokenNotBookedTitle, t.htokenNotBookedMsg, [
+      { text: t.cancel, style: 'cancel' },
+      { text: t.confirm, onPress: async () => { await act('notBooked'); navigation.goBack(); } },
     ]);
   };
 
   const confirmBooking = () => {
-    if (!finalRent.trim()) return Alert.alert('Enter the final rent', 'Add the rent you agreed with the customer.');
-    setStatus('CONFIRMED');
+    if (!finalRent.trim()) return Alert.alert(t.htokenEnterRentTitle, t.htokenEnterRentMsg);
+    act('confirm', { finalRent: Number(finalRent) });
   };
 
   const release = () => {
-    Alert.alert("Can't host this date?", 'The customer gets a full refund of the token.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Release & refund', style: 'destructive', onPress: () => { setStatus('CANCELLED'); navigation.goBack(); } },
+    Alert.alert(t.htokenCantHostTitle, t.htokenCantHostMsg, [
+      { text: t.cancel, style: 'cancel' },
+      { text: t.htokenReleaseRefund, style: 'destructive', onPress: async () => { await act('cantHost'); navigation.goBack(); } },
     ]);
+  };
+
+  const callCustomer = () => {
+    if (original.phone) Linking.openURL(`tel:${original.phone}`);
   };
 
   return (
@@ -59,79 +95,68 @@ export default function HTokenScreen({ navigation, route }: Props) {
           <TouchableOpacity style={styles.backBtn} activeOpacity={0.8} onPress={() => navigation.goBack()}>
             <Icon name="left" size={18} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Pre-booking {original.id}</Text>
+          <Text style={styles.headerTitle}>{t.htokenPreBookingLabel} {original.id.slice(-6).toUpperCase()}</Text>
         </View>
 
         <View style={styles.card}>
           <View style={[styles.pill, { backgroundColor: sc.bg }]}>
-            <Text style={[styles.pillText, { color: sc.color }]}>{status}</Text>
+            <Text style={[styles.pillText, { color: sc.color }]}>{statusLabel(status)}</Text>
           </View>
-          <Text style={styles.event}>{original.event}</Text>
+          <Text style={styles.event}>{original.hallName}</Text>
           <View style={styles.rowBetween}>
-            <Text style={styles.rowMuted}>Customer</Text>
+            <Text style={styles.rowMuted}>{t.htokenCustomer}</Text>
             <Text style={styles.rowText}>{original.customer} · {original.phone}</Text>
           </View>
           <View style={styles.rowBetween}>
-            <Text style={styles.rowMuted}>Event date</Text>
+            <Text style={styles.rowMuted}>{t.htokenEventDate}</Text>
             <Text style={styles.rowText}>{original.date}</Text>
           </View>
           <View style={styles.rowBetween}>
-            <Text style={styles.rowMuted}>Slot</Text>
+            <Text style={styles.rowMuted}>{t.htokenSlot}</Text>
             <Text style={styles.rowText}>{original.slot}</Text>
           </View>
           <View style={styles.rowBetween}>
-            <Text style={styles.rowMuted}>Guests</Text>
+            <Text style={styles.rowMuted}>{t.htokenGuests}</Text>
             <Text style={styles.rowText}>{original.guests}</Text>
           </View>
           <View style={styles.rowBetween}>
-            <Text style={styles.rowMuted}>Token received</Text>
+            <Text style={styles.rowMuted}>{t.htokenTokenReceived}</Text>
             <Text style={styles.rowText}>₹{original.amount.toLocaleString('en-IN')}</Text>
-          </View>
-          <View style={styles.rowBetween}>
-            <Text style={styles.rowMuted}>Paid at</Text>
-            <Text style={styles.rowText}>{original.paidAt}</Text>
-          </View>
-          <View style={styles.rowBetween}>
-            <Text style={styles.rowMuted}>Visit</Text>
-            <Text style={styles.rowText}>{original.visitTxt}</Text>
-          </View>
-          <View style={styles.noteBox}>
-            <Text style={styles.noteText}>{original.note}</Text>
           </View>
         </View>
 
         {isActive && (
-          <TouchableOpacity activeOpacity={0.85} onPress={markVisited}>
+          <TouchableOpacity activeOpacity={0.85} onPress={markVisited} disabled={busy}>
             <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.primaryBtn}>
-              <Text style={styles.primaryBtnText}>Customer visited the hall</Text>
+              <Text style={styles.primaryBtnText}>{t.htokenMarkVisited}</Text>
             </LinearGradient>
           </TouchableOpacity>
         )}
 
         {isVisited && (
           <View style={styles.card}>
-            <Text style={styles.fieldLabel}>Final rent agreed with the customer (₹)</Text>
+            <Text style={styles.fieldLabel}>{t.htokenFinalRentLabel}</Text>
             <TextInput value={finalRent} onChangeText={(v) => setFinalRent(v.replace(/\D/g, ''))} keyboardType="number-pad" style={styles.input} />
-            <Text style={styles.hint}>The ₹{original.amount.toLocaleString('en-IN')} token is adjusted in this. The customer pays the balance to you at the hall.</Text>
-            <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={notBooked}>
-              <Text style={styles.outlineBtnText}>Customer decided not to book</Text>
+            <Text style={styles.hint}>{t.htokenRentHint.replace('{amount}', original.amount.toLocaleString('en-IN'))}</Text>
+            <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={notBooked} disabled={busy}>
+              <Text style={styles.outlineBtnText}>{t.htokenNotBookedBtn}</Text>
             </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.85} onPress={confirmBooking}>
+            <TouchableOpacity activeOpacity={0.85} onPress={confirmBooking} disabled={busy}>
               <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.primaryBtn}>
-                <Text style={styles.primaryBtnText}>Confirm booking</Text>
+                <Text style={styles.primaryBtnText}>{t.htokenConfirmBooking}</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
         )}
 
         {isActive && (
-          <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={release}>
-            <Text style={styles.outlineBtnText}>Can't host · release date & refund token</Text>
+          <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={release} disabled={busy}>
+            <Text style={styles.outlineBtnText}>{t.htokenReleaseBtn}</Text>
           </TouchableOpacity>
         )}
 
-        <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={soon}>
-          <Text style={styles.outlineBtnText}>Call customer</Text>
+        <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={callCustomer}>
+          <Text style={styles.outlineBtnText}>{t.htokenCallCustomer}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

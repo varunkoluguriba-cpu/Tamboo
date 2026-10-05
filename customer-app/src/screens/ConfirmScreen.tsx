@@ -5,6 +5,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
+import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Confirm'>;
@@ -12,6 +13,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Confirm'>;
 const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 
 export default function ConfirmScreen({ navigation, route }: Props) {
+  const { t } = useLanguage();
   const orders = route.params?.orders || [];
   const split = orders.length > 1;
 
@@ -22,12 +24,12 @@ export default function ConfirmScreen({ navigation, route }: Props) {
           <Icon name="check" size={40} color="#fff" strokeWidth={2.5} />
         </LinearGradient>
 
-        <Text style={styles.title}>Payment received!</Text>
-        <Text style={styles.sub}>Your items are reserved. The vendor will confirm shortly and you’ll be notified at every step.</Text>
+        <Text style={styles.title}>{t.confirmPageTitle}</Text>
+        <Text style={styles.sub}>{t.confirmPageSub}</Text>
 
         {split && (
           <View style={styles.splitNote}>
-            <Text style={styles.splitNoteText}>Split into {orders.length} separate orders, one per vendor</Text>
+            <Text style={styles.splitNoteText}>{t.confirmPageSplitNote.replace('{count}', String(orders.length))}</Text>
           </View>
         )}
 
@@ -36,7 +38,7 @@ export default function ConfirmScreen({ navigation, route }: Props) {
             <View key={o.id} style={styles.orderRow}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.orderId}>{o.id}</Text>
-                <Text style={styles.orderMeta}>{o.vendor} · Pending vendor confirmation</Text>
+                <Text style={styles.orderMeta}>{o.vendor} · {t.confirmPagePendingConfirmation}</Text>
               </View>
               <Text style={styles.orderTotal}>{inr(o.total)}</Text>
               <Icon name="right" size={16} color={colors.dividerStrong} />
@@ -46,7 +48,7 @@ export default function ConfirmScreen({ navigation, route }: Props) {
 
         <TouchableOpacity style={styles.trackBtnWrap} activeOpacity={0.85} onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Bookings' }] })}>
           <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.trackBtn}>
-            <Text style={styles.trackBtnText}>Track my bookings</Text>
+            <Text style={styles.trackBtnText}>{t.confirmPageTrackBookings}</Text>
           </LinearGradient>
         </TouchableOpacity>
 
@@ -54,7 +56,7 @@ export default function ConfirmScreen({ navigation, route }: Props) {
           activeOpacity={0.7}
           onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
         >
-          <Text style={styles.homeLink}>Back to home</Text>
+          <Text style={styles.homeLink}>{t.confirmPageBackHome}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

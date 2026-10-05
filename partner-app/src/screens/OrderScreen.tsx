@@ -1,63 +1,97 @@
-import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
-import { getOrder, ORDER_PROGRESSION, NEXT_LABEL, type OrderStatus } from '../data/catalog';
+import { ORDER_PROGRESSION, NEXT_LABEL, type OrderStatus } from '../data/catalog';
+import { api, ApiError } from '../api/client';
+import { useOrders, type RemoteOrder } from '../hooks/useOrders';
+import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Order'>;
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 
-function soon() {
-  Alert.alert('Coming soon', 'This is being built next.');
-}
-
-function now(): string {
-  const d = new Date();
-  const hh = d.getHours() % 12 || 12;
-  const ampm = d.getHours() >= 12 ? 'PM' : 'AM';
-  return `Today, ${hh}:${String(d.getMinutes()).padStart(2, '0')} ${ampm}`;
-}
-
 export default function OrderScreen({ navigation, route }: Props) {
-  const original = getOrder(route.params.id);
-  const [status, setStatus] = useState<OrderStatus | undefined>(original?.status);
-  const [history, setHistory] = useState(original?.history || []);
+  const { t } = useLanguage();
+  const { orders, loading, reload } = useOrders();
+  const [working, setWorking] = useState(false);
+  const original: RemoteOrder | undefined = orders.find((o) => o.id === route.params.id);
 
-  if (!original) {
+  const soon = () => {
+    Alert.alert(t.comingSoon, t.orderComingSoonMsg);
+  };
+
+  const STATUS_LABELS: Record<string, string> = {
+    PENDING: t.orderStatusPending,
+    CONFIRMED: t.orderStatusConfirmed,
+    PACKED: t.orderStatusPacked,
+    OUT_FOR_DELIVERY: t.orderStatusOutForDelivery,
+    DELIVERED: t.orderStatusDelivered,
+    COMPLETED: t.orderStatusCompleted,
+    CANCELLED: t.orderStatusCancelled,
+    DISPUTED: t.orderStatusDisputed,
+  };
+
+  const NEXT_LABEL_T: Record<string, string> = {
+    CONFIRMED: t.orderMarkPacked,
+    PACKED: t.orderMarkOutForDelivery,
+    OUT_FOR_DELIVERY: t.orderMarkDelivered,
+    DELIVERED: t.orderMarkCompleted,
+  };
+
+  if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.notFound}>Order not found.</Text>
+        <ActivityIndicator color={colors.pink} style={{ marginTop: 40 }} />
       </SafeAreaView>
     );
   }
 
+  if (!original) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text style={styles.notFound}>{t.orderNotFound}</Text>
+      </SafeAreaView>
+    );
+  }
+
+  const status = original.status;
+  const history = original.history;
   const isPending = status === 'PENDING';
-  const idx = status ? ORDER_PROGRESSION.indexOf(status) : -1;
+  const idx = ORDER_PROGRESSION.indexOf(status);
   const canAdvance = idx >= 0 && idx < ORDER_PROGRESSION.length - 1;
-  const nextLabel = status ? NEXT_LABEL[status] : '';
+  const nextLabel = NEXT_LABEL[status];
+  const nextLabelDisplay = NEXT_LABEL_T[status] || nextLabel;
+
+  const setOrderStatus = async (newStatus: OrderStatus, historyLabel: string) => {
+    setWorking(true);
+    try {
+      await api.patch(`/api/vendors/me/orders/${original.id}`, { status: newStatus, historyLabel });
+      await reload();
+    } catch (e) {
+      Alert.alert(t.orderUpdateFailedTitle, e instanceof ApiError ? e.message : t.tryAgain);
+    } finally {
+      setWorking(false);
+    }
+  };
 
   const decline = () => {
-    Alert.alert('Decline this order?', 'The customer will be notified and the stock hold released.', [
-      { text: 'Keep it', style: 'cancel' },
-      { text: 'Decline', style: 'destructive', onPress: () => { setStatus('CANCELLED'); setHistory((h) => [...h, { label: 'Declined', date: now() }]); } },
+    Alert.alert(t.orderDeclineConfirmTitle, t.orderDeclineConfirmMsg, [
+      { text: t.orderKeepIt, style: 'cancel' },
+      { text: t.orderDecline, style: 'destructive', onPress: () => setOrderStatus('CANCELLED', 'Declined') },
     ]);
   };
 
-  const accept = () => {
-    setStatus('CONFIRMED');
-    setHistory((h) => [...h, { label: 'Accepted', date: now() }]);
-  };
+  const accept = () => setOrderStatus('CONFIRMED', 'Accepted');
 
   const advance = () => {
     if (idx < 0) return;
     const next = ORDER_PROGRESSION[idx + 1];
-    setStatus(next);
-    setHistory((h) => [...h, { label: NEXT_LABEL[status as OrderStatus].replace(/^Mark /, '').replace(/^./, (c) => c.toUpperCase()), date: now() }]);
+    setOrderStatus(next, NEXT_LABEL[status].replace(/^Mark /, '').replace(/^./, (c) => c.toUpperCase()));
   };
 
   return (
@@ -67,27 +101,27 @@ export default function OrderScreen({ navigation, route }: Props) {
           <TouchableOpacity style={styles.backBtn} activeOpacity={0.8} onPress={() => navigation.goBack()}>
             <Icon name="left" size={18} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{original.id}</Text>
+          <Text style={styles.headerTitle}>{original.code}</Text>
         </View>
 
         <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.statusCard}>
-          <Text style={styles.statusLabel}>Status</Text>
-          <Text style={styles.statusValue}>{status?.replace(/_/g, ' ')}</Text>
+          <Text style={styles.statusLabel}>{t.orderStatusLabel}</Text>
+          <Text style={styles.statusValue}>{status ? (STATUS_LABELS[status] || status.replace(/_/g, ' ')) : ''}</Text>
           <Text style={styles.statusSub}>{original.event} · {original.dateTxt}</Text>
         </LinearGradient>
 
         {isPending && (
           <>
             <View style={styles.noteBox}>
-              <Text style={styles.noteText}>New request. Stock for this date is already held for 15 minutes. Accept to confirm it for the customer.</Text>
+              <Text style={styles.noteText}>{t.orderPendingNote}</Text>
             </View>
             <View style={styles.actionRow}>
-              <TouchableOpacity style={styles.declineBtn} activeOpacity={0.85} onPress={decline}>
-                <Text style={styles.declineBtnText}>Decline</Text>
+              <TouchableOpacity style={styles.declineBtn} activeOpacity={0.85} onPress={decline} disabled={working}>
+                <Text style={styles.declineBtnText}>{t.orderDecline}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.acceptBtnWrap} activeOpacity={0.85} onPress={accept}>
+              <TouchableOpacity style={styles.acceptBtnWrap} activeOpacity={0.85} onPress={accept} disabled={working}>
                 <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.acceptBtn}>
-                  <Text style={styles.acceptBtnText}>Accept order</Text>
+                  {working ? <ActivityIndicator color="#fff" /> : <Text style={styles.acceptBtnText}>{t.orderAcceptOrder}</Text>}
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -95,16 +129,16 @@ export default function OrderScreen({ navigation, route }: Props) {
         )}
 
         {canAdvance && !isPending && (
-          <TouchableOpacity activeOpacity={0.85} onPress={advance}>
+          <TouchableOpacity activeOpacity={0.85} onPress={advance} disabled={working}>
             <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.advanceBtn}>
-              <Text style={styles.advanceBtnText}>{nextLabel}</Text>
+              <Text style={styles.advanceBtnText}>{working ? t.orderUpdating : nextLabelDisplay}</Text>
               <Icon name="right" size={16} color="#fff" />
             </LinearGradient>
           </TouchableOpacity>
         )}
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Customer</Text>
+          <Text style={styles.cardTitle}>{t.orderCustomer}</Text>
           <View style={styles.rowBetween}>
             <Text style={styles.rowText}>{original.customer}</Text>
             <Text style={styles.rowMuted}>{original.phone}</Text>
@@ -113,45 +147,56 @@ export default function OrderScreen({ navigation, route }: Props) {
             <Icon name="pin" size={14} color={colors.pink} />
             <Text style={styles.addrText}>{original.address}</Text>
           </View>
-          <Text style={styles.rowMuted}>{original.guests} guests · {original.type}</Text>
+          <Text style={styles.rowMuted}>{original.guests} {t.orderGuestsSuffix} · {original.type}</Text>
           <View style={styles.actionRow}>
-            <TouchableOpacity style={styles.outlineBtnSm} activeOpacity={0.85} onPress={soon}>
-              <Text style={styles.outlineBtnSmText}>Call</Text>
+            <TouchableOpacity
+              style={styles.outlineBtnSm}
+              activeOpacity={0.85}
+              onPress={() => original.phone && Linking.openURL(`tel:${original.phone}`)}
+            >
+              <Text style={styles.outlineBtnSmText}>{t.call}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.outlineBtnSm} activeOpacity={0.85} onPress={soon}>
-              <Text style={styles.outlineBtnSmText}>Directions</Text>
+            <TouchableOpacity
+              style={styles.outlineBtnSm}
+              activeOpacity={0.85}
+              onPress={() =>
+                original.address &&
+                Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(original.address)}`)
+              }
+            >
+              <Text style={styles.outlineBtnSmText}>{t.orderDirections}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Items to load</Text>
+          <Text style={styles.cardTitle}>{t.orderItemsToLoad}</Text>
           {original.lines.map((l) => (
             <View key={l.name} style={styles.lineRow}>
               <Text style={styles.lineText}>{l.name}</Text>
               <Text style={styles.lineQty}>× {l.qty}</Text>
             </View>
           ))}
-          {original.fromQuote && <Text style={styles.rowMuted}>Items as per accepted quote.</Text>}
+          {original.fromQuote && <Text style={styles.rowMuted}>{t.orderItemsPerQuote}</Text>}
           <View style={styles.breakdown}>
             <View style={styles.rowBetween}>
-              <Text style={styles.rowMuted}>Order value</Text>
+              <Text style={styles.rowMuted}>{t.orderValue}</Text>
               <Text style={styles.rowText}>{inr(original.value)}</Text>
             </View>
             <View style={styles.rowBetween}>
-              <Text style={styles.rowMuted}>Platform commission</Text>
+              <Text style={styles.rowMuted}>{t.orderPlatformCommission}</Text>
               <Text style={styles.rowText}>− {inr(original.commission)}</Text>
             </View>
             <View style={styles.rowBetween}>
-              <Text style={styles.youReceive}>You receive</Text>
+              <Text style={styles.youReceive}>{t.orderYouReceive}</Text>
               <Text style={styles.youReceiveValue}>{inr(original.earn)}</Text>
             </View>
-            <Text style={styles.payoutNote}>Paid out 2 days after pickup and return inspection.</Text>
+            <Text style={styles.payoutNote}>{t.orderPayoutNote}</Text>
           </View>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Timeline</Text>
+          <Text style={styles.cardTitle}>{t.orderTimeline}</Text>
           {history.map((h, i) => (
             <View key={i} style={styles.timelineRow}>
               <View style={styles.dot} />

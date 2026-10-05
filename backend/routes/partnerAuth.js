@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const admin = require('../config/firebaseAdmin');
 const Partner = require('../models/Partner');
+const PayoutEntry = require('../models/PayoutEntry');
 const { requirePartnerAuth } = require('../middleware/partnerAuth');
 
 const router = express.Router();
@@ -40,11 +41,15 @@ router.post('/verify', async (req, res) => {
   }
   if (!decoded.phone_number) return res.status(400).json({ error: 'No phone number on this credential' });
 
-  let partner = await Partner.findOne({ firebaseUid: decoded.uid });
-  if (!partner) {
-    partner = await Partner.create({ phone: decoded.phone_number, firebaseUid: decoded.uid });
+  try {
+    let partner = await Partner.findOne({ firebaseUid: decoded.uid });
+    if (!partner) {
+      partner = await Partner.create({ phone: decoded.phone_number, firebaseUid: decoded.uid });
+    }
+    res.json({ token: issueToken(partner), partner: serialize(partner) });
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error' });
   }
-  res.json({ token: issueToken(partner), partner: serialize(partner) });
 });
 
 router.post('/register', requirePartnerAuth, async (req, res) => {
@@ -69,6 +74,12 @@ router.post('/register', requirePartnerAuth, async (req, res) => {
 
 router.get('/me', requirePartnerAuth, async (req, res) => {
   res.json(serialize(req.partner));
+});
+
+router.get('/payouts', requirePartnerAuth, async (req, res) => {
+  const entries = await PayoutEntry.find({ partner: req.partner.id }).sort({ createdAt: -1 });
+  const balance = entries.reduce((sum, e) => sum + (e.type === 'credit' ? e.amount : -e.amount), 0);
+  res.json({ balance, entries });
 });
 
 module.exports = router;

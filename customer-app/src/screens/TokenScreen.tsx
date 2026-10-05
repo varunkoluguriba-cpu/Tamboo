@@ -1,36 +1,76 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
-import { getHall } from '../data/catalog';
+import { useCatalog } from '../context/CatalogContext';
 import { useToken, msLeft, formatHoursLeft } from '../context/TokenContext';
+import { useLanguage } from '../context/LanguageContext';
+import { ApiError } from '../api/client';
 import { colors, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Token'>;
 
-const VISIT_DAYS = ['Today', 'Tomorrow', 'Day after'];
-const VISIT_TIMES = ['Morning', 'Afternoon', 'Evening', 'Night'];
-
-const REFUND_POLICY = [
-  'Cancel within 2 hours of paying: full refund, no questions asked.',
-  "Visit the hall and decide not to book: 80% of the token is refunded.",
-  "Don't visit within the window: the token expires and is not refunded.",
-  'If the hall cancels on you for any reason: full refund, always.',
-  "Hall didn't match the listing: raise it here and we'll review with the vendor.",
-];
-
-function soon() {
-  Alert.alert('Coming soon', 'This is being built next.');
-}
+const VISIT_DAY_KEYS = ['today', 'tomorrow', 'dayAfter'] as const;
+const VISIT_TIME_KEYS = ['morning', 'afternoon', 'evening', 'night'] as const;
 
 export default function TokenScreen({ navigation }: Props) {
-  const { token, markVisited, clearToken } = useToken();
+  const { t } = useLanguage();
+  const { token, markVisited, cancelToken, notBookingToken, disputeToken } = useToken();
+  const [busy, setBusy] = useState(false);
+  const { getHall } = useCatalog();
   const hall = token ? getHall(token.hallId) : undefined;
   const [, forceTick] = useState(0);
   const [visitDay, setVisitDay] = useState<string | null>(null);
   const [visitTime, setVisitTime] = useState<string | null>(null);
+
+  const VISIT_DAY_LABELS: Record<string, string> = {
+    today: t.tokenVisitDayToday,
+    tomorrow: t.tokenVisitDayTomorrow,
+    dayAfter: t.tokenVisitDayAfter,
+  };
+  const VISIT_TIME_LABELS: Record<string, string> = {
+    morning: t.tokenVisitTimeMorning,
+    afternoon: t.tokenVisitTimeAfternoon,
+    evening: t.tokenVisitTimeEvening,
+    night: t.tokenVisitTimeNight,
+  };
+
+  const REFUND_POLICY = [
+    t.tokenRefundFull2Hr,
+    t.tokenRefund80Visit,
+    t.tokenRefundExpireNoVisit,
+    t.tokenRefundHallCancels,
+    t.tokenRefundMismatch,
+  ];
+
+  const callHall = () => {
+    if (hall?.phone) Linking.openURL(`tel:${hall.phone}`);
+  };
+
+  const openDirections = () => {
+    if (hall?.address) {
+      Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hall.address)}`);
+    }
+  };
+
+  const raiseDispute = () => {
+    Alert.alert(t.tokenHallMismatch, t.tokenRefundMismatch, [
+      { text: t.cancel, style: 'cancel' },
+      {
+        text: t.confirm,
+        onPress: async () => {
+          try {
+            await disputeToken();
+            Alert.alert(t.done, t.tokenRefundMismatch);
+          } catch (e) {
+            Alert.alert(t.tryAgain, e instanceof ApiError ? e.message : t.tryAgain);
+          }
+        },
+      },
+    ]);
+  };
 
   useEffect(() => {
     const id = setInterval(() => forceTick((n) => n + 1), 30000);
@@ -49,9 +89,9 @@ export default function TokenScreen({ navigation }: Props) {
           <TouchableOpacity style={styles.backBtn} activeOpacity={0.8} onPress={goBackOrHome}>
             <Icon name="left" size={18} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Pre-booking</Text>
+          <Text style={styles.headerTitle}>{t.tokenHeaderTitle}</Text>
         </View>
-        <Text style={styles.notFound}>No active hall pre-booking.</Text>
+        <Text style={styles.notFound}>{t.tokenNoActiveBooking}</Text>
       </SafeAreaView>
     );
   }
@@ -60,27 +100,41 @@ export default function TokenScreen({ navigation }: Props) {
   const expired = msLeft(token) <= 0;
 
   const cancel = () => {
-    Alert.alert('Cancel pre-booking?', 'Your token will be fully refunded.', [
-      { text: 'Keep it', style: 'cancel' },
+    Alert.alert(t.tokenCancelTitle, t.tokenCancelMsg, [
+      { text: t.tokenKeepIt, style: 'cancel' },
       {
-        text: 'Cancel & refund',
+        text: t.tokenCancelConfirmBtn,
         style: 'destructive',
-        onPress: () => {
-          clearToken();
-          navigation.reset({ index: 0, routes: [{ name: 'Bookings' }] });
+        onPress: async () => {
+          setBusy(true);
+          try {
+            await cancelToken();
+            navigation.reset({ index: 0, routes: [{ name: 'Bookings' }] });
+          } catch (e) {
+            Alert.alert(t.tryAgain, e instanceof ApiError ? e.message : t.tryAgain);
+          } finally {
+            setBusy(false);
+          }
         },
       },
     ]);
   };
 
   const notBooking = () => {
-    Alert.alert('Not booking this hall?', "You'll get 80% of the token back.", [
-      { text: 'Keep it', style: 'cancel' },
+    Alert.alert(t.tokenNotBookingTitle, t.tokenNotBookingMsg, [
+      { text: t.tokenKeepIt, style: 'cancel' },
       {
-        text: 'Confirm',
-        onPress: () => {
-          clearToken();
-          navigation.reset({ index: 0, routes: [{ name: 'Bookings' }] });
+        text: t.confirm,
+        onPress: async () => {
+          setBusy(true);
+          try {
+            await notBookingToken();
+            navigation.reset({ index: 0, routes: [{ name: 'Bookings' }] });
+          } catch (e) {
+            Alert.alert(t.tryAgain, e instanceof ApiError ? e.message : t.tryAgain);
+          } finally {
+            setBusy(false);
+          }
         },
       },
     ]);
@@ -88,10 +142,13 @@ export default function TokenScreen({ navigation }: Props) {
 
   const saveVisit = () => {
     if (!visitDay || !visitTime) {
-      Alert.alert('Pick a day and time', 'Choose when you plan to visit the hall.');
+      Alert.alert(t.tokenPickDayTimeTitle, t.tokenPickDayTimeMsg);
       return;
     }
-    Alert.alert('Visit scheduled', `${visitDay}, ${visitTime}. We'll remind you by SMS & WhatsApp.`);
+    Alert.alert(
+      t.tokenVisitScheduledTitle,
+      t.tokenVisitScheduledMsg.replace('{day}', VISIT_DAY_LABELS[visitDay]).replace('{time}', VISIT_TIME_LABELS[visitTime]),
+    );
   };
 
   return (
@@ -101,109 +158,104 @@ export default function TokenScreen({ navigation }: Props) {
           <TouchableOpacity style={styles.backBtn} activeOpacity={0.8} onPress={goBackOrHome}>
             <Icon name="left" size={18} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Pre-booking</Text>
+          <Text style={styles.headerTitle}>{t.tokenHeaderTitle}</Text>
         </View>
 
         <View style={styles.statusCard}>
           <View style={[styles.pill, token.visited ? styles.pillPurple : expired ? styles.pillDanger : styles.pillWarn]}>
             <Text style={[styles.pillText, token.visited ? styles.pillTextPurple : expired ? styles.pillTextDanger : styles.pillTextWarn]}>
-              {token.visited ? 'VISITED' : expired ? 'EXPIRED' : 'HELD'}
+              {token.visited ? t.tokenStatusVisited : expired ? t.tokenStatusExpired : t.tokenStatusHeld}
             </Text>
           </View>
           <Text style={styles.hallName}>{token.hallName}</Text>
-          <Text style={styles.metaLine}>{token.date} · {token.slot} · {token.guests} guests</Text>
+          <Text style={styles.metaLine}>{token.date} · {token.slot} · {token.guests} {t.tokenGuestsSuffix}</Text>
           <View style={styles.amountRow}>
-            <Text style={styles.amountLabel}>Token paid</Text>
+            <Text style={styles.amountLabel}>{t.tokenAmountPaidLabel}</Text>
             <Text style={styles.amountValue}>₹{token.amount.toLocaleString('en-IN')}</Text>
           </View>
           {!token.visited && !expired && (
             <>
               <View style={styles.amountRow}>
-                <Text style={styles.amountLabel}>Visit before</Text>
-                <Text style={styles.amountValue}>within {token.visitHours}h of paying</Text>
+                <Text style={styles.amountLabel}>{t.tokenVisitBeforeLabel}</Text>
+                <Text style={styles.amountValue}>{t.tokenVisitWithinTemplate.replace('{hours}', String(token.visitHours))}</Text>
               </View>
-              <Text style={styles.leftText}>{left} left</Text>
+              <Text style={styles.leftText}>{t.tokenLeftSuffix.replace('{time}', left)}</Text>
             </>
           )}
           <Text style={styles.note}>
-            {expired
-              ? 'This token has expired and was not refunded, since the hall wasn’t visited in time.'
-              : 'Visit the hall in person to see it and lock in the final rent. The token is adjusted into your rent.'}
+            {expired ? t.tokenNoteExpired : t.tokenNoteActive}
           </Text>
         </View>
 
         {!token.visited && !expired && (
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Schedule your visit</Text>
+            <Text style={styles.cardTitle}>{t.tokenScheduleVisitTitle}</Text>
             <View style={styles.chipRow}>
-              {VISIT_DAYS.map((d) => (
+              {VISIT_DAY_KEYS.map((d) => (
                 <TouchableOpacity key={d} activeOpacity={0.85} onPress={() => setVisitDay(d)} style={[styles.chip, visitDay === d ? styles.chipSel : styles.chipUnsel]}>
-                  <Text style={[styles.chipText, visitDay === d && styles.chipTextSel]}>{d}</Text>
+                  <Text style={[styles.chipText, visitDay === d && styles.chipTextSel]}>{VISIT_DAY_LABELS[d]}</Text>
                 </TouchableOpacity>
               ))}
             </View>
             <View style={styles.chipRow}>
-              {VISIT_TIMES.map((t) => (
-                <TouchableOpacity key={t} activeOpacity={0.85} onPress={() => setVisitTime(t)} style={[styles.chip, visitTime === t ? styles.chipSel : styles.chipUnsel]}>
-                  <Text style={[styles.chipText, visitTime === t && styles.chipTextSel]}>{t}</Text>
+              {VISIT_TIME_KEYS.map((tm) => (
+                <TouchableOpacity key={tm} activeOpacity={0.85} onPress={() => setVisitTime(tm)} style={[styles.chip, visitTime === tm ? styles.chipSel : styles.chipUnsel]}>
+                  <Text style={[styles.chipText, visitTime === tm && styles.chipTextSel]}>{VISIT_TIME_LABELS[tm]}</Text>
                 </TouchableOpacity>
               ))}
             </View>
             <TouchableOpacity style={styles.saveBtn} activeOpacity={0.85} onPress={saveVisit}>
-              <Text style={styles.saveBtnText}>Save visit time</Text>
+              <Text style={styles.saveBtnText}>{t.tokenSaveVisitTime}</Text>
             </TouchableOpacity>
           </View>
         )}
 
         {!token.visited && !expired && (
-          <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={cancel}>
-            <Text style={styles.outlineBtnText}>Cancel · full refund ({left})</Text>
+          <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={cancel} disabled={busy}>
+            <Text style={styles.outlineBtnText}>{t.tokenCancelFullRefund.replace('{time}', left)}</Text>
           </TouchableOpacity>
         )}
 
-        {!token.visited && !expired && (
+        {__DEV__ && !token.visited && !expired && (
           <TouchableOpacity style={styles.demoBtn} activeOpacity={0.85} onPress={markVisited}>
-            <Text style={styles.demoBtnText}>Demo: mark as visited</Text>
+            <Text style={styles.demoBtnText}>{t.tokenDemoMarkVisited}</Text>
           </TouchableOpacity>
         )}
 
         {token.visited && (
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Decided after your visit?</Text>
-            <Text style={styles.cardSub}>If you're booking, the hall owner will confirm the final rent. Otherwise:</Text>
-            <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={notBooking}>
-              <Text style={styles.outlineBtnText}>Not booking · get 80% back</Text>
+            <Text style={styles.cardTitle}>{t.tokenDecidedAfterVisit}</Text>
+            <Text style={styles.cardSub}>{t.tokenDecidedAfterVisitSub}</Text>
+            <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={notBooking} disabled={busy}>
+              <Text style={styles.outlineBtnText}>{t.tokenNotBooking80}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.outlinePinkBtn} activeOpacity={0.85} onPress={soon}>
-              <Text style={styles.outlinePinkBtnText}>Hall didn't match the listing</Text>
+            <TouchableOpacity style={styles.outlinePinkBtn} activeOpacity={0.85} onPress={raiseDispute}>
+              <Text style={styles.outlinePinkBtnText}>{t.tokenHallMismatch}</Text>
             </TouchableOpacity>
           </View>
         )}
 
         <View style={styles.policyCard}>
-          <Text style={styles.policyTitle}>Token refund policy</Text>
-          {REFUND_POLICY.map((r) => (
-            <Text key={r} style={styles.policyLine}>• {r}</Text>
+          <Text style={styles.policyTitle}>{t.tokenRefundPolicyTitle}</Text>
+          {REFUND_POLICY.map((r, i) => (
+            <Text key={i} style={styles.policyLine}>• {r}</Text>
           ))}
-          <Text style={styles.policyFooter}>
-            Refunds reach your UPI, card or bank in 5–7 days. We remind you by SMS & WhatsApp 24 hours and 4 hours before your token
-            expires.
-          </Text>
+          <Text style={styles.policyFooter}>{t.tokenRefundPolicyFooter}</Text>
         </View>
 
         <View style={styles.grid2}>
-          <TouchableOpacity style={[styles.outlineBtn, { flex: 1 }]} activeOpacity={0.85} onPress={soon}>
+          <TouchableOpacity style={[styles.outlineBtn, { flex: 1 }]} activeOpacity={0.85} onPress={openDirections}>
             <Icon name="pin" size={15} color={colors.text} />
-            <Text style={styles.outlineBtnText}>Directions</Text>
+            <Text style={styles.outlineBtnText}>{t.directions}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.outlineBtn, { flex: 1 }]} activeOpacity={0.85} onPress={soon}>
-            <Text style={styles.outlineBtnText}>Call hall</Text>
+          <TouchableOpacity style={[styles.outlineBtn, { flex: 1 }]} activeOpacity={0.85} onPress={callHall}>
+            <Text style={styles.outlineBtnText}>{t.tokenCallHall}</Text>
           </TouchableOpacity>
         </View>
 
         {!hall.hasCrockery && (
           <TouchableOpacity style={styles.rentBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Browse', { category: 'Crockery & Vessels' })}>
-            <Text style={styles.rentBtnText}>This hall has no crockery. Rent from a tent house</Text>
+            <Text style={styles.rentBtnText}>{t.tokenNoCrockeryRent}</Text>
           </TouchableOpacity>
         )}
       </ScrollView>

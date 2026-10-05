@@ -6,19 +6,21 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'PendingReview'>;
 
-const CHECKLIST: Array<{ label: string; status: string; color: string }> = [
-  { label: 'Mobile verified', status: 'Done', color: '#047857' },
-  { label: 'Business details', status: 'Done', color: '#047857' },
-  { label: 'Document check', status: 'In review', color: '#8a5a00' },
-  { label: 'Shop visit / video call', status: 'Pending', color: '#8a8499' },
-];
-
 export default function PendingReviewScreen({ }: Props) {
   const { partner, acknowledgePending } = useAuth();
+  const { t } = useLanguage();
+
+  const CHECKLIST: Array<{ label: string; status: string; color: string }> = [
+    { label: t.pendingMobileVerified, status: t.done, color: '#047857' },
+    { label: t.pendingBusinessDetails, status: t.done, color: '#047857' },
+    { label: t.pendingDocumentCheck, status: t.pendingInReview, color: '#8a5a00' },
+    { label: t.pendingShopVisit, status: t.orderStatusPending, color: '#8a8499' },
+  ];
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -27,10 +29,9 @@ export default function PendingReviewScreen({ }: Props) {
           <Icon name="shield" size={40} color="#fff" strokeWidth={1.8} />
         </LinearGradient>
 
-        <Text style={styles.title}>Application submitted</Text>
+        <Text style={styles.title}>{t.pendingTitle}</Text>
         <Text style={styles.sub}>
-          <Text style={styles.bold}>{partner?.businessName || 'Your business'}</Text> is under review. We’ll SMS you within 48 hours.
-          Meanwhile you can add your items; they go live once you’re verified.
+          <Text style={styles.bold}>{partner?.businessName || t.pendingYourBusiness}</Text>{t.pendingUnderReviewMsg}
         </Text>
 
         <View style={styles.checklist}>
@@ -44,7 +45,7 @@ export default function PendingReviewScreen({ }: Props) {
 
         <TouchableOpacity style={styles.exploreBtnWrap} activeOpacity={0.85} onPress={acknowledgePending}>
           <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.exploreBtn}>
-            <Text style={styles.exploreBtnText}>Explore the partner app</Text>
+            <Text style={styles.exploreBtnText}>{t.pendingExploreApp}</Text>
           </LinearGradient>
         </TouchableOpacity>
       </View>

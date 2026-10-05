@@ -11,7 +11,16 @@ function issueToken(user) {
 }
 
 function serialize(user) {
-  return { id: user.id, phone: user.phone, name: user.name, email: user.email, city: user.city, registered: user.registered };
+  return {
+    id: user.id,
+    phone: user.phone,
+    name: user.name,
+    email: user.email,
+    city: user.city,
+    registered: user.registered,
+    authMethod: user.authMethod,
+    isGuest: user.authMethod === 'guest',
+  };
 }
 
 // Client verifies OTP with Firebase directly (see src/services/firebaseAuth.ts), then sends
@@ -31,8 +40,44 @@ router.post('/verify', async (req, res) => {
 
   let user = await User.findOne({ firebaseUid: decoded.uid });
   if (!user) {
-    user = await User.create({ phone: decoded.phone_number, firebaseUid: decoded.uid });
+    user = await User.create({ phone: decoded.phone_number, firebaseUid: decoded.uid, authMethod: 'phone' });
   }
+  res.json({ token: issueToken(user), user: serialize(user) });
+});
+
+// Google sign-in: client gets a Firebase ID token via native Google sign-in + Firebase
+// credential exchange (see src/services/firebaseAuth.ts), we verify it here same as phone.
+// Google's token carries name/email already, so we skip the separate registration step.
+router.post('/google', async (req, res) => {
+  const { idToken } = req.body || {};
+  if (!idToken) return res.status(400).json({ error: 'idToken required' });
+
+  let decoded;
+  try {
+    decoded = await admin.auth().verifyIdToken(idToken);
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid or expired Google sign-in. Please try again.' });
+  }
+
+  let user = await User.findOne({ firebaseUid: decoded.uid });
+  if (!user) {
+    user = await User.create({
+      firebaseUid: decoded.uid,
+      email: decoded.email || '',
+      name: decoded.name || '',
+      authMethod: 'google',
+      registered: true,
+    });
+  }
+  res.json({ token: issueToken(user), user: serialize(user) });
+});
+
+// Guest: no Firebase credential at all — just a fresh, unverified browsing identity.
+// Guests can browse and even pay (Razorpay doesn't require a phone on file), but have no
+// phone/email on record, so there's nothing to recover the account with if the app is reinstalled.
+router.post('/guest', async (req, res) => {
+  const guestId = 'guest_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+  const user = await User.create({ guestId, name: 'Guest', authMethod: 'guest', registered: true });
   res.json({ token: issueToken(user), user: serialize(user) });
 });
 

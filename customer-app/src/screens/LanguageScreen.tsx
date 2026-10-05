@@ -16,16 +16,16 @@ type Props = NativeStackScreenProps<AuthStackParamList, 'Language'>;
 
 type Intent = 'rentals' | 'venues' | 'both';
 
-const INTENTS: Array<{ key: Intent; label: string; desc: string; icon: IconName }> = [
-  { key: 'rentals', label: 'Tent house & rentals', desc: 'Shamiana, chairs, vessels, decor', icon: 'tent' },
-  { key: 'venues', label: 'Function halls & venues', desc: 'Banquet, marriage hall, hotel', icon: 'home' },
-  { key: 'both', label: 'Both', desc: 'Hall plus everything for it', icon: 'grid' },
-];
-
 export default function LanguageScreen({ navigation }: Props) {
   const { lang, setLang, t } = useLanguage();
   const [intent, setIntent] = useState<Intent>('both');
   const notFull = !isFullyTranslated(lang);
+
+  const INTENTS: Array<{ key: Intent; label: string; desc: string; icon: IconName }> = [
+    { key: 'rentals', label: t.langScreenRentalsLabel, desc: t.langScreenRentalsDesc, icon: 'tent' },
+    { key: 'venues', label: t.langScreenVenuesLabel, desc: t.langScreenVenuesDesc, icon: 'home' },
+    { key: 'both', label: t.langScreenBothLabel, desc: t.langScreenBothDesc, icon: 'grid' },
+  ];
 
   const continueNext = async () => {
     const homeMode = intent === 'venues' ? 'venues' : 'rentals';
@@ -37,8 +37,8 @@ export default function LanguageScreen({ navigation }: Props) {
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.section}>
-          <Text style={styles.intentTitle}>What are you looking for?</Text>
-          <Text style={styles.intentSubtitle}>We’ll set up your home screen for it. You can switch anytime.</Text>
+          <Text style={styles.intentTitle}>{t.langScreenIntentTitle}</Text>
+          <Text style={styles.intentSubtitle}>{t.langScreenIntentSubtitle}</Text>
           <View style={styles.intentList}>
             {INTENTS.map((o) => {
               const sel = intent === o.key;
@@ -72,7 +72,7 @@ export default function LanguageScreen({ navigation }: Props) {
             <Text style={styles.badgeText}>अ</Text>
           </LinearGradient>
           <Text style={styles.title}>{t.chooseLang}</Text>
-          <Text style={styles.subtitle}>English + 22 Indian languages. You can change this anytime from Profile.</Text>
+          <Text style={styles.subtitle}>{t.langScreenSubtitle}</Text>
         </View>
 
         <View style={styles.grid}>
@@ -98,7 +98,7 @@ export default function LanguageScreen({ navigation }: Props) {
 
         {notFull && (
           <View style={styles.notice}>
-            <Text style={styles.noticeText}>{langName(lang)[2]} translation is coming soon. English is shown until then.</Text>
+            <Text style={styles.noticeText}>{langName(lang)[2]} {t.langScreenComingSoon}</Text>
           </View>
         )}
       </ScrollView>

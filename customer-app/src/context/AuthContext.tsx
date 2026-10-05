@@ -1,6 +1,11 @@
 import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import { api, setToken, getToken, ApiError } from '../api/client';
-import { sendOtp as fbSendOtp, confirmOtp as fbConfirmOtp, type ConfirmationResult } from '../services/firebaseAuth';
+import {
+  sendOtp as fbSendOtp,
+  confirmOtp as fbConfirmOtp,
+  signInWithGoogle as fbSignInWithGoogle,
+  type ConfirmationResult,
+} from '../services/firebaseAuth';
 import type { AuthUser } from '../types';
 
 interface AuthContextValue {
@@ -8,6 +13,8 @@ interface AuthContextValue {
   loading: boolean;
   sendOtp: (e164Phone: string) => Promise<void>;
   verifyOtp: (code: string) => Promise<AuthUser>;
+  continueWithGoogle: () => Promise<AuthUser>;
+  continueAsGuest: () => Promise<AuthUser>;
   register: (name: string, city: string) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -52,6 +59,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return res.user;
   }, [confirmation]);
 
+  const continueWithGoogle = useCallback(async () => {
+    const fbUser = await fbSignInWithGoogle();
+    const idToken = await fbUser.getIdToken();
+    const res = await api.post<{ token: string; user: AuthUser }>('/api/auth/google', { idToken });
+    await setToken(res.token);
+    setUser(res.user);
+    return res.user;
+  }, []);
+
+  const continueAsGuest = useCallback(async () => {
+    const res = await api.post<{ token: string; user: AuthUser }>('/api/auth/guest');
+    await setToken(res.token);
+    setUser(res.user);
+    return res.user;
+  }, []);
+
   const register = useCallback(async (name: string, city: string) => {
     const res = await api.post<{ user: AuthUser }>('/api/auth/register', { name, city });
     setUser(res.user);
@@ -63,8 +86,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, sendOtp, verifyOtp, register, logout }),
-    [user, loading, sendOtp, verifyOtp, register, logout],
+    () => ({ user, loading, sendOtp, verifyOtp, continueWithGoogle, continueAsGuest, register, logout }),
+    [user, loading, sendOtp, verifyOtp, continueWithGoogle, continueAsGuest, register, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

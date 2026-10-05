@@ -6,6 +6,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { getQuote, type QuoteVersion } from '../data/catalog';
+import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Quote'>;
@@ -14,6 +15,7 @@ type Line = { label: string; amount: string };
 const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 
 export default function QuoteScreen({ navigation, route }: Props) {
+  const { t } = useLanguage();
   const quote = getQuote(route.params.id);
   const [editable, setEditable] = useState(true);
   const [versions, setVersions] = useState<QuoteVersion[]>(quote?.versions || []);
@@ -23,7 +25,7 @@ export default function QuoteScreen({ navigation, route }: Props) {
   if (!quote) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.notFound}>Quote not found.</Text>
+        <Text style={styles.notFound}>{t.quoteNotFound}</Text>
       </SafeAreaView>
     );
   }
@@ -51,32 +53,32 @@ export default function QuoteScreen({ navigation, route }: Props) {
           <TouchableOpacity style={styles.backBtn} activeOpacity={0.8} onPress={() => navigation.goBack()}>
             <Icon name="left" size={18} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Quote {quote.id}</Text>
+          <Text style={styles.headerTitle}>{t.quoteHeaderTitle.replace('{id}', quote.id)}</Text>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>{quote.event}</Text>
-          <Text style={styles.cardMeta}>{quote.customer} · {quote.date} · {quote.guests} guests</Text>
+          <Text style={styles.cardMeta}>{quote.customer} · {quote.date} · {quote.guests} {t.quoteGuestsLabel}</Text>
           <View style={styles.needBox}>
             <Text style={styles.needText}>"{quote.need}"</Text>
           </View>
           {quote.isRevision && (
             <View style={styles.revisionBox}>
-              <Text style={styles.revisionText}>Customer asked for a revised price.</Text>
+              <Text style={styles.revisionText}>{t.quoteRevisionRequested}</Text>
             </View>
           )}
-          <Text style={styles.statusText}>{editable ? quote.status : 'OFFER SENT'}</Text>
+          <Text style={styles.statusText}>{editable ? quote.status : t.quoteOfferSent}</Text>
         </View>
 
         {editable && (
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Your price · version {(versions[versions.length - 1]?.v || 0) + 1}</Text>
+            <Text style={styles.cardTitle}>{t.quoteYourPriceVersion.replace('{version}', String((versions[versions.length - 1]?.v || 0) + 1))}</Text>
             {lines.map((l, i) => (
               <View key={i} style={styles.lineRow}>
                 <TextInput
                   value={l.label}
                   onChangeText={(v) => updateLine(i, { label: v })}
-                  placeholder="Item or service"
+                  placeholder={t.quoteItemOrService}
                   placeholderTextColor={colors.textMuted}
                   style={[styles.input, { flex: 1 }]}
                 />
@@ -94,34 +96,34 @@ export default function QuoteScreen({ navigation, route }: Props) {
               </View>
             ))}
             <TouchableOpacity style={styles.addLineBtn} activeOpacity={0.85} onPress={addLine}>
-              <Text style={styles.addLineText}>+ Add line</Text>
+              <Text style={styles.addLineText}>{t.quoteAddLine}</Text>
             </TouchableOpacity>
             <TextInput
               value={note}
               onChangeText={setNote}
-              placeholder="Note for the customer, e.g. includes site survey"
+              placeholder={t.quoteNotePlaceholder}
               placeholderTextColor={colors.textMuted}
               multiline
               numberOfLines={2}
               style={[styles.input, styles.textarea]}
             />
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Total</Text>
+              <Text style={styles.totalLabel}>{t.quoteTotal}</Text>
               <Text style={styles.totalValue}>{inr(total)}</Text>
             </View>
             <TouchableOpacity activeOpacity={0.85} onPress={sendQuote}>
               <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.sendBtn}>
-                <Text style={styles.sendBtnText}>Send quote to customer</Text>
+                <Text style={styles.sendBtnText}>{t.quoteSendButton}</Text>
               </LinearGradient>
             </TouchableOpacity>
-            <Text style={styles.hint}>Valid for 48 hours. The customer can accept, decline or ask for a revision.</Text>
+            <Text style={styles.hint}>{t.quoteValidHint}</Text>
           </View>
         )}
 
         {versions.map((v) => (
           <View key={v.v} style={styles.versionCard}>
             <View style={styles.rowBetween}>
-              <Text style={styles.versionTitle}>Sent · v{v.v}</Text>
+              <Text style={styles.versionTitle}>{t.quoteSentVersion.replace('{version}', String(v.v))}</Text>
               <Text style={styles.versionTitle}>{inr(v.total)}</Text>
             </View>
             {v.lines.map((l) => (

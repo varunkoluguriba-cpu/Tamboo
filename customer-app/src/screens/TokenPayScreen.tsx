@@ -1,23 +1,21 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
+import RazorpayCheckout from 'react-native-razorpay';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
-import { getHall } from '../data/catalog';
+import { api, ApiError } from '../api/client';
+import { useCatalog } from '../context/CatalogContext';
+import { useAuth } from '../context/AuthContext';
 import { useEvent } from '../context/EventContext';
 import { useToken } from '../context/TokenContext';
+import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'TokenPay'>;
 type Method = 'upi' | 'card' | 'netbanking';
-
-const METHODS: Array<{ key: Method; label: string; sub: string }> = [
-  { key: 'upi', label: 'UPI', sub: 'Google Pay, PhonePe, Paytm and more' },
-  { key: 'card', label: 'Credit / Debit card', sub: 'Visa, Mastercard, RuPay' },
-  { key: 'netbanking', label: 'Netbanking', sub: 'All major Indian banks' },
-];
 
 const VISIT_HOURS = 48;
 
@@ -30,31 +28,97 @@ function visitByText(): string {
 }
 
 export default function TokenPayScreen({ navigation, route }: Props) {
+  const { t } = useLanguage();
+  const { getHall } = useCatalog();
   const hall = getHall(route.params.hallId);
+  const { user } = useAuth();
   const { event } = useEvent();
   const { startToken } = useToken();
   const [method, setMethod] = useState<Method>('upi');
   const [agree, setAgree] = useState(false);
+  const [paying, setPaying] = useState(false);
+
+  const METHODS: Array<{ key: Method; label: string; sub: string }> = [
+    { key: 'upi', label: 'UPI', sub: t.tokenPayMethodUpiSub },
+    { key: 'card', label: t.tokenPayMethodCard, sub: 'Visa, Mastercard, RuPay' },
+    { key: 'netbanking', label: t.tokenPayMethodNetbanking, sub: t.tokenPayMethodNetbankingSub },
+  ];
 
   if (!hall) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.notFound}>Hall not found.</Text>
+        <Text style={styles.notFound}>{t.tokenPayHallNotFound}</Text>
       </SafeAreaView>
     );
   }
 
-  const pay = () => {
-    startToken({
-      hallId: hall.id,
-      hallName: hall.name,
-      date: route.params.date,
-      slot: route.params.slot,
-      guests: event.guests,
-      amount: hall.token,
-      visitHours: VISIT_HOURS,
-    });
-    navigation.reset({ index: 0, routes: [{ name: 'TokenDone' }] });
+  const pay = async () => {
+    if (paying) return;
+    setPaying(true);
+    try {
+      const order = await api.post<{ orderId: string; amount: number; currency: string; keyId: string }>(
+        '/api/payments/create-order',
+        { amount: hall.token },
+      );
+
+      let checkoutResult: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string };
+      try {
+        checkoutResult = await RazorpayCheckout.open({
+          key: order.keyId,
+          order_id: order.orderId,
+          amount: order.amount,
+          currency: order.currency,
+          name: 'Tamboo',
+          description: t.tokenPayOrderDescription.replace('{hallName}', hall.name),
+          prefill: { name: user?.name, contact: user?.phone },
+          theme: { color: colors.maroon },
+        });
+      } catch (checkoutErr: any) {
+        const description: string = checkoutErr?.description || '';
+        if (!/cancel/i.test(description)) {
+          Alert.alert(t.tokenPayFailedTitle, description || t.tokenPayFailedDefaultMsg);
+        }
+        return;
+      }
+
+      const { verified, bookingId } = await api.post<{ verified: boolean; bookingId?: string }>('/api/payments/verify', {
+        razorpay_order_id: checkoutResult.razorpay_order_id,
+        razorpay_payment_id: checkoutResult.razorpay_payment_id,
+        razorpay_signature: checkoutResult.razorpay_signature,
+        hallId: hall.id,
+        hallName: hall.name,
+        date: route.params.date,
+        slot: route.params.slot,
+        guests: event.guests,
+        amount: hall.token,
+        partnerId: hall.partnerId,
+        customerName: user?.name,
+        customerPhone: user?.phone,
+      });
+
+      if (!verified) {
+        Alert.alert(t.tokenPayVerifyFailedTitle, t.tokenPayVerifyFailedMsg);
+        return;
+      }
+
+      startToken({
+        id: bookingId || '',
+        hallId: hall.id,
+        hallName: hall.name,
+        date: route.params.date,
+        slot: route.params.slot,
+        guests: event.guests,
+        amount: hall.token,
+        heldAtMs: Date.now(),
+        visitHours: VISIT_HOURS,
+      });
+      navigation.reset({ index: 0, routes: [{ name: 'TokenDone' }] });
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : t.tryAgain;
+      Alert.alert(t.tokenPayFailedTitle, message);
+    } finally {
+      setPaying(false);
+    }
   };
 
   return (
@@ -64,29 +128,29 @@ export default function TokenPayScreen({ navigation, route }: Props) {
           <TouchableOpacity style={styles.backBtn} activeOpacity={0.8} onPress={() => navigation.goBack()}>
             <Icon name="left" size={18} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Pay token</Text>
+          <Text style={styles.headerTitle}>{t.tokenPayHeaderTitle}</Text>
         </View>
 
         <View style={styles.summaryCard}>
           <Text style={styles.hallName}>{hall.name}</Text>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Date</Text>
+            <Text style={styles.summaryLabel}>{t.tokenPaySummaryDate}</Text>
             <Text style={styles.summaryValue}>{route.params.date}</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Slot</Text>
+            <Text style={styles.summaryLabel}>{t.tokenPaySummarySlot}</Text>
             <Text style={styles.summaryValue}>{route.params.slot}</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Guests</Text>
+            <Text style={styles.summaryLabel}>{t.guests}</Text>
             <Text style={styles.summaryValue}>{event.guests}</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Visit the hall before</Text>
+            <Text style={styles.summaryLabel}>{t.tokenPaySummaryVisitBefore}</Text>
             <Text style={styles.summaryValue}>{visitByText()}</Text>
           </View>
           <View style={styles.tokenRow}>
-            <Text style={styles.tokenLabel}>Token amount</Text>
+            <Text style={styles.tokenLabel}>{t.tokenPaySummaryTokenAmount}</Text>
             <Text style={styles.tokenValue}>₹{hall.token.toLocaleString('en-IN')}</Text>
           </View>
         </View>
@@ -113,19 +177,18 @@ export default function TokenPayScreen({ navigation, route }: Props) {
             {agree && <Icon name="check" size={13} color="#fff" strokeWidth={3} />}
           </View>
           <Text style={styles.agreeText}>
-            I understand the token expires if I don't visit within {VISIT_HOURS} hours, and an expired token is not refunded. If the hall
-            cancels, I get a full refund.
+            {t.tokenPayAgreeText.replace('{hours}', String(VISIT_HOURS))}
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.payBtnWrap} activeOpacity={agree ? 0.85 : 1} disabled={!agree} onPress={pay}>
+        <TouchableOpacity style={styles.payBtnWrap} activeOpacity={agree ? 0.85 : 1} disabled={!agree || paying} onPress={pay}>
           <LinearGradient
             colors={gradients.primaryButton.colors}
             start={gradients.primaryButton.start}
             end={gradients.primaryButton.end}
-            style={[styles.payBtn, !agree && styles.payBtnDisabled]}
+            style={[styles.payBtn, (!agree || paying) && styles.payBtnDisabled]}
           >
-            <Text style={styles.payBtnText}>Pay ₹{hall.token.toLocaleString('en-IN')}</Text>
+            {paying ? <ActivityIndicator color="#fff" /> : <Text style={styles.payBtnText}>{t.tokenPayButtonLabel.replace('{amount}', `₹${hall.token.toLocaleString('en-IN')}`)}</Text>}
           </LinearGradient>
         </TouchableOpacity>
       </ScrollView>

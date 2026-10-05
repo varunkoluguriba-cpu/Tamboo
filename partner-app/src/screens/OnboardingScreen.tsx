@@ -9,12 +9,6 @@ import { colors, gradients } from '../theme';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Onboarding'>;
 
-const SLIDES = [
-  { title: 'Grow your tent house', body: 'Get bookings from customers across Hyderabad. No more missed calls or lost diaries.' },
-  { title: 'Your stock, always right', body: 'Live availability for every date, so you never double-book chairs or a shamiana.' },
-  { title: 'Get paid on time', body: 'Advance collected at booking. Balance paid out 2 days after pickup.' },
-];
-
 function FloatingBlob({ style, duration }: { style: object; duration: number }) {
   const anim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -34,6 +28,12 @@ function FloatingBlob({ style, duration }: { style: object; duration: number }) 
 export default function OnboardingScreen({ navigation }: Props) {
   const [index, setIndex] = useState(0);
   const { t } = useLanguage();
+
+  const SLIDES = [
+    { title: t.pOnboardSlide1Title, body: t.pOnboardSlide1Body },
+    { title: t.pOnboardSlide2Title, body: t.pOnboardSlide2Body },
+    { title: t.pOnboardSlide3Title, body: t.pOnboardSlide3Body },
+  ];
 
   const isLast = index === SLIDES.length - 1;
   const slide = SLIDES[index];
@@ -55,7 +55,7 @@ export default function OnboardingScreen({ navigation }: Props) {
       <View style={styles.body}>
         <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.logoTile}>
           <Text style={styles.logoText}>tamboo</Text>
-          <Text style={styles.logoBadge}>PARTNER</Text>
+          <Text style={styles.logoBadge}>{t.pOnboardBrandBadge}</Text>
         </LinearGradient>
         <Text style={styles.title}>{slide.title}</Text>
         <Text style={styles.subtitle}>{slide.body}</Text>
@@ -69,7 +69,7 @@ export default function OnboardingScreen({ navigation }: Props) {
 
       <TouchableOpacity activeOpacity={0.85} onPress={next}>
         <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.button}>
-          <Text style={styles.buttonText}>{isLast ? 'Get started' : t.next}</Text>
+          <Text style={styles.buttonText}>{isLast ? t.pOnboardGetStarted : t.next}</Text>
         </LinearGradient>
       </TouchableOpacity>
     </SafeAreaView>

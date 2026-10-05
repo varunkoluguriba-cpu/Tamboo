@@ -1,0 +1,29 @@
+const mongoose = require('mongoose');
+
+const hallSchema = new mongoose.Schema({
+  partner: { type: mongoose.Schema.Types.ObjectId, ref: 'Partner', required: true, unique: true },
+  venueType: { type: String, default: '' },
+  address: { type: String, default: '' },
+  seated: { type: Number, default: 0 },
+  floating: { type: Number, default: 0 },
+  sqft: { type: Number, default: 0 },
+  parking: { type: Number, default: 0 },
+  rooms: { type: Number, default: 0 },
+  // How the owner charges for the hall itself — some banquet halls charge a flat rent
+  // for the space; others charge only per-plate for catering and give the hall for
+  // free once a minimum guest count (plates) is guaranteed. Owner's choice.
+  pricingMode: { type: String, enum: ['rent', 'perPlate'], default: 'rent' },
+  rent: { type: Number, default: 0 },
+  platePrice: { type: Number, default: 0 },
+  minPlates: { type: Number, default: 0 },
+  token: { type: Number, default: 0 },
+  ac: { type: Boolean, default: true },
+  crockery: { type: Boolean, default: false },
+  kitchen: { type: Boolean, default: false },
+  crockeryNote: { type: String, default: '' },
+  catering: { type: String, default: '' },
+  amenities: { type: String, default: '' },
+  blurb: { type: String, default: '' },
+}, { timestamps: true });
+
+module.exports = mongoose.model('Hall', hallSchema);

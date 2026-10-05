@@ -5,8 +5,9 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import type { IconName } from '../components/icons';
-import { HALLS } from '../data/catalog';
+import { useCatalog } from '../context/CatalogContext';
 import { useEvent } from '../context/EventContext';
+import { useLanguage } from '../context/LanguageContext';
 import { colors, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Venues'>;
@@ -14,12 +15,6 @@ type Sort = 'nearest' | 'rating' | 'priceLow' | 'priceHigh';
 
 const VENUE_TYPES = ['All', 'Marriage hall', 'Banquet hall', 'Outdoor / Lawn', 'Home / Backyard'];
 const SLOTS = ['Any time', 'Morning', 'Evening'];
-const SORTS: Array<{ key: Sort; label: string }> = [
-  { key: 'nearest', label: 'Nearest' },
-  { key: 'rating', label: 'Top rated' },
-  { key: 'priceLow', label: 'Token: low' },
-  { key: 'priceHigh', label: 'Token: high' },
-];
 
 function Photo({ icon = 'home' as IconName }: { icon?: IconName }) {
   return (
@@ -30,11 +25,50 @@ function Photo({ icon = 'home' as IconName }: { icon?: IconName }) {
 }
 
 export default function VenuesScreen({ navigation }: Props) {
+  const { t } = useLanguage();
   const { event } = useEvent();
+  const { halls: HALLS } = useCatalog();
   const [venueType, setVenueType] = useState('All');
   const [slot, setSlot] = useState('Any time');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [sort, setSort] = useState<Sort | null>(null);
+
+  const venueTypeLabel = (v: string) => {
+    switch (v) {
+      case 'All': return t.venuesTypeAll;
+      case 'Marriage hall': return t.venuesTypeMarriageHall;
+      case 'Banquet hall': return t.venuesTypeBanquetHall;
+      case 'Outdoor / Lawn': return t.venuesTypeOutdoorLawn;
+      case 'Home / Backyard': return t.venuesTypeHomeBackyard;
+      default: return v;
+    }
+  };
+
+  const slotLabel = (s: string) => {
+    switch (s) {
+      case 'Any time': return t.venuesSlotAnyTime;
+      case 'Morning': return t.venueMorning;
+      case 'Evening': return t.venueEvening;
+      default: return s;
+    }
+  };
+
+  const sortLabel = (key: Sort) => {
+    switch (key) {
+      case 'nearest': return t.venuesSortNearest;
+      case 'rating': return t.venuesSortTopRated;
+      case 'priceLow': return t.venuesSortTokenLow;
+      case 'priceHigh': return t.venuesSortTokenHigh;
+      default: return '';
+    }
+  };
+
+  const SORTS: Array<{ key: Sort; label: string }> = [
+    { key: 'nearest', label: sortLabel('nearest') },
+    { key: 'rating', label: sortLabel('rating') },
+    { key: 'priceLow', label: sortLabel('priceLow') },
+    { key: 'priceHigh', label: sortLabel('priceHigh') },
+  ];
 
   const halls = useMemo(() => {
     let list = HALLS.filter((h) => venueType === 'All' || h.type === venueType);
@@ -44,7 +78,7 @@ export default function VenuesScreen({ navigation }: Props) {
     if (sort === 'priceLow') list = [...list].sort((a, b) => a.token - b.token);
     if (sort === 'priceHigh') list = [...list].sort((a, b) => b.token - a.token);
     return list;
-  }, [venueType, verifiedOnly, sort]);
+  }, [HALLS, venueType, verifiedOnly, sort]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -53,7 +87,7 @@ export default function VenuesScreen({ navigation }: Props) {
           <TouchableOpacity style={styles.backBtn} activeOpacity={0.8} onPress={() => navigation.goBack()}>
             <Icon name="left" size={18} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Halls & venues</Text>
+          <Text style={styles.headerTitle}>{t.venuesHeaderTitle}</Text>
           <View style={styles.cityPill}>
             <Icon name="pin" size={13} color={colors.pinkStrong} />
             <Text style={styles.cityText}>Hyderabad</Text>
@@ -62,11 +96,11 @@ export default function VenuesScreen({ navigation }: Props) {
 
         <View style={styles.grid2}>
           <View style={styles.field}>
-            <Text style={styles.fieldLabel}>Event date</Text>
+            <Text style={styles.fieldLabel}>{t.date}</Text>
             <Text style={styles.fieldValue}>{event.date || 'DD/MM/YYYY'}</Text>
           </View>
           <View style={styles.field}>
-            <Text style={styles.fieldLabel}>Guests</Text>
+            <Text style={styles.fieldLabel}>{t.guests}</Text>
             <Text style={styles.fieldValue}>{event.guests}</Text>
           </View>
         </View>
@@ -74,7 +108,7 @@ export default function VenuesScreen({ navigation }: Props) {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
           {SLOTS.map((s) => (
             <TouchableOpacity key={s} activeOpacity={0.85} onPress={() => setSlot(s)} style={[styles.chip, slot === s ? styles.chipSel : styles.chipUnsel]}>
-              <Text style={[styles.chipText, slot === s && styles.chipTextSel]}>{s}</Text>
+              <Text style={[styles.chipText, slot === s && styles.chipTextSel]}>{slotLabel(s)}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -82,14 +116,14 @@ export default function VenuesScreen({ navigation }: Props) {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
           {VENUE_TYPES.map((v) => (
             <TouchableOpacity key={v} activeOpacity={0.85} onPress={() => setVenueType(v)} style={[styles.chip, venueType === v ? styles.chipSel : styles.chipUnsel]}>
-              <Text style={[styles.chipText, venueType === v && styles.chipTextSel]}>{v}</Text>
+              <Text style={[styles.chipText, venueType === v && styles.chipTextSel]}>{venueTypeLabel(v)}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
           <TouchableOpacity activeOpacity={0.85} onPress={() => setVerifiedOnly((v) => !v)} style={[styles.chip, verifiedOnly ? styles.chipSel : styles.chipUnsel]}>
-            <Text style={[styles.chipText, verifiedOnly && styles.chipTextSel]}>Verified only</Text>
+            <Text style={[styles.chipText, verifiedOnly && styles.chipTextSel]}>{t.venuesVerifiedOnlyChip}</Text>
           </TouchableOpacity>
         </ScrollView>
 
@@ -106,10 +140,10 @@ export default function VenuesScreen({ navigation }: Props) {
           ))}
         </ScrollView>
 
-        <Text style={styles.countText}>{halls.length} hall{halls.length === 1 ? '' : 's'} found</Text>
+        <Text style={styles.countText}>{t.venuesCountFound.replace('{count}', String(halls.length))}</Text>
 
         {halls.length === 0 ? (
-          <Text style={styles.emptyText}>No halls match. Try fewer filters or fewer guests.</Text>
+          <Text style={styles.emptyText}>{t.venuesNoHallsMatch}</Text>
         ) : (
           <View style={{ gap: 12 }}>
             {halls.map((h) => (
@@ -125,14 +159,14 @@ export default function VenuesScreen({ navigation }: Props) {
                   </View>
                   <View style={styles.chipRow}>
                     <Text style={styles.miniChip}>{h.cap}</Text>
-                    <Text style={styles.miniChip}>{h.ac ? 'AC' : 'Non-AC'}</Text>
+                    <Text style={styles.miniChip}>{h.ac ? t.venuesAC : t.venuesNonAC}</Text>
                     <Text style={[styles.miniChip, h.hasCrockery ? styles.chipOk : styles.chipWarn]}>
-                      {h.hasCrockery ? 'Has crockery' : 'No crockery'}
+                      {h.hasCrockery ? t.venuesHasCrockery : t.venuesNoCrockery}
                     </Text>
                   </View>
                   <View style={styles.hallBottomRow}>
-                    <Text style={styles.tokenText}>Token <Text style={styles.tokenAmount}>₹{h.token.toLocaleString('en-IN')}</Text></Text>
-                    <Text style={[styles.availBadge, styles.chipOk]}>Available</Text>
+                    <Text style={styles.tokenText}>{t.venuesTokenLabel} <Text style={styles.tokenAmount}>₹{h.token.toLocaleString('en-IN')}</Text></Text>
+                    <Text style={[styles.availBadge, styles.chipOk]}>{t.venuesAvailableBadge}</Text>
                   </View>
                 </View>
               </TouchableOpacity>

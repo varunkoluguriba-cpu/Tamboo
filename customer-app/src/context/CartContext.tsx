@@ -1,7 +1,8 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { getProduct, getVendor } from '../data/catalog';
+import { useCatalog } from './CatalogContext';
 
 type Line = { productId: string; qty: number };
+export type DeliveryMode = 'delivery' | 'pickup';
 
 export type CartVendorGroup = {
   vendorId: string;
@@ -32,6 +33,8 @@ interface CartContextValue {
   couponCode: string | null;
   applyCoupon: (code: string) => boolean;
   pricing: Pricing;
+  deliveryMode: DeliveryMode;
+  setDeliveryMode: (mode: DeliveryMode) => void;
 }
 
 const CartContext = createContext<CartContextValue | undefined>(undefined);
@@ -39,8 +42,10 @@ const CartContext = createContext<CartContextValue | undefined>(undefined);
 const VALID_COUPONS: Record<string, number> = { TAMBOO10: 0.1 };
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const { getProduct, getVendor } = useCatalog();
   const [lines, setLines] = useState<Line[]>([]);
   const [couponCode, setCouponCode] = useState<string | null>(null);
+  const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>('delivery');
 
   const addToCart = useCallback((productId: string, qty: number) => {
     setLines((prev) => {
@@ -64,6 +69,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const clearCart = useCallback(() => {
     setLines([]);
     setCouponCode(null);
+    setDeliveryMode('delivery');
   }, []);
 
   const applyCoupon = useCallback((code: string) => {
@@ -91,19 +97,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       byVendor.set(vendor.id, group);
     }
     return Array.from(byVendor.values());
-  }, [lines]);
+  }, [lines, getProduct, getVendor]);
 
   const subtotal = useMemo(() => groups.reduce((sum, g) => sum + g.subtotal, 0), [groups]);
   const itemCount = useMemo(() => lines.reduce((sum, l) => sum + l.qty, 0), [lines]);
 
   const pricing = useMemo<Pricing>(() => {
-    const delivery = groups.length * 300;
+    const delivery = deliveryMode === 'delivery' ? groups.length * 300 : 0;
     const platformFee = Math.round(subtotal * 0.02);
     const discount = couponCode ? Math.round(subtotal * (VALID_COUPONS[couponCode] || 0)) : 0;
     const tax = Math.round((subtotal - discount) * 0.05);
     const total = subtotal - discount + delivery + platformFee + tax;
     return { subtotal, delivery, platformFee, discount, tax, total };
-  }, [groups.length, subtotal, couponCode]);
+  }, [groups.length, subtotal, couponCode, deliveryMode]);
 
   const value = useMemo(
     () => ({
@@ -119,8 +125,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       couponCode,
       applyCoupon,
       pricing,
+      deliveryMode,
+      setDeliveryMode,
     }),
-    [lines, itemCount, addToCart, updateQty, removeLine, clearCart, groups, subtotal, couponCode, applyCoupon, pricing],
+    [lines, itemCount, addToCart, updateQty, removeLine, clearCart, groups, subtotal, couponCode, applyCoupon, pricing, deliveryMode],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

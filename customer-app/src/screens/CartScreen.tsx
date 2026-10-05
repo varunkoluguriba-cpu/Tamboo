@@ -20,16 +20,17 @@ export default function CartScreen({ navigation }: Props) {
   const { groups, updateQty, removeLine, vendorCount, couponCode, applyCoupon, pricing } = useCart();
   const { event } = useEvent();
   const [coupon, setCoupon] = useState('');
+  const [couponError, setCouponError] = useState(false);
 
   const breakdown = [
-    { label: 'Subtotal', value: inr(pricing.subtotal) },
-    ...(pricing.discount > 0 ? [{ label: 'Coupon discount', value: `-${inr(pricing.discount)}` }] : []),
-    { label: 'Delivery & pickup', value: inr(pricing.delivery) },
-    { label: 'Platform fee', value: inr(pricing.platformFee) },
-    { label: 'Taxes', value: inr(pricing.tax) },
+    { label: t.cartSubtotal, value: inr(pricing.subtotal) },
+    ...(pricing.discount > 0 ? [{ label: t.cartCouponDiscount, value: `-${inr(pricing.discount)}` }] : []),
+    { label: t.cartDeliveryPickup, value: inr(pricing.delivery) },
+    { label: t.cartPlatformFee, value: inr(pricing.platformFee) },
+    { label: t.cartTaxes, value: inr(pricing.tax) },
   ];
 
-  const onApplyCoupon = () => applyCoupon(coupon);
+  const onApplyCoupon = () => setCouponError(coupon.trim().length > 0 && !applyCoupon(coupon));
 
   const empty = groups.length === 0;
 
@@ -43,24 +44,24 @@ export default function CartScreen({ navigation }: Props) {
             <View style={styles.emptyIcon}>
               <Icon name="cart" size={28} color={colors.pinkStrong} strokeWidth={1.5} />
             </View>
-            <Text style={styles.emptyTitle}>Your cart is empty</Text>
-            <Text style={styles.emptySub}>Add items from Search or pick a ready package.</Text>
+            <Text style={styles.emptyTitle}>{t.cartEmptyTitle}</Text>
+            <Text style={styles.emptySub}>{t.cartEmptyBody}</Text>
             <TouchableOpacity style={styles.browseBtnWrap} activeOpacity={0.85} onPress={() => navigation.navigate('Browse', {})}>
               <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.browseBtn}>
-                <Text style={styles.browseBtnText}>Browse items</Text>
+                <Text style={styles.browseBtnText}>{t.cartBrowseItems}</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
         ) : (
           <>
             <Text style={styles.forLine}>
-              For <Text style={styles.forBold}>{event.name}</Text> · {event.date || 'DD/MM/YYYY'} · {event.guests} guests
+              {t.cartForPrefix} <Text style={styles.forBold}>{event.name}</Text> · {event.date || 'DD/MM/YYYY'} · {t.cartGuestsCount.replace('{count}', String(event.guests))}
             </Text>
 
             {vendorCount > 1 && (
               <View style={styles.multiNote}>
                 <Text style={styles.multiNoteText}>
-                  Items come from {vendorCount} vendors, so this becomes {vendorCount} separate orders. Each one has its own delivery, status and refunds.
+                  {t.cartMultiVendorNote.split('{count}').join(String(vendorCount))}
                 </Text>
               </View>
             )}
@@ -88,7 +89,7 @@ export default function CartScreen({ navigation }: Props) {
                         </TouchableOpacity>
                       </View>
                       <TouchableOpacity activeOpacity={0.7} onPress={() => removeLine(l.productId)}>
-                        <Text style={styles.removeText}>Remove</Text>
+                        <Text style={styles.removeText}>{t.remove}</Text>
                       </TouchableOpacity>
                     </View>
                     {l.warn && <Text style={styles.lineWarn}>{l.warn}</Text>}
@@ -100,18 +101,18 @@ export default function CartScreen({ navigation }: Props) {
             <View style={styles.couponRow}>
               <TextInput
                 value={coupon}
-                onChangeText={setCoupon}
-                placeholder="Coupon code"
+                onChangeText={(v) => { setCoupon(v); setCouponError(false); }}
+                placeholder={t.cartCouponPlaceholder}
                 placeholderTextColor={colors.textMuted}
                 autoCapitalize="characters"
                 style={styles.couponInput}
               />
               <TouchableOpacity style={styles.couponBtn} activeOpacity={0.85} onPress={onApplyCoupon}>
-                <Text style={styles.couponBtnText}>Apply</Text>
+                <Text style={styles.couponBtnText}>{t.cartApply}</Text>
               </TouchableOpacity>
             </View>
-            <Text style={styles.couponHint}>
-              {couponCode ? `${couponCode} applied — 10% off` : 'Try TAMBOO10 for 10% off'}
+            <Text style={[styles.couponHint, couponError && styles.couponHintError]}>
+              {couponError ? t.cartInvalidCoupon : couponCode ? t.cartCouponAppliedSuffix.replace('{code}', couponCode) : t.cartTryPromoHint}
             </Text>
 
             <View style={styles.breakdownCard}>
@@ -123,14 +124,14 @@ export default function CartScreen({ navigation }: Props) {
               ))}
               <View style={styles.divider} />
               <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>Total payable</Text>
+                <Text style={styles.totalLabel}>{t.cartTotalPayable}</Text>
                 <Text style={styles.totalValue}>{inr(pricing.total)}</Text>
               </View>
             </View>
 
             <TouchableOpacity style={styles.reviewBtnWrap} activeOpacity={0.85} onPress={() => navigation.navigate('Checkout')}>
               <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.reviewBtn}>
-                <Text style={styles.reviewBtnText}>Review booking</Text>
+                <Text style={styles.reviewBtnText}>{t.cartReviewBooking}</Text>
               </LinearGradient>
             </TouchableOpacity>
           </>
@@ -175,6 +176,7 @@ const styles = StyleSheet.create({
   couponBtn: { height: 46, paddingHorizontal: 18, borderRadius: 999, backgroundColor: colors.text, alignItems: 'center', justifyContent: 'center' },
   couponBtnText: { color: '#fff', fontWeight: '700', fontSize: 13.5, fontFamily: 'Sora' },
   couponHint: { fontSize: 11.5, color: colors.textMuted, marginTop: -8, paddingLeft: 6 },
+  couponHintError: { color: colors.dangerStrong },
   breakdownCard: { backgroundColor: colors.surface, borderRadius: 20, padding: 16, gap: 8, ...shadow.card },
   breakdownRow: { flexDirection: 'row', justifyContent: 'space-between' },
   breakdownLabel: { fontSize: 13.5, color: colors.textSoft },

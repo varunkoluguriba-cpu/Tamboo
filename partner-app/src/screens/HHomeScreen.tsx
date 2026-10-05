@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -6,8 +6,11 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { VenueTabBar } from '../components/TabBar';
+import LanguageSheet from '../components/LanguageSheet';
 import { useAuth } from '../context/AuthContext';
-import { HALL_TOKENS, statusColors } from '../data/catalog';
+import { useLanguage } from '../context/LanguageContext';
+import { statusColors } from '../data/catalog';
+import { useHallTokens, tokenUiStatus } from '../hooks/useHallTokens';
 import { colors, shadow } from '../theme';
 
 const COMMISSION_PCT = 10;
@@ -16,13 +19,28 @@ const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 export default function HHomeScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { partner } = useAuth();
+  const { lang, t } = useLanguage();
+  const [langSheet, setLangSheet] = useState(false);
+  const { tokens: remoteTokens } = useHallTokens();
+  const HALL_TOKENS = remoteTokens.map((tok) => ({
+    id: tok.id,
+    status: tokenUiStatus(tok),
+    event: tok.hallName,
+    customer: tok.customer,
+    date: tok.date,
+    slot: tok.slot,
+    guests: tok.guests,
+    amount: tok.amount,
+    visitTxt: tok.status === 'token_paid' ? t.htokensTabPending : t.htokensTabVisited,
+  }));
 
-  const active = HALL_TOKENS.filter((t) => t.status === 'ACTIVE');
-  const visited = HALL_TOKENS.filter((t) => t.status === 'VISITED');
-  const converted = HALL_TOKENS.filter((t) => t.status === 'CONFIRMED');
-  const totalTokenAmount = HALL_TOKENS.reduce((sum, t) => sum + t.amount, 0);
+  const active = HALL_TOKENS.filter((tok) => tok.status === 'ACTIVE');
+  const visited = HALL_TOKENS.filter((tok) => tok.status === 'VISITED');
+  const converted = HALL_TOKENS.filter((tok) => tok.status === 'CONFIRMED');
+  const totalTokenAmount = HALL_TOKENS.reduce((sum, tok) => sum + tok.amount, 0);
   const income = Math.round(totalTokenAmount * (1 - COMMISSION_PCT / 100));
   const needsAttention = [...active, ...visited];
+  const tokenStatusLabel = (s: string) => (s === 'ACTIVE' ? t.hhomeStatusActive : s === 'VISITED' ? t.hhomeStatusVisited : s);
 
   const initials = (partner?.businessName || '?')
     .split(' ')
@@ -40,69 +58,69 @@ export default function HHomeScreen() {
             <Text style={styles.avatarText}>{initials}</Text>
           </View>
           <View style={{ flex: 1, minWidth: 0 }}>
-            <Text style={styles.hello}>Namaste · {partner?.venueType || 'Function Hall'}</Text>
+            <Text style={styles.hello}>{t.hhomeGreeting} · {partner?.venueType || t.hhomeDefaultVenueType}</Text>
             <Text style={styles.name}>{partner?.businessName}</Text>
           </View>
-          <View style={styles.langChip}>
+          <TouchableOpacity style={styles.langChip} activeOpacity={0.8} onPress={() => setLangSheet(true)}>
             <Text style={styles.langDevanagari}>अ</Text>
-            <Text style={styles.langText}>EN</Text>
-          </View>
+            <Text style={styles.langText}>{lang.toUpperCase()}</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.statGrid}>
           <TouchableOpacity style={styles.statGrad} activeOpacity={0.85} onPress={() => navigation.navigate('HTokens')}>
             <View style={styles.statGradInner}>
-              <Text style={styles.statGradLabel}>Pre-booked, visit pending</Text>
+              <Text style={styles.statGradLabel}>{t.hhomeStatPrebooked}</Text>
               <Text style={styles.statGradValue}>{active.length}</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity style={styles.statCard} activeOpacity={0.85} onPress={() => navigation.navigate('HTokens')}>
-            <Text style={styles.statLabel}>Visited, to confirm</Text>
+            <Text style={styles.statLabel}>{t.hhomeStatVisited}</Text>
             <Text style={styles.statValue}>{visited.length}</Text>
           </TouchableOpacity>
           <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Confirmed bookings</Text>
+            <Text style={styles.statLabel}>{t.hhomeStatConfirmedBookings}</Text>
             <Text style={[styles.statValueSm, { color: colors.maroon }]}>{converted.length}</Text>
           </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Token income</Text>
+          <TouchableOpacity style={styles.statCard} activeOpacity={0.85} onPress={() => navigation.navigate('Earnings')}>
+            <Text style={styles.statLabel}>{t.hhomeStatTokenIncome}</Text>
             <Text style={[styles.statValueSm, { color: colors.maroon }]}>{inr(income)}</Text>
-            <Text style={styles.statNote}>after {COMMISSION_PCT}% commission</Text>
-          </View>
+            <Text style={styles.statNote}>{t.hhomeCommissionNote.replace('{pct}', String(COMMISSION_PCT))}</Text>
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={styles.dashedBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Hall')}>
           <Icon name="camera" size={16} color={colors.pinkStrong} />
-          <Text style={styles.dashedBtnText}>Edit hall details, photos & token</Text>
+          <Text style={styles.dashedBtnText}>{t.hhomeEditHallDetails}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.linkRow} activeOpacity={0.85} onPress={() => navigation.navigate('Calendar')}>
           <Icon name="calendar" size={18} color={colors.pink} />
-          <Text style={styles.linkRowText}>Calendar & blocked dates</Text>
+          <Text style={styles.linkRowText}>{t.hhomeCalendarLink}</Text>
           <Icon name="right" size={16} color={colors.dividerStrong} />
         </TouchableOpacity>
 
         <View>
-          <Text style={styles.sectionTitle}>Needs your attention</Text>
+          <Text style={styles.sectionTitle}>{t.hhomeNeedsAttention}</Text>
           {needsAttention.length === 0 ? (
             <View style={styles.emptyCard}>
-              <Text style={styles.emptyText}>No pending pre-bookings.</Text>
+              <Text style={styles.emptyText}>{t.hhomeNoPendingPrebookings}</Text>
             </View>
           ) : (
             <View style={{ gap: 8 }}>
-              {needsAttention.map((t) => {
-                const sc = statusColors(t.status);
+              {needsAttention.map((tok) => {
+                const sc = statusColors(tok.status);
                 return (
-                  <TouchableOpacity key={t.id} style={styles.tokenCard} activeOpacity={0.85} onPress={() => navigation.navigate('HToken', { id: t.id })}>
+                  <TouchableOpacity key={tok.id} style={styles.tokenCard} activeOpacity={0.85} onPress={() => navigation.navigate('HToken', { id: tok.id })}>
                     <View style={styles.rowBetween}>
-                      <Text style={styles.tokenId}>{t.id}</Text>
+                      <Text style={styles.tokenId}>{tok.id}</Text>
                       <View style={[styles.pill, { backgroundColor: sc.bg }]}>
-                        <Text style={[styles.pillText, { color: sc.color }]}>{t.status}</Text>
+                        <Text style={[styles.pillText, { color: sc.color }]}>{tokenStatusLabel(tok.status)}</Text>
                       </View>
                     </View>
-                    <Text style={styles.tokenEvent}>{t.event}</Text>
-                    <Text style={styles.tokenMeta}>{t.customer} · {t.date} · {t.slot} · {t.guests} guests</Text>
-                    <Text style={styles.tokenVisit}>Visit: {t.visitTxt}</Text>
+                    <Text style={styles.tokenEvent}>{tok.event}</Text>
+                    <Text style={styles.tokenMeta}>{tok.customer} · {tok.date} · {tok.slot} · {tok.guests} {t.hhomeGuestsSuffix}</Text>
+                    <Text style={styles.tokenVisit}>{t.hhomeVisitLabel}: {tok.visitTxt}</Text>
                   </TouchableOpacity>
                 );
               })}
@@ -112,6 +130,7 @@ export default function HHomeScreen() {
       </ScrollView>
 
       <VenueTabBar active="hhome" navigation={navigation} badge={{ htokens: active.length || undefined }} />
+      <LanguageSheet visible={langSheet} onClose={() => setLangSheet(false)} />
     </SafeAreaView>
   );
 }

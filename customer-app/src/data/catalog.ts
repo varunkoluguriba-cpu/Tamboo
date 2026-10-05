@@ -214,8 +214,18 @@ export type Hall = {
   facts: Array<{ k: string; v: string }>;
   hasCrockery: boolean;
   amenities: string;
+  // 'rent' (default): hall charges a flat rent, catering billed separately.
+  // 'perPlate': hall is complimentary once a minimum plate count is met; the owner
+  // charges per plate instead. Owner's choice — mock halls are 'rent' by default.
+  pricingMode?: 'rent' | 'perPlate';
   rent: number;
+  platePrice?: number;
+  minPlates?: number;
   token: number;
+  // Present once this hall is backed by a real registered Partner account — lets a
+  // token payment auto-credit that partner's payout ledger. Undefined for mock halls.
+  partnerId?: string;
+  phone?: string;
 };
 
 export const HALLS: Hall[] = [

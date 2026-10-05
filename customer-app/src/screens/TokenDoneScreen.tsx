@@ -6,11 +6,13 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { useToken, msLeft, formatHoursLeft } from '../context/TokenContext';
+import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'TokenDone'>;
 
 export default function TokenDoneScreen({ navigation }: Props) {
+  const { t } = useLanguage();
   const { token } = useToken();
   const [, forceTick] = useState(0);
 
@@ -22,7 +24,7 @@ export default function TokenDoneScreen({ navigation }: Props) {
   if (!token) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.notFound}>Nothing pre-booked yet.</Text>
+        <Text style={styles.notFound}>{t.tokenDoneNothingYet}</Text>
       </SafeAreaView>
     );
   }
@@ -36,21 +38,21 @@ export default function TokenDoneScreen({ navigation }: Props) {
           <Icon name="check" size={38} color="#fff" strokeWidth={2.5} />
         </LinearGradient>
 
-        <Text style={styles.title}>Hall pre-booked</Text>
+        <Text style={styles.title}>{t.tokenDoneTitle}</Text>
         <Text style={styles.sub}>
-          <Text style={styles.bold}>{token.hallName}</Text> is held for you on {token.date}. Visit before your window closes to finalise.
+          <Text style={styles.bold}>{token.hallName}</Text> {t.tokenDoneHeldSub.replace('{date}', token.date)}
         </Text>
 
-        <Text style={styles.left}>{left} left</Text>
+        <Text style={styles.left}>{t.tokenDoneLeftSuffix.replace('{time}', left)}</Text>
 
         <TouchableOpacity style={styles.scheduleBtnWrap} activeOpacity={0.85} onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Token' }] })}>
           <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.scheduleBtn}>
-            <Text style={styles.scheduleBtnText}>Schedule your visit</Text>
+            <Text style={styles.scheduleBtnText}>{t.tokenDoneScheduleVisit}</Text>
           </LinearGradient>
         </TouchableOpacity>
 
         <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}>
-          <Text style={styles.homeLink}>Back to home</Text>
+          <Text style={styles.homeLink}>{t.tokenDoneBackHome}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { TentTabBar } from '../components/TabBar';
-import { ORDERS, QUOTES, statusColors } from '../data/catalog';
+import { QUOTES, statusColors } from '../data/catalog';
+import { useOrders } from '../hooks/useOrders';
+import { useLanguage } from '../context/LanguageContext';
 import { colors, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Orders'>;
@@ -15,7 +17,25 @@ const DONE_STATUSES = ['COMPLETED', 'CANCELLED'];
 const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 
 export default function OrdersScreen({ navigation }: Props) {
+  const { t } = useLanguage();
   const [tab, setTab] = useState<Tab>('new');
+  const { orders: ORDERS, loading } = useOrders();
+
+  const STATUS_LABELS: Record<string, string> = {
+    PENDING: t.orderStatusPending,
+    CONFIRMED: t.orderStatusConfirmed,
+    PACKED: t.orderStatusPacked,
+    OUT_FOR_DELIVERY: t.orderStatusOutForDelivery,
+    DELIVERED: t.orderStatusDelivered,
+    COMPLETED: t.orderStatusCompleted,
+    CANCELLED: t.orderStatusCancelled,
+    DISPUTED: t.orderStatusDisputed,
+  };
+
+  const QUOTE_STATUS_LABELS: Record<string, string> = {
+    'AWAITING VENDOR': t.ordersQuoteStatusAwaitingVendor,
+    'REVISION REQUESTED': t.ordersQuoteStatusRevisionRequested,
+  };
 
   const newOrders = ORDERS.filter((o) => o.status === 'PENDING');
   const activeOrders = ORDERS.filter((o) => ACTIVE_STATUSES.includes(o.status));
@@ -23,10 +43,10 @@ export default function OrdersScreen({ navigation }: Props) {
   const openQuotes = QUOTES.filter((q) => q.status === 'AWAITING VENDOR' || q.status === 'REVISION REQUESTED');
 
   const TABS: Array<{ key: Tab; label: string }> = [
-    { key: 'new', label: `New · ${newOrders.length}` },
-    { key: 'active', label: `Active · ${activeOrders.length}` },
-    { key: 'quotes', label: `Quotes · ${openQuotes.length}` },
-    { key: 'done', label: 'Past' },
+    { key: 'new', label: `${t.ordersTabNew} · ${newOrders.length}` },
+    { key: 'active', label: `${t.ordersTabActive} · ${activeOrders.length}` },
+    { key: 'quotes', label: `${t.ordersTabQuotes} · ${openQuotes.length}` },
+    { key: 'done', label: t.ordersTabPast },
   ];
 
   const currentOrders = tab === 'new' ? newOrders : tab === 'active' ? activeOrders : tab === 'done' ? doneOrders : [];
@@ -34,7 +54,7 @@ export default function OrdersScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>Orders</Text>
+        <Text style={styles.title}>{t.ordersTitle}</Text>
 
         <View style={styles.tabRow}>
           {TABS.map((t) => (
@@ -47,7 +67,7 @@ export default function OrdersScreen({ navigation }: Props) {
         {tab === 'quotes' ? (
           openQuotes.length === 0 ? (
             <View style={styles.emptyCard}>
-              <Text style={styles.emptyText}>No quote requests yet.</Text>
+              <Text style={styles.emptyText}>{t.ordersNoQuotes}</Text>
             </View>
           ) : (
             <View style={{ gap: 10 }}>
@@ -56,11 +76,11 @@ export default function OrdersScreen({ navigation }: Props) {
                   <View style={styles.cardTop}>
                     <Text style={styles.cardId}>{q.id}</Text>
                     <View style={[styles.pill, { backgroundColor: statusColors(q.status).bg }]}>
-                      <Text style={[styles.pillText, { color: statusColors(q.status).color }]}>{q.status}</Text>
+                      <Text style={[styles.pillText, { color: statusColors(q.status).color }]}>{QUOTE_STATUS_LABELS[q.status] || q.status}</Text>
                     </View>
                   </View>
                   <Text style={styles.cardTitle}>{q.event}</Text>
-                  <Text style={styles.cardMeta}>{q.customer} · {q.date} · {q.guests} guests</Text>
+                  <Text style={styles.cardMeta}>{q.customer} · {q.date} · {q.guests} {t.orderGuestsSuffix}</Text>
                   <View style={styles.needBox}>
                     <Text style={styles.needText}>{q.need}</Text>
                   </View>
@@ -68,9 +88,11 @@ export default function OrdersScreen({ navigation }: Props) {
               ))}
             </View>
           )
+        ) : loading ? (
+          <ActivityIndicator color={colors.pink} style={{ marginTop: 24 }} />
         ) : currentOrders.length === 0 ? (
           <View style={styles.emptyCard}>
-            <Text style={styles.emptyText}>Nothing here right now.</Text>
+            <Text style={styles.emptyText}>{t.ordersEmptyGeneric}</Text>
           </View>
         ) : (
           <View style={{ gap: 10 }}>
@@ -79,9 +101,9 @@ export default function OrdersScreen({ navigation }: Props) {
               return (
                 <TouchableOpacity key={o.id} style={styles.card} activeOpacity={0.85} onPress={() => navigation.navigate('Order', { id: o.id })}>
                   <View style={styles.cardTop}>
-                    <Text style={styles.cardId}>{o.id}</Text>
+                    <Text style={styles.cardId}>{o.code}</Text>
                     <View style={[styles.pill, { backgroundColor: sc.bg }]}>
-                      <Text style={[styles.pillText, { color: sc.color }]}>{o.status.replace(/_/g, ' ')}</Text>
+                      <Text style={[styles.pillText, { color: sc.color }]}>{STATUS_LABELS[o.status] || o.status.replace(/_/g, ' ')}</Text>
                     </View>
                   </View>
                   <Text style={styles.cardTitle}>{o.event}</Text>

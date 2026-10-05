@@ -15,15 +15,15 @@ import type { PartnerRole } from '../types';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Language'>;
 
-const ROLES: Array<{ key: PartnerRole; label: string; desc: string; icon: IconName }> = [
-  { key: 'tent', label: 'Tent house & rentals', desc: 'Shamiana, chairs, vessels, lights, decor', icon: 'tent' },
-  { key: 'venue', label: 'Function hall, banquet or hotel', desc: 'Get token pre-bookings for your hall', icon: 'home' },
-];
-
 export default function LanguageScreen({ navigation }: Props) {
   const { lang, setLang, t } = useLanguage();
   const [role, setRole] = useState<PartnerRole>('tent');
   const notFull = !isFullyTranslated(lang);
+
+  const ROLES: Array<{ key: PartnerRole; label: string; desc: string; icon: IconName }> = [
+    { key: 'tent', label: t.pLangScreenRoleTentLabel, desc: t.pLangScreenRoleTentDesc, icon: 'tent' },
+    { key: 'venue', label: t.pLangScreenRoleVenueLabel, desc: t.pLangScreenRoleVenueDesc, icon: 'home' },
+  ];
 
   const continueNext = async () => {
     await AsyncStorage.setItem(ROLE_KEY, role).catch(() => {});
@@ -34,8 +34,8 @@ export default function LanguageScreen({ navigation }: Props) {
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.section}>
-          <Text style={styles.title}>What is your business?</Text>
-          <Text style={styles.subtitle}>We’ll show the tools you need.</Text>
+          <Text style={styles.title}>{t.pLangScreenBizTitle}</Text>
+          <Text style={styles.subtitle}>{t.pLangScreenBizSubtitle}</Text>
           <View style={styles.roleList}>
             {ROLES.map((o) => {
               const sel = role === o.key;
@@ -69,7 +69,7 @@ export default function LanguageScreen({ navigation }: Props) {
             <Text style={styles.badgeText}>अ</Text>
           </LinearGradient>
           <Text style={styles.title}>{t.chooseLang}</Text>
-          <Text style={styles.subtitle}>English + 22 Indian languages. You can change this anytime from Shop.</Text>
+          <Text style={styles.subtitle}>{t.pLangScreenLangSubtitle}</Text>
         </View>
 
         <View style={styles.grid}>
@@ -95,7 +95,7 @@ export default function LanguageScreen({ navigation }: Props) {
 
         {notFull && (
           <View style={styles.notice}>
-            <Text style={styles.noticeText}>{langName(lang)[2]} translation is coming soon. English is shown until then.</Text>
+            <Text style={styles.noticeText}>{t.pLangScreenNotice.replace('{lang}', langName(lang)[2])}</Text>
           </View>
         )}
       </ScrollView>

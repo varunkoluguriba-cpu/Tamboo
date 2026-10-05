@@ -25,7 +25,7 @@ export default function RegisterScreen({}: Props) {
 
   const submit = async () => {
     if (name.trim().length < 2) {
-      setErr('Please enter your name');
+      setErr(t.registerNameRequired);
       return;
     }
     setErr('');
@@ -34,7 +34,7 @@ export default function RegisterScreen({}: Props) {
       await register(name.trim(), city);
       // Root navigator swaps to the main app automatically once AuthContext's user updates.
     } catch (e) {
-      setErr(e instanceof ApiError ? e.message : 'Could not save. Check your connection.');
+      setErr(e instanceof ApiError ? e.message : t.registerSaveError);
     } finally {
       setSaving(false);
     }
@@ -45,12 +45,12 @@ export default function RegisterScreen({}: Props) {
       <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
         <View style={styles.verifiedBadge}>
           <Icon name="check" size={13} color={colors.green} />
-          <Text style={styles.verifiedText}>Mobile verified</Text>
+          <Text style={styles.verifiedText}>{t.registerMobileVerified}</Text>
         </View>
 
         <View>
           <Text style={styles.title}>{t.regT}</Text>
-          <Text style={styles.subtitle}>Just a few details so vendors know who they’re serving.</Text>
+          <Text style={styles.subtitle}>{t.registerSubtitle}</Text>
         </View>
 
         <View>
@@ -59,7 +59,7 @@ export default function RegisterScreen({}: Props) {
         </View>
 
         <View>
-          <Text style={styles.label}>Email (optional)</Text>
+          <Text style={styles.label}>{t.registerEmailLabel}</Text>
           <TextInput style={styles.input} placeholder="you@example.com" placeholderTextColor={colors.textMuted} keyboardType="email-address" autoCapitalize="none" value={email} onChangeText={setEmail} />
         </View>
 
