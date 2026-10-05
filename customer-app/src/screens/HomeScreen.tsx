@@ -13,6 +13,7 @@ import LanguageSheet from '../components/LanguageSheet';
 import { useAuth } from '../context/AuthContext';
 import { useCatalog } from '../context/CatalogContext';
 import { useCart } from '../context/CartContext';
+import { useEvent } from '../context/EventContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useToken, msLeft, formatHoursLeft } from '../context/TokenContext';
 import type { LangStrings } from '../i18n';
@@ -54,10 +55,6 @@ const PACKAGE_DEFS: Array<{ id: string; nameKey: 'homeScreenPkgWeddingEssentials
   { id: 'p2', nameKey: 'homeScreenPkgBirthdayStarter', vendorId: 'v2', lines: [{ productId: 'i2', qty: 50 }, { productId: 'i6', qty: 1 }] },
 ];
 
-function soon(t: LangStrings) {
-  Alert.alert(t.comingSoon, t.homeScreenComingSoonMsg);
-}
-
 function Photo({ icon, height = 150, radius = 0, width }: { icon: IconName; height?: number; radius?: number; width?: number }) {
   return (
     <View style={[styles.photo, { height, borderRadius: radius }, width !== undefined && { width }]}>
@@ -73,6 +70,7 @@ export default function HomeScreen() {
   const { lang, t } = useLanguage();
   const { halls, vendors, getProduct, getVendor } = useCatalog();
   const { addToCart } = useCart();
+  const { event, setEvent } = useEvent();
   const [mode, setMode] = useState<Mode>('rentals');
   const [langSheet, setLangSheet] = useState(false);
   const [ev, setEv] = useState({ date: '', guests: '100' });
@@ -144,7 +142,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.addrPill} activeOpacity={0.85} onPress={() => soon(t)}>
+        <TouchableOpacity style={styles.addrPill} activeOpacity={0.85} onPress={() => navigation.navigate('Profile')}>
           <Icon name="pin" size={14} color={colors.pink} />
           <Text style={styles.addrText}>{user?.city || t.homeScreenDefaultCity}</Text>
           <Icon name="down" size={14} color={colors.text} />
@@ -320,7 +318,15 @@ export default function HomeScreen() {
               <Text style={styles.sectionTitle}>{t.homeScreenOccasionQuestion}</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
                 {EV_TYPES(t).map((e) => (
-                  <TouchableOpacity key={e.value} style={styles.occasionChip} activeOpacity={0.85} onPress={() => soon(t)}>
+                  <TouchableOpacity
+                    key={e.value}
+                    style={styles.occasionChip}
+                    activeOpacity={0.85}
+                    onPress={() => {
+                      setEvent({ ...event, type: e.value });
+                      navigation.navigate('Event');
+                    }}
+                  >
                     <Text style={styles.occasionChipText}>{e.label}</Text>
                   </TouchableOpacity>
                 ))}

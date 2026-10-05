@@ -124,15 +124,15 @@ export default function HallScreen({ navigation }: Props) {
   const setNum = (key: string, v: string) => setNums((n) => ({ ...n, [key]: v.replace(/\D/g, '') }));
   const toggle = (key: string) => setToggles((t) => ({ ...t, [key]: !t[key] }));
 
-  const pickPhoto = async (slot: number) => {
+  const MAX_PHOTOS = 15;
+
+  const addPhoto = async () => {
+    if (photos.length >= MAX_PHOTOS) return;
     const uri = await pickImageBase64();
-    if (!uri) return;
-    setPhotos((prev) => {
-      const next = [...prev];
-      next[slot] = uri;
-      return next;
-    });
+    if (uri) setPhotos((prev) => [...prev, uri]);
   };
+
+  const removePhoto = (idx: number) => setPhotos((prev) => prev.filter((_, i) => i !== idx));
 
   const openMap = () => {
     if (address.trim()) Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`);
@@ -198,24 +198,24 @@ export default function HallScreen({ navigation }: Props) {
 
         <View style={{ gap: 8 }}>
           <Text style={styles.fieldLabel}>{t.hallPhotosLabel}</Text>
-          <TouchableOpacity style={styles.mainPhoto} activeOpacity={0.85} onPress={() => pickPhoto(0)}>
-            {photos[0] ? (
-              <Image source={{ uri: photos[0] }} style={styles.mainPhotoImg} />
-            ) : (
-              <>
-                <Icon name="camera" size={26} color={colors.pinkStrong} strokeWidth={1.5} />
-                <Text style={styles.photoText}>{t.hallMainPhotoText}</Text>
-              </>
+          <Text style={styles.hint}>{t.hallPhotosHint}</Text>
+          <View style={styles.photoGrid}>
+            {photos.map((uri, idx) => (
+              <View key={idx} style={styles.photoThumbWrap}>
+                <Image source={{ uri }} style={styles.photoThumb} />
+                <TouchableOpacity style={styles.photoRemoveBtn} activeOpacity={0.8} onPress={() => removePhoto(idx)}>
+                  <Icon name="x" size={12} color="#fff" strokeWidth={2.5} />
+                </TouchableOpacity>
+              </View>
+            ))}
+            {photos.length < MAX_PHOTOS && (
+              <TouchableOpacity style={styles.photoAddTile} activeOpacity={0.85} onPress={addPhoto}>
+                <Icon name="camera" size={22} color={colors.pinkStrong} strokeWidth={1.5} />
+                <Text style={styles.photoText}>{t.hallAddPhoto}</Text>
+              </TouchableOpacity>
             )}
-          </TouchableOpacity>
-          <View style={styles.photoRow}>
-            <TouchableOpacity style={styles.subPhoto} activeOpacity={0.85} onPress={() => pickPhoto(1)}>
-              {photos[1] ? <Image source={{ uri: photos[1] }} style={styles.subPhotoImg} /> : <Text style={styles.photoTextSm}>{t.hallPhotoStageDining}</Text>}
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.subPhoto} activeOpacity={0.85} onPress={() => pickPhoto(2)}>
-              {photos[2] ? <Image source={{ uri: photos[2] }} style={styles.subPhotoImg} /> : <Text style={styles.photoTextSm}>{t.hallPhotoKitchenParking}</Text>}
-            </TouchableOpacity>
           </View>
+          <Text style={styles.photoCount}>{photos.length}/{MAX_PHOTOS}</Text>
         </View>
 
         <View style={{ gap: 8 }}>
@@ -374,13 +374,13 @@ const styles = StyleSheet.create({
   hint: { fontSize: 12.5, color: colors.textSoft, lineHeight: 19 },
   fieldLabel: { fontSize: 12.5, fontWeight: '600', color: colors.textSoft },
   fieldLabelSm: { fontSize: 12, fontWeight: '600', color: colors.textSoft, marginBottom: 5 },
-  mainPhoto: { height: 170, borderRadius: 16, backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center', gap: 6, overflow: 'hidden' },
-  mainPhotoImg: { width: '100%', height: '100%' },
-  photoText: { fontSize: 12, color: colors.pinkStrong, fontWeight: '600' },
-  photoRow: { flexDirection: 'row', gap: 8 },
-  subPhoto: { flex: 1, height: 100, borderRadius: 14, backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  subPhotoImg: { width: '100%', height: '100%' },
-  photoTextSm: { fontSize: 11, color: colors.pinkStrong, fontWeight: '600', textAlign: 'center' },
+  photoText: { fontSize: 11, color: colors.pinkStrong, fontWeight: '600', textAlign: 'center' },
+  photoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  photoThumbWrap: { width: 100, height: 100, borderRadius: 14, overflow: 'hidden' },
+  photoThumb: { width: '100%', height: '100%' },
+  photoRemoveBtn: { position: 'absolute', top: 5, right: 5, width: 20, height: 20, borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.55)', alignItems: 'center', justifyContent: 'center' },
+  photoAddTile: { width: 100, height: 100, borderRadius: 14, backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center', gap: 4, borderWidth: 1.5, borderColor: colors.divider, borderStyle: 'dashed' },
+  photoCount: { fontSize: 11, color: colors.textMuted, textAlign: 'right' },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   chip: { height: 36, paddingHorizontal: 13, borderRadius: 999, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5 },
   chipUnsel: { backgroundColor: colors.pinkBg, borderColor: colors.divider },

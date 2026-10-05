@@ -13,6 +13,7 @@ const hallsRoutes = require('./routes/halls');
 const vendorsRoutes = require('./routes/vendors');
 const quotesRoutes = require('./routes/quotes');
 const messagesRoutes = require('./routes/messages');
+const ordersRoutes = require('./routes/orders');
 
 const app = express();
 app.use(cors());
@@ -30,6 +31,7 @@ app.use('/api/halls', hallsRoutes);
 app.use('/api/vendors', vendorsRoutes);
 app.use('/api/quotes', quotesRoutes);
 app.use('/api/messages', messagesRoutes);
+app.use('/api/orders', ordersRoutes);
 
 app.use((req, res) => res.status(404).json({ error: 'Not found' }));
 

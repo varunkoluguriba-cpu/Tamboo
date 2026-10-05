@@ -28,7 +28,9 @@ const hallSchema = new mongoose.Schema({
   amenities: { type: String, default: '' },
   blurb: { type: String, default: '' },
   // Data-URI strings (base64) — no separate object-storage service yet, see server.js's
-  // raised JSON body limit. Fixed slots: [main, stage/dining, kitchen/parking].
+  // raised JSON body limit. Open gallery, capped at 15 in the route handler (16MB Mongo
+  // document limit) — partners are encouraged to show before/after decoration, stage,
+  // chairs, parking, kitchen, dining area etc. First photo is the cover/hero image.
   photos: { type: [String], default: [] },
 }, { timestamps: true });
 

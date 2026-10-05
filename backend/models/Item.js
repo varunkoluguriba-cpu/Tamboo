@@ -12,8 +12,9 @@ const itemSchema = new mongoose.Schema({
   specs: { type: String, default: '' },
   instant: { type: Boolean, default: true },
   paused: { type: Boolean, default: false },
-  // Data-URI (base64) cover photo — no separate object-storage service yet.
-  photo: { type: String, default: '' },
+  // Data-URI (base64) photos — no separate object-storage service yet. Capped at 15 in the
+  // route handler (16MB Mongo document limit); first photo is the cover/thumbnail.
+  photos: { type: [String], default: [] },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Item', itemSchema);

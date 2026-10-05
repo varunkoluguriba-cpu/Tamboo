@@ -13,6 +13,7 @@ export type EventDetails = {
   address: string;
   budget: string;
   notes: string;
+  photos: string[];
 };
 
 const DEFAULT_EVENT: EventDetails = {
@@ -28,6 +29,7 @@ const DEFAULT_EVENT: EventDetails = {
   address: '',
   budget: '',
   notes: '',
+  photos: [],
 };
 
 interface EventContextValue {

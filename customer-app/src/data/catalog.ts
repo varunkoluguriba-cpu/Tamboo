@@ -14,6 +14,7 @@ export type Product = {
   min: string;
   isInstant: boolean;
   avail: { total: number; reserved: number; maint: number; free: number };
+  photos?: string[];
 };
 
 export type Vendor = {
@@ -226,6 +227,7 @@ export type Hall = {
   // token payment auto-credit that partner's payout ledger. Undefined for mock halls.
   partnerId?: string;
   phone?: string;
+  photos?: string[];
 };
 
 export const HALLS: Hall[] = [

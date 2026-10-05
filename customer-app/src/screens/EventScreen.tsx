@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -7,6 +7,7 @@ import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { useEvent } from '../context/EventContext';
 import { useLanguage } from '../context/LanguageContext';
+import { pickImageBase64 } from '../utils/pickImage';
 import type { LangStrings } from '../i18n';
 import { colors, gradients, shadow } from '../theme';
 
@@ -38,9 +39,7 @@ const needCatOptions = (t: LangStrings): Option[] => [
   { value: 'Decor', label: t.eventNeedDecor },
 ];
 
-function soon(t: LangStrings) {
-  Alert.alert(t.comingSoon, t.eventComingSoonMsg);
-}
+const MAX_EVENT_PHOTOS = 10;
 
 function Chip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
   return (
@@ -79,13 +78,22 @@ export default function EventScreen({ navigation }: Props) {
   const [needs, setNeeds] = useState<string[]>([]);
   const [budget, setBudget] = useState(event.budget);
   const [notes, setNotes] = useState(event.notes);
+  const [photos, setPhotos] = useState<string[]>(event.photos || []);
 
   const toggleNeed = (c: string) => {
     setNeeds((s) => (s.includes(c) ? s.filter((x) => x !== c) : [...s, c]));
   };
 
+  const addPhoto = async () => {
+    if (photos.length >= MAX_EVENT_PHOTOS) return;
+    const uri = await pickImageBase64();
+    if (uri) setPhotos((prev) => [...prev, uri]);
+  };
+
+  const removePhoto = (idx: number) => setPhotos((prev) => prev.filter((_, i) => i !== idx));
+
   const persist = () => {
-    setEvent({ name: name.trim() || t.eventDefaultName, type, date, guests, setup, pickup, start, end, venueType, address, budget, notes });
+    setEvent({ name: name.trim() || t.eventDefaultName, type, date, guests, setup, pickup, start, end, venueType, address, budget, notes, photos });
   };
 
   return (
@@ -189,10 +197,24 @@ export default function EventScreen({ navigation }: Props) {
             />
           </Field>
 
-          <TouchableOpacity style={styles.photoBtn} activeOpacity={0.85} onPress={() => soon(t)}>
-            <Icon name="camera" size={16} color={colors.textSoft} />
-            <Text style={styles.photoBtnText}>{t.eventAddPhotos}</Text>
-          </TouchableOpacity>
+          <Field label={t.eventAddPhotos}>
+            <View style={styles.photoGrid}>
+              {photos.map((uri, idx) => (
+                <View key={idx} style={styles.photoThumbWrap}>
+                  <Image source={{ uri }} style={styles.photoThumb} />
+                  <TouchableOpacity style={styles.photoRemoveBtn} activeOpacity={0.8} onPress={() => removePhoto(idx)}>
+                    <Icon name="x" size={11} color="#fff" strokeWidth={2.5} />
+                  </TouchableOpacity>
+                </View>
+              ))}
+              {photos.length < MAX_EVENT_PHOTOS && (
+                <TouchableOpacity style={styles.photoBtn} activeOpacity={0.85} onPress={addPhoto}>
+                  <Icon name="camera" size={16} color={colors.textSoft} />
+                </TouchableOpacity>
+              )}
+            </View>
+            <Text style={styles.photoHint}>{t.eventPhotosHint}</Text>
+          </Field>
         </View>
 
         <View style={styles.footerRow}>
@@ -230,8 +252,12 @@ const styles = StyleSheet.create({
   chipTextSel: { color: '#fff' },
   grid2: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   gridItem: { width: '47%' },
-  photoBtn: { height: 44, borderRadius: 14, borderWidth: 1.5, borderColor: colors.dividerStrong, borderStyle: 'dashed', backgroundColor: colors.bg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  photoBtnText: { color: colors.textSoft, fontWeight: '600', fontSize: 13 },
+  photoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  photoBtn: { width: 64, height: 64, borderRadius: 14, borderWidth: 1.5, borderColor: colors.dividerStrong, borderStyle: 'dashed', backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' },
+  photoThumbWrap: { width: 64, height: 64, borderRadius: 14, overflow: 'hidden' },
+  photoThumb: { width: '100%', height: '100%' },
+  photoRemoveBtn: { position: 'absolute', top: 3, right: 3, width: 16, height: 16, borderRadius: 8, backgroundColor: 'rgba(0,0,0,0.55)', alignItems: 'center', justifyContent: 'center' },
+  photoHint: { fontSize: 11.5, color: colors.textMuted, marginTop: 4 },
   footerRow: { flexDirection: 'row', gap: 10 },
   saveBtn: { flex: 1, height: 50, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   saveBtnText: { color: colors.text, fontWeight: '600', fontSize: 14.5, fontFamily: 'Sora' },

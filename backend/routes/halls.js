@@ -170,7 +170,7 @@ router.put('/me', requirePartnerAuth, async (req, res) => {
     advancePct: advancePct > 0 && advancePct <= 100 ? advancePct : 25,
     ac, crockery, kitchen, crockeryNote, catering, amenities, blurb,
   };
-  if (Array.isArray(photos)) update.photos = photos.slice(0, 3);
+  if (Array.isArray(photos)) update.photos = photos.slice(0, 15);
 
   const hall = await Hall.findOneAndUpdate(
     { partner: req.partner.id },
@@ -254,6 +254,14 @@ router.get('/my-token', requireAuth, async (req, res) => {
   }).sort({ createdAt: -1 });
   if (booking) await sweepExpiredAdvance(booking);
   res.json(booking && booking.status !== 'not_booked' ? serializeTokenForCustomer(booking) : null);
+});
+
+// Customer: every hall pre-booking they've ever made, newest first — for the Bookings
+// history tab (unlike /my-token above, which is just the single current active one).
+router.get('/my-tokens', requireAuth, async (req, res) => {
+  const bookings = await Booking.find({ customer: req.user.id }).sort({ createdAt: -1 });
+  await Promise.all(bookings.map(sweepExpiredAdvance));
+  res.json(bookings.map(serializeTokenForCustomer));
 });
 
 // Customer actions on their own pre-booking.

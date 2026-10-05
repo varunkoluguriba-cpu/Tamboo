@@ -23,7 +23,7 @@ type Item = {
   stock: number;
   instant: boolean;
   state: ItemState;
-  photo: string;
+  photos: string[];
 };
 
 const STATE_STYLE: Record<ItemState, { bg: string; color: string }> = {
@@ -105,8 +105,8 @@ export default function ItemsScreen({ navigation }: Props) {
                   return (
                     <View key={p.id} style={styles.card}>
                       <View style={styles.photo}>
-                        {p.photo ? (
-                          <Image source={{ uri: p.photo }} style={styles.photoImg} />
+                        {p.photos?.[0] ? (
+                          <Image source={{ uri: p.photos[0] }} style={styles.photoImg} />
                         ) : (
                           <Icon name="package" size={26} color={colors.pinkStrong} strokeWidth={1.5} />
                         )}

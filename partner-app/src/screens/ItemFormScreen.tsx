@@ -25,12 +25,10 @@ type RemoteItem = {
   deposit: number;
   specs: string;
   instant: boolean;
-  photo: string;
+  photos: string[];
 };
 
-function soon(t: import('../i18n').LangStrings) {
-  Alert.alert(t.comingSoon, t.itemFormComingSoonMsg);
-}
+const MAX_ITEM_PHOTOS = 15;
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -56,7 +54,7 @@ export default function ItemFormScreen({ navigation, route }: Props) {
   const [deposit, setDeposit] = useState('');
   const [specs, setSpecs] = useState('');
   const [instant, setInstant] = useState(true);
-  const [photo, setPhoto] = useState('');
+  const [photos, setPhotos] = useState<string[]>([]);
   const [err, setErr] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -75,7 +73,7 @@ export default function ItemFormScreen({ navigation, route }: Props) {
         setDeposit(String(editing.deposit));
         setSpecs(editing.specs);
         setInstant(editing.instant);
-        setPhoto(editing.photo || '');
+        setPhotos(editing.photos || []);
       })
       .catch(() => {})
       .finally(() => setLoadingItem(false));
@@ -83,10 +81,13 @@ export default function ItemFormScreen({ navigation, route }: Props) {
 
   const needsReview = partner?.verificationStatus !== 'verified';
 
-  const pickCoverPhoto = async () => {
+  const addPhoto = async () => {
+    if (photos.length >= MAX_ITEM_PHOTOS) return;
     const uri = await pickImageBase64();
-    if (uri) setPhoto(uri);
+    if (uri) setPhotos((prev) => [...prev, uri]);
   };
+
+  const removePhoto = (idx: number) => setPhotos((prev) => prev.filter((_, i) => i !== idx));
 
   const save = async () => {
     if (!name.trim()) return setErr(t.itemFormErrName);
@@ -103,7 +104,7 @@ export default function ItemFormScreen({ navigation, route }: Props) {
       deposit: parseInt(deposit, 10) || 0,
       specs,
       instant,
-      photo,
+      photos,
     };
     try {
       if (editingId) await api.put(`/api/vendors/me/items/${editingId}`, payload);
@@ -153,26 +154,22 @@ export default function ItemFormScreen({ navigation, route }: Props) {
         <View>
           <Text style={styles.photoLabel}>{t.itemFormPhotosLabel}</Text>
           <View style={styles.photoGrid}>
-            <TouchableOpacity style={styles.coverPhoto} activeOpacity={0.85} onPress={pickCoverPhoto}>
-              {photo ? (
-                <Image source={{ uri: photo }} style={styles.coverPhotoImg} />
-              ) : (
-                <>
-                  <Icon name="camera" size={24} color={colors.pinkStrong} strokeWidth={1.5} />
-                  <Text style={styles.photoText}>{t.itemFormCoverPhotoText}</Text>
-                </>
-              )}
-            </TouchableOpacity>
-            <View style={{ gap: 8, flex: 1 }}>
-              <TouchableOpacity style={styles.smallPhoto} activeOpacity={0.85} onPress={() => soon(t)}>
-                <Icon name="plus" size={18} color={colors.pinkStrong} />
+            {photos.map((uri, idx) => (
+              <View key={idx} style={styles.photoThumbWrap}>
+                <Image source={{ uri }} style={styles.photoThumb} />
+                <TouchableOpacity style={styles.photoRemoveBtn} activeOpacity={0.8} onPress={() => removePhoto(idx)}>
+                  <Icon name="x" size={12} color="#fff" strokeWidth={2.5} />
+                </TouchableOpacity>
+              </View>
+            ))}
+            {photos.length < MAX_ITEM_PHOTOS && (
+              <TouchableOpacity style={styles.photoAddTile} activeOpacity={0.85} onPress={addPhoto}>
+                <Icon name="camera" size={22} color={colors.pinkStrong} strokeWidth={1.5} />
+                <Text style={styles.photoText}>{t.itemFormCoverPhotoText}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.smallPhoto} activeOpacity={0.85} onPress={() => soon(t)}>
-                <Icon name="plus" size={18} color={colors.pinkStrong} />
-              </TouchableOpacity>
-            </View>
+            )}
           </View>
-          <Text style={styles.photoHint}>{t.itemFormPhotoHint}</Text>
+          <Text style={styles.photoHint}>{t.itemFormPhotoHint.replace('{count}', String(photos.length)).replace('{max}', String(MAX_ITEM_PHOTOS))}</Text>
         </View>
 
         <Field label={t.itemFormNameLabel}>
@@ -279,11 +276,12 @@ const styles = StyleSheet.create({
   backBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
   headerTitle: { fontFamily: 'Sora', fontSize: 18, fontWeight: '800', color: colors.text },
   photoLabel: { fontSize: 12.5, fontWeight: '600', color: colors.textSoft, marginBottom: 8 },
-  photoGrid: { flexDirection: 'row', gap: 8 },
-  coverPhoto: { flex: 2, height: 184, borderRadius: 16, backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center', gap: 6, padding: 10, overflow: 'hidden' },
-  coverPhotoImg: { width: '100%', height: '100%' },
-  photoText: { fontSize: 11.5, color: colors.pinkStrong, textAlign: 'center', fontWeight: '600' },
-  smallPhoto: { height: 88, borderRadius: 14, backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center' },
+  photoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  photoText: { fontSize: 11, color: colors.pinkStrong, textAlign: 'center', fontWeight: '600' },
+  photoThumbWrap: { width: 100, height: 100, borderRadius: 14, overflow: 'hidden' },
+  photoThumb: { width: '100%', height: '100%' },
+  photoRemoveBtn: { position: 'absolute', top: 5, right: 5, width: 20, height: 20, borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.55)', alignItems: 'center', justifyContent: 'center' },
+  photoAddTile: { width: 100, height: 100, borderRadius: 14, backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center', gap: 4, borderWidth: 1.5, borderColor: colors.divider, borderStyle: 'dashed' },
   photoHint: { fontSize: 11.5, color: colors.textMuted, marginTop: 6 },
   fieldLabel: { fontSize: 12.5, fontWeight: '600', color: colors.textSoft },
   input: { height: 50, borderRadius: 14, borderWidth: 1.5, borderColor: colors.divider, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.surface },

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
@@ -16,7 +16,8 @@ type Sort = 'nearest' | 'rating' | 'priceLow' | 'priceHigh';
 const VENUE_TYPES = ['All', 'Marriage hall', 'Banquet hall', 'Outdoor / Lawn', 'Home / Backyard'];
 const SLOTS = ['Any time', 'Morning', 'Evening'];
 
-function Photo({ icon = 'home' as IconName }: { icon?: IconName }) {
+function Photo({ icon = 'home' as IconName, uri }: { icon?: IconName; uri?: string }) {
+  if (uri) return <Image source={{ uri }} style={styles.photo} />;
   return (
     <View style={styles.photo}>
       <Icon name={icon} size={26} color={colors.pinkStrong} strokeWidth={1.5} />
@@ -148,7 +149,7 @@ export default function VenuesScreen({ navigation }: Props) {
           <View style={{ gap: 12 }}>
             {halls.map((h) => (
               <TouchableOpacity key={h.id} style={styles.hallCard} activeOpacity={0.85} onPress={() => navigation.navigate('Venue', { id: h.id })}>
-                <Photo />
+                <Photo uri={h.photos?.[0]} />
                 <View style={styles.hallBody}>
                   <View style={styles.hallTopRow}>
                     <View style={{ flex: 1, minWidth: 0 }}>

@@ -19,6 +19,7 @@ import VenueScreen from '../screens/VenueScreen';
 import TokenPayScreen from '../screens/TokenPayScreen';
 import TokenDoneScreen from '../screens/TokenDoneScreen';
 import AdvancePayScreen from '../screens/AdvancePayScreen';
+import BookingDetailScreen from '../screens/BookingDetailScreen';
 import TokenScreen from '../screens/TokenScreen';
 import ChatScreen from '../screens/ChatScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
@@ -53,6 +54,7 @@ export default function RootNavigator() {
           <Stack.Screen name="Pay" component={PayScreen} />
           <Stack.Screen name="Confirm" component={ConfirmScreen} />
           <Stack.Screen name="Bookings" component={BookingsScreen} />
+          <Stack.Screen name="BookingDetail" component={BookingDetailScreen} />
           <Stack.Screen name="Venues" component={VenuesScreen} />
           <Stack.Screen name="Venue" component={VenueScreen} />
           <Stack.Screen name="TokenPay" component={TokenPayScreen} />

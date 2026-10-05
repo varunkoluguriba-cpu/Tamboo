@@ -70,7 +70,7 @@ function serializeItemPublic(item, vendorId) {
     min: String(item.min),
     isInstant: item.instant,
     avail: { total: item.stock, reserved: 0, maint: 0, free: item.stock },
-    photo: item.photo || '',
+    photos: item.photos || [],
   };
 }
 
@@ -87,7 +87,7 @@ function serializeItemOwn(item, partner) {
     specs: item.specs,
     instant: item.instant,
     state: item.paused ? 'PAUSED' : partner.verificationStatus === 'verified' ? 'LIVE' : 'REVIEW',
-    photo: item.photo || '',
+    photos: item.photos || [],
   };
 }
 
@@ -135,17 +135,20 @@ router.get('/me/items', requirePartnerAuth, requireTentRole, async (req, res) =>
 });
 
 router.post('/me/items', requirePartnerAuth, requireTentRole, async (req, res) => {
-  const { name, cat, price, unit, stock, min, deposit, specs, instant, photo } = req.body || {};
+  const { name, cat, price, unit, stock, min, deposit, specs, instant, photos } = req.body || {};
   if (!name || !name.trim()) return res.status(400).json({ error: 'Enter an item name' });
   if (instant && !(price > 0)) return res.status(400).json({ error: 'Enter the rent amount' });
-  const item = await Item.create({ partner: req.partner.id, name: name.trim(), cat, price, unit, stock, min, deposit, specs, instant, photo: photo || '' });
+  const item = await Item.create({
+    partner: req.partner.id, name: name.trim(), cat, price, unit, stock, min, deposit, specs, instant,
+    photos: Array.isArray(photos) ? photos.slice(0, 15) : [],
+  });
   res.status(201).json(serializeItemOwn(item, req.partner));
 });
 
 router.put('/me/items/:itemId', requirePartnerAuth, requireTentRole, async (req, res) => {
   const item = await Item.findOne({ _id: req.params.itemId, partner: req.partner.id });
   if (!item) return res.status(404).json({ error: 'Item not found' });
-  const { name, cat, price, unit, stock, min, deposit, specs, instant, paused, photo } = req.body || {};
+  const { name, cat, price, unit, stock, min, deposit, specs, instant, paused, photos } = req.body || {};
   if (name !== undefined) item.name = name.trim();
   if (cat !== undefined) item.cat = cat;
   if (price !== undefined) item.price = price;
@@ -156,7 +159,7 @@ router.put('/me/items/:itemId', requirePartnerAuth, requireTentRole, async (req,
   if (specs !== undefined) item.specs = specs;
   if (instant !== undefined) item.instant = instant;
   if (paused !== undefined) item.paused = paused;
-  if (photo !== undefined) item.photo = photo;
+  if (Array.isArray(photos)) item.photos = photos.slice(0, 15);
   await item.save();
   res.json(serializeItemOwn(item, req.partner));
 });

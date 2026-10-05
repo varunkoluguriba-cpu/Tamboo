@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -90,13 +90,25 @@ export default function VenueScreen({ navigation, route }: Props) {
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
         <View style={styles.cover}>
-          <View style={styles.coverPlaceholder}>
-            <Icon name="home" size={44} color={colors.pinkStrong} strokeWidth={1.3} />
-          </View>
+          {hall.photos?.[0] ? (
+            <Image source={{ uri: hall.photos[0] }} style={styles.coverImg} />
+          ) : (
+            <View style={styles.coverPlaceholder}>
+              <Icon name="home" size={44} color={colors.pinkStrong} strokeWidth={1.3} />
+            </View>
+          )}
           <TouchableOpacity style={styles.backBtn} activeOpacity={0.8} onPress={() => navigation.goBack()}>
             <Icon name="left" size={18} color={colors.text} />
           </TouchableOpacity>
         </View>
+
+        {!!hall.photos?.length && (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.galleryRow}>
+            {hall.photos.map((uri, idx) => (
+              <Image key={idx} source={{ uri }} style={styles.galleryThumb} />
+            ))}
+          </ScrollView>
+        )}
 
         <View style={styles.body}>
           <View>
@@ -299,6 +311,9 @@ const styles = StyleSheet.create({
   notFound: { padding: 24, color: colors.textSoft },
   cover: { height: 230, backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center' },
   coverPlaceholder: { alignItems: 'center', justifyContent: 'center' },
+  coverImg: { width: '100%', height: '100%' },
+  galleryRow: { paddingHorizontal: 18, paddingTop: 10, gap: 8 },
+  galleryThumb: { width: 90, height: 90, borderRadius: 14 },
   backBtn: { position: 'absolute', top: 10, left: 14, width: 36, height: 36, borderRadius: 18, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
   body: { paddingHorizontal: 18, paddingTop: 16, gap: 14 },
   typeRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },

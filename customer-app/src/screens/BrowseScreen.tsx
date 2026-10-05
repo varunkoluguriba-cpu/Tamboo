@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
@@ -35,7 +35,8 @@ const SORTS: Array<{ key: Sort; labelKey: Key }> = [
   { key: 'nearest', labelKey: 'browseSortNearest' },
 ];
 
-function Photo({ icon, size = 84, radius = 14 }: { icon: IconName; size?: number; radius?: number }) {
+function Photo({ icon, size = 84, radius = 14, uri }: { icon: IconName; size?: number; radius?: number; uri?: string }) {
+  if (uri) return <Image source={{ uri }} style={{ width: size, height: size, borderRadius: radius }} />;
   return (
     <View style={[styles.photo, { width: size, height: size, borderRadius: radius }]}>
       <Icon name={icon} size={size * 0.32} color={colors.pinkStrong} strokeWidth={1.5} />
@@ -155,7 +156,7 @@ export default function BrowseScreen({ navigation, route }: Props) {
               const badge = availBadge(p);
               return (
                 <TouchableOpacity key={p.id} style={styles.itemCard} activeOpacity={0.85} onPress={() => navigation.navigate('Product', { id: p.id })}>
-                  <Photo icon="package" />
+                  <Photo icon="package" uri={p.photos?.[0]} />
                   <View style={styles.itemBody}>
                     <Text style={styles.itemName}>{p.name}</Text>
                     <Text style={styles.itemMeta}>{p.vendorName} · ★ {p.rating}</Text>

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -57,13 +57,25 @@ export default function ProductScreen({ navigation, route }: Props) {
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
         <View style={styles.cover}>
-          <View style={styles.coverPlaceholder}>
-            <Icon name="package" size={44} color={colors.pinkStrong} strokeWidth={1.3} />
-          </View>
+          {product.photos?.[0] ? (
+            <Image source={{ uri: product.photos[0] }} style={styles.coverImg} />
+          ) : (
+            <View style={styles.coverPlaceholder}>
+              <Icon name="package" size={44} color={colors.pinkStrong} strokeWidth={1.3} />
+            </View>
+          )}
           <TouchableOpacity style={styles.backBtn} activeOpacity={0.8} onPress={() => navigation.goBack()}>
             <Icon name="left" size={18} color={colors.text} />
           </TouchableOpacity>
         </View>
+
+        {!!product.photos?.length && (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.galleryRow}>
+            {product.photos.map((uri, idx) => (
+              <Image key={idx} source={{ uri }} style={styles.galleryThumb} />
+            ))}
+          </ScrollView>
+        )}
 
         <View style={styles.body}>
           <View>
@@ -209,6 +221,9 @@ const styles = StyleSheet.create({
   notFound: { padding: 24, color: colors.textSoft },
   cover: { height: 260, backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center' },
   coverPlaceholder: { alignItems: 'center', justifyContent: 'center' },
+  coverImg: { width: '100%', height: '100%' },
+  galleryRow: { paddingHorizontal: 18, paddingTop: 10, gap: 8 },
+  galleryThumb: { width: 90, height: 90, borderRadius: 14 },
   backBtn: { position: 'absolute', top: 8, left: 18, width: 36, height: 36, borderRadius: 18, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
   body: { paddingHorizontal: 18, paddingTop: 16, gap: 14 },
   catLabel: { fontSize: 12, fontWeight: '700', color: colors.pink, textTransform: 'uppercase', letterSpacing: 0.6 },

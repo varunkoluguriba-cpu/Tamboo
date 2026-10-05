@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../navigation/types';
+import type { RemoteHallBooking, RemoteOrderSummary, RootStackParamList } from '../navigation/types';
 import TabBar from '../components/TabBar';
 import { api, ApiError } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
@@ -26,19 +26,9 @@ type RemoteQuote = {
 type Props = NativeStackScreenProps<RootStackParamList, 'Bookings'>;
 type Tab = 'active' | 'past' | 'halls' | 'quotes';
 
-const ACTIVE = [
-  { id: 'TB-250142', event: 'Priya & Karthik Wedding', date: '12 Nov 2026', vendor: 'Sai Tent House', total: '₹42,000', status: 'CONFIRMED', ok: true },
-  { id: 'TB-250138', event: 'Ananya Birthday', date: '28 Oct 2026', vendor: 'Balaji Decorators', total: '₹9,500', status: 'PENDING', ok: false },
-];
-
-const PAST = [
-  { id: 'TB-249981', event: 'Office Diwali Party', date: '2 Nov 2025', vendor: 'Hyderabad Sound & Light', total: '₹12,300', status: 'COMPLETED', ok: true },
-  { id: 'TB-249850', event: 'Family Get-together', date: '14 Aug 2025', vendor: 'Sai Tent House', total: '₹6,800', status: 'CANCELLED', ok: false },
-];
-
-const TOKENS = [
-  { id: 'TK-88213', hall: 'Sri Kalyana Mandapam', date: '20 Dec 2026', slot: 'Evening', amount: '₹5,000', status: 'HELD', isActive: true, left: 'Visit within 31 hours' },
-];
+const ACTIVE_ORDER_STATUSES = ['PENDING', 'CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED'];
+const OK_ORDER_STATUSES = ['CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'COMPLETED'];
+const OK_HALL_STATUSES = ['visited', 'awaiting_advance', 'confirmed'];
 
 function StatusPill({ label, ok }: { label: string; ok: boolean }) {
   return (
@@ -54,8 +44,10 @@ export default function BookingsScreen({ navigation }: Props) {
   const [quotes, setQuotes] = useState<RemoteQuote[]>([]);
   const [quotesLoading, setQuotesLoading] = useState(true);
   const [busyQuoteId, setBusyQuoteId] = useState<string | null>(null);
-
-  const soon = () => Alert.alert(t.comingSoon, t.bookingsComingSoonBody);
+  const [orders, setOrders] = useState<RemoteOrderSummary[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [hallBookings, setHallBookings] = useState<RemoteHallBooking[]>([]);
+  const [hallsLoading, setHallsLoading] = useState(true);
 
   const loadQuotes = useCallback(() => {
     api.get<RemoteQuote[]>('/api/quotes/me')
@@ -64,7 +56,24 @@ export default function BookingsScreen({ navigation }: Props) {
       .finally(() => setQuotesLoading(false));
   }, []);
 
-  useFocusEffect(useCallback(() => { loadQuotes(); }, [loadQuotes]));
+  const loadOrders = useCallback(() => {
+    api.get<RemoteOrderSummary[]>('/api/orders/me')
+      .then(setOrders)
+      .catch(() => {})
+      .finally(() => setOrdersLoading(false));
+  }, []);
+
+  const loadHallBookings = useCallback(() => {
+    api.get<RemoteHallBooking[]>('/api/halls/my-tokens')
+      .then(setHallBookings)
+      .catch(() => {})
+      .finally(() => setHallsLoading(false));
+  }, []);
+
+  useFocusEffect(useCallback(() => { loadQuotes(); loadOrders(); loadHallBookings(); }, [loadQuotes, loadOrders, loadHallBookings]));
+
+  const activeOrders = orders.filter((o) => ACTIVE_ORDER_STATUSES.includes(o.status));
+  const pastOrders = orders.filter((o) => !ACTIVE_ORDER_STATUSES.includes(o.status));
 
   const respondToQuote = async (id: string, action: 'accept' | 'decline' | 'requestRevision') => {
     setBusyQuoteId(id);
@@ -102,20 +111,22 @@ export default function BookingsScreen({ navigation }: Props) {
         </View>
 
         {tab === 'active' && (
-          ACTIVE.length === 0 ? (
+          ordersLoading ? (
+            <ActivityIndicator color={colors.pink} style={{ marginTop: 10 }} />
+          ) : activeOrders.length === 0 ? (
             <Text style={styles.emptyText}>{t.bookingsEmptyActive}</Text>
           ) : (
             <View style={{ gap: 10 }}>
-              {ACTIVE.map((b) => (
-                <TouchableOpacity key={b.id} style={styles.card} activeOpacity={0.85} onPress={soon}>
+              {activeOrders.map((o) => (
+                <TouchableOpacity key={o.id} style={styles.card} activeOpacity={0.85} onPress={() => navigation.navigate('BookingDetail', { kind: 'order', order: o })}>
                   <View style={styles.cardTop}>
-                    <Text style={styles.cardId}>{b.id}</Text>
-                    <StatusPill label={b.status} ok={b.ok} />
+                    <Text style={styles.cardId}>{o.code}</Text>
+                    <StatusPill label={o.status} ok={OK_ORDER_STATUSES.includes(o.status)} />
                   </View>
-                  <Text style={styles.cardTitle}>{b.event}</Text>
+                  <Text style={styles.cardTitle}>{o.eventName || o.eventType || t.bookings}</Text>
                   <View style={styles.cardBottom}>
-                    <Text style={styles.cardMeta}>{b.date} · {b.vendor}</Text>
-                    <Text style={styles.cardAmount}>{b.total}</Text>
+                    <Text style={styles.cardMeta}>{o.dateTxt} · {o.vendorName}</Text>
+                    <Text style={styles.cardAmount}>₹{o.value.toLocaleString('en-IN')}</Text>
                   </View>
                 </TouchableOpacity>
               ))}
@@ -124,20 +135,22 @@ export default function BookingsScreen({ navigation }: Props) {
         )}
 
         {tab === 'past' && (
-          PAST.length === 0 ? (
+          ordersLoading ? (
+            <ActivityIndicator color={colors.pink} style={{ marginTop: 10 }} />
+          ) : pastOrders.length === 0 ? (
             <Text style={styles.emptyText}>{t.bookingsEmptyPast}</Text>
           ) : (
             <View style={{ gap: 10 }}>
-              {PAST.map((b) => (
-                <TouchableOpacity key={b.id} style={styles.card} activeOpacity={0.85} onPress={soon}>
+              {pastOrders.map((o) => (
+                <TouchableOpacity key={o.id} style={styles.card} activeOpacity={0.85} onPress={() => navigation.navigate('BookingDetail', { kind: 'order', order: o })}>
                   <View style={styles.cardTop}>
-                    <Text style={styles.cardId}>{b.id}</Text>
-                    <StatusPill label={b.status} ok={b.ok} />
+                    <Text style={styles.cardId}>{o.code}</Text>
+                    <StatusPill label={o.status} ok={OK_ORDER_STATUSES.includes(o.status)} />
                   </View>
-                  <Text style={styles.cardTitle}>{b.event}</Text>
+                  <Text style={styles.cardTitle}>{o.eventName || o.eventType || t.bookings}</Text>
                   <View style={styles.cardBottom}>
-                    <Text style={styles.cardMeta}>{b.date} · {b.vendor}</Text>
-                    <Text style={styles.cardAmount}>{b.total}</Text>
+                    <Text style={styles.cardMeta}>{o.dateTxt} · {o.vendorName}</Text>
+                    <Text style={styles.cardAmount}>₹{o.value.toLocaleString('en-IN')}</Text>
                   </View>
                 </TouchableOpacity>
               ))}
@@ -147,23 +160,32 @@ export default function BookingsScreen({ navigation }: Props) {
 
         {tab === 'halls' && (
           <View style={{ gap: 10 }}>
-            {TOKENS.length === 0 ? (
+            {hallsLoading ? (
+              <ActivityIndicator color={colors.pink} style={{ marginTop: 10 }} />
+            ) : hallBookings.length === 0 ? (
               <Text style={styles.emptyText}>{t.bookingsEmptyHalls}</Text>
             ) : (
-              TOKENS.map((b) => (
-                <TouchableOpacity key={b.id} style={styles.card} activeOpacity={0.85} onPress={soon}>
-                  <View style={styles.cardTop}>
-                    <Text style={styles.cardId}>{b.id}</Text>
-                    <StatusPill label={b.status} ok={false} />
-                  </View>
-                  <Text style={styles.cardTitle}>{b.hall}</Text>
-                  <View style={styles.cardBottom}>
-                    <Text style={styles.cardMeta}>{b.date} · {b.slot}</Text>
-                    <Text style={styles.cardAmount}>{b.amount}</Text>
-                  </View>
-                  {b.isActive && <Text style={styles.cardLeft}>{b.left}</Text>}
-                </TouchableOpacity>
-              ))
+              hallBookings.map((b) => {
+                const left = b.status === 'token_paid' || b.status === 'visited'
+                  ? Math.max(0, b.heldAtMs + b.visitHours * 3600 * 1000 - Date.now())
+                  : 0;
+                return (
+                  <TouchableOpacity key={b.id} style={styles.card} activeOpacity={0.85} onPress={() => navigation.navigate('BookingDetail', { kind: 'hall', hall: b })}>
+                    <View style={styles.cardTop}>
+                      <Text style={styles.cardId}>{b.id.slice(-6).toUpperCase()}</Text>
+                      <StatusPill label={b.status.replace(/_/g, ' ')} ok={OK_HALL_STATUSES.includes(b.status)} />
+                    </View>
+                    <Text style={styles.cardTitle}>{b.hallName}</Text>
+                    <View style={styles.cardBottom}>
+                      <Text style={styles.cardMeta}>{b.date} · {b.slot}</Text>
+                      <Text style={styles.cardAmount}>₹{b.amount.toLocaleString('en-IN')}</Text>
+                    </View>
+                    {left > 0 && (
+                      <Text style={styles.cardLeft}>{t.bookingsVisitLeft.replace('{hours}', String(Math.ceil(left / 3600000)))}</Text>
+                    )}
+                  </TouchableOpacity>
+                );
+              })
             )}
             <TouchableOpacity style={styles.dashedBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Venues')}>
               <Text style={styles.dashedBtnText}>{t.bookingsFindHall}</Text>
