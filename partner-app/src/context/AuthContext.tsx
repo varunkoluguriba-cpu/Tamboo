@@ -1,7 +1,12 @@
 import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api, setToken, getToken, ApiError } from '../api/client';
-import { sendOtp as fbSendOtp, confirmOtp as fbConfirmOtp, type ConfirmationResult } from '../services/firebaseAuth';
+import {
+  sendOtp as fbSendOtp,
+  confirmOtp as fbConfirmOtp,
+  signInWithGoogle as fbSignInWithGoogle,
+  type ConfirmationResult,
+} from '../services/firebaseAuth';
 import { PENDING_ACK_KEY } from '../constants';
 import type { PartnerUser, RegisterPayload } from '../types';
 
@@ -12,6 +17,7 @@ interface AuthContextValue {
   acknowledgePending: () => void;
   sendOtp: (e164Phone: string) => Promise<void>;
   verifyOtp: (code: string) => Promise<PartnerUser>;
+  continueWithGoogle: () => Promise<PartnerUser>;
   register: (payload: RegisterPayload) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -69,6 +75,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return res.partner;
   }, [confirmation]);
 
+  const continueWithGoogle = useCallback(async () => {
+    const fbUser = await fbSignInWithGoogle();
+    const idToken = await fbUser.getIdToken();
+    const res = await api.post<{ token: string; partner: PartnerUser }>('/api/partner-auth/google', { idToken });
+    await setToken(res.token);
+    setPartner(res.partner);
+    return res.partner;
+  }, []);
+
   const register = useCallback(async (payload: RegisterPayload) => {
     const res = await api.post<{ partner: PartnerUser }>('/api/partner-auth/register', payload);
     setPartner(res.partner);
@@ -80,8 +95,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ partner, loading, pendingAck, acknowledgePending, sendOtp, verifyOtp, register, logout }),
-    [partner, loading, pendingAck, acknowledgePending, sendOtp, verifyOtp, register, logout],
+    () => ({ partner, loading, pendingAck, acknowledgePending, sendOtp, verifyOtp, continueWithGoogle, register, logout }),
+    [partner, loading, pendingAck, acknowledgePending, sendOtp, verifyOtp, continueWithGoogle, register, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

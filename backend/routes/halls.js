@@ -21,6 +21,9 @@ function serializeTokenOwn(b) {
     guests: b.guests,
     amount: b.amount,
     finalRent: b.finalRent,
+    advancePct: b.advancePct,
+    advanceAmount: b.advanceAmount,
+    advanceDeadlineAtMs: b.advanceDeadlineAt ? new Date(b.advanceDeadlineAt).getTime() : null,
     status: b.status,
     heldAtMs: b.createdAt ? new Date(b.createdAt).getTime() : Date.now(),
     visitHours: VISIT_HOURS,
@@ -36,11 +39,40 @@ function serializeTokenForCustomer(b) {
     slot: b.slot,
     guests: String(b.guests || ''),
     amount: b.amount,
+    finalRent: b.finalRent,
+    advancePct: b.advancePct,
+    advanceAmount: b.advanceAmount,
+    advanceDeadlineAtMs: b.advanceDeadlineAt ? new Date(b.advanceDeadlineAt).getTime() : null,
     status: b.status,
     heldAtMs: b.createdAt ? new Date(b.createdAt).getTime() : Date.now(),
     visitHours: VISIT_HOURS,
     visited: b.status !== 'token_paid',
   };
+}
+
+// Lazy expiry: there's no cron/worker in this backend, so an `awaiting_advance` booking
+// whose deadline has passed is only actually flipped the next time it's read here — same
+// approach the client already uses for the (purely client-computed) visit-window expiry.
+// Forfeiture mirrors the existing `notBooked` rule: the customer had their chance to pay
+// and didn't, so the partner keeps 20% of the token same as a no-show.
+async function sweepExpiredAdvance(booking) {
+  if (booking.status !== 'awaiting_advance') return booking;
+  if (!booking.advanceDeadlineAt || booking.advanceDeadlineAt > new Date()) return booking;
+
+  booking.status = 'not_booked';
+  if (booking.partner) {
+    const originalNet = Math.round(booking.amount * (1 - booking.commissionPct / 100));
+    const keep = Math.round(booking.amount * 0.2);
+    const debit = originalNet - keep;
+    if (debit > 0) {
+      await PayoutEntry.create({
+        partner: booking.partner, type: 'debit', amount: debit,
+        description: `Advance not paid in time — ${booking.hallName}`, reference: booking.id,
+      });
+    }
+  }
+  await booking.save();
+  return booking;
 }
 
 const router = express.Router();
@@ -76,6 +108,7 @@ function serializePublic(hall, partner) {
     platePrice: hall.platePrice,
     minPlates: hall.minPlates,
     token: hall.token,
+    advancePct: hall.advancePct,
     partnerId: partner.id,
     phone: partner.phone,
   };
@@ -95,6 +128,7 @@ function serializeOwn(hall) {
     platePrice: hall.platePrice,
     minPlates: hall.minPlates,
     token: hall.token,
+    advancePct: hall.advancePct,
     ac: hall.ac,
     crockery: hall.crockery,
     kitchen: hall.kitchen,
@@ -122,7 +156,7 @@ router.get('/me', requirePartnerAuth, async (req, res) => {
 router.put('/me', requirePartnerAuth, async (req, res) => {
   if (req.partner.role !== 'venue') return res.status(403).json({ error: 'Only venue partners have a hall page' });
   const {
-    venueType, address, seated, floating, sqft, parking, rooms, pricingMode, rent, platePrice, minPlates, token,
+    venueType, address, seated, floating, sqft, parking, rooms, pricingMode, rent, platePrice, minPlates, token, advancePct,
     ac, crockery, kitchen, crockeryNote, catering, amenities, blurb, photos,
   } = req.body || {};
   if (!(seated > 0) || !(floating > 0)) return res.status(400).json({ error: 'Enter seating and floating capacity' });
@@ -133,6 +167,7 @@ router.put('/me', requirePartnerAuth, async (req, res) => {
     venueType, address, seated, floating, sqft, parking, rooms,
     pricingMode: pricingMode === 'perPlate' ? 'perPlate' : 'rent',
     rent, platePrice, minPlates, token,
+    advancePct: advancePct > 0 && advancePct <= 100 ? advancePct : 25,
     ac, crockery, kitchen, crockeryNote, catering, amenities, blurb,
   };
   if (Array.isArray(photos)) update.photos = photos.slice(0, 3);
@@ -149,6 +184,7 @@ router.put('/me', requirePartnerAuth, async (req, res) => {
 router.get('/me/tokens', requirePartnerAuth, async (req, res) => {
   if (req.partner.role !== 'venue') return res.status(403).json({ error: 'Only venue partners have pre-bookings' });
   const bookings = await Booking.find({ partner: req.partner.id }).sort({ createdAt: -1 });
+  await Promise.all(bookings.map(sweepExpiredAdvance));
   res.json(bookings.map(serializeTokenOwn));
 });
 
@@ -156,8 +192,10 @@ router.get('/me/tokens', requirePartnerAuth, async (req, res) => {
 // (minus commission) at payment time, so these transitions only touch the payout ledger when
 // the published refund policy says the partner should end up with less than that:
 //  - visited: no money changes hands, just a status update so the partner can see progress.
-//  - confirm: customer is renting the hall; the token is treated as already settled, and the
-//    balance of `finalRent` is collected by the partner directly at the hall (outside Tamboo).
+//  - confirm: partner sets the rent agreed in person; this does NOT confirm the booking by
+//    itself any more — it starts a real advance-payment request (see payments.js's
+//    /create-advance-order + /verify) that the customer must pay within advanceDeadlineAt for
+//    the booking to actually reach 'confirmed'. See sweepExpiredAdvance for the missed-deadline case.
 //  - notBooked: customer visited but decided not to book — partner keeps 20% of the token,
 //    customer gets 80% back, so we debit the partner down from their original 90% net credit.
 //  - cantHost: partner can't actually host this date — customer gets a full refund, so the
@@ -166,6 +204,7 @@ router.patch('/me/tokens/:id', requirePartnerAuth, async (req, res) => {
   if (req.partner.role !== 'venue') return res.status(403).json({ error: 'Only venue partners have pre-bookings' });
   const booking = await Booking.findOne({ _id: req.params.id, partner: req.partner.id });
   if (!booking) return res.status(404).json({ error: 'Pre-booking not found' });
+  await sweepExpiredAdvance(booking);
 
   const { action, finalRent } = req.body || {};
   const originalNet = Math.round(booking.amount * (1 - booking.commissionPct / 100));
@@ -174,8 +213,13 @@ router.patch('/me/tokens/:id', requirePartnerAuth, async (req, res) => {
     booking.status = 'visited';
   } else if (action === 'confirm') {
     if (!(finalRent > 0)) return res.status(400).json({ error: 'Enter the final rent' });
-    booking.status = 'confirmed';
+    const hall = await Hall.findOne({ partner: req.partner.id });
+    const advancePct = hall?.advancePct > 0 ? hall.advancePct : 25;
+    booking.status = 'awaiting_advance';
     booking.finalRent = finalRent;
+    booking.advancePct = advancePct;
+    booking.advanceAmount = Math.round(finalRent * (advancePct / 100));
+    booking.advanceDeadlineAt = new Date(Date.now() + 24 * 3600 * 1000);
   } else if (action === 'notBooked') {
     booking.status = 'not_booked';
     const keep = Math.round(booking.amount * 0.2);
@@ -206,9 +250,10 @@ router.patch('/me/tokens/:id', requirePartnerAuth, async (req, res) => {
 router.get('/my-token', requireAuth, async (req, res) => {
   const booking = await Booking.findOne({
     customer: req.user.id,
-    status: { $in: ['token_paid', 'visited'] },
+    status: { $in: ['token_paid', 'visited', 'awaiting_advance', 'confirmed'] },
   }).sort({ createdAt: -1 });
-  res.json(booking ? serializeTokenForCustomer(booking) : null);
+  if (booking) await sweepExpiredAdvance(booking);
+  res.json(booking && booking.status !== 'not_booked' ? serializeTokenForCustomer(booking) : null);
 });
 
 // Customer actions on their own pre-booking.
@@ -218,6 +263,7 @@ router.get('/my-token', requireAuth, async (req, res) => {
 router.patch('/my-token/:id', requireAuth, async (req, res) => {
   const booking = await Booking.findOne({ _id: req.params.id, customer: req.user.id });
   if (!booking) return res.status(404).json({ error: 'Pre-booking not found' });
+  await sweepExpiredAdvance(booking);
 
   const { action } = req.body || {};
   const originalNet = Math.round(booking.amount * (1 - booking.commissionPct / 100));

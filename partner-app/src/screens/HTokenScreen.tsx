@@ -39,17 +39,22 @@ export default function HTokenScreen({ navigation, route }: Props) {
   const status = tokenUiStatus(original);
   const isActive = status === 'ACTIVE';
   const isVisited = status === 'VISITED';
+  const isAwaitingAdvance = status === 'AWAITING_ADVANCE';
   const sc = statusColors(status);
   const statusLabel = (s?: string) => {
     switch (s) {
       case 'ACTIVE': return t.htokenStatusActive;
       case 'VISITED': return t.htokenStatusVisited;
+      case 'AWAITING_ADVANCE': return t.htokenStatusAwaitingAdvance;
       case 'CONFIRMED': return t.htokenStatusConfirmed;
       case 'NOT_BOOKED': return t.htokenStatusNotBooked;
       case 'CANCELLED': return t.htokenStatusCancelled;
       default: return s;
     }
   };
+  const deadlineText = original.advanceDeadlineAtMs
+    ? new Date(original.advanceDeadlineAtMs).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true })
+    : '';
 
   const act = async (action: 'visited' | 'confirm' | 'notBooked' | 'cantHost', body?: Record<string, unknown>) => {
     setBusy(true);
@@ -72,7 +77,7 @@ export default function HTokenScreen({ navigation, route }: Props) {
     ]);
   };
 
-  const confirmBooking = () => {
+  const requestAdvance = () => {
     if (!finalRent.trim()) return Alert.alert(t.htokenEnterRentTitle, t.htokenEnterRentMsg);
     act('confirm', { finalRent: Number(finalRent) });
   };
@@ -141,10 +146,28 @@ export default function HTokenScreen({ navigation, route }: Props) {
             <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={notBooked} disabled={busy}>
               <Text style={styles.outlineBtnText}>{t.htokenNotBookedBtn}</Text>
             </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.85} onPress={confirmBooking} disabled={busy}>
+            <TouchableOpacity activeOpacity={0.85} onPress={requestAdvance} disabled={busy}>
               <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.primaryBtn}>
-                <Text style={styles.primaryBtnText}>{t.htokenConfirmBooking}</Text>
+                <Text style={styles.primaryBtnText}>{t.htokenRequestAdvance}</Text>
               </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {isAwaitingAdvance && (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>{t.htokenAdvanceRequestedTitle}</Text>
+            <View style={styles.rowBetween}>
+              <Text style={styles.rowMuted}>{t.htokenFinalRentLabel}</Text>
+              <Text style={styles.rowText}>₹{original.finalRent.toLocaleString('en-IN')}</Text>
+            </View>
+            <View style={styles.rowBetween}>
+              <Text style={styles.rowMuted}>{t.htokenAdvanceDueLabel.replace('{pct}', String(original.advancePct))}</Text>
+              <Text style={styles.rowText}>₹{original.advanceAmount.toLocaleString('en-IN')}</Text>
+            </View>
+            <Text style={styles.hint}>{t.htokenAdvanceWaitingMsg.replace('{deadline}', deadlineText)}</Text>
+            <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={notBooked} disabled={busy}>
+              <Text style={styles.outlineBtnText}>{t.htokenNotBookedBtn}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -181,6 +204,7 @@ const styles = StyleSheet.create({
   card: { backgroundColor: colors.surface, borderRadius: 18, padding: 16, gap: 8, ...shadow.card },
   pill: { alignSelf: 'flex-start', borderRadius: 999, paddingVertical: 4, paddingHorizontal: 10 },
   pillText: { fontSize: 11.5, fontWeight: '700' },
+  cardTitle: { fontWeight: '700', fontSize: 15, color: colors.text },
   event: { fontSize: 16, fontWeight: '700', color: colors.text },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
   rowMuted: { fontSize: 13.5, color: colors.textSoft },

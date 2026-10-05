@@ -18,6 +18,7 @@ import VenuesScreen from '../screens/VenuesScreen';
 import VenueScreen from '../screens/VenueScreen';
 import TokenPayScreen from '../screens/TokenPayScreen';
 import TokenDoneScreen from '../screens/TokenDoneScreen';
+import AdvancePayScreen from '../screens/AdvancePayScreen';
 import TokenScreen from '../screens/TokenScreen';
 import ChatScreen from '../screens/ChatScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
@@ -57,6 +58,7 @@ export default function RootNavigator() {
           <Stack.Screen name="TokenPay" component={TokenPayScreen} />
           <Stack.Screen name="TokenDone" component={TokenDoneScreen} />
           <Stack.Screen name="Token" component={TokenScreen} />
+          <Stack.Screen name="AdvancePay" component={AdvancePayScreen} />
           <Stack.Screen name="Chat" component={ChatScreen} />
           <Stack.Screen name="Notifications" component={NotificationsScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />

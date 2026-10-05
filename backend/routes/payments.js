@@ -35,11 +35,32 @@ router.post('/create-order', requireAuth, async (req, res) => {
   res.json({ orderId: order.id, amount: order.amount, currency: order.currency, keyId: process.env.RAZORPAY_KEY_ID });
 });
 
+// Advance payment on an existing hall pre-booking — the amount is server-owned (read from
+// the booking itself, never trusted from the client) so the customer can't under-pay by
+// tampering with the request. Only valid while the partner's advance request is still open.
+router.post('/create-advance-order', requireAuth, async (req, res) => {
+  const { bookingId } = req.body || {};
+  const booking = await Booking.findOne({ _id: bookingId, customer: req.user.id });
+  if (!booking) return res.status(404).json({ error: 'Pre-booking not found' });
+  if (booking.status !== 'awaiting_advance') {
+    return res.status(400).json({ error: 'No advance payment is pending on this booking' });
+  }
+  if (booking.advanceDeadlineAt && booking.advanceDeadlineAt < new Date()) {
+    return res.status(400).json({ error: 'The advance payment window has expired' });
+  }
+  const order = await getClient().orders.create({
+    amount: Math.round(booking.advanceAmount * 100),
+    currency: 'INR',
+    receipt: `tamboo_adv_${Date.now()}`,
+  });
+  res.json({ orderId: order.id, amount: order.amount, currency: order.currency, keyId: process.env.RAZORPAY_KEY_ID });
+});
+
 router.post('/verify', requireAuth, async (req, res) => {
   const {
     razorpay_order_id, razorpay_payment_id, razorpay_signature,
     hallId, hallName, date, slot, guests, amount, partnerId, customerName, customerPhone,
-    cart,
+    cart, advanceForBookingId,
   } = req.body;
   if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
     return res.status(400).json({ error: 'Missing payment verification fields' });
@@ -50,6 +71,29 @@ router.post('/verify', requireAuth, async (req, res) => {
     .digest('hex');
   const verified = expected === razorpay_signature;
   if (!verified) return res.json({ verified: false });
+
+  if (advanceForBookingId) {
+    const booking = await Booking.findOne({ _id: advanceForBookingId, customer: req.user.id });
+    if (!booking || booking.status !== 'awaiting_advance') {
+      return res.status(400).json({ error: 'This advance request is no longer open' });
+    }
+    booking.status = 'confirmed';
+    booking.advanceRazorpayOrderId = razorpay_order_id;
+    booking.advanceRazorpayPaymentId = razorpay_payment_id;
+    await booking.save();
+
+    if (booking.partner) {
+      const net = Math.round(booking.advanceAmount * (1 - booking.commissionPct / 100));
+      await PayoutEntry.create({
+        partner: booking.partner,
+        type: 'credit',
+        amount: net,
+        description: `Advance — ${booking.hallName}`,
+        reference: booking.id,
+      });
+    }
+    return res.json({ verified: true, bookingId: booking.id });
+  }
 
   // Booking context is optional so /verify still works for any future non-hall-token
   // payment; when it's present (the hall pre-booking flow) we persist the booking and,

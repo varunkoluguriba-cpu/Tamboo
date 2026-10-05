@@ -4,6 +4,7 @@ export type VerificationStatus = 'pending' | 'verified' | 'rejected';
 export interface PartnerUser {
   id: string;
   phone: string;
+  authMethod: 'phone' | 'google';
   role: PartnerRole;
   businessName: string;
   ownerName: string;

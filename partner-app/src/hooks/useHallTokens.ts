@@ -15,7 +15,10 @@ export type RemoteHallToken = {
   guests: number;
   amount: number;
   finalRent: number;
-  status: 'token_paid' | 'visited' | 'confirmed' | 'not_booked' | 'cancelled' | 'disputed';
+  advancePct: number;
+  advanceAmount: number;
+  advanceDeadlineAtMs: number | null;
+  status: 'token_paid' | 'visited' | 'awaiting_advance' | 'confirmed' | 'not_booked' | 'cancelled' | 'disputed';
   heldAtMs: number;
   visitHours: number;
 };
@@ -28,6 +31,7 @@ export function tokenUiStatus(tok: RemoteHallToken): TokenStatus {
     return expired ? 'EXPIRED' : 'ACTIVE';
   }
   if (tok.status === 'visited') return 'VISITED';
+  if (tok.status === 'awaiting_advance') return 'AWAITING_ADVANCE';
   if (tok.status === 'confirmed') return 'CONFIRMED';
   if (tok.status === 'not_booked') return 'NOT_BOOKED';
   return 'CANCELLED'; // cancelled, disputed

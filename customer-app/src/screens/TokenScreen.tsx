@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
@@ -8,7 +9,7 @@ import { useCatalog } from '../context/CatalogContext';
 import { useToken, msLeft, formatHoursLeft } from '../context/TokenContext';
 import { useLanguage } from '../context/LanguageContext';
 import { ApiError } from '../api/client';
-import { colors, shadow } from '../theme';
+import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Token'>;
 
@@ -98,6 +99,11 @@ export default function TokenScreen({ navigation }: Props) {
 
   const left = formatHoursLeft(msLeft(token));
   const expired = msLeft(token) <= 0;
+  const isAwaitingAdvance = token.status === 'awaiting_advance';
+  const isConfirmed = token.status === 'confirmed';
+  const advanceDeadlineText = token.advanceDeadlineAtMs
+    ? new Date(token.advanceDeadlineAtMs).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true })
+    : '';
 
   const cancel = () => {
     Alert.alert(t.tokenCancelTitle, t.tokenCancelMsg, [
@@ -162,9 +168,9 @@ export default function TokenScreen({ navigation }: Props) {
         </View>
 
         <View style={styles.statusCard}>
-          <View style={[styles.pill, token.visited ? styles.pillPurple : expired ? styles.pillDanger : styles.pillWarn]}>
-            <Text style={[styles.pillText, token.visited ? styles.pillTextPurple : expired ? styles.pillTextDanger : styles.pillTextWarn]}>
-              {token.visited ? t.tokenStatusVisited : expired ? t.tokenStatusExpired : t.tokenStatusHeld}
+          <View style={[styles.pill, isConfirmed ? styles.pillGreen : isAwaitingAdvance ? styles.pillWarn : token.visited ? styles.pillPurple : expired ? styles.pillDanger : styles.pillWarn]}>
+            <Text style={[styles.pillText, isConfirmed ? styles.pillTextGreen : isAwaitingAdvance ? styles.pillTextWarn : token.visited ? styles.pillTextPurple : expired ? styles.pillTextDanger : styles.pillTextWarn]}>
+              {isConfirmed ? t.tokenStatusConfirmed : isAwaitingAdvance ? t.tokenStatusAwaitingAdvance : token.visited ? t.tokenStatusVisited : expired ? t.tokenStatusExpired : t.tokenStatusHeld}
             </Text>
           </View>
           <Text style={styles.hallName}>{token.hallName}</Text>
@@ -222,7 +228,7 @@ export default function TokenScreen({ navigation }: Props) {
           </TouchableOpacity>
         )}
 
-        {token.visited && (
+        {token.visited && !isAwaitingAdvance && !isConfirmed && (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>{t.tokenDecidedAfterVisit}</Text>
             <Text style={styles.cardSub}>{t.tokenDecidedAfterVisitSub}</Text>
@@ -232,6 +238,30 @@ export default function TokenScreen({ navigation }: Props) {
             <TouchableOpacity style={styles.outlinePinkBtn} activeOpacity={0.85} onPress={raiseDispute}>
               <Text style={styles.outlinePinkBtnText}>{t.tokenHallMismatch}</Text>
             </TouchableOpacity>
+          </View>
+        )}
+
+        {isAwaitingAdvance && (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>{t.tokenAdvanceTitle}</Text>
+            <Text style={styles.cardSub}>
+              {t.tokenAdvanceMsg
+                .replace('{rent}', (token.finalRent || 0).toLocaleString('en-IN'))
+                .replace('{amount}', (token.advanceAmount || 0).toLocaleString('en-IN'))
+                .replace('{deadline}', advanceDeadlineText)}
+            </Text>
+            <TouchableOpacity activeOpacity={0.85} onPress={() => navigation.navigate('AdvancePay')}>
+              <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.saveBtn}>
+                <Text style={styles.saveBtnText}>{t.tokenPayAdvanceBtn.replace('{amount}', `₹${(token.advanceAmount || 0).toLocaleString('en-IN')}`)}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {isConfirmed && (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>{t.tokenConfirmedTitle}</Text>
+            <Text style={styles.cardSub}>{t.tokenConfirmedMsg.replace('{rent}', (token.finalRent || 0).toLocaleString('en-IN'))}</Text>
           </View>
         )}
 
@@ -275,10 +305,12 @@ const styles = StyleSheet.create({
   pillWarn: { backgroundColor: colors.amberBg },
   pillPurple: { backgroundColor: colors.purpleBg },
   pillDanger: { backgroundColor: colors.dangerBg },
+  pillGreen: { backgroundColor: '#e8f7f0' },
   pillText: { fontSize: 11.5, fontWeight: '700' },
   pillTextWarn: { color: colors.amber },
   pillTextPurple: { color: '#6d28d9' },
   pillTextDanger: { color: colors.dangerStrong },
+  pillTextGreen: { color: '#047857' },
   hallName: { fontSize: 16, fontWeight: '700', color: colors.text },
   metaLine: { fontSize: 13, color: colors.textSoft },
   amountRow: { flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: colors.divider, paddingTop: 8 },

@@ -15,6 +15,7 @@ function serialize(p) {
   return {
     id: p.id,
     phone: p.phone,
+    authMethod: p.authMethod,
     role: p.role,
     businessName: p.businessName,
     ownerName: p.ownerName,
@@ -44,7 +45,36 @@ router.post('/verify', async (req, res) => {
   try {
     let partner = await Partner.findOne({ firebaseUid: decoded.uid });
     if (!partner) {
-      partner = await Partner.create({ phone: decoded.phone_number, firebaseUid: decoded.uid });
+      partner = await Partner.create({ phone: decoded.phone_number, firebaseUid: decoded.uid, authMethod: 'phone' });
+    }
+    res.json({ token: issueToken(partner), partner: serialize(partner) });
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Google Sign-In: same Firebase ID token verification as phone, just no phone number on
+// the credential. Partner still goes through the same mandatory /register step afterwards.
+router.post('/google', async (req, res) => {
+  const { idToken } = req.body || {};
+  if (!idToken) return res.status(400).json({ error: 'idToken required' });
+
+  let decoded;
+  try {
+    decoded = await admin.auth().verifyIdToken(idToken);
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid or expired sign-in. Please try again.' });
+  }
+
+  try {
+    let partner = await Partner.findOne({ firebaseUid: decoded.uid });
+    if (!partner) {
+      partner = await Partner.create({
+        firebaseUid: decoded.uid,
+        authMethod: 'google',
+        email: decoded.email || '',
+        ownerName: decoded.name || '',
+      });
     }
     res.json({ token: issueToken(partner), partner: serialize(partner) });
   } catch (err) {

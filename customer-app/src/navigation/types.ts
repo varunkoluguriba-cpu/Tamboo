@@ -22,6 +22,7 @@ export type RootStackParamList = {
   TokenPay: { hallId: string; date: string; slot: 'Morning' | 'Evening' };
   TokenDone: undefined;
   Token: undefined;
+  AdvancePay: undefined;
   Chat: { peerName: string; vendorId?: string };
   Notifications: undefined;
   Profile: undefined;

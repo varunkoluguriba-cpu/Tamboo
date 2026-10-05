@@ -28,6 +28,7 @@ type RemoteHall = {
   platePrice: number;
   minPlates: number;
   token: number;
+  advancePct: number;
   ac: boolean;
   crockery: boolean;
   kitchen: boolean;
@@ -59,6 +60,7 @@ export default function HallScreen({ navigation }: Props) {
     { key: 'parking', label: t.hallParkingCars },
     { key: 'rooms', label: t.hallRooms },
     { key: 'token', label: t.hallTokenAmount },
+    { key: 'advancePct', label: t.hallAdvancePctLabel },
   ];
   const TOGGLE_FIELDS: Array<{ key: string; label: string }> = [
     { key: 'ac', label: t.hallAirConditioned },
@@ -102,6 +104,7 @@ export default function HallScreen({ navigation }: Props) {
           parking: String(hall.parking || ''),
           rooms: String(hall.rooms || ''),
           token: String(hall.token || ''),
+          advancePct: String(hall.advancePct || 25),
         });
         setPricingMode(hall.pricingMode === 'perPlate' ? 'perPlate' : 'rent');
         setRent(String(hall.rent || ''));
@@ -163,6 +166,7 @@ export default function HallScreen({ navigation }: Props) {
         platePrice: parseInt(platePrice || '0', 10),
         minPlates: parseInt(minPlates || '0', 10),
         token: parseInt(nums.token || '0', 10),
+        advancePct: parseInt(nums.advancePct || '0', 10) || 25,
         ac: toggles.ac,
         crockery: toggles.crockery,
         kitchen: toggles.kitchen,

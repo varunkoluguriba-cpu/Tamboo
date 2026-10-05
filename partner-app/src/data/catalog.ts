@@ -189,7 +189,7 @@ export const CATEGORY_OPTIONS = [
 
 export const UNIT_OPTIONS = ['per unit / day', 'per unit / event', 'per event', 'per set / event'];
 
-export type TokenStatus = 'ACTIVE' | 'VISITED' | 'CONFIRMED' | 'EXPIRED' | 'CANCELLED' | 'NOT_BOOKED';
+export type TokenStatus = 'ACTIVE' | 'VISITED' | 'AWAITING_ADVANCE' | 'CONFIRMED' | 'EXPIRED' | 'CANCELLED' | 'NOT_BOOKED';
 
 export type HallToken = {
   id: string;
@@ -258,6 +258,7 @@ export function statusColors(status: string): { bg: string; color: string } {
     case 'PENDING':
     case 'ACTIVE':
     case 'AWAITING VENDOR':
+    case 'AWAITING_ADVANCE':
     case 'REVISION REQUESTED':
       return { bg: '#fff7e6', color: '#8a5a00' };
     case 'CONFIRMED':

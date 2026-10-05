@@ -12,11 +12,12 @@ import { useLanguage } from '../context/LanguageContext';
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
 export default function LoginScreen({ navigation }: Props) {
-  const { sendOtp } = useAuth();
+  const { sendOtp, continueWithGoogle } = useAuth();
   const { t } = useLanguage();
   const [phone, setPhone] = useState('');
   const [err, setErr] = useState('');
   const [sending, setSending] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const submit = async () => {
     if (phone.length !== 10) {
@@ -32,6 +33,21 @@ export default function LoginScreen({ navigation }: Props) {
       setErr(e instanceof ApiError ? e.message : t.pLoginOtpError);
     } finally {
       setSending(false);
+    }
+  };
+
+  const google = async () => {
+    setErr('');
+    setGoogleLoading(true);
+    try {
+      await continueWithGoogle();
+      // RootNavigator swaps to Home automatically once the partner is set.
+    } catch (e: any) {
+      if (e?.code !== 'SIGN_IN_CANCELLED' && e?.code !== '-5') {
+        setErr(e instanceof ApiError ? e.message : t.pLoginGoogleError);
+      }
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -72,6 +88,16 @@ export default function LoginScreen({ navigation }: Props) {
           </LinearGradient>
         </TouchableOpacity>
 
+        <View style={styles.dividerRow}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>{t.pLoginOr}</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <TouchableOpacity style={styles.altButton} activeOpacity={0.85} onPress={google} disabled={googleLoading}>
+          <Text style={styles.altButtonText}>{googleLoading ? '…' : t.pLoginGoogle}</Text>
+        </TouchableOpacity>
+
         <Text style={styles.terms}>{t.pLoginTerms}</Text>
       </SafeAreaView>
     </KeyboardAvoidingView>
@@ -95,5 +121,10 @@ const styles = StyleSheet.create({
   button: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   buttonDisabled: { opacity: 0.7 },
   buttonText: { color: '#fff', fontSize: 15.5, fontWeight: '700' },
+  dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: colors.divider },
+  dividerText: { color: colors.textMuted, fontSize: 12 },
+  altButton: { height: 48, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center' },
+  altButtonText: { color: colors.text, fontWeight: '600', fontSize: 14 },
   terms: { marginTop: 'auto', fontSize: 11.5, color: colors.textMuted, textAlign: 'center', lineHeight: 17 },
 });

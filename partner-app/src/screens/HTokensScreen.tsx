@@ -30,6 +30,7 @@ export default function HTokensScreen({ navigation }: Props) {
   const TABS: Array<{ key: Tab; label: string }> = [
     { key: 'ACTIVE', label: t.htokensTabPending },
     { key: 'VISITED', label: t.htokensTabVisited },
+    { key: 'AWAITING_ADVANCE', label: t.htokensTabAwaitingAdvance },
     { key: 'CONFIRMED', label: t.htokensTabConfirmed },
     { key: 'EXPIRED', label: t.htokensTabExpired },
     { key: 'ALL', label: t.htokensTabAll },

@@ -13,6 +13,11 @@ export type HallToken = {
   heldAtMs: number;
   visitHours: number;
   visited: boolean;
+  status?: 'token_paid' | 'visited' | 'awaiting_advance' | 'confirmed' | 'not_booked' | 'cancelled' | 'disputed';
+  finalRent?: number;
+  advancePct?: number;
+  advanceAmount?: number;
+  advanceDeadlineAtMs?: number | null;
 };
 
 interface TokenContextValue {

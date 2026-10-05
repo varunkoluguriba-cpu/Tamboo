@@ -1,8 +1,12 @@
 const mongoose = require('mongoose');
 
 const partnerSchema = new mongoose.Schema({
-  phone: { type: String, required: true, unique: true }, // E.164
+  // Not required: a Google-signed-up partner has no phone until they add one. Sparse so
+  // multiple such partners don't collide on a shared empty value.
+  phone: { type: String, unique: true, sparse: true }, // E.164
   firebaseUid: { type: String, required: true, unique: true },
+  authMethod: { type: String, enum: ['phone', 'google'], default: 'phone' },
+  email: { type: String, default: '' },
   role: { type: String, enum: ['tent', 'venue'], default: 'tent' },
   businessName: { type: String, default: '' },
   ownerName: { type: String, default: '' },
