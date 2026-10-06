@@ -16,6 +16,7 @@ import HHomeScreen from '../screens/HHomeScreen';
 import HTokensScreen from '../screens/HTokensScreen';
 import HTokenScreen from '../screens/HTokenScreen';
 import HallScreen from '../screens/HallScreen';
+import HallsScreen from '../screens/HallsScreen';
 import EarningsScreen from '../screens/EarningsScreen';
 import ChatScreen from '../screens/ChatScreen';
 import { useAuth } from '../context/AuthContext';
@@ -53,6 +54,7 @@ export default function RootNavigator() {
               <Stack.Screen name="HHome" component={HHomeScreen} />
               <Stack.Screen name="HTokens" component={HTokensScreen} />
               <Stack.Screen name="HToken" component={HTokenScreen} />
+              <Stack.Screen name="Halls" component={HallsScreen} />
               <Stack.Screen name="Hall" component={HallScreen} />
               <Stack.Screen name="Calendar" component={CalendarScreen} />
               <Stack.Screen name="Earnings" component={EarningsScreen} />

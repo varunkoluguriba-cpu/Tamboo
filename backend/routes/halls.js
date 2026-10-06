@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const { requirePartnerAuth } = require('../middleware/partnerAuth');
 const { requireAuth } = require('../middleware/auth');
 const Hall = require('../models/Hall');
@@ -81,7 +82,8 @@ function serializePublic(hall, partner) {
   return {
     id: hall.id,
     type: hall.venueType,
-    name: partner.businessName,
+    name: hall.name || partner.businessName,
+    hotelName: partner.businessName,
     verified: true,
     rating: 0,
     reviews: 0,
@@ -116,6 +118,8 @@ function serializePublic(hall, partner) {
 
 function serializeOwn(hall) {
   return {
+    id: hall.id,
+    name: hall.name,
     venueType: hall.venueType,
     address: hall.address,
     seated: hall.seated,
@@ -148,47 +152,86 @@ router.get('/', async (req, res) => {
   res.json(live.map((h) => serializePublic(h, h.partner)));
 });
 
-router.get('/me', requirePartnerAuth, async (req, res) => {
-  if (req.partner.role !== 'venue') return res.status(403).json({ error: 'Only venue partners have a hall page' });
-  const hall = await Hall.findOne({ partner: req.partner.id });
-  res.json(hall ? serializeOwn(hall) : null);
-});
+// Venue partners can list several halls under one property (e.g. a hotel with 3-4 halls).
+function requireVenue(req, res, next) {
+  if (req.partner.role !== 'venue') return res.status(403).json({ error: 'Only venue partners have halls' });
+  next();
+}
 
-router.put('/me', requirePartnerAuth, async (req, res) => {
-  if (req.partner.role !== 'venue') return res.status(403).json({ error: 'Only venue partners have a hall page' });
+function parseHallBody(body) {
   const {
-    venueType, address, seated, floating, sqft, parking, rooms, pricingMode, rent, platePrice, minPlates, token, advancePct,
+    name, venueType, address, seated, floating, sqft, parking, rooms, pricingMode, rent, platePrice, minPlates, token, advancePct,
     ac, crockery, kitchen, crockeryNote, catering, amenities, blurb, photos,
-  } = req.body || {};
-  if (!(seated > 0) || !(floating > 0)) return res.status(400).json({ error: 'Enter seating and floating capacity' });
-  if (pricingMode === 'perPlate' && !(platePrice > 0)) return res.status(400).json({ error: 'Enter the price per plate' });
-  if (pricingMode !== 'perPlate' && !(rent > 0)) return res.status(400).json({ error: 'Enter the hall rent' });
+  } = body || {};
+  if (!name || !String(name).trim()) return { error: 'Enter the hall name' };
+  if (!(seated > 0) || !(floating > 0)) return { error: 'Enter seating and floating capacity' };
+  if (pricingMode === 'perPlate' && !(platePrice > 0)) return { error: 'Enter the price per plate' };
+  if (pricingMode !== 'perPlate' && !(rent > 0)) return { error: 'Enter the hall rent' };
 
   const update = {
-    venueType, address, seated, floating, sqft, parking, rooms,
+    name: String(name).trim(), venueType, address, seated, floating, sqft, parking, rooms,
     pricingMode: pricingMode === 'perPlate' ? 'perPlate' : 'rent',
     rent, platePrice, minPlates, token,
     advancePct: advancePct > 0 && advancePct <= 100 ? advancePct : 25,
     ac, crockery, kitchen, crockeryNote, catering, amenities, blurb,
   };
   if (Array.isArray(photos)) update.photos = photos.slice(0, 15);
+  return { update };
+}
 
-  const hall = await Hall.findOneAndUpdate(
-    { partner: req.partner.id },
-    update,
-    { new: true, upsert: true, setDefaultsOnInsert: true },
-  );
+// Partner: all halls under their property, oldest first.
+router.get('/me/halls', requirePartnerAuth, requireVenue, async (req, res) => {
+  const halls = await Hall.find({ partner: req.partner.id }).sort({ createdAt: 1 });
+  res.json(halls.map(serializeOwn));
+});
+
+router.post('/me/halls', requirePartnerAuth, requireVenue, async (req, res) => {
+  const parsed = parseHallBody(req.body);
+  if (parsed.error) return res.status(400).json({ error: parsed.error });
+  const hall = await Hall.create({ ...parsed.update, partner: req.partner.id });
+  res.status(201).json(serializeOwn(hall));
+});
+
+router.get('/me/halls/:hallId', requirePartnerAuth, requireVenue, async (req, res) => {
+  const hall = await Hall.findOne({ _id: req.params.hallId, partner: req.partner.id });
+  if (!hall) return res.status(404).json({ error: 'Hall not found' });
   res.json(serializeOwn(hall));
 });
 
-// Partner: replace the full set of dates they've manually blocked off (e.g. maintenance,
-// a private function) — a simple full-replace matching the calendar UI's toggle-per-day UX.
-router.put('/me/blocked-dates', requirePartnerAuth, async (req, res) => {
-  if (req.partner.role !== 'venue') return res.status(403).json({ error: 'Only venue partners have a hall page' });
+router.put('/me/halls/:hallId', requirePartnerAuth, requireVenue, async (req, res) => {
+  const parsed = parseHallBody(req.body);
+  if (parsed.error) return res.status(400).json({ error: parsed.error });
+  const hall = await Hall.findOneAndUpdate(
+    { _id: req.params.hallId, partner: req.partner.id },
+    parsed.update,
+    { new: true },
+  );
+  if (!hall) return res.status(404).json({ error: 'Hall not found' });
+  res.json(serializeOwn(hall));
+});
+
+// Refused while the hall still has an open booking, so no customer is left holding a dead hold.
+router.delete('/me/halls/:hallId', requirePartnerAuth, requireVenue, async (req, res) => {
+  const hall = await Hall.findOne({ _id: req.params.hallId, partner: req.partner.id });
+  if (!hall) return res.status(404).json({ error: 'Hall not found' });
+  const openBookings = await Booking.countDocuments({
+    hallId: String(hall.id),
+    status: { $in: ['token_paid', 'visited', 'awaiting_advance'] },
+  });
+  if (openBookings > 0) {
+    return res.status(409).json({ error: 'This hall has open pre-bookings. Resolve them before deleting it.' });
+  }
+  await hall.deleteOne();
+  res.status(204).send();
+});
+
+// Partner: replace the full set of dates they've manually blocked off for this hall
+// (maintenance, a private function) — a simple full-replace matching the calendar's toggle UX.
+router.put('/me/halls/:hallId/blocked-dates', requirePartnerAuth, requireVenue, async (req, res) => {
   const { dates } = req.body || {};
   if (!Array.isArray(dates)) return res.status(400).json({ error: 'dates must be an array' });
   const hall = await Hall.findOneAndUpdate(
-    { partner: req.partner.id },
+    { _id: req.params.hallId, partner: req.partner.id },
     { blockedDates: dates.filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)).slice(0, 1000) },
     { new: true },
   );
@@ -229,7 +272,9 @@ router.patch('/me/tokens/:id', requirePartnerAuth, async (req, res) => {
     booking.status = 'visited';
   } else if (action === 'confirm') {
     if (!(finalRent > 0)) return res.status(400).json({ error: 'Enter the final rent' });
-    const hall = await Hall.findOne({ partner: req.partner.id });
+    const hall = mongoose.isValidObjectId(booking.hallId)
+      ? await Hall.findOne({ _id: booking.hallId, partner: req.partner.id })
+      : null;
     const advancePct = hall?.advancePct > 0 ? hall.advancePct : 25;
     booking.status = 'awaiting_advance';
     booking.finalRent = finalRent;

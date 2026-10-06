@@ -55,7 +55,14 @@ export default function CalendarScreen({ navigation }: Props) {
   }, []);
   const [monthOffset, setMonthOffset] = useState(0);
   const [selected, setSelected] = useState<Date | null>(null);
-  const [blockedDates, setBlockedDates] = useState<string[]>([]);
+  const [halls, setHalls] = useState<Array<{ id: string; name: string; blockedDates: string[] }>>([]);
+  const [selectedHallId, setSelectedHallId] = useState<string | null>(null);
+  const activeHall = halls.find((h) => h.id === selectedHallId) ?? halls[0];
+  const blockedDates = activeHall?.blockedDates ?? [];
+  const setBlockedDates = (dates: string[]) => {
+    if (!activeHall) return;
+    setHalls((list) => list.map((h) => (h.id === activeHall.id ? { ...h, blockedDates: dates } : h)));
+  };
   const [blockReasons, setBlockReasons] = useState<Record<string, string>>({});
   const [reasonDraft, setReasonDraft] = useState('');
 
@@ -73,8 +80,11 @@ export default function CalendarScreen({ navigation }: Props) {
 
   useEffect(() => {
     if (!isVenue) return;
-    api.get<{ blockedDates: string[] } | null>('/api/halls/me')
-      .then((hall: any) => setBlockedDates(hall?.blockedDates || []))
+    api.get<Array<{ id: string; name: string; blockedDates: string[] }>>('/api/halls/me/halls')
+      .then((list) => {
+        setHalls(list.map((h) => ({ id: h.id, name: h.name, blockedDates: h.blockedDates || [] })));
+        setSelectedHallId((cur) => cur ?? list[0]?.id ?? null);
+      })
       .catch(() => {});
   }, [isVenue]);
 
@@ -88,7 +98,7 @@ export default function CalendarScreen({ navigation }: Props) {
       map.set(key, list);
     };
     if (isVenue) {
-      for (const tok of hallTokens) {
+      for (const tok of hallTokens.filter((tok) => !activeHall || tok.hallId === activeHall.id)) {
         const d = parseDisplayDate(tok.date);
         if (d) push(d, { event: tok.hallName, customer: tok.customer, status: tok.status.toUpperCase() });
       }
@@ -99,7 +109,7 @@ export default function CalendarScreen({ navigation }: Props) {
       }
     }
     return map;
-  }, [isVenue, hallTokens, orders]);
+  }, [isVenue, hallTokens, orders, activeHall?.id]);
 
   const bookedJobsFor = (d: Date) => jobsByDate.get(dateKey(d)) || [];
 
@@ -129,13 +139,13 @@ export default function CalendarScreen({ navigation }: Props) {
     const next = isBlocked ? blockedDates.filter((d) => d !== selIso) : [...blockedDates, selIso];
     setBlockedDates(next);
     if (!isBlocked) {
-      const nextReasons = { ...blockReasons, [selIso]: reasonDraft.trim() || t.calendarNotAvailable };
+      const nextReasons = { ...blockReasons, [`${activeHall?.id}|${selIso}`]: reasonDraft.trim() || t.calendarNotAvailable };
       setBlockReasons(nextReasons);
       AsyncStorage.setItem(BLOCK_REASONS_KEY, JSON.stringify(nextReasons)).catch(() => {});
       setReasonDraft('');
     }
     try {
-      await api.put('/api/halls/me/blocked-dates', { dates: next });
+      await api.put(`/api/halls/me/halls/${activeHall?.id}/blocked-dates`, { dates: next });
     } catch {
       setBlockedDates(blockedDates); // revert on failure
     }
@@ -150,6 +160,19 @@ export default function CalendarScreen({ navigation }: Props) {
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{t.calendarTitle}</Text>
         </View>
+
+        {isVenue && halls.length > 1 && (
+          <View style={styles.hallChipRow}>
+            {halls.map((h) => {
+              const sel = activeHall?.id === h.id;
+              return (
+                <TouchableOpacity key={h.id} style={[styles.hallChip, sel && styles.hallChipSel]} activeOpacity={0.85} onPress={() => { setSelectedHallId(h.id); setSelected(null); }}>
+                  <Text style={[styles.hallChipText, sel && styles.hallChipTextSel]}>{h.name}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
 
         <View style={styles.calCard}>
           <View style={styles.calNavRow}>
@@ -218,7 +241,7 @@ export default function CalendarScreen({ navigation }: Props) {
             ))}
 
             {isBlocked && (
-              <Text style={styles.blockedNote}>{t.calendarBlockedNote.replace('{reason}', blockReasons[selIso] || t.calendarNotAvailable)}</Text>
+              <Text style={styles.blockedNote}>{t.calendarBlockedNote.replace('{reason}', blockReasons[`${activeHall?.id}|${selIso}`] || t.calendarNotAvailable)}</Text>
             )}
 
             {isVenue && canBlock && !isBlocked && (
@@ -254,6 +277,11 @@ const styles = StyleSheet.create({
   backBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
   headerTitle: { fontFamily: 'Sora', fontSize: 18, fontWeight: '800', color: colors.text },
   calCard: { backgroundColor: colors.surface, borderRadius: 20, padding: 14, gap: 10, ...shadow.card },
+  hallChipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  hallChip: { paddingHorizontal: 12, height: 34, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, backgroundColor: colors.surface, justifyContent: 'center' },
+  hallChipSel: { backgroundColor: colors.maroon, borderColor: colors.maroon },
+  hallChipText: { fontSize: 12.5, fontWeight: '700', color: colors.text },
+  hallChipTextSel: { color: '#fff' },
   calNavRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   navBtn: { width: 34, height: 34, borderRadius: 17, borderWidth: 1.5, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center' },
   calTitle: { fontFamily: 'Sora', fontWeight: '800', fontSize: 15, color: colors.text },

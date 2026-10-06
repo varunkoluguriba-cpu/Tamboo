@@ -28,7 +28,7 @@ const VENUE_TABS: Array<{ key: VenueTab; icon: IconName; label: string; route: k
   { key: 'hhome', icon: 'home', label: 'Home', route: 'HHome' },
   { key: 'htokens', icon: 'list', label: 'Pre-bookings', route: 'HTokens' },
   { key: 'calendar', icon: 'calendar', label: 'Calendar', route: 'Calendar' },
-  { key: 'hall', icon: 'camera', label: 'My hall', route: 'Hall' },
+  { key: 'hall', icon: 'camera', label: 'My halls', route: 'Halls' },
 ];
 
 type Navigation = TabBarNavigation;

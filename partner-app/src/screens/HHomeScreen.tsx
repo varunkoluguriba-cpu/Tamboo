@@ -89,7 +89,7 @@ export default function HHomeScreen() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.dashedBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Hall')}>
+        <TouchableOpacity style={styles.dashedBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Halls')}>
           <Icon name="camera" size={16} color={colors.pinkStrong} />
           <Text style={styles.dashedBtnText}>{t.hhomeEditHallDetails}</Text>
         </TouchableOpacity>

@@ -16,6 +16,8 @@ import { colors, gradients, shadow } from '../theme';
 type PricingMode = 'rent' | 'perPlate';
 
 type RemoteHall = {
+  id: string;
+  name: string;
   venueType: string;
   address: string;
   seated: number;
@@ -44,7 +46,8 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Hall'>;
 const VENUE_TYPES = ['Function Hall', 'Banquet Hall', 'Marriage Hall', 'Hotel'];
 const CATERING_OPTIONS = ['In-house catering only', 'Outside caterers allowed', 'Both allowed'];
 
-export default function HallScreen({ navigation }: Props) {
+export default function HallScreen({ navigation, route }: Props) {
+  const hallId = route.params?.hallId;
   const { partner, logout } = useAuth();
   const { lang, t } = useLanguage();
   const [langSheet, setLangSheet] = useState(false);
@@ -74,6 +77,7 @@ export default function HallScreen({ navigation }: Props) {
     t.hallTokenRule4,
     t.hallTokenRule5,
   ];
+  const [name, setName] = useState('');
   const [type, setType] = useState(partner?.venueType || VENUE_TYPES[0]);
   const [address, setAddress] = useState('');
   const [pricingMode, setPricingMode] = useState<PricingMode>('rent');
@@ -92,9 +96,14 @@ export default function HallScreen({ navigation }: Props) {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    api.get<RemoteHall | null>('/api/halls/me')
+    if (!hallId) {
+      setLoading(false);
+      return;
+    }
+    api.get<RemoteHall>(`/api/halls/me/halls/${hallId}`)
       .then((hall) => {
         if (!hall) return;
+        setName(hall.name || '');
         setType(hall.venueType || VENUE_TYPES[0]);
         setAddress(hall.address);
         setNums({
@@ -138,6 +147,24 @@ export default function HallScreen({ navigation }: Props) {
     if (address.trim()) Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`);
   };
 
+  const deleteHall = () => {
+    Alert.alert(t.hallDeleteConfirmTitle, t.hallDeleteConfirmMsg, [
+      { text: t.cancel, style: 'cancel' },
+      {
+        text: t.delete,
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await api.delete(`/api/halls/me/halls/${hallId}`);
+            navigation.goBack();
+          } catch (e) {
+            Alert.alert(t.hallDeleteFailedTitle, e instanceof ApiError ? e.message : t.tryAgain);
+          }
+        },
+      },
+    ]);
+  };
+
   const save = async () => {
     const seated = parseInt(nums.seated || '0', 10);
     const floating = parseInt(nums.floating || '0', 10);
@@ -150,10 +177,14 @@ export default function HallScreen({ navigation }: Props) {
     if (pricingMode === 'rent' && !(parseInt(rent || '0', 10) > 0)) {
       return setErr(t.hallErrRent);
     }
+    if (!name.trim()) {
+      return setErr(t.hallErrName);
+    }
     setErr('');
     setSaving(true);
     try {
-      await api.put('/api/halls/me', {
+      const body = {
+        name: name.trim(),
         venueType: type,
         address,
         seated,
@@ -175,8 +206,10 @@ export default function HallScreen({ navigation }: Props) {
         amenities,
         blurb,
         photos,
-      });
-      Alert.alert(t.hallSavedTitle, t.hallSavedMsg);
+      };
+      if (hallId) await api.put(`/api/halls/me/halls/${hallId}`, body);
+      else await api.post('/api/halls/me/halls', body);
+      Alert.alert(t.hallSavedTitle, t.hallSavedMsg, [{ text: t.ok, onPress: () => navigation.goBack() }]);
     } catch (e) {
       setErr(e instanceof ApiError ? e.message : t.hallErrSaveFailed);
     } finally {
@@ -195,6 +228,11 @@ export default function HallScreen({ navigation }: Props) {
           </TouchableOpacity>
         </View>
         <Text style={styles.hint}>{t.hallHint}</Text>
+
+        <View style={{ gap: 6 }}>
+          <Text style={styles.fieldLabel}>{t.hallNameLabel}</Text>
+          <TextInput value={name} onChangeText={setName} style={styles.input} placeholder={t.hallNamePlaceholder} placeholderTextColor={colors.textMuted} />
+        </View>
 
         <View style={{ gap: 8 }}>
           <Text style={styles.fieldLabel}>{t.hallPhotosLabel}</Text>
@@ -352,6 +390,12 @@ export default function HallScreen({ navigation }: Props) {
           <Text style={styles.logoutText}>{t.tambooSupport}</Text>
         </TouchableOpacity>
 
+        {!!hallId && (
+          <TouchableOpacity style={styles.logoutBtn} activeOpacity={0.85} onPress={deleteHall}>
+            <Text style={styles.deleteBtnText}>{t.hallDeleteBtn}</Text>
+          </TouchableOpacity>
+        )}
+
         <TouchableOpacity style={styles.logoutBtn} activeOpacity={0.85} onPress={logout}>
           <Text style={styles.logoutText}>{t.logout}</Text>
         </TouchableOpacity>
@@ -417,4 +461,5 @@ const styles = StyleSheet.create({
   saveBtnText: { color: '#fff', fontWeight: '700', fontSize: 15, fontFamily: 'Sora' },
   logoutBtn: { height: 46, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center' },
   logoutText: { color: colors.text, fontWeight: '700', fontSize: 13.5 },
+  deleteBtnText: { color: colors.dangerStrong, fontWeight: '700', fontSize: 13.5 },
 });

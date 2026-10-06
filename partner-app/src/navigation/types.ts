@@ -19,7 +19,8 @@ export type RootStackParamList = {
   HHome: undefined;
   HTokens: undefined;
   HToken: { id: string };
-  Hall: undefined;
+  Halls: undefined;
+  Hall: { hallId?: string };
   Earnings: undefined;
   Chat: { customerId?: string; customerName: string };
 };

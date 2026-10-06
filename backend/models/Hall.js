@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 
 const hallSchema = new mongoose.Schema({
-  partner: { type: mongoose.Schema.Types.ObjectId, ref: 'Partner', required: true, unique: true },
+  // A venue partner can list several halls under one property (e.g. a hotel with 3-4 halls).
+  partner: { type: mongoose.Schema.Types.ObjectId, ref: 'Partner', required: true, index: true },
+  name: { type: String, default: '' },
   venueType: { type: String, default: '' },
   address: { type: String, default: '' },
   seated: { type: Number, default: 0 },
