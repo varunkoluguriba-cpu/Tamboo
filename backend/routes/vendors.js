@@ -5,6 +5,8 @@ const Item = require('../models/Item');
 const Order = require('../models/Order');
 const PayoutEntry = require('../models/PayoutEntry');
 const Partner = require('../models/Partner');
+const Package = require('../models/Package');
+const mongoose = require('mongoose');
 
 const router = express.Router();
 
@@ -201,6 +203,86 @@ router.patch('/me/orders/:orderId', requirePartnerAuth, requireTentRole, async (
   }
 
   res.json(serializeOrderOwn(order));
+});
+
+function serializePackage(pkg, vendorName) {
+  const lines = pkg.items
+    .filter((l) => l.item)
+    .map((l) => ({
+      productId: String(l.item.id), name: l.item.name, unit: l.item.unit,
+      unitPrice: l.item.price, qty: l.qty, instant: l.item.instant,
+    }));
+  return {
+    id: pkg.id,
+    name: pkg.name,
+    description: pkg.description,
+    vendorId: String(pkg.partner.id ?? pkg.partner),
+    vendorName,
+    lines,
+    total: lines.reduce((sum, l) => sum + l.unitPrice * l.qty, 0),
+  };
+}
+
+async function validatePackageItems(partnerId, items) {
+  if (!Array.isArray(items) || items.length === 0) return { error: 'Add at least one item to the package' };
+  const ids = items.map((i) => i && i.itemId);
+  if (ids.some((id) => !mongoose.isValidObjectId(id))) return { error: 'Some items are invalid' };
+  if (new Set(ids).size !== ids.length) return { error: 'Each item can only appear once in a package' };
+  if (items.some((i) => !Number.isInteger(i.qty) || i.qty < 1)) return { error: 'Each item needs a quantity of at least 1' };
+  const owned = await Item.find({ _id: { $in: ids }, partner: partnerId });
+  if (owned.length !== ids.length) return { error: 'Some items are not in your shop' };
+  if (owned.some((i) => !i.instant)) return { error: 'Packages can only include items that customers can book instantly' };
+  return { lines: items.map((i) => ({ item: i.itemId, qty: i.qty })) };
+}
+
+// Public: packages from verified tent houses, for the customer app's home screen.
+router.get('/packages', async (req, res) => {
+  const pkgs = await Package.find().populate('items.item').populate('partner');
+  res.json(
+    pkgs
+      .filter((p) => p.partner && p.partner.role === 'tent' && p.partner.verificationStatus === 'verified')
+      .map((p) => serializePackage(p, p.partner.businessName)),
+  );
+});
+
+router.get('/me/packages', requirePartnerAuth, requireTentRole, async (req, res) => {
+  const pkgs = await Package.find({ partner: req.partner.id }).populate('items.item').sort({ createdAt: -1 });
+  res.json(pkgs.map((p) => serializePackage(p, req.partner.businessName)));
+});
+
+router.post('/me/packages', requirePartnerAuth, requireTentRole, async (req, res) => {
+  const { name, description, items } = req.body || {};
+  if (!name || !String(name).trim()) return res.status(400).json({ error: 'Enter a package name' });
+  const checked = await validatePackageItems(req.partner.id, items);
+  if (checked.error) return res.status(400).json({ error: checked.error });
+  const pkg = await Package.create({
+    partner: req.partner.id, name: String(name).trim(), description: String(description || '').trim(), items: checked.lines,
+  });
+  await pkg.populate('items.item');
+  res.status(201).json(serializePackage(pkg, req.partner.businessName));
+});
+
+router.put('/me/packages/:packageId', requirePartnerAuth, requireTentRole, async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.packageId)) return res.status(404).json({ error: 'Package not found' });
+  const pkg = await Package.findOne({ _id: req.params.packageId, partner: req.partner.id });
+  if (!pkg) return res.status(404).json({ error: 'Package not found' });
+  const { name, description, items } = req.body || {};
+  if (!name || !String(name).trim()) return res.status(400).json({ error: 'Enter a package name' });
+  const checked = await validatePackageItems(req.partner.id, items);
+  if (checked.error) return res.status(400).json({ error: checked.error });
+  pkg.name = String(name).trim();
+  pkg.description = String(description || '').trim();
+  pkg.items = checked.lines;
+  await pkg.save();
+  await pkg.populate('items.item');
+  res.json(serializePackage(pkg, req.partner.businessName));
+});
+
+router.delete('/me/packages/:packageId', requirePartnerAuth, requireTentRole, async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.packageId)) return res.status(404).json({ error: 'Package not found' });
+  const result = await Package.deleteOne({ _id: req.params.packageId, partner: req.partner.id });
+  if (result.deletedCount === 0) return res.status(404).json({ error: 'Package not found' });
+  res.status(204).send();
 });
 
 // Public: single vendor detail + their items.

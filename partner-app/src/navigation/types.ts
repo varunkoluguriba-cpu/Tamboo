@@ -15,6 +15,8 @@ export type RootStackParamList = {
   Calendar: undefined;
   Items: undefined;
   ItemForm: { id?: string };
+  Packages: undefined;
+  PackageForm: { id?: string };
   Shop: undefined;
   HHome: undefined;
   HTokens: undefined;

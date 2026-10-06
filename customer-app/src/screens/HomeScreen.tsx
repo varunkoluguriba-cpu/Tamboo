@@ -10,6 +10,7 @@ import Icon from '../components/Icon';
 import type { IconName } from '../components/icons';
 import TabBar from '../components/TabBar';
 import LanguageSheet from '../components/LanguageSheet';
+import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useCatalog } from '../context/CatalogContext';
 import { useCart } from '../context/CartContext';
@@ -48,12 +49,13 @@ const CATEGORIES = (t: LangStrings) => [
   { n: '06', name: t.homeScreenCatDecor, ex: t.homeScreenCatDecorEx, navName: 'Decor' },
 ];
 
-// Each package is a real bundle of catalog products from one vendor, priced from their
-// actual unit prices — not a standalone description, so "Add" adds real cart lines.
-const PACKAGE_DEFS: Array<{ id: string; nameKey: 'homeScreenPkgWeddingEssentials' | 'homeScreenPkgBirthdayStarter'; vendorId: string; lines: Array<{ productId: string; qty: number }> }> = [
-  { id: 'p1', nameKey: 'homeScreenPkgWeddingEssentials', vendorId: 'v1', lines: [{ productId: 'i1', qty: 1 }, { productId: 'i4', qty: 1 }] },
-  { id: 'p2', nameKey: 'homeScreenPkgBirthdayStarter', vendorId: 'v2', lines: [{ productId: 'i2', qty: 50 }, { productId: 'i6', qty: 1 }] },
-];
+type RemotePackage = {
+  id: string;
+  name: string;
+  vendorName: string;
+  lines: Array<{ productId: string; name: string; qty: number; unitPrice: number }>;
+  total: number;
+};
 
 function Photo({ icon, height = 150, radius = 0, width }: { icon: IconName; height?: number; radius?: number; width?: number }) {
   return (
@@ -75,21 +77,16 @@ export default function HomeScreen() {
   const [langSheet, setLangSheet] = useState(false);
   const [ev, setEv] = useState({ date: '', guests: '100' });
 
+  const [packages, setPackages] = useState<RemotePackage[]>([]);
+
+  useEffect(() => {
+    api.get<RemotePackage[]>('/api/vendors/packages').then(setPackages).catch(() => setPackages([]));
+  }, []);
+
   const nearHalls = halls.slice(0, 4);
   const nearVendors = vendors.slice(0, 4);
 
-  const packages = PACKAGE_DEFS.map((def) => {
-    const vendor = getVendor(def.vendorId);
-    const products = def.lines.map((l) => ({ line: l, product: getProduct(l.productId) }));
-    const price = products.reduce((sum, { line, product }) => sum + (product ? product.price * line.qty : 0), 0);
-    const itemsText = products
-      .filter(({ product }) => product)
-      .map(({ line, product }) => (line.qty > 1 ? `${line.qty} × ${product!.name}` : product!.name))
-      .join(', ');
-    return { id: def.id, name: t[def.nameKey], items: itemsText, vendor: vendor?.name || '', price, lines: def.lines };
-  });
-
-  const addPackage = (pkg: (typeof packages)[number]) => {
+  const addPackage = (pkg: RemotePackage) => {
     pkg.lines.forEach((l) => addToCart(l.productId, l.qty));
     Alert.alert(t.homeScreenPkgAdded, pkg.name, [
       { text: t.productKeepBrowsing, style: 'cancel' },
@@ -361,10 +358,10 @@ export default function HomeScreen() {
                   <View key={k.id} style={styles.pkgCard}>
                     <Photo icon="package" height={130} radius={14} />
                     <Text style={styles.pkgName}>{k.name}</Text>
-                    <Text style={styles.pkgItems}>{k.items}</Text>
-                    <Text style={styles.pkgVendor}>{k.vendor}</Text>
+                    <Text style={styles.pkgItems}>{k.lines.map((l) => (l.qty > 1 ? `${l.qty} × ${l.name}` : l.name)).join(', ')}</Text>
+                    <Text style={styles.pkgVendor}>{k.vendorName}</Text>
                     <View style={styles.pkgFooter}>
-                      <Text style={styles.pkgPrice}>₹{k.price.toLocaleString('en-IN')}</Text>
+                      <Text style={styles.pkgPrice}>₹{k.total.toLocaleString('en-IN')}</Text>
                       <TouchableOpacity style={styles.pkgAddBtn} activeOpacity={0.85} onPress={() => addPackage(k)}>
                         <Text style={styles.pkgAddText}>{t.add}</Text>
                       </TouchableOpacity>

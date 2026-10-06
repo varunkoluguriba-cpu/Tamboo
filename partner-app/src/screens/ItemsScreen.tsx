@@ -77,12 +77,19 @@ export default function ItemsScreen({ navigation }: Props) {
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.headRow}>
           <Text style={styles.title}>{t.itemsTitle}</Text>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+          <TouchableOpacity activeOpacity={0.85} onPress={() => navigation.navigate('Packages')}>
+            <View style={[styles.addBtn, { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.divider }]}>
+              <Text style={[styles.addBtnText, { color: colors.text }]}>{t.packagesTitle}</Text>
+            </View>
+          </TouchableOpacity>
           <TouchableOpacity activeOpacity={0.85} onPress={() => navigation.navigate('ItemForm', {})}>
             <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.addBtn}>
               <Icon name="plus" size={15} color="#fff" />
               <Text style={styles.addBtnText}>{t.itemsAddBtn}</Text>
             </LinearGradient>
           </TouchableOpacity>
+          </View>
         </View>
 
         {loading ? (

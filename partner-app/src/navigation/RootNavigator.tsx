@@ -11,6 +11,8 @@ import QuoteScreen from '../screens/QuoteScreen';
 import CalendarScreen from '../screens/CalendarScreen';
 import ItemsScreen from '../screens/ItemsScreen';
 import ItemFormScreen from '../screens/ItemFormScreen';
+import PackagesScreen from '../screens/PackagesScreen';
+import PackageFormScreen from '../screens/PackageFormScreen';
 import ShopScreen from '../screens/ShopScreen';
 import HHomeScreen from '../screens/HHomeScreen';
 import HTokensScreen from '../screens/HTokensScreen';
@@ -69,6 +71,8 @@ export default function RootNavigator() {
               <Stack.Screen name="Calendar" component={CalendarScreen} />
               <Stack.Screen name="Items" component={ItemsScreen} />
               <Stack.Screen name="ItemForm" component={ItemFormScreen} />
+              <Stack.Screen name="Packages" component={PackagesScreen} />
+              <Stack.Screen name="PackageForm" component={PackageFormScreen} />
               <Stack.Screen name="Shop" component={ShopScreen} />
               <Stack.Screen name="Earnings" component={EarningsScreen} />
               <Stack.Screen name="Chat" component={ChatScreen} />
