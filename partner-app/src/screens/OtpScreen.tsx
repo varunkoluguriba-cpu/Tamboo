@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -52,6 +52,7 @@ export default function OtpScreen({ navigation, route }: Props) {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, gap: 22 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
       <TouchableOpacity style={styles.back} onPress={() => navigation.goBack()}>
         <Icon name="left" size={16} color={colors.text} />
       </TouchableOpacity>
@@ -89,7 +90,8 @@ export default function OtpScreen({ navigation, route }: Props) {
       <TouchableOpacity onPress={resend} style={styles.resendWrap}>
         <Text style={styles.resend}>{t.pOtpResendOtp}</Text>
       </TouchableOpacity>
-    </SafeAreaView>
+            </ScrollView>
+      </SafeAreaView>
   );
 }
 

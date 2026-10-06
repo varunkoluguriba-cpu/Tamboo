@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -41,8 +41,9 @@ export default function RegisterScreen({}: Props) {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.fill} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <KeyboardAvoidingView style={styles.fill} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, gap: 16 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <View style={styles.verifiedBadge}>
           <Icon name="check" size={13} color={colors.green} />
           <Text style={styles.verifiedText}>{t.registerMobileVerified}</Text>
@@ -84,6 +85,7 @@ export default function RegisterScreen({}: Props) {
             <Text style={styles.buttonText}>{saving ? '…' : t.create}</Text>
           </LinearGradient>
         </TouchableOpacity>
+              </ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );

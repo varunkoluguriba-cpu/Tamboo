@@ -54,7 +54,7 @@ export default function HallsScreen({ navigation }: Props) {
             {halls.map((h) => (
               <TouchableOpacity key={h.id} style={styles.card} activeOpacity={0.85} onPress={() => navigation.navigate('Hall', { hallId: h.id })}>
                 <View style={styles.cardTop}>
-                  <Text style={styles.cardName}>{h.name}</Text>
+                  <Text style={styles.cardName}>{h.name || t.hallsUnnamed}</Text>
                   <Icon name="right" size={16} color={colors.dividerStrong} />
                 </View>
                 <Text style={styles.cardMeta}>{h.venueType || t.hallsUntitledType}</Text>

@@ -80,7 +80,7 @@ export default function RootNavigator() {
           )}
         </Stack.Navigator>
       ) : (
-        <AuthNavigator initialRouteName={authInitialRoute} />
+        <AuthNavigator key={authInitialRoute} initialRouteName={authInitialRoute} />
       )}
     </NavigationContainer>
   );
