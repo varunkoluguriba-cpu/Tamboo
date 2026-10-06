@@ -10,13 +10,8 @@ import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import RequestQuoteModal from '../components/RequestQuoteModal';
 import { colors, gradients, shadow } from '../theme';
-import type { LangStrings } from '../i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Product'>;
-
-function soon(t: LangStrings) {
-  Alert.alert(t.comingSoon, t.productComingSoonMsg);
-}
 
 function parseMin(min: string): number {
   const n = parseInt(min, 10);

@@ -15,11 +15,15 @@ export default function PendingReviewScreen({ }: Props) {
   const { partner, acknowledgePending } = useAuth();
   const { t } = useLanguage();
 
+  // This screen only ever renders while verificationStatus === 'pending' (see
+  // RootNavigator's stillOnPendingReview), so the first two rows are always true by the
+  // time a registered partner reaches here — there's no backend-tracked sub-step for
+  // "document check" vs "shop visit" separately, so we show one honest overall status
+  // instead of fabricating granular progress that isn't actually tracked.
   const CHECKLIST: Array<{ label: string; status: string; color: string }> = [
     { label: t.pendingMobileVerified, status: t.done, color: '#047857' },
     { label: t.pendingBusinessDetails, status: t.done, color: '#047857' },
-    { label: t.pendingDocumentCheck, status: t.pendingInReview, color: '#8a5a00' },
-    { label: t.pendingShopVisit, status: t.orderStatusPending, color: '#8a8499' },
+    { label: t.pendingVerification, status: t.pendingInReview, color: '#8a5a00' },
   ];
 
   return (

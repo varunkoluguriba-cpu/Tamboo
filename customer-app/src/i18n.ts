@@ -341,6 +341,7 @@ const EN = {
   profileScreenOffersPromotions: 'Offers & promotions',
   profileScreenWhatsappReminders: 'WhatsApp reminders',
   profileScreenPaymentHistory: 'Payment history',
+  profileScreenNoPayments: 'No payments yet.',
   profileScreenHelpSupport: 'Help & support',
 
   // ---- register / token flow ----
@@ -662,7 +663,7 @@ const TE: Partial<Record<Key, string>> = {
   productQuoteNote: 'ఈ వస్తువుకు సైట్ సర్వే అవసరం, కాబట్టి వెండర్ మీకు ధర కోటేషన్ పంపుతారు. మీరు దాన్ని అంగీకరించే వరకు మీకు ఛార్జ్ చేయబడదు.', productRequestQuote: 'కోటేషన్ అభ్యర్థించండి',
   profileScreenThere: 'అతిథి', profileScreenLanguage: 'భాష', profileScreenSavedAddresses: 'సేవ్ చేసిన చిరునామాలు', profileScreenAddAddressPlaceholder: 'కొత్త చిరునామా జోడించండి',
   profileScreenNotifications: 'నోటిఫికేషన్‌లు', profileScreenBookingUpdates: 'బుకింగ్ అప్‌డేట్‌లు', profileScreenOffersPromotions: 'ఆఫర్లు & ప్రమోషన్లు',
-  profileScreenWhatsappReminders: 'WhatsApp రిమైండర్‌లు', profileScreenPaymentHistory: 'చెల్లింపు చరిత్ర', profileScreenHelpSupport: 'సహాయం & మద్దతు',
+  profileScreenWhatsappReminders: 'WhatsApp రిమైండర్‌లు', profileScreenPaymentHistory: 'చెల్లింపు చరిత్ర', profileScreenNoPayments: 'ఇంకా చెల్లింపులు లేవు.', profileScreenHelpSupport: 'సహాయం & మద్దతు',
 
   registerMobileVerified: 'మొబైల్ ధృవీకరించబడింది', registerSubtitle: 'వెండర్లకు మీరు ఎవరో తెలియడానికి కొన్ని వివరాలు మాత్రమే.', registerEmailLabel: 'ఇమెయిల్ (ఆప్షనల్)',
   registerNameRequired: 'దయచేసి మీ పేరు నమోదు చేయండి', registerSaveError: 'సేవ్ చేయలేకపోయాం. మీ కనెక్షన్‌ని చెక్ చేయండి.', tokenDoneNothingYet: 'ఇంకా ఏమీ ప్రీ-బుక్ చేయలేదు.',
@@ -881,7 +882,7 @@ const HI: Partial<Record<Key, string>> = {
   productQuoteNote: 'इस वस्तु के लिए साइट सर्वे ज़रूरी है, इसलिए वेंडर आपको प्राइस कोटेशन भेजेगा। जब तक आप इसे स्वीकार नहीं करते, आपसे शुल्क नहीं लिया जाएगा।', productRequestQuote: 'कोटेशन का अनुरोध करें',
   profileScreenThere: 'मेहमान', profileScreenLanguage: 'भाषा', profileScreenSavedAddresses: 'सेव किए गए पते', profileScreenAddAddressPlaceholder: 'नया पता जोड़ें',
   profileScreenNotifications: 'नोटिफिकेशन', profileScreenBookingUpdates: 'बुकिंग अपडेट', profileScreenOffersPromotions: 'ऑफ़र और प्रोमोशन',
-  profileScreenWhatsappReminders: 'WhatsApp रिमाइंडर', profileScreenPaymentHistory: 'भुगतान इतिहास', profileScreenHelpSupport: 'सहायता और समर्थन',
+  profileScreenWhatsappReminders: 'WhatsApp रिमाइंडर', profileScreenPaymentHistory: 'भुगतान इतिहास', profileScreenNoPayments: 'अभी कोई भुगतान नहीं है।', profileScreenHelpSupport: 'सहायता और समर्थन',
 
   registerMobileVerified: 'मोबाइल सत्यापित', registerSubtitle: 'वेंडरों को पता चले कि वे किसकी सेवा कर रहे हैं, इसके लिए बस कुछ जानकारी।', registerEmailLabel: 'ईमेल (वैकल्पिक)',
   registerNameRequired: 'कृपया अपना नाम दर्ज करें', registerSaveError: 'सेव नहीं हो सका। अपना कनेक्शन जांचें।', tokenDoneNothingYet: 'अभी तक कुछ भी प्री-बुक नहीं है।',
@@ -1099,7 +1100,7 @@ const UR: Partial<Record<Key, string>> = {
   productQuoteNote: 'اس چیز کے لیے سائٹ سروے ضروری ہے، اس لیے وینڈر آپ کو قیمت کا کوٹیشن بھیجے گا۔ جب تک آپ اسے قبول نہیں کرتے، آپ سے کوئی چارج نہیں لیا جائے گا۔', productRequestQuote: 'کوٹیشن کی درخواست کریں',
   profileScreenThere: 'مہمان', profileScreenLanguage: 'زبان', profileScreenSavedAddresses: 'محفوظ کردہ پتے', profileScreenAddAddressPlaceholder: 'نیا پتہ شامل کریں',
   profileScreenNotifications: 'نوٹیفیکیشنز', profileScreenBookingUpdates: 'بکنگ اپڈیٹس', profileScreenOffersPromotions: 'آفرز اور پروموشنز',
-  profileScreenWhatsappReminders: 'WhatsApp یاددہانیاں', profileScreenPaymentHistory: 'ادائیگی کی تاریخ', profileScreenHelpSupport: 'مدد اور معاونت',
+  profileScreenWhatsappReminders: 'WhatsApp یاددہانیاں', profileScreenPaymentHistory: 'ادائیگی کی تاریخ', profileScreenNoPayments: 'ابھی کوئی ادائیگی نہیں ہے۔', profileScreenHelpSupport: 'مدد اور معاونت',
 
   registerMobileVerified: 'موبائل تصدیق شدہ', registerSubtitle: 'وینڈرز کو معلوم ہو کہ وہ کس کی خدمت کر رہے ہیں، اس کے لیے صرف کچھ تفصیلات۔', registerEmailLabel: 'ای میل (اختیاری)',
   registerNameRequired: 'براہ کرم اپنا نام درج کریں', registerSaveError: 'محفوظ نہیں ہو سکا۔ اپنا کنکشن چیک کریں۔', tokenDoneNothingYet: 'ابھی تک کچھ بھی پری بک نہیں ہے۔',

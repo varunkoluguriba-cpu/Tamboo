@@ -20,6 +20,9 @@ const hallSchema = new mongoose.Schema({
   // % of finalRent the customer must pay as a real advance (via Razorpay) before a
   // booking counts as confirmed — partner-adjustable, defaults to the platform norm.
   advancePct: { type: Number, default: 25 },
+  // Dates the partner has manually marked unavailable (e.g. for maintenance, a private
+  // function), as 'YYYY-MM-DD' strings — separate from dates already held by a real booking.
+  blockedDates: { type: [String], default: [] },
   ac: { type: Boolean, default: true },
   crockery: { type: Boolean, default: false },
   kitchen: { type: Boolean, default: false },

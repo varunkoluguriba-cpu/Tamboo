@@ -172,7 +172,7 @@ export default function VenueScreen({ navigation, route }: Props) {
                 <Icon name="left" size={16} color={monthOffset === 0 ? colors.dividerStrong : colors.text} />
               </TouchableOpacity>
               <Text style={styles.calMonthTitle}>{MONTH_NAMES[viewMonth.getMonth()]} {viewMonth.getFullYear()}</Text>
-              <TouchableOpacity style={styles.calNavBtn} activeOpacity={0.8} onPress={() => setMonthOffset((m) => Math.min(2, m + 1))}>
+              <TouchableOpacity style={styles.calNavBtn} activeOpacity={0.8} onPress={() => setMonthOffset((m) => m + 1)}>
                 <Icon name="right" size={16} color={colors.text} />
               </TouchableOpacity>
             </View>

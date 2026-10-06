@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { api } from '../api/client';
-import { HALLS as MOCK_HALLS, VENDORS as MOCK_VENDORS, PRODUCTS as MOCK_PRODUCTS, type Hall, type Vendor, type Product } from '../data/catalog';
+import type { Hall, Vendor, Product } from '../data/catalog';
 
 interface CatalogContextValue {
   halls: Hall[];
@@ -31,11 +31,12 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     }).catch(() => {});
   }, []);
 
-  // Real listings first so they win ties on id (they never will — real ids are Mongo
-  // ObjectIds, mock ids are 'h1'/'v1' style — but this keeps intent clear).
-  const halls = useMemo(() => [...realHalls, ...MOCK_HALLS], [realHalls]);
-  const vendors = useMemo(() => [...realVendors, ...MOCK_VENDORS], [realVendors]);
-  const products = useMemo(() => [...realProducts, ...MOCK_PRODUCTS], [realProducts]);
+  // Real backend listings only — mock catalog data used to be merged in here, but a
+  // customer could pay real money (via Razorpay) for a mock hall/product with no real
+  // vendor behind it, since Booking/Order still get created with partner: null.
+  const halls = realHalls;
+  const vendors = realVendors;
+  const products = realProducts;
 
   const value = useMemo<CatalogContextValue>(() => ({
     halls,

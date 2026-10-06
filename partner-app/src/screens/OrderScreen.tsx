@@ -21,10 +21,6 @@ export default function OrderScreen({ navigation, route }: Props) {
   const [working, setWorking] = useState(false);
   const original: RemoteOrder | undefined = orders.find((o) => o.id === route.params.id);
 
-  const soon = () => {
-    Alert.alert(t.comingSoon, t.orderComingSoonMsg);
-  };
-
   const STATUS_LABELS: Record<string, string> = {
     PENDING: t.orderStatusPending,
     CONFIRMED: t.orderStatusConfirmed,

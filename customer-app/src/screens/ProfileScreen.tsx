@@ -3,9 +3,10 @@ import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../navigation/types';
+import type { RemoteHallBooking, RemoteOrderSummary, RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import TabBar from '../components/TabBar';
+import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { LANGS, langName } from '../i18n';
@@ -13,12 +14,11 @@ import { colors, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Profile'>;
 
-const PAYMENT_HISTORY = [
-  { id: 'TB-250142', event: 'Priya & Karthik Wedding', status: 'CONFIRMED', amount: '₹42,000' },
-  { id: 'TB-249981', event: 'Office Diwali Party', status: 'COMPLETED', amount: '₹12,300' },
-];
+type PaymentEntry = { id: string; label: string; status: string; amount: number; dateMs: number };
 
 const NOTIF_PREFS_KEY = 'tamboo-customer-notif-prefs';
+const ADDRESSES_KEY = 'tamboo-customer-addresses';
+const DEFAULT_ADDRESS = '12-3-45, Ameerpet, Hyderabad, Telangana 500016';
 
 function Toggle({ on, onPress }: { on: boolean; onPress: () => void }) {
   return (
@@ -32,15 +32,36 @@ export default function ProfileScreen({ navigation }: Props) {
   const { user, logout } = useAuth();
   const { t, lang, setLang } = useLanguage();
   const [langModal, setLangModal] = useState(false);
-  const [addrs, setAddrs] = useState<string[]>(['12-3-45, Ameerpet, Hyderabad, Telangana 500016']);
+  const [addrs, setAddrs] = useState<string[]>([DEFAULT_ADDRESS]);
   const [newAddr, setNewAddr] = useState('');
   const [toggles, setToggles] = useState({ booking: true, offers: true, whatsapp: false });
+  const [payments, setPayments] = useState<PaymentEntry[]>([]);
 
   useEffect(() => {
     AsyncStorage.getItem(NOTIF_PREFS_KEY).then((raw) => {
       if (raw) {
         try { setToggles(JSON.parse(raw)); } catch { /* ignore corrupt local prefs */ }
       }
+    });
+    AsyncStorage.getItem(ADDRESSES_KEY).then((raw) => {
+      if (raw) {
+        try { setAddrs(JSON.parse(raw)); } catch { /* ignore corrupt local addresses */ }
+      }
+    });
+
+    Promise.all([
+      api.get<RemoteOrderSummary[]>('/api/orders/me').catch(() => [] as RemoteOrderSummary[]),
+      api.get<RemoteHallBooking[]>('/api/halls/my-tokens').catch(() => [] as RemoteHallBooking[]),
+    ]).then(([orders, halls]) => {
+      const fromOrders: PaymentEntry[] = orders.map((o) => ({
+        id: o.code, label: o.eventName || o.vendorName, status: o.status, amount: o.value, dateMs: o.createdAtMs,
+      }));
+      const fromHalls: PaymentEntry[] = halls
+        .filter((h) => h.status !== 'token_paid' || h.amount > 0)
+        .map((h) => ({
+          id: h.id.slice(-6).toUpperCase(), label: h.hallName, status: h.status.toUpperCase(), amount: h.amount, dateMs: h.heldAtMs,
+        }));
+      setPayments([...fromOrders, ...fromHalls].sort((a, b) => b.dateMs - a.dateMs).slice(0, 5));
     });
   }, []);
 
@@ -60,11 +81,27 @@ export default function ProfileScreen({ navigation }: Props) {
     .join('')
     .toUpperCase();
 
+  const persistAddrs = (list: string[]) => {
+    AsyncStorage.setItem(ADDRESSES_KEY, JSON.stringify(list)).catch(() => {});
+  };
+
   const addAddress = () => {
     const v = newAddr.trim();
     if (!v) return;
-    setAddrs((a) => [...a, v]);
+    setAddrs((a) => {
+      const next = [...a, v];
+      persistAddrs(next);
+      return next;
+    });
     setNewAddr('');
+  };
+
+  const removeAddress = (idx: number) => {
+    setAddrs((list) => {
+      const next = list.filter((_, i) => i !== idx);
+      persistAddrs(next);
+      return next;
+    });
   };
 
   return (
@@ -95,7 +132,7 @@ export default function ProfileScreen({ navigation }: Props) {
             <View key={i} style={styles.addrRow}>
               <Icon name="pin" size={15} color={colors.pink} />
               <Text style={styles.addrText}>{a}</Text>
-              <TouchableOpacity activeOpacity={0.7} onPress={() => setAddrs((list) => list.filter((_, idx) => idx !== i))}>
+              <TouchableOpacity activeOpacity={0.7} onPress={() => removeAddress(i)}>
                 <Text style={styles.removeText}>{t.remove}</Text>
               </TouchableOpacity>
             </View>
@@ -132,15 +169,19 @@ export default function ProfileScreen({ navigation }: Props) {
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>{t.profileScreenPaymentHistory}</Text>
-          {PAYMENT_HISTORY.map((p) => (
-            <View key={p.id} style={styles.payRow}>
-              <View>
-                <Text style={styles.payEvent}>{p.event}</Text>
-                <Text style={styles.paySub}>{p.id} · {p.status}</Text>
+          {payments.length === 0 ? (
+            <Text style={styles.paySub}>{t.profileScreenNoPayments}</Text>
+          ) : (
+            payments.map((p) => (
+              <View key={p.id} style={styles.payRow}>
+                <View>
+                  <Text style={styles.payEvent}>{p.label}</Text>
+                  <Text style={styles.paySub}>{p.id} · {p.status.replace(/_/g, ' ')}</Text>
+                </View>
+                <Text style={styles.payAmount}>₹{p.amount.toLocaleString('en-IN')}</Text>
               </View>
-              <Text style={styles.payAmount}>{p.amount}</Text>
-            </View>
-          ))}
+            ))
+          )}
         </View>
 
         <TouchableOpacity style={styles.row} activeOpacity={0.85} onPress={() => navigation.navigate('Chat', { peerName: 'Tamboo Support' })}>

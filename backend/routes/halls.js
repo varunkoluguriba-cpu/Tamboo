@@ -137,6 +137,7 @@ function serializeOwn(hall) {
     amenities: hall.amenities,
     blurb: hall.blurb,
     photos: hall.photos || [],
+    blockedDates: hall.blockedDates || [],
   };
 }
 
@@ -178,6 +179,21 @@ router.put('/me', requirePartnerAuth, async (req, res) => {
     { new: true, upsert: true, setDefaultsOnInsert: true },
   );
   res.json(serializeOwn(hall));
+});
+
+// Partner: replace the full set of dates they've manually blocked off (e.g. maintenance,
+// a private function) — a simple full-replace matching the calendar UI's toggle-per-day UX.
+router.put('/me/blocked-dates', requirePartnerAuth, async (req, res) => {
+  if (req.partner.role !== 'venue') return res.status(403).json({ error: 'Only venue partners have a hall page' });
+  const { dates } = req.body || {};
+  if (!Array.isArray(dates)) return res.status(400).json({ error: 'dates must be an array' });
+  const hall = await Hall.findOneAndUpdate(
+    { partner: req.partner.id },
+    { blockedDates: dates.filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)).slice(0, 1000) },
+    { new: true },
+  );
+  if (!hall) return res.status(404).json({ error: 'Hall not found' });
+  res.json({ blockedDates: hall.blockedDates });
 });
 
 // Partner: list this hall's real pre-bookings (tokens), newest first.

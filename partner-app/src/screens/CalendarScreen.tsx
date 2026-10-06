@@ -1,29 +1,52 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
+import { api } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useHallTokens } from '../hooks/useHallTokens';
+import { useOrders } from '../hooks/useOrders';
 import { colors, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Calendar'>;
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const BLOCK_REASONS_KEY = 'tamboo-partner-block-reasons';
 
 function dateKey(d: Date): string {
   return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 }
 
-function bookedJobsFor(d: Date): Array<{ event: string; customer: string; status: string }> {
-  const seed = (d.getDate() * 7 + d.getMonth() * 13) % 10;
-  if (seed === 3) return [{ event: 'Ananya Birthday', customer: 'Ananya Reddy', status: 'PENDING' }];
-  if (seed === 6) return [{ event: 'Priya & Karthik Wedding', customer: 'Priya Sharma', status: 'CONFIRMED' }];
-  return [];
+function isoDate(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
+
+// Hall booking dates come from the customer app's fmtDate(): "20 Dec 2026". Order dateTxt
+// is free-text from the customer's Event form (placeholder "DD/MM/YYYY") — best-effort only.
+function parseDisplayDate(text: string): Date | null {
+  const ddmmyyyy = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (ddmmyyyy) {
+    const [, dd, mm, yyyy] = ddmmyyyy;
+    return new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+  }
+  const dmmmyyyy = text.match(/^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$/);
+  if (dmmmyyyy) {
+    const [, dd, mon, yyyy] = dmmmyyyy;
+    const mi = MONTH_NAMES.findIndex((m) => m.slice(0, 3).toLowerCase() === mon.toLowerCase());
+    if (mi >= 0) return new Date(Number(yyyy), mi, Number(dd));
+  }
+  return null;
+}
+
+type Job = { event: string; customer: string; status: string };
 
 export default function CalendarScreen({ navigation }: Props) {
   const { t } = useLanguage();
+  const { partner } = useAuth();
   const WEEKDAYS = [t.calendarMon, t.calendarTue, t.calendarWed, t.calendarThu, t.calendarFri, t.calendarSat, t.calendarSun];
   const today = useMemo(() => {
     const d = new Date();
@@ -32,8 +55,53 @@ export default function CalendarScreen({ navigation }: Props) {
   }, []);
   const [monthOffset, setMonthOffset] = useState(0);
   const [selected, setSelected] = useState<Date | null>(null);
-  const [blocked, setBlocked] = useState<Record<string, string>>({});
+  const [blockedDates, setBlockedDates] = useState<string[]>([]);
+  const [blockReasons, setBlockReasons] = useState<Record<string, string>>({});
   const [reasonDraft, setReasonDraft] = useState('');
+
+  const isVenue = partner?.role === 'venue';
+  const { tokens: hallTokens } = useHallTokens();
+  const { orders } = useOrders();
+
+  useEffect(() => {
+    AsyncStorage.getItem(BLOCK_REASONS_KEY).then((raw) => {
+      if (raw) {
+        try { setBlockReasons(JSON.parse(raw)); } catch { /* ignore corrupt local notes */ }
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!isVenue) return;
+    api.get<{ blockedDates: string[] } | null>('/api/halls/me')
+      .then((hall: any) => setBlockedDates(hall?.blockedDates || []))
+      .catch(() => {});
+  }, [isVenue]);
+
+  const jobsByDate = useMemo(() => {
+    const map = new Map<string, Job[]>();
+    const push = (d: Date | null, job: Job) => {
+      if (!d) return;
+      const key = dateKey(d);
+      const list = map.get(key) || [];
+      list.push(job);
+      map.set(key, list);
+    };
+    if (isVenue) {
+      for (const tok of hallTokens) {
+        const d = parseDisplayDate(tok.date);
+        if (d) push(d, { event: tok.hallName, customer: tok.customer, status: tok.status.toUpperCase() });
+      }
+    } else {
+      for (const o of orders) {
+        const d = parseDisplayDate(o.dateTxt);
+        if (d) push(d, { event: o.event, customer: o.customer, status: o.status });
+      }
+    }
+    return map;
+  }, [isVenue, hallTokens, orders]);
+
+  const bookedJobsFor = (d: Date) => jobsByDate.get(dateKey(d)) || [];
 
   const viewMonth = useMemo(() => new Date(today.getFullYear(), today.getMonth() + monthOffset, 1), [today, monthOffset]);
 
@@ -51,21 +119,25 @@ export default function CalendarScreen({ navigation }: Props) {
   }, [viewMonth]);
 
   const selJobs = selected ? bookedJobsFor(selected) : [];
+  const selIso = selected ? isoDate(selected) : '';
   const selKey = selected ? dateKey(selected) : '';
-  const isBlocked = !!blocked[selKey];
+  const isBlocked = blockedDates.includes(selIso);
   const canBlock = selected && selJobs.length === 0;
 
-  const toggleBlock = () => {
+  const toggleBlock = async () => {
     if (!selected) return;
-    if (isBlocked) {
-      setBlocked((b) => {
-        const next = { ...b };
-        delete next[selKey];
-        return next;
-      });
-    } else {
-      setBlocked((b) => ({ ...b, [selKey]: reasonDraft.trim() || t.calendarNotAvailable }));
+    const next = isBlocked ? blockedDates.filter((d) => d !== selIso) : [...blockedDates, selIso];
+    setBlockedDates(next);
+    if (!isBlocked) {
+      const nextReasons = { ...blockReasons, [selIso]: reasonDraft.trim() || t.calendarNotAvailable };
+      setBlockReasons(nextReasons);
+      AsyncStorage.setItem(BLOCK_REASONS_KEY, JSON.stringify(nextReasons)).catch(() => {});
       setReasonDraft('');
+    }
+    try {
+      await api.put('/api/halls/me/blocked-dates', { dates: next });
+    } catch {
+      setBlockedDates(blockedDates); // revert on failure
     }
   };
 
@@ -85,7 +157,7 @@ export default function CalendarScreen({ navigation }: Props) {
               <Icon name="left" size={16} color={monthOffset === 0 ? colors.dividerStrong : colors.text} />
             </TouchableOpacity>
             <Text style={styles.calTitle}>{MONTH_NAMES[viewMonth.getMonth()]} {viewMonth.getFullYear()}</Text>
-            <TouchableOpacity style={styles.navBtn} activeOpacity={0.8} onPress={() => setMonthOffset((m) => Math.min(6, m + 1))}>
+            <TouchableOpacity style={styles.navBtn} activeOpacity={0.8} onPress={() => setMonthOffset((m) => m + 1)}>
               <Icon name="right" size={16} color={colors.text} />
             </TouchableOpacity>
           </View>
@@ -101,7 +173,7 @@ export default function CalendarScreen({ navigation }: Props) {
               if (!c.date) return <View key={i} style={styles.dayCell} />;
               const key = dateKey(c.date);
               const jobs = bookedJobsFor(c.date);
-              const isBlockedDay = !!blocked[key];
+              const isBlockedDay = blockedDates.includes(isoDate(c.date));
               const isSel = selected && dateKey(selected) === key;
               const bg = isBlockedDay ? '#1e1b2e' : jobs.length > 0 ? colors.pinkBg : '#fff';
               const color = isBlockedDay ? '#fff' : colors.text;
@@ -139,17 +211,17 @@ export default function CalendarScreen({ navigation }: Props) {
             </Text>
 
             {selJobs.map((j, i) => (
-              <TouchableOpacity key={i} style={styles.jobRow} activeOpacity={0.85} onPress={() => navigation.navigate('Orders')}>
+              <TouchableOpacity key={i} style={styles.jobRow} activeOpacity={0.85} onPress={() => navigation.navigate(isVenue ? 'HTokens' : 'Orders')}>
                 <Text style={styles.jobText}><Text style={{ fontWeight: '700' }}>{j.event}</Text> · {j.customer}</Text>
                 <Text style={styles.jobStatus}>{j.status === 'PENDING' ? t.calendarStatusPending : j.status === 'CONFIRMED' ? t.calendarStatusConfirmed : j.status}</Text>
               </TouchableOpacity>
             ))}
 
             {isBlocked && (
-              <Text style={styles.blockedNote}>{t.calendarBlockedNote.replace('{reason}', blocked[selKey])}</Text>
+              <Text style={styles.blockedNote}>{t.calendarBlockedNote.replace('{reason}', blockReasons[selIso] || t.calendarNotAvailable)}</Text>
             )}
 
-            {canBlock && !isBlocked && (
+            {isVenue && canBlock && !isBlocked && (
               <TextInput
                 value={reasonDraft}
                 onChangeText={setReasonDraft}
@@ -159,7 +231,7 @@ export default function CalendarScreen({ navigation }: Props) {
               />
             )}
 
-            {selJobs.length === 0 && (
+            {isVenue && selJobs.length === 0 && (
               <TouchableOpacity
                 style={[styles.blockBtn, { backgroundColor: isBlocked ? colors.text : colors.maroon }]}
                 activeOpacity={0.85}
