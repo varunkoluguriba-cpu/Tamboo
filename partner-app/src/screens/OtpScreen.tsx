@@ -32,6 +32,7 @@ export default function OtpScreen({ navigation, route }: Props) {
       // If registered, the root navigator swaps to the main app automatically once
       // AuthContext's `partner` updates — nothing to navigate to here.
       if (!partner.registered) navigation.replace('Register');
+      else if (partner.verificationStatus === 'pending') navigation.reset({ index: 0, routes: [{ name: 'PendingReview' }] });
     } catch (e) {
       setErr(e instanceof ApiError ? e.message : t.pOtpIncorrectCode);
     } finally {
