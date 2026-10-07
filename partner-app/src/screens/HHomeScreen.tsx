@@ -18,7 +18,7 @@ const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 
 export default function HHomeScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { partner } = useAuth();
+  const { partner, logout } = useAuth();
   const { lang, t } = useLanguage();
   const [langSheet, setLangSheet] = useState(false);
   const { tokens: remoteTokens } = useHallTokens();
@@ -127,6 +127,18 @@ export default function HHomeScreen() {
             </View>
           )}
         </View>
+        <TouchableOpacity
+          style={styles.logoutBtn}
+          activeOpacity={0.85}
+          onPress={() => navigation.navigate('Chat', { customerName: t.tambooSupport })}
+        >
+          <Text style={styles.logoutText}>{t.tambooSupport}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.logoutBtn} activeOpacity={0.85} onPress={logout}>
+          <Icon name="logout" size={16} color={colors.text} />
+          <Text style={styles.logoutText}>{t.logout}</Text>
+        </TouchableOpacity>
       </ScrollView>
 
       <VenueTabBar active="hhome" navigation={navigation} badge={{ htokens: active.length || undefined }} />
@@ -171,4 +183,6 @@ const styles = StyleSheet.create({
   tokenVisit: { fontSize: 12.5, color: '#4b4560' },
   pill: { borderRadius: 999, paddingVertical: 4, paddingHorizontal: 10 },
   pillText: { fontSize: 11, fontWeight: '700' },
+  logoutBtn: { height: 46, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  logoutText: { color: colors.text, fontWeight: '600', fontSize: 14 },
 });
