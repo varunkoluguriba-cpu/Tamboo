@@ -48,4 +48,25 @@ async function checkItemStock(itemId, qty, dateTxt) {
   return { ok: true, reason: null };
 }
 
-module.exports = { ACTIVE_ORDER_STATUSES, checkItemStock };
+// Batch version for listing screens: how much of each item in `itemIds` is already
+// committed on `dateTxt`, in one query instead of one-per-item. Returns a map keyed by
+// itemId string. Same free-text-date caveat as checkItemStock above.
+async function getCommittedQtyByItem(itemIds, dateTxt) {
+  const map = {};
+  if (!dateTxt || itemIds.length === 0) return map;
+  const orders = await Order.find({
+    'lines.itemId': { $in: itemIds },
+    dateTxt,
+    status: { $in: ACTIVE_ORDER_STATUSES },
+  }).select('lines').lean();
+  orders.forEach((o) => {
+    o.lines.forEach((l) => {
+      if (!l.itemId) return;
+      const key = String(l.itemId);
+      map[key] = (map[key] || 0) + l.qty;
+    });
+  });
+  return map;
+}
+
+module.exports = { ACTIVE_ORDER_STATUSES, checkItemStock, getCommittedQtyByItem };

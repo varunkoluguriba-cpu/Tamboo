@@ -10,6 +10,7 @@ const mongoose = require('mongoose');
 const { getClient: getAnthropicClient } = require('../config/anthropic');
 const { CATEGORY_IDS, UNIT_OPTIONS } = require('../data/itemCatalogOptions');
 const ItemPreset = require('../models/ItemPreset');
+const { getCommittedQtyByItem } = require('../lib/itemAvailability');
 
 function buildClassifyPrompt(categoryGuide) {
   return `Reply with ONLY a JSON object, no other text, no markdown fences, in exactly this shape:
@@ -85,7 +86,11 @@ function serializeVendorPublic(shop, partner) {
   };
 }
 
-function serializeItemPublic(item, vendorId) {
+// `reserved` is real only when a dateTxt was given to the route (so there's something to
+// sum active orders against) — otherwise it stays 0 and free==total, same as before this
+// fix, which is honest: with no date in play there's nothing date-specific to report yet.
+function serializeItemPublic(item, vendorId, reserved = 0) {
+  const free = Math.max(0, item.stock - reserved);
   return {
     id: item.id,
     name: item.name,
@@ -98,7 +103,7 @@ function serializeItemPublic(item, vendorId) {
     deposit: item.deposit ? `₹${item.deposit}` : '₹0',
     min: String(item.min),
     isInstant: item.instant,
-    avail: { total: item.stock, reserved: 0, maint: 0, free: item.stock },
+    avail: { total: item.stock, reserved, maint: 0, free },
     photos: item.photos || [],
   };
 }
@@ -423,7 +428,12 @@ router.get('/:id', async (req, res) => {
 
 router.get('/:id/products', async (req, res) => {
   const items = await Item.find({ partner: req.params.id, paused: false });
-  res.json(items.map((i) => serializeItemPublic(i, req.params.id)));
+  // Optional ?date= (the same free-text event.date the rest of the checkout flow uses) lets
+  // the customer app show real committed-vs-free stock instead of the old hardcoded
+  // reserved=0 — see lib/itemAvailability.js for the matching check at actual checkout time.
+  const dateTxt = typeof req.query.date === 'string' ? req.query.date : '';
+  const committed = await getCommittedQtyByItem(items.map((i) => i.id), dateTxt);
+  res.json(items.map((i) => serializeItemPublic(i, req.params.id, committed[i.id] || 0)));
 });
 
 module.exports = router;

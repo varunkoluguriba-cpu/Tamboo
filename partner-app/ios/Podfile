@@ -39,6 +39,53 @@ target 'TambooPartner' do
           config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
         end
       end
+      # Firebase 12.x's Core/Installations/CoreExtension pods don't set DEFINES_MODULE in a
+      # static-linking (non use_frameworks!) setup, so the FirebaseAuth-Swift.h compatibility
+      # header they generate can't be found by anything that imports <FirebaseAuth/...>
+      # ("'FirebaseAuth/FirebaseAuth-Swift.h' file not found" in RNFBApp/RNFBAuth). See
+      # https://github.com/firebase/firebase-ios-sdk/pull/15506 for the upstream root cause.
+      if ['FirebaseCore', 'FirebaseInstallations', 'FirebaseCoreExtension'].include?(target.name)
+        target.build_configurations.each do |config|
+          config.build_settings['DEFINES_MODULE'] = 'YES'
+        end
+      end
+      # Belt-and-braces: explicitly point every target's header search at the directory
+      # FirebaseAuth actually generates its Swift compatibility header into, since the
+      # DEFINES_MODULE fix above isn't sufficient on its own in this project's configuration.
+      # NOTE: PODS_CONFIGURATION_BUILD_DIR is per-pod-target in CocoaPods' generated xcconfig
+      # (resolves to .../<PodName>, not the shared Products dir) — that was the bug in the
+      # first version of this fix. BUILD_DIR is the aggregate derivedData Products root that
+      # actually holds FirebaseAuth's output, confirmed on disk at
+      # build/Build/Products/Debug-iphonesimulator/FirebaseAuth/Swift Compatibility Header/.
+      target.build_configurations.each do |config|
+        paths = config.build_settings['HEADER_SEARCH_PATHS'] || ['$(inherited)']
+        paths = [paths] if paths.is_a?(String)
+        paths += ['"$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/FirebaseAuth/Swift Compatibility Header"']
+        config.build_settings['HEADER_SEARCH_PATHS'] = paths
+      end
+      # The above two fixes still fail non-deterministically (different RNFB* target each
+      # time) — Xcode 26+'s "explicit module build" dependency scanner races against
+      # FirebaseAuth's Swift header being written to disk. Disabling explicit modules forces
+      # the older, serialized-by-necessity module resolution, which doesn't have this race.
+      target.build_configurations.each do |config|
+        config.build_settings['CLANG_ENABLE_EXPLICIT_MODULES'] = 'NO'
+        config.build_settings['SWIFT_ENABLE_EXPLICIT_MODULES'] = 'NO'
+      end
+    end
+    # The real root cause: the generated Pods project has no explicit target dependency from
+    # RNFB* targets onto FirebaseAuth, so Xcode's scheduler is free to start compiling RNFBAuth
+    # (which #imports <FirebaseAuth/FirebaseAuth-Swift.h> via Firebase.h) before FirebaseAuth's
+    # own Swift compile has finished *writing* that generated header — every fix above was
+    # pointing at the right file with the right path, just before it existed yet. Forcing the
+    # dependency edge directly is what actually serializes this correctly.
+    firebase_auth_target = installer.pods_project.targets.find { |t| t.name == 'FirebaseAuth' }
+    if firebase_auth_target
+      installer.pods_project.targets.each do |target|
+        next if target.name == 'FirebaseAuth'
+        if target.name.start_with?('RNFB')
+          target.add_dependency(firebase_auth_target)
+        end
+      end
     end
   end
 end

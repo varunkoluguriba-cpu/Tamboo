@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { api } from '../api/client';
+import { useEvent } from './EventContext';
 import type { Hall, Vendor, Product } from '../data/catalog';
 
 interface CatalogContextValue {
@@ -15,21 +16,28 @@ interface CatalogContextValue {
 const CatalogContext = createContext<CatalogContextValue | undefined>(undefined);
 
 export function CatalogProvider({ children }: { children: React.ReactNode }) {
+  const { event } = useEvent();
   const [realHalls, setRealHalls] = useState<Hall[]>([]);
   const [realVendors, setRealVendors] = useState<Vendor[]>([]);
   const [realProducts, setRealProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     api.get<Hall[]>('/api/halls').then(setRealHalls).catch(() => {});
-
-    api.get<Vendor[]>('/api/vendors').then(async (vs) => {
-      setRealVendors(vs);
-      const lists = await Promise.all(
-        vs.map((v) => api.get<Product[]>(`/api/vendors/${v.id}/products`).catch(() => [] as Product[])),
-      );
-      setRealProducts(lists.flat());
-    }).catch(() => {});
+    api.get<Vendor[]>('/api/vendors').then(setRealVendors).catch(() => {});
   }, []);
+
+  // Refetches products whenever the event date changes, so "Booked"/"Free" on the product
+  // screen reflects real committed stock for that date (see backend's getCommittedQtyByItem)
+  // instead of the stale/empty figures from whatever date was active at first app load.
+  useEffect(() => {
+    if (realVendors.length === 0) return;
+    const dateQS = event.date ? `?date=${encodeURIComponent(event.date)}` : '';
+    let cancelled = false;
+    Promise.all(
+      realVendors.map((v) => api.get<Product[]>(`/api/vendors/${v.id}/products${dateQS}`).catch(() => [] as Product[])),
+    ).then((lists) => { if (!cancelled) setRealProducts(lists.flat()); });
+    return () => { cancelled = true; };
+  }, [realVendors, event.date]);
 
   // Real backend listings only — mock catalog data used to be merged in here, but a
   // customer could pay real money (via Razorpay) for a mock hall/product with no real
