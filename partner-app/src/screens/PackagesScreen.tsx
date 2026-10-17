@@ -68,10 +68,11 @@ export default function PackagesScreen({ navigation }: Props) {
         )}
 
         <TouchableOpacity activeOpacity={0.85} onPress={() => navigation.navigate('PackageForm', {})}>
-          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.addBtn}>
+          <View style={styles.addBtn}>
+            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
             <Icon name="plus" size={16} color="#fff" />
             <Text style={styles.addBtnText}>{t.packagesAddBtn}</Text>
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -91,6 +92,6 @@ const styles = StyleSheet.create({
   cardName: { fontSize: 15.5, fontWeight: '700', color: colors.text, flex: 1 },
   cardPrice: { fontFamily: 'Sora', fontWeight: '800', fontSize: 15, color: colors.maroon },
   cardItems: { fontSize: 12.5, color: colors.textSoft, lineHeight: 18 },
-  addBtn: { height: 50, borderRadius: 999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  addBtn: { height: 50, borderRadius: 999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, overflow: 'hidden' },
   addBtnText: { color: '#fff', fontWeight: '700', fontSize: 15, fontFamily: 'Sora' },
 });

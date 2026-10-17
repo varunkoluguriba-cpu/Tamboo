@@ -83,11 +83,12 @@ export default function ItemsScreen({ navigation }: Props) {
               <Text style={[styles.addBtnText, { color: colors.text }]}>{t.packagesTitle}</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.85} onPress={() => navigation.navigate('ItemForm', {})}>
-            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.addBtn}>
+          <TouchableOpacity activeOpacity={0.85} onPress={() => navigation.navigate('AddItemChoice')}>
+            <View style={styles.addBtn}>
+              <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
               <Icon name="plus" size={15} color="#fff" />
               <Text style={styles.addBtnText}>{t.itemsAddBtn}</Text>
-            </LinearGradient>
+            </View>
           </TouchableOpacity>
           </View>
         </View>
@@ -152,7 +153,7 @@ const styles = StyleSheet.create({
   scroll: { padding: 18, paddingTop: 6, gap: 12 },
   headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   title: { fontFamily: 'Sora', fontSize: 22, fontWeight: '800', color: colors.text },
-  addBtn: { height: 40, paddingHorizontal: 16, borderRadius: 999, flexDirection: 'row', alignItems: 'center', gap: 6 },
+  addBtn: { height: 40, paddingHorizontal: 16, borderRadius: 999, flexDirection: 'row', alignItems: 'center', gap: 6, overflow: 'hidden' },
   addBtnText: { color: '#fff', fontWeight: '700', fontSize: 13.5, fontFamily: 'Sora' },
   summary: { fontSize: 12.5, color: colors.textSoft },
   emptyCard: { backgroundColor: colors.surface, borderRadius: 18, padding: 20, alignItems: 'center' },

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -7,6 +7,7 @@ import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { useToken, msLeft, formatHoursLeft } from '../context/TokenContext';
 import { useLanguage } from '../context/LanguageContext';
+import { formatBookingDate } from '../utils/date';
 import { colors, gradients } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'TokenDone'>;
@@ -40,15 +41,16 @@ export default function TokenDoneScreen({ navigation }: Props) {
 
         <Text style={styles.title}>{t.tokenDoneTitle}</Text>
         <Text style={styles.sub}>
-          <Text style={styles.bold}>{token.hallName}</Text> {t.tokenDoneHeldSub.replace('{date}', token.date)}
+          <Text style={styles.bold}>{token.hallName}</Text> {t.tokenDoneHeldSub.replace('{date}', formatBookingDate(token.date))}
         </Text>
 
         <Text style={styles.left}>{t.tokenDoneLeftSuffix.replace('{time}', left)}</Text>
 
         <TouchableOpacity style={styles.scheduleBtnWrap} activeOpacity={0.85} onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Token' }] })}>
-          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.scheduleBtn}>
+          <View style={styles.scheduleBtn}>
+            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
             <Text style={styles.scheduleBtnText}>{t.tokenDoneScheduleVisit}</Text>
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
 
         <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}>
@@ -69,7 +71,7 @@ const styles = StyleSheet.create({
   bold: { color: colors.text, fontWeight: '700' },
   left: { fontFamily: 'Sora', fontSize: 22, fontWeight: '800', color: colors.amber },
   scheduleBtnWrap: { width: '100%' },
-  scheduleBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  scheduleBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   scheduleBtnText: { color: '#fff', fontWeight: '700', fontSize: 15.5, fontFamily: 'Sora' },
   homeLink: { color: colors.pinkStrong, fontWeight: '700', fontSize: 14 },
 });

@@ -8,6 +8,7 @@ const authRoutes = require('./routes/auth');
 const paymentsRoutes = require('./routes/payments');
 const partnerAuthRoutes = require('./routes/partnerAuth');
 const adminAuthRoutes = require('./routes/adminAuth');
+const { ensureAdminUser } = require('./routes/adminAuth');
 const adminRoutes = require('./routes/admin');
 const hallsRoutes = require('./routes/halls');
 const vendorsRoutes = require('./routes/vendors');
@@ -44,6 +45,7 @@ app.use((err, req, res, next) => {
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('Connected to MongoDB');
+    ensureAdminUser().catch((err) => console.error('Admin account setup failed:', err.message));
     app.listen(process.env.PORT || 4001, () => console.log('Tamboo backend running on port ' + (process.env.PORT || 4001)));
   })
   .catch((err) => console.error('MongoDB connection failed:', err.message));

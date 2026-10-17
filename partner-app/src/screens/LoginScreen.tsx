@@ -84,9 +84,10 @@ export default function LoginScreen({ navigation }: Props) {
         {!!err && <Text style={styles.error}>{err}</Text>}
 
         <TouchableOpacity activeOpacity={0.85} onPress={submit} disabled={sending}>
-          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={[styles.button, sending && styles.buttonDisabled]}>
+          <View style={[styles.button, sending && styles.buttonDisabled]}>
+            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
             <Text style={styles.buttonText}>{sending ? '…' : t.pLoginSendOtp}</Text>
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
 
         <View style={styles.dividerRow}>
@@ -120,7 +121,7 @@ const styles = StyleSheet.create({
   codeText: { fontWeight: '700', fontSize: 15, color: colors.text },
   input: { flex: 1, height: 52, borderRadius: 14, borderWidth: 1.5, borderColor: colors.divider, paddingHorizontal: 16, fontSize: 16, fontWeight: '600', letterSpacing: 0.6, color: colors.text },
   error: { color: colors.dangerStrong, fontSize: 12.5, marginTop: -14 },
-  button: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  button: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   buttonDisabled: { opacity: 0.7 },
   buttonText: { color: '#fff', fontSize: 15.5, fontWeight: '700' },
   dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },

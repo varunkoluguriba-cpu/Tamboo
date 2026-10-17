@@ -69,9 +69,10 @@ export default function LoginScreen({ navigation }: Props) {
         <View style={styles.blob} pointerEvents="none" />
 
         <View style={styles.brandRow}>
-          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.brandPill}>
+          <View style={styles.brandPill}>
+            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
             <Text style={styles.brandText}>tamboo</Text>
-          </LinearGradient>
+          </View>
           <Text style={styles.tagline}>{t.loginScreenTagline}</Text>
         </View>
 
@@ -97,9 +98,10 @@ export default function LoginScreen({ navigation }: Props) {
         {!!err && <Text style={styles.error}>{err}</Text>}
 
         <TouchableOpacity activeOpacity={0.85} onPress={submit} disabled={sending}>
-          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={[styles.button, sending && styles.buttonDisabled]}>
+          <View style={[styles.button, sending && styles.buttonDisabled]}>
+            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
             <Text style={styles.buttonText}>{sending ? '…' : t.sendOtp}</Text>
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
 
         <View style={styles.dividerRow}>
@@ -128,7 +130,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.surface, padding: 24, paddingTop: 30, gap: 22, overflow: 'hidden' },
   blob: { position: 'absolute', top: -60, right: -50, width: 200, height: 200, borderRadius: 100, backgroundColor: 'rgba(231,84,128,0.2)' },
   brandRow: { gap: 10 },
-  brandPill: { height: 64, paddingHorizontal: 20, borderRadius: 18, alignSelf: 'flex-start', alignItems: 'center', justifyContent: 'center' },
+  brandPill: { height: 64, paddingHorizontal: 20, borderRadius: 18, alignSelf: 'flex-start', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   brandText: { fontSize: 32, fontWeight: '800', fontStyle: 'italic', color: '#fff', letterSpacing: -1 },
   tagline: { fontSize: 12.5, color: colors.textSoft, fontWeight: '600' },
   title: { fontSize: 26, fontWeight: '800', color: colors.text, marginBottom: 6 },
@@ -138,7 +140,7 @@ const styles = StyleSheet.create({
   codeText: { fontWeight: '700', fontSize: 15, color: colors.text },
   input: { flex: 1, height: 52, borderRadius: 14, borderWidth: 1.5, borderColor: colors.divider, paddingHorizontal: 16, fontSize: 16, fontWeight: '600', letterSpacing: 0.6, color: colors.text },
   error: { color: colors.dangerStrong, fontSize: 12.5, marginTop: -14 },
-  button: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  button: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   buttonDisabled: { opacity: 0.7 },
   buttonText: { color: '#fff', fontSize: 15.5, fontWeight: '700' },
   dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },

@@ -147,9 +147,10 @@ export default function PackageFormScreen({ navigation, route }: Props) {
             {!!err && <Text style={styles.error}>{err}</Text>}
 
             <TouchableOpacity activeOpacity={0.85} onPress={save} disabled={saving}>
-              <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.saveBtn}>
+              <View style={styles.saveBtn}>
+                <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
                 {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>{t.packagesSaveBtn}</Text>}
-              </LinearGradient>
+              </View>
             </TouchableOpacity>
 
             {!!editingId && (
@@ -183,7 +184,7 @@ const styles = StyleSheet.create({
   qtyBtnFilled: { width: 30, height: 30, borderRadius: 15, backgroundColor: colors.maroon, alignItems: 'center', justifyContent: 'center' },
   qtyValue: { width: 30, textAlign: 'center', fontWeight: '700', fontSize: 14, color: colors.text },
   error: { color: colors.dangerStrong, fontSize: 12.5 },
-  saveBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  saveBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   saveBtnText: { color: '#fff', fontWeight: '700', fontSize: 15.5, fontFamily: 'Sora' },
   deleteText: { color: colors.dangerStrong, fontWeight: '700', fontSize: 13, textAlign: 'center' },
 });

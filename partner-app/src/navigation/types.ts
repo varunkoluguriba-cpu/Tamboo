@@ -13,8 +13,10 @@ export type RootStackParamList = {
   Order: { id: string };
   Quote: { id: string };
   Calendar: undefined;
+  RegisterPhoto: { hallId: string };
   Items: undefined;
-  ItemForm: { id?: string };
+  AddItemChoice: undefined;
+  ItemForm: { id?: string; initialName?: string; initialCat?: string; initialUnit?: string; initialSpecs?: string; initialPhotos?: string[] };
   Packages: undefined;
   PackageForm: { id?: string };
   Shop: undefined;

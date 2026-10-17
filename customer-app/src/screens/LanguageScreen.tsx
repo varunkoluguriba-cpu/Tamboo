@@ -45,13 +45,14 @@ export default function LanguageScreen({ navigation }: Props) {
               return (
                 <TouchableOpacity key={o.key} activeOpacity={0.85} onPress={() => setIntent(o.key)}>
                   {sel ? (
-                    <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.intentCard}>
+                    <View style={[styles.intentCard, styles.intentCardSel]}>
+                      <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
                       <Icon name={o.icon} size={24} color="#fff" strokeWidth={1.5} />
                       <View style={styles.intentText}>
                         <Text style={[styles.intentLabel, styles.intentLabelSel]}>{o.label}</Text>
                         <Text style={[styles.intentDesc, styles.intentDescSel]}>{o.desc}</Text>
                       </View>
-                    </LinearGradient>
+                    </View>
                   ) : (
                     <View style={[styles.intentCard, styles.intentCardUnsel]}>
                       <Icon name={o.icon} size={24} color={colors.text} strokeWidth={1.5} />
@@ -81,10 +82,11 @@ export default function LanguageScreen({ navigation }: Props) {
             return (
               <TouchableOpacity key={code} activeOpacity={0.85} onPress={() => setLang(code)} style={[styles.tileWrap, i % 2 === 0 ? { paddingRight: 5 } : { paddingLeft: 5 }]}>
                 {sel ? (
-                  <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.tile}>
+                  <View style={styles.tile}>
+                    <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
                     <Text style={[styles.tileNative, styles.tileTextSel]}>{native}</Text>
                     <Text style={[styles.tileEn, styles.tileSubSel]}>{en}</Text>
-                  </LinearGradient>
+                  </View>
                 ) : (
                   <View style={[styles.tile, styles.tileUnsel]}>
                     <Text style={styles.tileNative}>{native}</Text>
@@ -104,9 +106,10 @@ export default function LanguageScreen({ navigation }: Props) {
       </ScrollView>
 
       <TouchableOpacity activeOpacity={0.85} onPress={continueNext} style={styles.buttonWrap}>
-        <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.button}>
+        <View style={styles.button}>
+          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
           <Text style={styles.buttonText}>{t.cont}</Text>
-        </LinearGradient>
+        </View>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -121,6 +124,7 @@ const styles = StyleSheet.create({
   intentList: { gap: 8 },
   intentCard: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 60, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10 },
   intentCardUnsel: { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.divider },
+  intentCardSel: { overflow: 'hidden' },
   intentText: { flex: 1 },
   intentLabel: { fontSize: 15, fontWeight: '700', color: colors.text },
   intentLabelSel: { color: '#fff' },
@@ -132,7 +136,7 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 13.5, color: colors.textSoft },
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 12 },
   tileWrap: { width: '50%', marginBottom: 10 },
-  tile: { height: 66, borderRadius: 16, justifyContent: 'center', paddingHorizontal: 14 },
+  tile: { height: 66, borderRadius: 16, justifyContent: 'center', paddingHorizontal: 14, overflow: 'hidden' },
   tileUnsel: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.divider },
   tileNative: { fontSize: 17, fontWeight: '700', color: colors.text },
   tileTextSel: { color: '#fff' },
@@ -142,6 +146,6 @@ const styles = StyleSheet.create({
   notice: { backgroundColor: colors.amberBg, borderRadius: 14, padding: 12, marginBottom: 12 },
   noticeText: { color: colors.amber, fontSize: 12.5, lineHeight: 18 },
   buttonWrap: { paddingBottom: 12, paddingTop: 4 },
-  button: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  button: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   buttonText: { color: '#fff', fontSize: 15.5, fontWeight: '700' },
 });

@@ -7,6 +7,7 @@ import { VenueTabBar } from '../components/TabBar';
 import { statusColors, type TokenStatus } from '../data/catalog';
 import { useHallTokens, tokenUiStatus } from '../hooks/useHallTokens';
 import { useLanguage } from '../context/LanguageContext';
+import { formatBookingDate } from '../utils/date';
 import { colors, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'HTokens'>;
@@ -21,6 +22,7 @@ export default function HTokensScreen({ navigation }: Props) {
     status: tokenUiStatus(tok),
     event: tok.hallName,
     customer: tok.customer,
+    isOffline: tok.source === 'offline',
     date: tok.date,
     slot: tok.slot,
     guests: tok.guests,
@@ -68,12 +70,19 @@ export default function HTokensScreen({ navigation }: Props) {
                 <TouchableOpacity key={tok.id} style={styles.card} activeOpacity={0.85} onPress={() => navigation.navigate('HToken', { id: tok.id })}>
                   <View style={styles.rowBetween}>
                     <Text style={styles.cardId}>{tok.id}</Text>
-                    <View style={[styles.pill, { backgroundColor: sc.bg }]}>
-                      <Text style={[styles.pillText, { color: sc.color }]}>{tok.status}</Text>
+                    <View style={{ flexDirection: 'row', gap: 6 }}>
+                      {tok.isOffline && (
+                        <View style={[styles.pill, { backgroundColor: colors.dividerStrong }]}>
+                          <Text style={[styles.pillText, { color: colors.text }]}>{t.htokensWalkInBadge}</Text>
+                        </View>
+                      )}
+                      <View style={[styles.pill, { backgroundColor: sc.bg }]}>
+                        <Text style={[styles.pillText, { color: sc.color }]}>{tok.status}</Text>
+                      </View>
                     </View>
                   </View>
                   <Text style={styles.cardTitle}>{tok.event}</Text>
-                  <Text style={styles.cardMeta}>{tok.customer} · {tok.date} · {tok.slot} · {t.htokensGuestsCount.replace('{count}', String(tok.guests))}</Text>
+                  <Text style={styles.cardMeta}>{tok.customer} · {formatBookingDate(tok.date)} · {tok.slot} · {t.htokensGuestsCount.replace('{count}', String(tok.guests))}</Text>
                   <Text style={styles.cardVisit}>{t.htokensVisitLabel.replace('{value}', tok.visitTxt)}</Text>
                 </TouchableOpacity>
               );

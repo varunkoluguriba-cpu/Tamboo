@@ -9,6 +9,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { api, ApiError } from '../api/client';
 import { statusColors } from '../data/catalog';
 import { useHallTokens, tokenUiStatus, type RemoteHallToken } from '../hooks/useHallTokens';
+import { formatBookingDate } from '../utils/date';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'HToken'>;
@@ -93,6 +94,29 @@ export default function HTokenScreen({ navigation, route }: Props) {
     if (original.phone) Linking.openURL(`tel:${original.phone}`);
   };
 
+  const isOffline = original.source === 'offline';
+
+  const removeOffline = () => {
+    Alert.alert(t.htokenRemoveWalkInTitle, t.htokenRemoveWalkInMsg, [
+      { text: t.cancel, style: 'cancel' },
+      {
+        text: t.htokenRemoveWalkInBtn,
+        style: 'destructive',
+        onPress: async () => {
+          setBusy(true);
+          try {
+            await api.delete(`/api/halls/me/halls/${original.hallId}/offline-bookings/${original.id}`);
+            navigation.goBack();
+          } catch (e) {
+            Alert.alert(t.htokenEnterRentTitle, e instanceof ApiError ? e.message : t.tryAgain);
+          } finally {
+            setBusy(false);
+          }
+        },
+      },
+    ]);
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -104,17 +128,24 @@ export default function HTokenScreen({ navigation, route }: Props) {
         </View>
 
         <View style={styles.card}>
-          <View style={[styles.pill, { backgroundColor: sc.bg }]}>
-            <Text style={[styles.pillText, { color: sc.color }]}>{statusLabel(status)}</Text>
+          <View style={{ flexDirection: 'row', gap: 6 }}>
+            {isOffline && (
+              <View style={[styles.pill, { backgroundColor: colors.dividerStrong }]}>
+                <Text style={[styles.pillText, { color: colors.text }]}>{t.htokensWalkInBadge}</Text>
+              </View>
+            )}
+            <View style={[styles.pill, { backgroundColor: sc.bg }]}>
+              <Text style={[styles.pillText, { color: sc.color }]}>{statusLabel(status)}</Text>
+            </View>
           </View>
           <Text style={styles.event}>{original.hallName}</Text>
           <View style={styles.rowBetween}>
             <Text style={styles.rowMuted}>{t.htokenCustomer}</Text>
-            <Text style={styles.rowText}>{original.customer} · {original.phone}</Text>
+            <Text style={styles.rowText}>{isOffline ? original.customer : `${original.customer} · ${original.phone}`}</Text>
           </View>
           <View style={styles.rowBetween}>
             <Text style={styles.rowMuted}>{t.htokenEventDate}</Text>
-            <Text style={styles.rowText}>{original.date}</Text>
+            <Text style={styles.rowText}>{formatBookingDate(original.date)}</Text>
           </View>
           <View style={styles.rowBetween}>
             <Text style={styles.rowMuted}>{t.htokenSlot}</Text>
@@ -132,9 +163,10 @@ export default function HTokenScreen({ navigation, route }: Props) {
 
         {isActive && (
           <TouchableOpacity activeOpacity={0.85} onPress={markVisited} disabled={busy}>
-            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.primaryBtn}>
+            <View style={styles.primaryBtn}>
+              <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
               <Text style={styles.primaryBtnText}>{t.htokenMarkVisited}</Text>
-            </LinearGradient>
+            </View>
           </TouchableOpacity>
         )}
 
@@ -147,9 +179,10 @@ export default function HTokenScreen({ navigation, route }: Props) {
               <Text style={styles.outlineBtnText}>{t.htokenNotBookedBtn}</Text>
             </TouchableOpacity>
             <TouchableOpacity activeOpacity={0.85} onPress={requestAdvance} disabled={busy}>
-              <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.primaryBtn}>
+              <View style={styles.primaryBtn}>
+                <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
                 <Text style={styles.primaryBtnText}>{t.htokenRequestAdvance}</Text>
-              </LinearGradient>
+              </View>
             </TouchableOpacity>
           </View>
         )}
@@ -178,17 +211,25 @@ export default function HTokenScreen({ navigation, route }: Props) {
           </TouchableOpacity>
         )}
 
-        <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={callCustomer}>
-          <Text style={styles.outlineBtnText}>{t.htokenCallCustomer}</Text>
-        </TouchableOpacity>
+        {isOffline ? (
+          <TouchableOpacity style={[styles.outlineBtn, { borderColor: colors.dangerStrong }]} activeOpacity={0.85} onPress={removeOffline} disabled={busy}>
+            <Text style={[styles.outlineBtnText, { color: colors.dangerStrong }]}>{t.htokenRemoveWalkInBtn}</Text>
+          </TouchableOpacity>
+        ) : (
+          <>
+            <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={callCustomer}>
+              <Text style={styles.outlineBtnText}>{t.htokenCallCustomer}</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.outlineBtn}
-          activeOpacity={0.85}
-          onPress={() => navigation.navigate('Chat', { customerId: original.customerId, customerName: original.customer })}
-        >
-          <Text style={styles.outlineBtnText}>{t.chatWithCustomer}</Text>
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.outlineBtn}
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate('Chat', { customerId: original.customerId ?? undefined, customerName: original.customer })}
+            >
+              <Text style={styles.outlineBtnText}>{t.chatWithCustomer}</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -211,7 +252,7 @@ const styles = StyleSheet.create({
   rowText: { fontSize: 13.5, fontWeight: '700', color: colors.text },
   noteBox: { backgroundColor: colors.bg, borderRadius: 10, padding: 10 },
   noteText: { fontSize: 12.5, color: '#4b4560', lineHeight: 19 },
-  primaryBtn: { height: 50, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  primaryBtn: { height: 50, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   primaryBtnText: { color: '#fff', fontWeight: '700', fontSize: 15, fontFamily: 'Sora' },
   fieldLabel: { fontSize: 12.5, fontWeight: '600', color: colors.textSoft },
   input: { height: 46, borderRadius: 12, borderWidth: 1.5, borderColor: colors.divider, paddingHorizontal: 12, fontSize: 14.5, color: colors.text },

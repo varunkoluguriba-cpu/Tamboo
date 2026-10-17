@@ -143,9 +143,10 @@ export default function QuoteScreen({ navigation, route }: Props) {
               <Text style={styles.totalValue}>{inr(total)}</Text>
             </View>
             <TouchableOpacity activeOpacity={0.85} onPress={sendQuote} disabled={sending}>
-              <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.sendBtn}>
+              <View style={styles.sendBtn}>
+                <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
                 {sending ? <ActivityIndicator color="#fff" /> : <Text style={styles.sendBtnText}>{t.quoteSendButton}</Text>}
-              </LinearGradient>
+              </View>
             </TouchableOpacity>
             <Text style={styles.hint}>{t.quoteValidHint}</Text>
           </View>
@@ -196,7 +197,7 @@ const styles = StyleSheet.create({
   totalRow: { flexDirection: 'row', justifyContent: 'space-between' },
   totalLabel: { fontWeight: '800', fontSize: 15, color: colors.text },
   totalValue: { fontWeight: '800', fontSize: 15, color: colors.maroon },
-  sendBtn: { height: 50, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  sendBtn: { height: 50, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   sendBtnText: { color: '#fff', fontWeight: '700', fontSize: 15, fontFamily: 'Sora' },
   hint: { fontSize: 11.5, color: colors.textMuted, textAlign: 'center' },
   versionCard: { backgroundColor: colors.surface, borderRadius: 18, padding: 14, gap: 4, ...shadow.card },

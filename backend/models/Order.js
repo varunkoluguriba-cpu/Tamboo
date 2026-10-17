@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const orderLineSchema = new mongoose.Schema({
+  // Null for any line not backed by a real catalog Item (legacy/mock-vendor checkout) —
+  // same "may be null" pattern as Booking.partner. Lets stock be checked/traced back to the
+  // real item; see lib/itemAvailability.js.
+  itemId: { type: mongoose.Schema.Types.ObjectId, ref: 'Item', default: null },
   name: { type: String, required: true },
   qty: { type: Number, required: true },
   unitPrice: { type: Number, required: true },

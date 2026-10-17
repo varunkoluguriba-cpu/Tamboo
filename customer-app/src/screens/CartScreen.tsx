@@ -47,9 +47,10 @@ export default function CartScreen({ navigation }: Props) {
             <Text style={styles.emptyTitle}>{t.cartEmptyTitle}</Text>
             <Text style={styles.emptySub}>{t.cartEmptyBody}</Text>
             <TouchableOpacity style={styles.browseBtnWrap} activeOpacity={0.85} onPress={() => navigation.navigate('Browse', {})}>
-              <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.browseBtn}>
+              <View style={styles.browseBtn}>
+                <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
                 <Text style={styles.browseBtnText}>{t.cartBrowseItems}</Text>
-              </LinearGradient>
+              </View>
             </TouchableOpacity>
           </View>
         ) : (
@@ -130,9 +131,10 @@ export default function CartScreen({ navigation }: Props) {
             </View>
 
             <TouchableOpacity style={styles.reviewBtnWrap} activeOpacity={0.85} onPress={() => navigation.navigate('Checkout')}>
-              <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.reviewBtn}>
+              <View style={styles.reviewBtn}>
+                <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
                 <Text style={styles.reviewBtnText}>{t.cartReviewBooking}</Text>
-              </LinearGradient>
+              </View>
             </TouchableOpacity>
           </>
         )}
@@ -152,7 +154,7 @@ const styles = StyleSheet.create({
   emptyTitle: { fontWeight: '700', fontSize: 16, color: colors.text },
   emptySub: { fontSize: 13, color: colors.textSoft, textAlign: 'center' },
   browseBtnWrap: { marginTop: 6 },
-  browseBtn: { height: 44, paddingHorizontal: 22, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  browseBtn: { height: 44, paddingHorizontal: 22, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   browseBtnText: { color: '#fff', fontWeight: '700', fontSize: 14, fontFamily: 'Sora' },
   forLine: { fontSize: 12.5, color: colors.textSoft },
   forBold: { color: colors.text, fontWeight: '700' },
@@ -186,6 +188,6 @@ const styles = StyleSheet.create({
   totalLabel: { fontWeight: '700', color: colors.text },
   totalValue: { fontFamily: 'Sora', fontSize: 20, fontWeight: '800', color: colors.maroon },
   reviewBtnWrap: {},
-  reviewBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  reviewBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   reviewBtnText: { color: '#fff', fontWeight: '700', fontSize: 15.5, fontFamily: 'Sora' },
 });

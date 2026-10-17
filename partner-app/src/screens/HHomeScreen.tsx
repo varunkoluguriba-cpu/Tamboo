@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { statusColors } from '../data/catalog';
 import { useHallTokens, tokenUiStatus } from '../hooks/useHallTokens';
+import { scheduleRegisterPhotoReminder } from '../utils/registerReminder';
 import { colors, shadow } from '../theme';
 
 const COMMISSION_PCT = 10;
@@ -22,6 +23,10 @@ export default function HHomeScreen() {
   const { lang, t } = useLanguage();
   const [langSheet, setLangSheet] = useState(false);
   const { tokens: remoteTokens } = useHallTokens();
+
+  useEffect(() => {
+    scheduleRegisterPhotoReminder();
+  }, []);
   const HALL_TOKENS = remoteTokens.map((tok) => ({
     id: tok.id,
     status: tokenUiStatus(tok),

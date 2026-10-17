@@ -6,6 +6,8 @@ const Hall = require('../models/Hall');
 const Partner = require('../models/Partner');
 const Booking = require('../models/Booking');
 const PayoutEntry = require('../models/PayoutEntry');
+const { getMonthAvailability, isSlotTaken } = require('../lib/hallAvailability');
+const { getClient: getAnthropicClient } = require('../config/anthropic');
 
 const VISIT_HOURS = 48;
 
@@ -15,7 +17,7 @@ function serializeTokenOwn(b) {
     hallId: b.hallId,
     hallName: b.hallName,
     customer: b.customerName,
-    customerId: String(b.customer),
+    customerId: b.customer ? String(b.customer) : null,
     phone: b.customerPhone,
     date: b.date,
     slot: b.slot,
@@ -26,6 +28,7 @@ function serializeTokenOwn(b) {
     advanceAmount: b.advanceAmount,
     advanceDeadlineAtMs: b.advanceDeadlineAt ? new Date(b.advanceDeadlineAt).getTime() : null,
     status: b.status,
+    source: b.source || 'online',
     heldAtMs: b.createdAt ? new Date(b.createdAt).getTime() : Date.now(),
     visitHours: VISIT_HOURS,
   };
@@ -239,6 +242,148 @@ router.put('/me/halls/:hallId/blocked-dates', requirePartnerAuth, requireVenue, 
   res.json({ blockedDates: hall.blockedDates });
 });
 
+// Partner: mark a specific date+slot as booked (a walk-in/phone booking that never went
+// through the app) — the "mark as booked" quick action. Creates a real Booking record with
+// no customer behind it, so it blocks the slot for online customers exactly like a real
+// booking does, via the same availability/conflict checks in lib/hallAvailability.js.
+router.post('/me/halls/:hallId/offline-bookings', requirePartnerAuth, requireVenue, async (req, res) => {
+  const { date, slot } = req.body || {};
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date || '')) return res.status(400).json({ error: 'date must be YYYY-MM-DD' });
+  if (slot !== 'Morning' && slot !== 'Evening') return res.status(400).json({ error: 'slot must be Morning or Evening' });
+
+  const hall = await Hall.findOne({ _id: req.params.hallId, partner: req.partner.id });
+  if (!hall) return res.status(404).json({ error: 'Hall not found' });
+
+  const { taken, reason } = await isSlotTaken(req.params.hallId, date, slot);
+  if (taken) return res.status(409).json({ error: reason });
+
+  const booking = await Booking.create({
+    partner: req.partner.id,
+    hallId: req.params.hallId,
+    hallName: hall.name,
+    customerName: 'Walk-in',
+    date, slot,
+    amount: 0,
+    status: 'confirmed',
+    source: 'offline',
+  });
+  res.status(201).json(serializeTokenOwn(booking));
+});
+
+// Partner: undo a "mark as booked" — only ever removes offline (walk-in) entries, never a
+// real customer's booking, so this can't be used to silently erase someone's paid token.
+router.delete('/me/halls/:hallId/offline-bookings/:bookingId', requirePartnerAuth, requireVenue, async (req, res) => {
+  const result = await Booking.deleteOne({
+    _id: req.params.bookingId,
+    hallId: req.params.hallId,
+    partner: req.partner.id,
+    source: 'offline',
+  });
+  if (result.deletedCount === 0) return res.status(404).json({ error: 'Offline booking not found' });
+  res.status(204).send();
+});
+
+// Partner: read a photo of their paper booking register/calendar and extract which dates
+// in the given month look booked — returns the list for the owner to review and correct in
+// the app before anything is saved (same "AI suggests, human confirms" pattern as the item
+// photo-classify flow). Nothing is written to the database by this route.
+router.post('/me/halls/:hallId/register-photo', requirePartnerAuth, requireVenue, async (req, res) => {
+  const { imageBase64, month } = req.body || {};
+  if (!imageBase64 || typeof imageBase64 !== 'string') {
+    return res.status(400).json({ error: 'imageBase64 is required' });
+  }
+  if (!/^\d{4}-\d{2}$/.test(month || '')) {
+    return res.status(400).json({ error: 'month must be YYYY-MM' });
+  }
+  const match = imageBase64.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
+  if (!match) return res.status(400).json({ error: 'imageBase64 must be a data URI' });
+  const [, mediaType, data] = match;
+
+  const [y, m] = month.split('-').map(Number);
+  const daysInMonth = new Date(y, m, 0).getDate();
+
+  let message;
+  try {
+    message = await getAnthropicClient().messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 500,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image', source: { type: 'base64', media_type: mediaType, data } },
+          {
+            type: 'text',
+            text: `You are reading a photo of an Indian event-hall owner's handwritten paper booking register or calendar page, covering the month ${month} (which has ${daysInMonth} days). Find every date in this month that appears marked as booked — circled, ticked, or has a customer name/note written against it.
+
+For each booked date you find, report the day number (1-${daysInMonth}) and, only if clearly indicated, which half of the day: "Morning", "Evening", or "FullDay" if the whole day is taken or the photo doesn't distinguish. If you genuinely cannot read the photo (too blurry, not a calendar/register at all), return {"error": "unclear"}.
+
+Return ONLY strict JSON, no other text: {"days": [{"day": <number>, "slot": "Morning"|"Evening"|"FullDay"}]}`,
+          },
+        ],
+      }],
+    });
+  } catch (e) {
+    return res.status(502).json({ error: 'Could not read the photo right now. Try again.' });
+  }
+
+  let parsed;
+  try {
+    const text = (message.content || []).map((b) => (b.type === 'text' ? b.text : '')).join('').trim();
+    const jsonText = text.replace(/^```(json)?/i, '').replace(/```$/, '').trim();
+    parsed = JSON.parse(jsonText);
+  } catch {
+    return res.status(502).json({ error: 'Could not understand that photo. Try a clearer shot.' });
+  }
+  if (parsed.error || !Array.isArray(parsed.days)) {
+    return res.status(422).json({ error: 'Could not clearly read any booked dates in that photo. Try a clearer shot.' });
+  }
+
+  const seen = new Set();
+  const dates = [];
+  parsed.days.forEach((d) => {
+    const day = Number(d.day);
+    if (!Number.isInteger(day) || day < 1 || day > daysInMonth) return;
+    const dateStr = `${month}-${String(day).padStart(2, '0')}`;
+    const slot = d.slot === 'Morning' || d.slot === 'Evening' ? d.slot : 'FullDay';
+    const key = `${dateStr}-${slot}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    dates.push({ date: dateStr, slot });
+  });
+  res.json({ dates });
+});
+
+// Partner: confirm the (owner-reviewed, possibly edited) list of dates from a register-photo
+// read and actually create the offline bookings — only ever adds new blocks, same as the
+// single "mark as booked" action, never removes anything. Skips any date+slot that's already
+// taken instead of failing the whole batch, and reports back what happened to each.
+router.post('/me/halls/:hallId/register-photo/confirm', requirePartnerAuth, requireVenue, async (req, res) => {
+  const { dates } = req.body || {};
+  if (!Array.isArray(dates) || dates.length === 0) {
+    return res.status(400).json({ error: 'dates must be a non-empty array' });
+  }
+  const hall = await Hall.findOne({ _id: req.params.hallId, partner: req.partner.id });
+  if (!hall) return res.status(404).json({ error: 'Hall not found' });
+
+  const results = [];
+  for (const entry of dates.slice(0, 62)) { // up to a 31-day FullDay month, each as 2 slots
+    const { date, slot } = entry || {};
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date || '')) { results.push({ date, slot, ok: false, reason: 'Invalid date' }); continue; }
+    const slotsToBook = slot === 'FullDay' ? ['Morning', 'Evening'] : [slot];
+    for (const s of slotsToBook) {
+      if (s !== 'Morning' && s !== 'Evening') { results.push({ date, slot: s, ok: false, reason: 'Invalid slot' }); continue; }
+      const { taken, reason } = await isSlotTaken(req.params.hallId, date, s);
+      if (taken) { results.push({ date, slot: s, ok: false, reason }); continue; }
+      await Booking.create({
+        partner: req.partner.id, hallId: req.params.hallId, hallName: hall.name,
+        customerName: 'Walk-in', date, slot: s, amount: 0, status: 'confirmed', source: 'offline',
+      });
+      results.push({ date, slot: s, ok: true, reason: null });
+    }
+  }
+  res.json({ results });
+});
+
 // Partner: list this hall's real pre-bookings (tokens), newest first.
 router.get('/me/tokens', requirePartnerAuth, async (req, res) => {
   if (req.partner.role !== 'venue') return res.status(403).json({ error: 'Only venue partners have pre-bookings' });
@@ -374,6 +519,18 @@ router.get('/:id', async (req, res) => {
     return res.status(404).json({ error: 'Hall not found' });
   }
   res.json(serializePublic(hall, hall.partner));
+});
+
+// Public: real Morning/Evening availability for a whole month, computed from this hall's
+// blocked dates plus its active bookings — replaces what used to be client-side fake data.
+router.get('/:id/availability', async (req, res) => {
+  const { month } = req.query;
+  if (!/^\d{4}-\d{2}$/.test(month || '')) {
+    return res.status(400).json({ error: 'month must be YYYY-MM' });
+  }
+  const result = await getMonthAvailability(req.params.id, month);
+  if (!result) return res.status(404).json({ error: 'Hall not found' });
+  res.json(result);
 });
 
 module.exports = router;

@@ -47,9 +47,10 @@ export default function ConfirmScreen({ navigation, route }: Props) {
         </View>
 
         <TouchableOpacity style={styles.trackBtnWrap} activeOpacity={0.85} onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Bookings' }] })}>
-          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.trackBtn}>
+          <View style={styles.trackBtn}>
+            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
             <Text style={styles.trackBtnText}>{t.confirmPageTrackBookings}</Text>
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
   orderMeta: { fontSize: 12, color: colors.textSoft, marginTop: 2 },
   orderTotal: { fontSize: 14, fontWeight: '700', color: colors.text },
   trackBtnWrap: { width: '100%' },
-  trackBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  trackBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   trackBtnText: { color: '#fff', fontWeight: '700', fontSize: 15.5, fontFamily: 'Sora' },
   homeLink: { color: colors.pinkStrong, fontWeight: '700', fontSize: 13.5 },
 });

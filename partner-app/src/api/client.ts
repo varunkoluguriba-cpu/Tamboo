@@ -1,7 +1,11 @@
+import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Port 4001 locally (not 4000) so this can run alongside the Smart Easy backend on the same machine.
-export const BASE_URL = __DEV__ ? 'http://10.0.2.2:4001' : 'https://tamboo-varun-backend.onrender.com';
+// 10.0.2.2 is the Android emulator's alias for the host machine; iOS Simulator shares the
+// Mac's network directly, so it must use localhost instead.
+const DEV_BASE_URL = Platform.OS === 'android' ? 'http://10.0.2.2:4001' : 'http://localhost:4001';
+export const BASE_URL = __DEV__ ? DEV_BASE_URL : 'https://tamboo-varun-backend.onrender.com';
 
 const TOKEN_KEY = 'tamboo-partner-token';
 

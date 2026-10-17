@@ -59,9 +59,10 @@ export default function RequestQuoteModal({ visible, onClose, vendorId, vendorNa
             autoFocus
           />
           <TouchableOpacity activeOpacity={0.85} onPress={submit} disabled={sending || !need.trim()}>
-            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={[styles.sendBtn, (!need.trim() || sending) && styles.sendBtnDisabled]}>
+            <View style={[styles.sendBtn, (!need.trim() || sending) && styles.sendBtnDisabled]}>
+              <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
               {sending ? <ActivityIndicator color="#fff" /> : <Text style={styles.sendBtnText}>{t.quoteSendButton}</Text>}
-            </LinearGradient>
+            </View>
           </TouchableOpacity>
         </TouchableOpacity>
       </TouchableOpacity>
@@ -75,7 +76,7 @@ const styles = StyleSheet.create({
   title: { fontFamily: 'Sora', fontWeight: '800', fontSize: 19, color: colors.text },
   sub: { fontSize: 13, color: colors.textSoft, marginTop: -8 },
   input: { minHeight: 100, borderRadius: 14, borderWidth: 1.5, borderColor: colors.divider, paddingHorizontal: 14, paddingTop: 12, fontSize: 14.5, color: colors.text, textAlignVertical: 'top' },
-  sendBtn: { height: 50, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  sendBtn: { height: 50, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   sendBtnDisabled: { opacity: 0.6 },
   sendBtnText: { color: '#fff', fontWeight: '700', fontSize: 15, fontFamily: 'Sora' },
 });

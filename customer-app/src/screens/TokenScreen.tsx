@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -9,6 +9,7 @@ import { useCatalog } from '../context/CatalogContext';
 import { useToken, msLeft, formatHoursLeft } from '../context/TokenContext';
 import { useLanguage } from '../context/LanguageContext';
 import { ApiError } from '../api/client';
+import { formatBookingDate } from '../utils/date';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Token'>;
@@ -51,9 +52,12 @@ export default function TokenScreen({ navigation }: Props) {
   };
 
   const openDirections = () => {
-    if (hall?.address) {
-      Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hall.address)}`);
-    }
+    if (!hall?.address) return;
+    const query = encodeURIComponent(hall.address);
+    const url = Platform.OS === 'ios'
+      ? `https://maps.apple.com/?daddr=${query}`
+      : `https://www.google.com/maps/dir/?api=1&destination=${query}`;
+    Linking.openURL(url).catch(() => {});
   };
 
   const raiseDispute = () => {
@@ -174,7 +178,7 @@ export default function TokenScreen({ navigation }: Props) {
             </Text>
           </View>
           <Text style={styles.hallName}>{token.hallName}</Text>
-          <Text style={styles.metaLine}>{token.date} · {token.slot} · {token.guests} {t.tokenGuestsSuffix}</Text>
+          <Text style={styles.metaLine}>{formatBookingDate(token.date)} · {token.slot} · {token.guests} {t.tokenGuestsSuffix}</Text>
           <View style={styles.amountRow}>
             <Text style={styles.amountLabel}>{t.tokenAmountPaidLabel}</Text>
             <Text style={styles.amountValue}>₹{token.amount.toLocaleString('en-IN')}</Text>
@@ -251,9 +255,10 @@ export default function TokenScreen({ navigation }: Props) {
                 .replace('{deadline}', advanceDeadlineText)}
             </Text>
             <TouchableOpacity activeOpacity={0.85} onPress={() => navigation.navigate('AdvancePay')}>
-              <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.saveBtn}>
+              <View style={styles.saveBtn}>
+                <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
                 <Text style={styles.saveBtnText}>{t.tokenPayAdvanceBtn.replace('{amount}', `₹${(token.advanceAmount || 0).toLocaleString('en-IN')}`)}</Text>
-              </LinearGradient>
+              </View>
             </TouchableOpacity>
           </View>
         )}
@@ -327,7 +332,7 @@ const styles = StyleSheet.create({
   chipSel: { backgroundColor: colors.maroon, borderColor: colors.maroon },
   chipText: { fontSize: 12.5, fontWeight: '600', color: colors.pinkStrong },
   chipTextSel: { color: '#fff' },
-  saveBtn: { height: 46, borderRadius: 999, backgroundColor: colors.maroon, alignItems: 'center', justifyContent: 'center' },
+  saveBtn: { height: 46, borderRadius: 999, backgroundColor: colors.maroon, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   saveBtnText: { color: '#fff', fontWeight: '700', fontSize: 14.5, fontFamily: 'Sora' },
   outlineBtn: { flexDirection: 'row', gap: 6, height: 46, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   outlineBtnText: { color: colors.text, fontWeight: '700', fontSize: 13.5 },

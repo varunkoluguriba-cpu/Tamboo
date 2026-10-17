@@ -222,9 +222,10 @@ export default function EventScreen({ navigation }: Props) {
             <Text style={styles.saveBtnText}>{t.save}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.findBtnWrap} activeOpacity={0.85} onPress={() => { persist(); navigation.navigate('Browse', {}); }}>
-            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.findBtn}>
+            <View style={styles.findBtn}>
+              <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
               <Text style={styles.findBtnText}>{t.eventFindAvailableItems}</Text>
-            </LinearGradient>
+            </View>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -262,6 +263,6 @@ const styles = StyleSheet.create({
   saveBtn: { flex: 1, height: 50, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   saveBtnText: { color: colors.text, fontWeight: '600', fontSize: 14.5, fontFamily: 'Sora' },
   findBtnWrap: { flex: 2 },
-  findBtn: { height: 50, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  findBtn: { height: 50, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   findBtnText: { color: '#fff', fontWeight: '700', fontSize: 15, fontFamily: 'Sora' },
 });

@@ -43,18 +43,19 @@ export default function ItemFormScreen({ navigation, route }: Props) {
   const { partner } = useAuth();
   const { t } = useLanguage();
   const editingId = route.params?.id;
+  const { initialName, initialCat, initialUnit, initialSpecs, initialPhotos } = route.params || {};
 
   const [loadingItem, setLoadingItem] = useState(!!editingId);
-  const [name, setName] = useState('');
-  const [cat, setCat] = useState(CATEGORY_OPTIONS[0].id);
+  const [name, setName] = useState(initialName || '');
+  const [cat, setCat] = useState(initialCat || CATEGORY_OPTIONS[0].id);
   const [price, setPrice] = useState('');
-  const [unit, setUnit] = useState(UNIT_OPTIONS[0]);
+  const [unit, setUnit] = useState(initialUnit || UNIT_OPTIONS[0]);
   const [stock, setStock] = useState('');
   const [min, setMin] = useState('1');
   const [deposit, setDeposit] = useState('');
-  const [specs, setSpecs] = useState('');
+  const [specs, setSpecs] = useState(initialSpecs || '');
   const [instant, setInstant] = useState(true);
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<string[]>(initialPhotos || []);
   const [err, setErr] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -252,9 +253,10 @@ export default function ItemFormScreen({ navigation, route }: Props) {
         {!!err && <Text style={styles.error}>{err}</Text>}
 
         <TouchableOpacity activeOpacity={0.85} onPress={save} disabled={saving}>
-          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.saveBtn}>
+          <View style={styles.saveBtn}>
+            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
             {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>{editingId ? t.itemFormSaveChanges : t.itemFormAddTitle}</Text>}
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
 
         {editingId && (
@@ -300,7 +302,7 @@ const styles = StyleSheet.create({
   reviewBox: { backgroundColor: colors.purpleBg, borderRadius: 14, padding: 12 },
   reviewText: { color: '#5b21b6', fontSize: 12.5, lineHeight: 19 },
   error: { color: colors.dangerStrong, fontSize: 12.5 },
-  saveBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  saveBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   saveBtnText: { color: '#fff', fontWeight: '700', fontSize: 15.5, fontFamily: 'Sora' },
   deleteText: { color: colors.dangerStrong, fontWeight: '700', fontSize: 13, textAlign: 'center' },
 });

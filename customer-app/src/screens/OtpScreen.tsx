@@ -82,9 +82,10 @@ export default function OtpScreen({ navigation, route }: Props) {
       {!!err && <Text style={styles.error}>{err}</Text>}
 
       <TouchableOpacity activeOpacity={0.85} onPress={submit} disabled={verifying}>
-        <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={[styles.button, verifying && styles.buttonDisabled]}>
+        <View style={[styles.button, verifying && styles.buttonDisabled]}>
+          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
           <Text style={styles.buttonText}>{verifying ? '…' : t.verify}</Text>
-        </LinearGradient>
+        </View>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={resend} style={styles.resendWrap}>
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
   boxText: { fontSize: 24, fontWeight: '800', color: colors.text },
   hiddenInput: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0 },
   error: { color: colors.dangerStrong, fontSize: 12.5, marginTop: -14 },
-  button: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  button: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   buttonDisabled: { opacity: 0.7 },
   buttonText: { color: '#fff', fontSize: 15.5, fontWeight: '700' },
   resendWrap: { alignSelf: 'center' },

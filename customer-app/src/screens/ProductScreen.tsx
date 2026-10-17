@@ -173,14 +173,15 @@ export default function ProductScreen({ navigation, route }: Props) {
                   );
                 }}
               >
-                <LinearGradient
-                  colors={gradients.primaryButton.colors}
-                  start={gradients.primaryButton.start}
-                  end={gradients.primaryButton.end}
-                  style={[styles.addBtn, cantAdd && styles.addBtnDisabled]}
-                >
+                <View style={[styles.addBtn, cantAdd && styles.addBtnDisabled]}>
+                  <LinearGradient
+                    colors={gradients.primaryButton.colors}
+                    start={gradients.primaryButton.start}
+                    end={gradients.primaryButton.end}
+                    style={StyleSheet.absoluteFill}
+                  />
                   <Text style={styles.addBtnText}>{t.productAddToCart.replace('{param}', total.toLocaleString('en-IN'))}</Text>
-                </LinearGradient>
+                </View>
               </TouchableOpacity>
               <TouchableOpacity style={styles.quoteOutlineBtn} activeOpacity={0.85} onPress={() => setQuoteModal(true)}>
                 <Text style={styles.quoteOutlineText}>{t.productAskForQuote}</Text>
@@ -192,9 +193,10 @@ export default function ProductScreen({ navigation, route }: Props) {
                 <Text style={styles.quoteNoteText}>{t.productQuoteNote}</Text>
               </View>
               <TouchableOpacity style={styles.addBtnWrap} activeOpacity={0.85} onPress={() => setQuoteModal(true)}>
-                <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.addBtn}>
+                <View style={styles.addBtn}>
+                  <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
                   <Text style={styles.addBtnText}>{t.productRequestQuote}</Text>
-                </LinearGradient>
+                </View>
               </TouchableOpacity>
             </>
           )}
@@ -252,7 +254,7 @@ const styles = StyleSheet.create({
   warnBox: { backgroundColor: colors.dangerBg, borderRadius: 12, padding: 10 },
   warnText: { color: colors.dangerStrong, fontSize: 12.5, fontWeight: '600' },
   addBtnWrap: {},
-  addBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  addBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   addBtnDisabled: { opacity: 0.5 },
   addBtnText: { color: '#fff', fontWeight: '700', fontSize: 15.5, fontFamily: 'Sora' },
   quoteOutlineBtn: { height: 46, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center' },

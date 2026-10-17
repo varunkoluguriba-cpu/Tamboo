@@ -81,9 +81,10 @@ export default function RegisterScreen({}: Props) {
         {!!err && <Text style={styles.error}>{err}</Text>}
 
         <TouchableOpacity activeOpacity={0.85} onPress={submit} disabled={saving} style={styles.buttonWrap}>
-          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={[styles.button, saving && styles.buttonDisabled]}>
+          <View style={[styles.button, saving && styles.buttonDisabled]}>
+            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
             <Text style={styles.buttonText}>{saving ? '…' : t.create}</Text>
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
               </ScrollView>
       </SafeAreaView>
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
   cityChipTextSel: { color: colors.pinkStrong },
   error: { color: colors.dangerStrong, fontSize: 12.5 },
   buttonWrap: { marginTop: 'auto' },
-  button: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  button: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   buttonDisabled: { opacity: 0.7 },
   buttonText: { color: '#fff', fontSize: 15.5, fontWeight: '700' },
 });

@@ -72,10 +72,11 @@ export default function HallsScreen({ navigation }: Props) {
         )}
 
         <TouchableOpacity activeOpacity={0.85} onPress={() => navigation.navigate('Hall', {})}>
-          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.addBtn}>
+          <View style={styles.addBtn}>
+            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
             <Icon name="plus" size={16} color="#fff" />
             <Text style={styles.addBtnText}>{t.hallsAddBtn}</Text>
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
       </ScrollView>
 
@@ -96,6 +97,6 @@ const styles = StyleSheet.create({
   cardName: { fontSize: 16, fontWeight: '700', color: colors.text },
   cardMeta: { fontSize: 12.5, color: colors.textSoft },
   cardPrice: { fontSize: 13, fontWeight: '700', color: colors.pinkStrong, marginTop: 2 },
-  addBtn: { height: 50, borderRadius: 999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  addBtn: { height: 50, borderRadius: 999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, overflow: 'hidden' },
   addBtnText: { color: '#fff', fontWeight: '700', fontSize: 15, fontFamily: 'Sora' },
 });

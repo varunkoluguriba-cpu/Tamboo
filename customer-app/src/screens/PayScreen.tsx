@@ -51,9 +51,28 @@ export default function PayScreen({ navigation }: Props) {
     if (paying) return;
     setPaying(true);
     try {
+      const cartPayload = {
+        payMode,
+        due,
+        customerName: user?.name,
+        customerPhone: user?.phone,
+        eventType: event.venueType,
+        eventName: event.name,
+        dateTxt: event.date,
+        address: event.address,
+        guests: parseInt(event.guests, 10) || 0,
+        groups: groups.map((g) => ({
+          vendorId: g.vendorId,
+          vendorName: g.vendorName,
+          subtotal: g.subtotal,
+          deliveryFee: perGroupDelivery,
+          lines: g.lines.map((l) => ({ itemId: l.productId, name: l.name, qty: l.qty, unitPrice: l.unitPrice })),
+        })),
+      };
+
       const order = await api.post<{ orderId: string; amount: number; currency: string; keyId: string }>(
         '/api/payments/create-order',
-        { amount: due },
+        { amount: due, cart: cartPayload },
       );
 
       let checkoutResult: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string };
@@ -76,36 +95,28 @@ export default function PayScreen({ navigation }: Props) {
         return;
       }
 
-      const res = await api.post<{ verified: boolean; orders?: Array<{ id: string; code: string; vendor: string; total: number }> }>(
+      const res = await api.post<{ verified: boolean; orders?: Array<{ id: string; code: string; vendor: string; total: number; conflict?: boolean }> }>(
         '/api/payments/verify',
         {
           razorpay_order_id: checkoutResult.razorpay_order_id,
           razorpay_payment_id: checkoutResult.razorpay_payment_id,
           razorpay_signature: checkoutResult.razorpay_signature,
-          cart: {
-            payMode,
-            due,
-            customerName: user?.name,
-            customerPhone: user?.phone,
-            eventType: event.venueType,
-            eventName: event.name,
-            dateTxt: event.date,
-            address: event.address,
-            guests: parseInt(event.guests, 10) || 0,
-            groups: groups.map((g) => ({
-              vendorId: g.vendorId,
-              vendorName: g.vendorName,
-              subtotal: g.subtotal,
-              deliveryFee: perGroupDelivery,
-              lines: g.lines.map((l) => ({ name: l.name, qty: l.qty, unitPrice: l.unitPrice })),
-            })),
-          },
+          cart: cartPayload,
         },
       );
 
       if (!res.verified) {
         Alert.alert(t.payVerifyFailedTitle, t.payVerifyFailedMsg);
         return;
+      }
+
+      // Rare race: another order claimed the same item+date stock in the seconds between the
+      // pre-payment check and this one. Payment already succeeded, so the order is kept
+      // (status DISPUTED) for manual resolution rather than silently overselling — tell the
+      // customer plainly rather than letting it look like a normal successful order.
+      const disputedVendors = (res.orders || []).filter((o) => o.conflict).map((o) => o.vendor);
+      if (disputedVendors.length > 0) {
+        Alert.alert(t.payStockConflictTitle, t.payStockConflictMsg.replace('{vendors}', disputedVendors.join(', ')));
       }
 
       const orders = (res.orders || []).map((o) => ({ id: o.code, vendor: o.vendor, total: o.total }));
@@ -135,11 +146,12 @@ export default function PayScreen({ navigation }: Props) {
           <Text style={styles.holdTime}>{mm}:{ss}</Text>
         </View>
 
-        <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.dueCard}>
+        <View style={styles.dueCard}>
+          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
           <Text style={styles.dueLabel}>{payMode === 'full' ? t.payAmountDueNow : t.payAdvanceDueNow}</Text>
           <Text style={styles.dueAmount}>{inr(due)}</Text>
           <Text style={styles.dueSub}>{t.payOfTotal.replace('{param}', inr(pricing.total))}</Text>
-        </LinearGradient>
+        </View>
 
         <View style={styles.modeRow}>
           <TouchableOpacity
@@ -184,9 +196,10 @@ export default function PayScreen({ navigation }: Props) {
         <Text style={styles.disclaimer}>{t.payDisclaimer}</Text>
 
         <TouchableOpacity style={styles.payBtnWrap} activeOpacity={paying ? 1 : 0.85} disabled={paying} onPress={pay}>
-          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={[styles.payBtn, paying && styles.payBtnDisabled]}>
+          <View style={[styles.payBtn, paying && styles.payBtnDisabled]}>
+            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
             {paying ? <ActivityIndicator color="#fff" /> : <Text style={styles.payBtnText}>{t.payPayAmount.replace('{param}', inr(due))}</Text>}
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -202,7 +215,7 @@ const styles = StyleSheet.create({
   holdBanner: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.amberBg, borderRadius: 14, paddingVertical: 10, paddingHorizontal: 14 },
   holdText: { flex: 1, color: colors.amber, fontSize: 12.5, fontWeight: '600' },
   holdTime: { fontFamily: 'Sora', color: colors.amber, fontSize: 15, fontWeight: '800' },
-  dueCard: { borderRadius: 22, padding: 18 },
+  dueCard: { borderRadius: 22, padding: 18, overflow: 'hidden' },
   dueLabel: { color: 'rgba(255,255,255,0.85)', fontSize: 12 },
   dueAmount: { fontFamily: 'Sora', color: '#fff', fontSize: 30, fontWeight: '800', marginVertical: 4 },
   dueSub: { color: 'rgba(255,255,255,0.85)', fontSize: 12 },
@@ -220,7 +233,7 @@ const styles = StyleSheet.create({
   methodSub: { fontSize: 12, color: colors.textSoft, marginTop: 1 },
   disclaimer: { fontSize: 11.5, color: colors.textMuted, textAlign: 'center' },
   payBtnWrap: {},
-  payBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  payBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   payBtnDisabled: { opacity: 0.6 },
   payBtnText: { color: '#fff', fontWeight: '700', fontSize: 15.5, fontFamily: 'Sora' },
 });

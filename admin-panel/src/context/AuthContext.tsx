@@ -5,7 +5,7 @@ interface AuthContextValue {
   loggedIn: boolean;
   error: string;
   loading: boolean;
-  login: (password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -16,11 +16,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const login = useCallback(async (password: string) => {
+  const login = useCallback(async (username: string, password: string) => {
     setLoading(true);
     setError('');
     try {
-      const res = await api.post<{ token: string }>('/api/admin-auth/login', { password });
+      const res = await api.post<{ token: string }>('/api/admin-auth/login', { username, password });
       setToken(res.token);
       setLoggedIn(true);
     } catch (err) {

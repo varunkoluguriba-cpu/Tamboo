@@ -65,11 +65,10 @@ export default function ChatScreen({ navigation, route }: Props) {
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           {msgs.map((m) =>
             m.mine ? (
-              <View key={m.id} style={styles.bubbleMineWrap}>
-                <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.bubbleMine}>
-                  <Text style={styles.bubbleMineText}>{m.text}</Text>
-                  <Text style={styles.bubbleMineTime}>{m.at}</Text>
-                </LinearGradient>
+              <View key={m.id} style={[styles.bubbleMineWrap, styles.bubbleMine]}>
+                <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
+                <Text style={styles.bubbleMineText}>{m.text}</Text>
+                <Text style={styles.bubbleMineTime}>{m.at}</Text>
               </View>
             ) : (
               <View key={m.id} style={styles.bubbleTheirsWrap}>
@@ -107,7 +106,7 @@ const styles = StyleSheet.create({
   peerName: { fontFamily: 'Sora', fontWeight: '800', fontSize: 15, color: colors.text },
   scroll: { padding: 18, gap: 8, flexGrow: 1 },
   bubbleMineWrap: { alignSelf: 'flex-end', maxWidth: '78%' },
-  bubbleMine: { borderRadius: 18, borderBottomRightRadius: 4, paddingVertical: 9, paddingHorizontal: 13 },
+  bubbleMine: { borderRadius: 18, borderBottomRightRadius: 4, paddingVertical: 9, paddingHorizontal: 13, overflow: 'hidden' },
   bubbleMineText: { color: '#fff', fontSize: 13.5, lineHeight: 19 },
   bubbleMineTime: { color: 'rgba(255,255,255,0.75)', fontSize: 10, textAlign: 'right', marginTop: 2 },
   bubbleTheirsWrap: { alignSelf: 'flex-start', maxWidth: '78%', backgroundColor: colors.surface, borderRadius: 18, borderBottomLeftRadius: 4, paddingVertical: 9, paddingHorizontal: 13, ...shadow.card },

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>81013137310-cs66tc6vnt5p7fau2fucvirjjh6mue8h.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.81013137310-cs66tc6vnt5p7fau2fucvirjjh6mue8h</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>81013137310-0j0ftu7gqnereir826gntnj5pin4s0la.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBL7Yz-Ry_ceOO0xVdeZ1tm9I1NzeNUswE</string>
+	<key>GCM_SENDER_ID</key>
+	<string>81013137310</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.tamboocustomer</string>
+	<key>PROJECT_ID</key>
+	<string>tamboo-da19d</string>
+	<key>STORAGE_BUCKET</key>
+	<string>tamboo-da19d.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:81013137310:ios:b8ec28ca9a3c93cfcb808f</string>
+</dict>
+</plist>

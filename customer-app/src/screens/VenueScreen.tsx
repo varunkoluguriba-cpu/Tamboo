@@ -1,31 +1,23 @@
-import React, { useMemo, useState } from 'react';
-import { Image, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Image, Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
+import { api } from '../api/client';
 import { useCatalog } from '../context/CatalogContext';
 import { useLanguage } from '../context/LanguageContext';
+import { isoDate } from '../utils/date';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Venue'>;
 type SlotState = 'free' | 'booked' | 'closed';
 type Slot = 'Morning' | 'Evening';
+type DayAvail = { morning: SlotState; evening: SlotState };
 
 const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-function dayAvailability(date: Date): { morning: SlotState; evening: SlotState } {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  if (date < today) return { morning: 'closed', evening: 'closed' };
-  const seed = (date.getDate() * 7 + date.getMonth() * 13) % 10;
-  return {
-    morning: seed < 6 ? 'free' : 'booked',
-    evening: seed < 7 ? 'free' : 'booked',
-  };
-}
 
 function fmtDate(d: Date): string {
   return `${d.getDate()} ${MONTH_NAMES[d.getMonth()].slice(0, 3)} ${d.getFullYear()}`;
@@ -43,11 +35,26 @@ export default function VenueScreen({ navigation, route }: Props) {
   const [monthOffset, setMonthOffset] = useState(0);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
+  const [monthAvail, setMonthAvail] = useState<Record<string, DayAvail>>({});
+  const [loadingAvail, setLoadingAvail] = useState(false);
 
   const viewMonth = useMemo(() => {
     const d = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
     return d;
   }, [today, monthOffset]);
+
+  const monthKey = `${viewMonth.getFullYear()}-${String(viewMonth.getMonth() + 1).padStart(2, '0')}`;
+
+  useEffect(() => {
+    if (!route.params.id) return;
+    let cancelled = false;
+    setLoadingAvail(true);
+    api.get<Record<string, DayAvail>>(`/api/halls/${route.params.id}/availability?month=${monthKey}`)
+      .then((data) => { if (!cancelled) setMonthAvail((prev) => ({ ...prev, ...data })); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoadingAvail(false); });
+    return () => { cancelled = true; };
+  }, [route.params.id, monthKey]);
 
   const cells = useMemo(() => {
     const year = viewMonth.getFullYear();
@@ -71,18 +78,33 @@ export default function VenueScreen({ navigation, route }: Props) {
   }
 
   const openDirections = () => {
-    Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hall.address)}`).catch(() => {});
+    const query = encodeURIComponent(hall.address);
+    // Apple Maps gives a native, in-app hand-off on iOS instead of bouncing through
+    // Safari to Google's website; Android keeps the Google Maps web link it already had.
+    const url = Platform.OS === 'ios'
+      ? `https://maps.apple.com/?daddr=${query}`
+      : `https://www.google.com/maps/dir/?api=1&destination=${query}`;
+    Linking.openURL(url).catch(() => {});
+  };
+
+  const getDayAvail = (d: Date): DayAvail => {
+    const dayStart = new Date(d);
+    dayStart.setHours(0, 0, 0, 0);
+    if (dayStart < today) return { morning: 'closed', evening: 'closed' };
+    // Not yet loaded for this date (still fetching, or request failed) — default to
+    // 'closed' rather than 'free', so a customer can never pick an unverified slot.
+    return monthAvail[isoDate(d)] || { morning: 'closed', evening: 'closed' };
   };
 
   const pickDay = (d: Date) => {
-    const avail = dayAvailability(d);
+    const avail = getDayAvail(d);
     setSelectedDate(d);
     if (avail.morning === 'free') setSelectedSlot('Morning');
     else if (avail.evening === 'free') setSelectedSlot('Evening');
     else setSelectedSlot(null);
   };
 
-  const selectedAvail = selectedDate ? dayAvailability(selectedDate) : null;
+  const selectedAvail = selectedDate ? getDayAvail(selectedDate) : null;
   const slotIsFree = selectedSlot && selectedAvail ? selectedAvail[selectedSlot === 'Morning' ? 'morning' : 'evening'] === 'free' : false;
   const canPay = !!(selectedDate && selectedSlot && slotIsFree);
 
@@ -186,7 +208,7 @@ export default function VenueScreen({ navigation, route }: Props) {
             <View style={styles.dayGrid}>
               {cells.map((c, i) => {
                 if (!c.date) return <View key={i} style={styles.dayCell} />;
-                const avail = dayAvailability(c.date);
+                const avail = getDayAvail(c.date);
                 const isSel = selectedDate && c.date.getTime() === selectedDate.getTime();
                 const isClosed = avail.morning === 'closed';
                 return (
@@ -282,7 +304,7 @@ export default function VenueScreen({ navigation, route }: Props) {
               style={styles.payBtnWrap}
               activeOpacity={canPay ? 0.85 : 1}
               disabled={!canPay}
-              onPress={() => selectedDate && selectedSlot && navigation.navigate('TokenPay', { hallId: hall.id, date: fmtDate(selectedDate), slot: selectedSlot })}
+              onPress={() => selectedDate && selectedSlot && navigation.navigate('TokenPay', { hallId: hall.id, date: isoDate(selectedDate), slot: selectedSlot })}
             >
               <LinearGradient
                 colors={gradients.primaryButton.colors}

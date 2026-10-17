@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Linking, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -144,7 +144,12 @@ export default function HallScreen({ navigation, route }: Props) {
   const removePhoto = (idx: number) => setPhotos((prev) => prev.filter((_, i) => i !== idx));
 
   const openMap = () => {
-    if (address.trim()) Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`);
+    if (!address.trim()) return;
+    const query = encodeURIComponent(address);
+    const url = Platform.OS === 'ios'
+      ? `https://maps.apple.com/?daddr=${query}`
+      : `https://www.google.com/maps/dir/?api=1&destination=${query}`;
+    Linking.openURL(url).catch(() => {});
   };
 
   const deleteHall = () => {
@@ -377,9 +382,10 @@ export default function HallScreen({ navigation, route }: Props) {
         {!!err && <Text style={styles.error}>{err}</Text>}
 
         <TouchableOpacity activeOpacity={0.85} onPress={save} disabled={saving || loading}>
-          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.saveBtn}>
+          <View style={styles.saveBtn}>
+            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
             {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>{t.hallSaveBtn}</Text>}
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -457,7 +463,7 @@ const styles = StyleSheet.create({
   policyBox: { backgroundColor: colors.bg, borderRadius: 12, padding: 10 },
   policyText: { fontSize: 12, color: colors.textSoft, lineHeight: 18 },
   error: { color: colors.dangerStrong, fontSize: 12.5 },
-  saveBtn: { height: 50, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  saveBtn: { height: 50, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   saveBtnText: { color: '#fff', fontWeight: '700', fontSize: 15, fontFamily: 'Sora' },
   logoutBtn: { height: 46, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center' },
   logoutText: { color: colors.text, fontWeight: '700', fontSize: 13.5 },

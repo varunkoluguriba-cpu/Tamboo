@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
-import { api } from '../api/client';
+import { api, ApiError } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useHallTokens } from '../hooks/useHallTokens';
@@ -25,9 +25,16 @@ function isoDate(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-// Hall booking dates come from the customer app's fmtDate(): "20 Dec 2026". Order dateTxt
-// is free-text from the customer's Event form (placeholder "DD/MM/YYYY") — best-effort only.
+// Hall booking dates are now stored canonically as ISO 'YYYY-MM-DD' (see customer-app's
+// utils/date.ts). Order dateTxt is free-text from the customer's Event form (placeholder
+// "DD/MM/YYYY") — best-effort only. The "D Mon YYYY" form is kept for any bookings created
+// before the ISO format became canonical.
 function parseDisplayDate(text: string): Date | null {
+  const iso = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso) {
+    const [, yyyy, mm, dd] = iso;
+    return new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+  }
   const ddmmyyyy = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (ddmmyyyy) {
     const [, dd, mm, yyyy] = ddmmyyyy;
@@ -42,7 +49,7 @@ function parseDisplayDate(text: string): Date | null {
   return null;
 }
 
-type Job = { event: string; customer: string; status: string };
+type Job = { event: string; customer: string; status: string; slot: string; isOffline: boolean; bookingId: string; hallId: string };
 
 export default function CalendarScreen({ navigation }: Props) {
   const { t } = useLanguage();
@@ -67,7 +74,8 @@ export default function CalendarScreen({ navigation }: Props) {
   const [reasonDraft, setReasonDraft] = useState('');
 
   const isVenue = partner?.role === 'venue';
-  const { tokens: hallTokens } = useHallTokens();
+  const { tokens: hallTokens, reload: reloadTokens } = useHallTokens();
+  const [markingBusy, setMarkingBusy] = useState(false);
   const { orders } = useOrders();
 
   useEffect(() => {
@@ -100,12 +108,12 @@ export default function CalendarScreen({ navigation }: Props) {
     if (isVenue) {
       for (const tok of hallTokens.filter((tok) => !activeHall || tok.hallId === activeHall.id)) {
         const d = parseDisplayDate(tok.date);
-        if (d) push(d, { event: tok.hallName, customer: tok.customer, status: tok.status.toUpperCase() });
+        if (d) push(d, { event: tok.hallName, customer: tok.customer, status: tok.status.toUpperCase(), slot: tok.slot, isOffline: tok.source === 'offline', bookingId: tok.id, hallId: tok.hallId });
       }
     } else {
       for (const o of orders) {
         const d = parseDisplayDate(o.dateTxt);
-        if (d) push(d, { event: o.event, customer: o.customer, status: o.status });
+        if (d) push(d, { event: o.event, customer: o.customer, status: o.status, slot: '', isOffline: false, bookingId: '', hallId: '' });
       }
     }
     return map;
@@ -151,6 +159,42 @@ export default function CalendarScreen({ navigation }: Props) {
     }
   };
 
+  const markSlotBooked = async (slot: 'Morning' | 'Evening') => {
+    if (!activeHall) return;
+    setMarkingBusy(true);
+    try {
+      await api.post(`/api/halls/me/halls/${activeHall.id}/offline-bookings`, { date: selIso, slot });
+      await reloadTokens();
+    } catch (e) {
+      Alert.alert(t.calendarMarkBookedFailedTitle, e instanceof ApiError ? e.message : t.tryAgain);
+    } finally {
+      setMarkingBusy(false);
+    }
+  };
+
+  const removeOfflineSlot = (job: Job) => {
+    Alert.alert(t.htokenRemoveWalkInTitle, t.htokenRemoveWalkInMsg, [
+      { text: t.cancel, style: 'cancel' },
+      {
+        text: t.htokenRemoveWalkInBtn,
+        style: 'destructive',
+        onPress: async () => {
+          setMarkingBusy(true);
+          try {
+            await api.delete(`/api/halls/me/halls/${job.hallId}/offline-bookings/${job.bookingId}`);
+            await reloadTokens();
+          } catch (e) {
+            Alert.alert(t.calendarMarkBookedFailedTitle, e instanceof ApiError ? e.message : t.tryAgain);
+          } finally {
+            setMarkingBusy(false);
+          }
+        },
+      },
+    ]);
+  };
+
+  const takenSlots = new Set(selJobs.filter((j) => j.slot === 'Morning' || j.slot === 'Evening').map((j) => j.slot));
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -160,6 +204,17 @@ export default function CalendarScreen({ navigation }: Props) {
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{t.calendarTitle}</Text>
         </View>
+
+        {isVenue && activeHall && (
+          <TouchableOpacity
+            style={styles.uploadRegisterBtn}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('RegisterPhoto', { hallId: activeHall.id })}
+          >
+            <Icon name="camera" size={16} color={colors.pinkStrong} strokeWidth={1.5} />
+            <Text style={styles.uploadRegisterBtnText}>{t.calendarUploadRegisterBtn}</Text>
+          </TouchableOpacity>
+        )}
 
         {isVenue && halls.length > 1 && (
           <View style={styles.hallChipRow}>
@@ -234,14 +289,41 @@ export default function CalendarScreen({ navigation }: Props) {
             </Text>
 
             {selJobs.map((j, i) => (
-              <TouchableOpacity key={i} style={styles.jobRow} activeOpacity={0.85} onPress={() => navigation.navigate(isVenue ? 'HTokens' : 'Orders')}>
-                <Text style={styles.jobText}><Text style={{ fontWeight: '700' }}>{j.event}</Text> · {j.customer}</Text>
-                <Text style={styles.jobStatus}>{j.status === 'PENDING' ? t.calendarStatusPending : j.status === 'CONFIRMED' ? t.calendarStatusConfirmed : j.status}</Text>
-              </TouchableOpacity>
+              <View key={i} style={styles.jobRow}>
+                <TouchableOpacity style={{ flex: 1 }} activeOpacity={0.85} onPress={() => navigation.navigate(isVenue ? 'HTokens' : 'Orders')}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                    {j.isOffline && (
+                      <View style={styles.walkInPill}>
+                        <Text style={styles.walkInPillText}>{t.htokensWalkInBadge}</Text>
+                      </View>
+                    )}
+                    <Text style={styles.jobText}><Text style={{ fontWeight: '700' }}>{j.event}</Text> · {j.customer}{j.slot ? ` · ${j.slot}` : ''}</Text>
+                  </View>
+                  <Text style={styles.jobStatus}>{j.status === 'PENDING' ? t.calendarStatusPending : j.status === 'CONFIRMED' ? t.calendarStatusConfirmed : j.status}</Text>
+                </TouchableOpacity>
+                {isVenue && j.isOffline && (
+                  <TouchableOpacity style={styles.removePill} activeOpacity={0.85} onPress={() => removeOfflineSlot(j)} disabled={markingBusy}>
+                    <Icon name="x" size={14} color={colors.dangerStrong} />
+                  </TouchableOpacity>
+                )}
+              </View>
             ))}
 
             {isBlocked && (
               <Text style={styles.blockedNote}>{t.calendarBlockedNote.replace('{reason}', blockReasons[`${activeHall?.id}|${selIso}`] || t.calendarNotAvailable)}</Text>
+            )}
+
+            {isVenue && !isBlocked && selected >= today && (takenSlots.size < 2) && (
+              <View style={{ gap: 8 }}>
+                <Text style={styles.fieldLabel}>{t.calendarMarkBookedLabel}</Text>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  {(['Morning', 'Evening'] as const).filter((s) => !takenSlots.has(s)).map((s) => (
+                    <TouchableOpacity key={s} style={styles.markBtn} activeOpacity={0.85} onPress={() => markSlotBooked(s)} disabled={markingBusy}>
+                      <Text style={styles.markBtnText}>{s}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
             )}
 
             {isVenue && canBlock && !isBlocked && (
@@ -277,6 +359,8 @@ const styles = StyleSheet.create({
   backBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
   headerTitle: { fontFamily: 'Sora', fontSize: 18, fontWeight: '800', color: colors.text },
   calCard: { backgroundColor: colors.surface, borderRadius: 20, padding: 14, gap: 10, ...shadow.card },
+  uploadRegisterBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, height: 46, borderRadius: 14, borderWidth: 1.5, borderColor: colors.divider, backgroundColor: colors.surface },
+  uploadRegisterBtnText: { color: colors.pinkStrong, fontWeight: '700', fontSize: 13.5 },
   hallChipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   hallChip: { paddingHorizontal: 12, height: 34, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, backgroundColor: colors.surface, justifyContent: 'center' },
   hallChipSel: { backgroundColor: colors.maroon, borderColor: colors.maroon },
@@ -299,10 +383,16 @@ const styles = StyleSheet.create({
   legendText: { fontSize: 11.5, color: colors.textSoft },
   detailCard: { backgroundColor: colors.surface, borderRadius: 18, padding: 16, gap: 10, ...shadow.card },
   detailTitle: { fontWeight: '700', fontSize: 14, color: colors.text },
-  jobRow: { backgroundColor: colors.bg, borderRadius: 12, padding: 10, flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
+  jobRow: { backgroundColor: colors.bg, borderRadius: 12, padding: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   jobText: { fontSize: 13, color: colors.text, flex: 1 },
   jobStatus: { fontSize: 12.5, fontWeight: '700', color: colors.pinkStrong },
+  walkInPill: { backgroundColor: colors.dividerStrong, borderRadius: 999, paddingVertical: 2, paddingHorizontal: 8 },
+  walkInPillText: { fontSize: 10.5, fontWeight: '700', color: colors.text },
+  removePill: { width: 28, height: 28, borderRadius: 14, borderWidth: 1.5, borderColor: colors.dangerStrong, alignItems: 'center', justifyContent: 'center' },
   blockedNote: { fontSize: 13, color: '#4b4560' },
+  fieldLabel: { fontSize: 12.5, fontWeight: '600', color: colors.textSoft },
+  markBtn: { flex: 1, height: 42, borderRadius: 12, borderWidth: 1.5, borderColor: colors.maroon, alignItems: 'center', justifyContent: 'center' },
+  markBtnText: { color: colors.maroon, fontWeight: '700', fontSize: 13.5 },
   input: { height: 46, borderRadius: 12, borderWidth: 1.5, borderColor: colors.divider, paddingHorizontal: 12, fontSize: 14, color: colors.text },
   blockBtn: { height: 46, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   blockBtnText: { color: '#fff', fontWeight: '700', fontSize: 14, fontFamily: 'Sora' },

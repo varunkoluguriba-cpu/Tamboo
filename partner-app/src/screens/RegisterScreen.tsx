@@ -190,9 +190,10 @@ export default function RegisterScreen({ navigation }: Props) {
         {!!err && <Text style={styles.error}>{err}</Text>}
 
         <TouchableOpacity activeOpacity={0.85} onPress={submit} disabled={submitting}>
-          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={[styles.submitBtn, submitting && styles.submitBtnDisabled]}>
+          <View style={[styles.submitBtn, submitting && styles.submitBtnDisabled]}>
+            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
             <Text style={styles.submitBtnText}>{submitting ? '…' : t.pRegisterSubmitButton}</Text>
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -220,7 +221,7 @@ const styles = StyleSheet.create({
   photoPreviewRow: { flexDirection: 'row', gap: 8 },
   photoPreview: { width: 72, height: 72, borderRadius: 12 },
   error: { color: colors.dangerStrong, fontSize: 12.5 },
-  submitBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', marginTop: 4, ...shadow.primaryButton },
+  submitBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', marginTop: 4, overflow: 'hidden', ...shadow.primaryButton },
   submitBtnDisabled: { opacity: 0.7 },
   submitBtnText: { color: '#fff', fontWeight: '700', fontSize: 15.5, fontFamily: 'Sora' },
 });

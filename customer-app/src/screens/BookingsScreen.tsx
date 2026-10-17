@@ -242,9 +242,10 @@ export default function BookingsScreen({ navigation }: Props) {
                             <Text style={styles.offerOutlineText}>{t.bookingsAskChanges}</Text>
                           </TouchableOpacity>
                           <TouchableOpacity style={styles.offerAcceptBtnWrap} activeOpacity={0.85} disabled={busy} onPress={() => respondToQuote(q.id, 'accept')}>
-                            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.offerAcceptBtn}>
+                            <View style={styles.offerAcceptBtn}>
+                              <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
                               <Text style={styles.offerAcceptText}>{t.bookingsAcceptPay}</Text>
-                            </LinearGradient>
+                            </View>
                           </TouchableOpacity>
                         </View>
                       </View>
@@ -304,6 +305,6 @@ const styles = StyleSheet.create({
   offerOutlineBtn: { flex: 1, height: 40, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center' },
   offerOutlineText: { fontSize: 12.5, fontWeight: '600', color: colors.text },
   offerAcceptBtnWrap: { flex: 1.3 },
-  offerAcceptBtn: { height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  offerAcceptBtn: { height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   offerAcceptText: { color: '#fff', fontWeight: '700', fontSize: 12.5, fontFamily: 'Sora' },
 });

@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 
 const bookingSchema = new mongoose.Schema({
-  customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  // Null only for 'offline' bookings (see `source` below) — a walk-in/phone booking the
+  // partner marked themselves never has a real Tamboo customer behind it.
+  customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   // null until hall/venue listings are backed by real Partner records — see catalog.ts's optional partnerId
   partner: { type: mongoose.Schema.Types.ObjectId, ref: 'Partner', default: null },
   hallId: { type: String, required: true },
@@ -11,11 +13,17 @@ const bookingSchema = new mongoose.Schema({
   date: { type: String, required: true },
   slot: { type: String, required: true },
   guests: { type: Number, default: 0 },
-  amount: { type: Number, required: true }, // token amount paid, in rupees
+  amount: { type: Number, required: true }, // token amount paid, in rupees — 0 for 'offline' bookings
   finalRent: { type: Number, default: 0 }, // agreed by partner once the customer visits in person
   commissionPct: { type: Number, default: 10 },
-  razorpayOrderId: { type: String, required: true },
-  razorpayPaymentId: { type: String, required: true },
+  razorpayOrderId: { type: String, default: '' },
+  razorpayPaymentId: { type: String, default: '' },
+  // 'online' = a real customer paid through the app (the normal case). 'offline' = the
+  // partner manually blocked this slot for a walk-in/phone booking that never touched
+  // Tamboo — created via the hall-owner "mark as booked" or register-photo-import flows,
+  // no real customer/payment behind it. Both count the same for availability/conflict
+  // checks (see lib/hallAvailability.js's ACTIVE_BOOKING_STATUSES).
+  source: { type: String, enum: ['online', 'offline'], default: 'online' },
   // Advance payment — collected through Razorpay once the partner sets finalRent, replacing
   // what used to be a partner-typed "confirmed" flag with a real second payment. Snapshotted
   // from the Hall's advancePct at the moment the partner sets the rent, so a later change to

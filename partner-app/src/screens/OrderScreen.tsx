@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -100,11 +100,12 @@ export default function OrderScreen({ navigation, route }: Props) {
           <Text style={styles.headerTitle}>{original.code}</Text>
         </View>
 
-        <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.statusCard}>
+        <View style={styles.statusCard}>
+          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
           <Text style={styles.statusLabel}>{t.orderStatusLabel}</Text>
           <Text style={styles.statusValue}>{status ? (STATUS_LABELS[status] || status.replace(/_/g, ' ')) : ''}</Text>
           <Text style={styles.statusSub}>{original.event} · {original.dateTxt}</Text>
-        </LinearGradient>
+        </View>
 
         {isPending && (
           <>
@@ -116,9 +117,10 @@ export default function OrderScreen({ navigation, route }: Props) {
                 <Text style={styles.declineBtnText}>{t.orderDecline}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.acceptBtnWrap} activeOpacity={0.85} onPress={accept} disabled={working}>
-                <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.acceptBtn}>
+                <View style={styles.acceptBtn}>
+                  <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
                   {working ? <ActivityIndicator color="#fff" /> : <Text style={styles.acceptBtnText}>{t.orderAcceptOrder}</Text>}
-                </LinearGradient>
+                </View>
               </TouchableOpacity>
             </View>
           </>
@@ -126,10 +128,11 @@ export default function OrderScreen({ navigation, route }: Props) {
 
         {canAdvance && !isPending && (
           <TouchableOpacity activeOpacity={0.85} onPress={advance} disabled={working}>
-            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.advanceBtn}>
+            <View style={styles.advanceBtn}>
+              <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
               <Text style={styles.advanceBtnText}>{working ? t.orderUpdating : nextLabelDisplay}</Text>
               <Icon name="right" size={16} color="#fff" />
-            </LinearGradient>
+            </View>
           </TouchableOpacity>
         )}
 
@@ -155,10 +158,14 @@ export default function OrderScreen({ navigation, route }: Props) {
             <TouchableOpacity
               style={styles.outlineBtnSm}
               activeOpacity={0.85}
-              onPress={() =>
-                original.address &&
-                Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(original.address)}`)
-              }
+              onPress={() => {
+                if (!original.address) return;
+                const query = encodeURIComponent(original.address);
+                const url = Platform.OS === 'ios'
+                  ? `https://maps.apple.com/?daddr=${query}`
+                  : `https://www.google.com/maps/dir/?api=1&destination=${query}`;
+                Linking.openURL(url).catch(() => {});
+              }}
             >
               <Text style={styles.outlineBtnSmText}>{t.orderDirections}</Text>
             </TouchableOpacity>
@@ -220,7 +227,7 @@ const styles = StyleSheet.create({
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   backBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
   headerTitle: { fontFamily: 'Sora', fontSize: 18, fontWeight: '800', color: colors.text },
-  statusCard: { borderRadius: 22, padding: 18, gap: 4 },
+  statusCard: { borderRadius: 22, padding: 18, gap: 4, overflow: 'hidden' },
   statusLabel: { color: 'rgba(255,255,255,0.85)', fontSize: 11.5 },
   statusValue: { fontFamily: 'Sora', fontSize: 20, fontWeight: '800', color: '#fff', textTransform: 'capitalize' },
   statusSub: { color: '#fff', fontSize: 13 },
@@ -230,9 +237,9 @@ const styles = StyleSheet.create({
   declineBtn: { flex: 1, height: 50, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   declineBtnText: { color: colors.text, fontWeight: '600', fontSize: 14.5, fontFamily: 'Sora' },
   acceptBtnWrap: { flex: 2 },
-  acceptBtn: { height: 50, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  acceptBtn: { height: 50, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   acceptBtnText: { color: '#fff', fontWeight: '700', fontSize: 15, fontFamily: 'Sora' },
-  advanceBtn: { height: 52, borderRadius: 999, flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center' },
+  advanceBtn: { height: 52, borderRadius: 999, flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   advanceBtnText: { color: '#fff', fontWeight: '700', fontSize: 15, fontFamily: 'Sora' },
   card: { backgroundColor: colors.surface, borderRadius: 18, padding: 16, gap: 8, ...shadow.card },
   cardTitle: { fontWeight: '700', fontSize: 14, color: colors.text },

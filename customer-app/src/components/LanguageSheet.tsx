@@ -28,10 +28,11 @@ export default function LanguageSheet({ visible, onClose }: { visible: boolean; 
                     style={styles.tileWrap}
                   >
                     {sel ? (
-                      <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.tile}>
+                      <View style={styles.tile}>
+                        <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
                         <Text style={[styles.native, styles.textSel]}>{native}</Text>
                         <Text style={[styles.en, styles.subSel]}>{en}</Text>
-                      </LinearGradient>
+                      </View>
                     ) : (
                       <View style={[styles.tile, styles.tileUnsel]}>
                         <Text style={styles.native}>{native}</Text>
@@ -55,7 +56,7 @@ const styles = StyleSheet.create({
   title: { fontFamily: 'Sora', fontWeight: '800', fontSize: 19, color: colors.text },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   tileWrap: { width: '48%' },
-  tile: { height: 58, borderRadius: 14, justifyContent: 'center', paddingHorizontal: 12 },
+  tile: { height: 58, borderRadius: 14, justifyContent: 'center', paddingHorizontal: 12, overflow: 'hidden' },
   tileUnsel: { borderWidth: 1, borderColor: colors.divider, backgroundColor: colors.surface },
   native: { fontSize: 15.5, fontWeight: '700', color: colors.text, lineHeight: 19 },
   textSel: { color: '#fff' },

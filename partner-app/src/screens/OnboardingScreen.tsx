@@ -68,9 +68,10 @@ export default function OnboardingScreen({ navigation }: Props) {
       </View>
 
       <TouchableOpacity activeOpacity={0.85} onPress={next}>
-        <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.button}>
+        <View style={styles.button}>
+          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
           <Text style={styles.buttonText}>{isLast ? t.pOnboardGetStarted : t.next}</Text>
-        </LinearGradient>
+        </View>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -90,10 +91,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    shadowColor: colors.pink,
-    shadowOpacity: 0.6,
-    shadowRadius: 30,
-    shadowOffset: { width: 0, height: 20 },
+    shadowColor: colors.maroon,
+    shadowOpacity: 0.18,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
     elevation: 10,
   },
   logoText: { fontSize: 40, fontWeight: '800', fontStyle: 'italic', color: '#fff', letterSpacing: -1 },
@@ -103,6 +104,6 @@ const styles = StyleSheet.create({
   dots: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginBottom: 20 },
   dot: { width: 6, height: 6, borderRadius: 99, backgroundColor: '#ecdde5' },
   dotActive: { width: 22, backgroundColor: colors.pink },
-  button: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  button: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   buttonText: { color: '#fff', fontSize: 15.5, fontWeight: '700' },
 });

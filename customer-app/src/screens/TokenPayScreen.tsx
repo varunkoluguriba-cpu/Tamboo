@@ -12,6 +12,7 @@ import { useAuth } from '../context/AuthContext';
 import { useEvent } from '../context/EventContext';
 import { useToken } from '../context/TokenContext';
 import { useLanguage } from '../context/LanguageContext';
+import { formatBookingDate } from '../utils/date';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'TokenPay'>;
@@ -58,7 +59,7 @@ export default function TokenPayScreen({ navigation, route }: Props) {
     try {
       const order = await api.post<{ orderId: string; amount: number; currency: string; keyId: string }>(
         '/api/payments/create-order',
-        { amount: hall.token },
+        { amount: hall.token, hallId: hall.id, date: route.params.date, slot: route.params.slot },
       );
 
       let checkoutResult: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string };
@@ -81,7 +82,7 @@ export default function TokenPayScreen({ navigation, route }: Props) {
         return;
       }
 
-      const { verified, bookingId } = await api.post<{ verified: boolean; bookingId?: string }>('/api/payments/verify', {
+      const { verified, bookingId, bookingConflict } = await api.post<{ verified: boolean; bookingId?: string; bookingConflict?: boolean }>('/api/payments/verify', {
         razorpay_order_id: checkoutResult.razorpay_order_id,
         razorpay_payment_id: checkoutResult.razorpay_payment_id,
         razorpay_signature: checkoutResult.razorpay_signature,
@@ -98,6 +99,17 @@ export default function TokenPayScreen({ navigation, route }: Props) {
 
       if (!verified) {
         Alert.alert(t.tokenPayVerifyFailedTitle, t.tokenPayVerifyFailedMsg);
+        return;
+      }
+
+      // Rare race: the slot was taken by someone else in the seconds between the
+      // pre-payment check and this one. Payment already succeeded, so the booking is kept
+      // (status 'disputed') for manual resolution rather than silently losing track of it —
+      // tell the customer plainly instead of sending them to the normal success screen.
+      if (bookingConflict) {
+        Alert.alert(t.tokenPayConflictTitle, t.tokenPayConflictMsg, [
+          { text: t.ok, onPress: () => navigation.goBack() },
+        ]);
         return;
       }
 
@@ -135,7 +147,7 @@ export default function TokenPayScreen({ navigation, route }: Props) {
           <Text style={styles.hallName}>{hall.name}</Text>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>{t.tokenPaySummaryDate}</Text>
-            <Text style={styles.summaryValue}>{route.params.date}</Text>
+            <Text style={styles.summaryValue}>{formatBookingDate(route.params.date)}</Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>{t.tokenPaySummarySlot}</Text>

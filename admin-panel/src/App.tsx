@@ -2,6 +2,8 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import './styles.css';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Layout from './pages/Layout';
 import Partners from './pages/Partners';
 import PartnerDetail from './pages/PartnerDetail';
@@ -19,6 +21,8 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={loggedIn ? <Navigate to="/partners" replace /> : <Login />} />
+      <Route path="/forgot" element={<ForgotPassword />} />
+      <Route path="/reset" element={<ResetPassword />} />
       <Route path="/" element={<Gate><Layout /></Gate>}>
         <Route index element={<Navigate to="/partners" replace />} />
         <Route path="partners" element={<Partners />} />

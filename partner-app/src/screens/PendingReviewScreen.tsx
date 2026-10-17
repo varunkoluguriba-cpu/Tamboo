@@ -48,9 +48,10 @@ export default function PendingReviewScreen({ }: Props) {
         </View>
 
         <TouchableOpacity style={styles.exploreBtnWrap} activeOpacity={0.85} onPress={acknowledgePending}>
-          <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.exploreBtn}>
+          <View style={styles.exploreBtn}>
+            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
             <Text style={styles.exploreBtnText}>{t.pendingExploreApp}</Text>
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -69,6 +70,6 @@ const styles = StyleSheet.create({
   checklistLabel: { fontSize: 13, color: colors.text },
   checklistStatus: { fontSize: 13, fontWeight: '700' },
   exploreBtnWrap: { width: '100%' },
-  exploreBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  exploreBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   exploreBtnText: { color: '#fff', fontWeight: '700', fontSize: 15.5, fontFamily: 'Sora' },
 });

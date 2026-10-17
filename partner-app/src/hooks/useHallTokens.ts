@@ -8,7 +8,7 @@ export type RemoteHallToken = {
   hallId: string;
   hallName: string;
   customer: string;
-  customerId: string;
+  customerId: string | null;
   phone: string;
   date: string;
   slot: string;
@@ -19,6 +19,9 @@ export type RemoteHallToken = {
   advanceAmount: number;
   advanceDeadlineAtMs: number | null;
   status: 'token_paid' | 'visited' | 'awaiting_advance' | 'confirmed' | 'not_booked' | 'cancelled' | 'disputed';
+  // 'offline' = the partner marked this themselves (walk-in/phone booking or register-photo
+  // import) — no real customer/payment behind it, see backend's Booking.source.
+  source: 'online' | 'offline';
   heldAtMs: number;
   visitHours: number;
 };

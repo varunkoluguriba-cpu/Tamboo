@@ -7,6 +7,33 @@ const PayoutEntry = require('../models/PayoutEntry');
 const Partner = require('../models/Partner');
 const Package = require('../models/Package');
 const mongoose = require('mongoose');
+const { getClient: getAnthropicClient } = require('../config/anthropic');
+const { CATEGORY_IDS, UNIT_OPTIONS } = require('../data/itemCatalogOptions');
+const ItemPreset = require('../models/ItemPreset');
+
+function buildClassifyPrompt(categoryGuide) {
+  return `Reply with ONLY a JSON object, no other text, no markdown fences, in exactly this shape:
+{"name": "short item name, max 6 words", "cat": "one of: ${CATEGORY_IDS.map((c) => c.id).join(', ')}", "unit": "one of: ${UNIT_OPTIONS.join(', ')}", "specs": "one short sentence describing it, max 15 words"}
+
+Category guide: ${categoryGuide}
+
+If you cannot clearly identify an event-rental item, reply with exactly: {"error": "unclear"}`;
+}
+
+function parseClassifyResponse(message) {
+  const text = (message.content || []).map((b) => (b.type === 'text' ? b.text : '')).join('').trim();
+  const jsonText = text.replace(/^```(json)?/i, '').replace(/```$/, '').trim();
+  const parsed = JSON.parse(jsonText);
+  if (parsed.error) return null;
+  const validCat = CATEGORY_IDS.some((c) => c.id === parsed.cat) ? parsed.cat : CATEGORY_IDS[0].id;
+  const validUnit = UNIT_OPTIONS.includes(parsed.unit) ? parsed.unit : UNIT_OPTIONS[0];
+  return {
+    name: typeof parsed.name === 'string' ? parsed.name.slice(0, 80) : '',
+    cat: validCat,
+    unit: validUnit,
+    specs: typeof parsed.specs === 'string' ? parsed.specs.slice(0, 200) : '',
+  };
+}
 
 const router = express.Router();
 
@@ -131,6 +158,103 @@ router.put('/me/shop', requirePartnerAuth, requireTentRole, async (req, res) => 
   res.json(serializeShopOwn(shop));
 });
 
+// Growing, shared catalog of items real vendors have already added — powers the preset
+// checklist on the client. Sorted by popularity so the most commonly-added items surface
+// first; a partner can still add anything not in this list via text or photo.
+router.get('/item-presets', requirePartnerAuth, requireTentRole, async (req, res) => {
+  const presets = await ItemPreset.find().sort({ usageCount: -1, name: 1 }).limit(300);
+  res.json(presets.map((p) => ({ name: p.name, cat: p.cat, unit: p.unit, specs: p.specs })));
+});
+
+// AI-assisted item add, text version: vendor types a name (e.g. "plastic chair") and we fill
+// in category/unit/description — cheaper and faster than the photo path since there's no
+// image to analyze. Checks the shared preset catalog first (instant, free, consistent with
+// what past vendors called the same thing) before falling back to an AI call for anything new.
+router.post('/me/items/classify-text', requirePartnerAuth, requireTentRole, async (req, res) => {
+  const { name } = req.body || {};
+  if (!name || typeof name !== 'string' || !name.trim()) {
+    return res.status(400).json({ error: 'name is required' });
+  }
+  const normalizedName = ItemPreset.normalize(name);
+  const existing = await ItemPreset.findOne({ normalizedName });
+  if (existing) {
+    return res.json({ name: existing.name, cat: existing.cat, unit: existing.unit, specs: existing.specs });
+  }
+
+  const categoryGuide = CATEGORY_IDS.map((c) => `${c.id} (${c.name})`).join(', ');
+  let message;
+  try {
+    message = await getAnthropicClient().messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 300,
+      messages: [{
+        role: 'user',
+        content: `You are helping an Indian tent-house/event-rental vendor list an item for rent on a marketplace app. The vendor typed this item name: "${name.trim()}".
+
+${buildClassifyPrompt(categoryGuide)}`,
+      }],
+    });
+  } catch (e) {
+    return res.status(502).json({ error: 'Could not classify that right now. Fill it in manually.' });
+  }
+
+  let result;
+  try {
+    result = parseClassifyResponse(message);
+  } catch {
+    return res.status(502).json({ error: 'Could not understand that. Fill it in manually.' });
+  }
+  if (!result) return res.status(422).json({ error: "Couldn't recognize that item. Fill it in manually." });
+  if (!result.name) result.name = name.trim();
+  res.json(result);
+});
+
+// AI-assisted item add, photo version: vendor snaps a photo, we identify what it probably is
+// so they only have to confirm/correct the suggestion and fill in price + stock, instead of
+// typing every field from scratch. Never auto-saves anything — the client always shows this
+// as editable suggestions, since a wrong guess here is just mildly annoying, not a bad listing.
+router.post('/me/items/analyze-photo', requirePartnerAuth, requireTentRole, async (req, res) => {
+  const { imageBase64 } = req.body || {};
+  if (!imageBase64 || typeof imageBase64 !== 'string') {
+    return res.status(400).json({ error: 'imageBase64 is required' });
+  }
+  const match = imageBase64.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
+  if (!match) return res.status(400).json({ error: 'imageBase64 must be a data URI' });
+  const [, mediaType, data] = match;
+
+  const categoryGuide = CATEGORY_IDS.map((c) => `${c.id} (${c.name})`).join(', ');
+  let message;
+  try {
+    message = await getAnthropicClient().messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 300,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image', source: { type: 'base64', media_type: mediaType, data } },
+          {
+            type: 'text',
+            text: `You are helping an Indian tent-house/event-rental vendor list an item for rent on a marketplace app. Look at the photo and identify the single item shown (e.g. a plastic chair, a round banquet table, an LED par light, a shamiana/tent canopy).
+
+${buildClassifyPrompt(categoryGuide)}`,
+          },
+        ],
+      }],
+    });
+  } catch (e) {
+    return res.status(502).json({ error: 'Could not analyze the photo right now. Try again or fill it in manually.' });
+  }
+
+  let result;
+  try {
+    result = parseClassifyResponse(message);
+  } catch {
+    return res.status(502).json({ error: 'Could not understand the photo. Try a clearer shot or fill it in manually.' });
+  }
+  if (!result) return res.status(422).json({ error: 'Could not clearly identify an item in that photo. Try a clearer shot or fill it in manually.' });
+  res.json(result);
+});
+
 router.get('/me/items', requirePartnerAuth, requireTentRole, async (req, res) => {
   const items = await Item.find({ partner: req.partner.id }).sort({ createdAt: -1 });
   res.json(items.map((i) => serializeItemOwn(i, req.partner)));
@@ -144,6 +268,7 @@ router.post('/me/items', requirePartnerAuth, requireTentRole, async (req, res) =
     partner: req.partner.id, name: name.trim(), cat, price, unit, stock, min, deposit, specs, instant,
     photos: Array.isArray(photos) ? photos.slice(0, 15) : [],
   });
+  ItemPreset.learnFrom({ name: name.trim(), cat, unit, specs }).catch(() => {});
   res.status(201).json(serializeItemOwn(item, req.partner));
 });
 

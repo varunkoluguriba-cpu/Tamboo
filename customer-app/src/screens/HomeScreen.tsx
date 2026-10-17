@@ -127,10 +127,10 @@ export default function HomeScreen() {
               <Text style={styles.langChipDevanagari}>अ</Text>
               <Text style={styles.langChipText}>{lang.toUpperCase()}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => navigation.navigate('Browse', {})}>
+            <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => navigation.navigate('Browse', {})} accessibilityLabel={t.homeScreenSearchA11y} accessibilityRole="button">
               <Icon name="search" size={19} color={colors.text} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => navigation.navigate('Notifications')}>
+            <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => navigation.navigate('Notifications')} accessibilityLabel={t.homeScreenNotificationsA11y} accessibilityRole="button">
               <Icon name="bell" size={19} color={colors.text} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.avatar} activeOpacity={0.8} onPress={() => navigation.navigate('Profile')}>
@@ -148,10 +148,11 @@ export default function HomeScreen() {
         <View style={styles.modeToggle}>
           <TouchableOpacity style={styles.modeBtnWrap} activeOpacity={0.85} onPress={() => selectMode('venues')}>
             {mode === 'venues' ? (
-              <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.modeBtn}>
+              <View style={styles.modeBtn}>
+                <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
                 <Icon name="home" size={15} color="#fff" />
                 <Text style={styles.modeBtnTextSel}>{t.homeScreenHallsVenues}</Text>
-              </LinearGradient>
+              </View>
             ) : (
               <View style={styles.modeBtn}>
                 <Icon name="home" size={15} color={colors.textSoft} />
@@ -161,10 +162,11 @@ export default function HomeScreen() {
           </TouchableOpacity>
           <TouchableOpacity style={styles.modeBtnWrap} activeOpacity={0.85} onPress={() => selectMode('rentals')}>
             {mode === 'rentals' ? (
-              <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.modeBtn}>
+              <View style={styles.modeBtn}>
+                <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
                 <Icon name="tent" size={15} color="#fff" />
                 <Text style={styles.modeBtnTextSel}>{t.homeScreenRentals}</Text>
-              </LinearGradient>
+              </View>
             ) : (
               <View style={styles.modeBtn}>
                 <Icon name="tent" size={15} color={colors.textSoft} />
@@ -187,13 +189,14 @@ export default function HomeScreen() {
               </TouchableOpacity>
             )}
 
-            <LinearGradient
-              colors={[colors.maroon, '#8a1538', colors.pink]}
-              locations={[0, 0.55, 1]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.hero}
-            >
+            <View style={styles.hero}>
+              <LinearGradient
+                colors={[colors.maroon, '#8a1538', colors.pink]}
+                locations={[0, 0.55, 1]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={StyleSheet.absoluteFill}
+              />
               <Text style={styles.heroLabel}>{t.homeScreenHallsVenues}</Text>
               <Text style={styles.heroHeadline}>{t.homeScreenHoldHallHeadline}</Text>
               <Text style={styles.heroSub}>{t.homeScreenHoldHallSub}</Text>
@@ -222,7 +225,7 @@ export default function HomeScreen() {
                 <Text style={styles.heroBtnText}>{t.homeScreenSearchHalls}</Text>
                 <Icon name="right" size={16} color={colors.maroon} />
               </TouchableOpacity>
-            </LinearGradient>
+            </View>
 
             <View style={styles.tileGrid}>
               {VTYPE_TILES(t).map((x) => (
@@ -264,13 +267,14 @@ export default function HomeScreen() {
           </>
         ) : (
           <>
-            <LinearGradient
-              colors={[colors.maroon, '#8a1538', colors.pink]}
-              locations={[0, 0.55, 1]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.hero}
-            >
+            <View style={styles.hero}>
+              <LinearGradient
+                colors={[colors.maroon, '#8a1538', colors.pink]}
+                locations={[0, 0.55, 1]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={StyleSheet.absoluteFill}
+              />
               <Text style={styles.heroLabelUpper}>{t.planEvent}</Text>
               <Text style={styles.heroHeadline}>{t.headline}</Text>
               <View style={styles.heroInputs}>
@@ -298,7 +302,7 @@ export default function HomeScreen() {
                 <Text style={styles.heroBtnText}>{t.build}</Text>
                 <Icon name="right" size={16} color={colors.maroon} />
               </TouchableOpacity>
-            </LinearGradient>
+            </View>
 
             <View style={styles.statGrid}>
               <TouchableOpacity style={styles.statCard} activeOpacity={0.85} onPress={() => navigation.navigate('Bookings')}>
@@ -422,10 +426,10 @@ const styles = StyleSheet.create({
   tokenBannerHall: { fontSize: 15, fontWeight: '700', color: colors.text },
   tokenBannerSub: { fontSize: 12.5, color: colors.textSoft },
   modeBtnWrap: { flex: 1 },
-  modeBtn: { height: 40, borderRadius: 999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
+  modeBtn: { height: 40, borderRadius: 999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, overflow: 'hidden' },
   modeBtnText: { fontSize: 13.5, fontWeight: '700', color: colors.textSoft },
   modeBtnTextSel: { fontSize: 13.5, fontWeight: '700', color: '#fff' },
-  hero: { borderRadius: 24, padding: 20 },
+  hero: { borderRadius: 24, padding: 20, overflow: 'hidden' },
   heroLabel: { fontSize: 12, fontWeight: '700', letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(255,255,255,0.85)', marginBottom: 8 },
   heroLabelUpper: { fontSize: 12, fontWeight: '700', letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(255,255,255,0.85)', marginBottom: 8 },
   heroHeadline: { fontFamily: 'Sora', fontWeight: '800', fontSize: 23, lineHeight: 28, color: '#fff', marginBottom: 6 },

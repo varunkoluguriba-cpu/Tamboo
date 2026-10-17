@@ -70,10 +70,11 @@ export default function HomeScreen() {
 
         <View style={styles.statGrid}>
           <TouchableOpacity style={styles.statGrad} activeOpacity={0.85} onPress={() => navigation.navigate('Orders')}>
-            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.statGradInner}>
+            <View style={styles.statGradInner}>
+              <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
               <Text style={styles.statGradLabel}>{t.pHomeNewRequests}</Text>
               <Text style={styles.statGradValue}>{newCount}</Text>
-            </LinearGradient>
+            </View>
           </TouchableOpacity>
           <TouchableOpacity style={styles.statCard} activeOpacity={0.85} onPress={() => navigation.navigate('Orders')}>
             <Text style={styles.statLabel}>{t.pHomeActiveJobs}</Text>
@@ -91,7 +92,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.dashedBtn} activeOpacity={0.85} onPress={() => navigation.navigate('ItemForm', {})}>
+        <TouchableOpacity style={styles.dashedBtn} activeOpacity={0.85} onPress={() => navigation.navigate('AddItemChoice')}>
           <Icon name="plus" size={16} color={colors.pinkStrong} />
           <Text style={styles.dashedBtnText}>{t.pHomeAddRentalItem}</Text>
         </TouchableOpacity>
@@ -153,7 +154,7 @@ const styles = StyleSheet.create({
   langText: { fontWeight: '700', fontSize: 12.5, color: colors.text },
   statGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   statGrad: { width: '47%' },
-  statGradInner: { borderRadius: 18, padding: 14, gap: 4 },
+  statGradInner: { borderRadius: 18, padding: 14, gap: 4, overflow: 'hidden' },
   statGradLabel: { color: '#fff', fontSize: 12 },
   statGradValue: { color: '#fff', fontFamily: 'Sora', fontSize: 28, fontWeight: '800' },
   statCard: { width: '47%', backgroundColor: colors.surface, borderRadius: 18, padding: 14, gap: 4, ...shadow.card },

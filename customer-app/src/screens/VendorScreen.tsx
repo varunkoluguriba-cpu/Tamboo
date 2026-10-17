@@ -102,9 +102,10 @@ export default function VendorScreen({ navigation, route }: Props) {
                 <Text style={styles.chatBtnText}>{t.vendorChat}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.quoteBtnWrap} activeOpacity={0.85} onPress={() => setQuoteModal(true)}>
-                <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.quoteBtn}>
+                <View style={styles.quoteBtn}>
+                  <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
                   <Text style={styles.quoteBtnText}>{t.vendorRequestQuote}</Text>
-                </LinearGradient>
+                </View>
               </TouchableOpacity>
             </View>
           </View>
@@ -183,7 +184,7 @@ const styles = StyleSheet.create({
   chatBtn: { flex: 1, height: 44, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   chatBtnText: { color: colors.text, fontWeight: '600', fontSize: 13.5, fontFamily: 'Sora' },
   quoteBtnWrap: { flex: 2 },
-  quoteBtn: { height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  quoteBtn: { height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   quoteBtnText: { color: '#fff', fontWeight: '700', fontSize: 14, fontFamily: 'Sora' },
   sectionTitle: { fontFamily: 'Sora', fontSize: 16, fontWeight: '700', color: colors.text },
   itemRow: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.surface, borderRadius: 16, padding: 10, ...shadow.card },

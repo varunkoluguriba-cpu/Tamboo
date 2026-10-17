@@ -146,9 +146,10 @@ export default function ShopScreen({ navigation }: Props) {
           </View>
 
           <TouchableOpacity activeOpacity={0.85} onPress={save} disabled={saving || loading}>
-            <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={styles.saveBtn}>
+            <View style={styles.saveBtn}>
+              <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
               {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>{t.shopSaveButton}</Text>}
-            </LinearGradient>
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -195,7 +196,7 @@ const styles = StyleSheet.create({
   grid3: { flexDirection: 'row', gap: 8 },
   gridItem: { flex: 1 },
   inputSm: { height: 46, borderRadius: 12, borderWidth: 1.5, borderColor: colors.divider, paddingHorizontal: 10, fontSize: 14.5, color: colors.text, backgroundColor: colors.surface },
-  saveBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  saveBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   saveBtnText: { color: '#fff', fontWeight: '700', fontSize: 15.5, fontFamily: 'Sora' },
   logoutBtn: { height: 46, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   logoutText: { color: colors.text, fontWeight: '600', fontSize: 14 },
