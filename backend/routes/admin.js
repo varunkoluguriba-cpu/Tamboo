@@ -1,5 +1,8 @@
 const express = require('express');
-const { requireAdminAuth } = require('../middleware/adminAuth');
+const bcrypt = require('bcryptjs');
+const { requireAdminAuth, requireSection } = require('../middleware/adminAuth');
+const { sectionsFor } = require('../config/adminRoles');
+const AdminUser = require('../models/AdminUser');
 const Partner = require('../models/Partner');
 const PayoutEntry = require('../models/PayoutEntry');
 const Booking = require('../models/Booking');
@@ -22,6 +25,32 @@ router.use(requireAdminAuth);
 function audit(req, what, target, before, after) {
   AuditLog.create({ who: req.admin.username, what, target, before: String(before ?? ''), after: String(after ?? '') }).catch(() => {});
 }
+
+// GET /dashboard and GET /me are intentionally open to every authenticated admin regardless
+// of role — the dashboard is the universal landing page (frontend hides cards the role can't
+// act on), and /me is how the frontend discovers the role in the first place. Everything else
+// below is gated to the role's permitted sections (see config/adminRoles.js) — router.use with
+// a path prefix covers that path and everything nested under it (e.g. '/partners' also covers
+// '/partners/:id/payouts').
+router.get('/me', (req, res) => {
+  res.json({ username: req.admin.username, role: req.admin.role, sections: sectionsFor(req.admin.role) });
+});
+
+router.use('/partners', requireSection('partners'));
+router.use('/users', requireSection('customers'));
+router.use('/halls', requireSection('halls'));
+router.use('/items', requireSection('items'));
+router.use('/quotes', requireSection('quotes'));
+router.use('/packages', requireSection('packages'));
+router.use('/bookings', requireSection('bookings'));
+router.use('/orders', requireSection('bookings'));
+router.use('/hall-bookings', requireSection('bookings'));
+router.use('/disputes', requireSection('disputes'));
+router.use('/support', requireSection('support'));
+router.use('/config', requireSection('settings'));
+router.use('/coupons', requireSection('settings'));
+router.use('/audit', requireSection('audit'));
+router.use('/team', requireSection('team'));
 
 function serializePartner(p) {
   return {
@@ -462,6 +491,38 @@ router.patch('/coupons/:id', async (req, res) => {
 router.get('/audit', async (req, res) => {
   const logs = await AuditLog.find().sort({ createdAt: -1 }).limit(200);
   res.json(logs);
+});
+
+// --- Team: super_admin-only management of other admin accounts + their roles ---
+router.get('/team', async (req, res) => {
+  const admins = await AdminUser.find().select('username email role createdAt').sort({ createdAt: 1 });
+  res.json(admins);
+});
+
+router.post('/team', async (req, res) => {
+  const { username, email, password, role } = req.body || {};
+  if (!username || !String(username).trim()) return res.status(400).json({ error: 'username is required' });
+  if (!email || !String(email).trim()) return res.status(400).json({ error: 'email is required' });
+  if (!password || password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  if (!AdminUser.ROLES.includes(role)) return res.status(400).json({ error: 'Invalid role' });
+  try {
+    const passwordHash = await bcrypt.hash(password, 12);
+    const admin = await AdminUser.create({ username: String(username).trim().toLowerCase(), email: String(email).trim(), passwordHash, role });
+    audit(req, 'Created team account', admin.username, '', role);
+    res.status(201).json({ id: admin.id, username: admin.username, email: admin.email, role: admin.role, createdAt: admin.createdAt });
+  } catch (e) {
+    if (e.code === 11000) return res.status(400).json({ error: 'That username is already taken' });
+    throw e;
+  }
+});
+
+router.delete('/team/:id', async (req, res) => {
+  if (req.params.id === req.admin.id) return res.status(400).json({ error: "You can't remove your own account" });
+  const admin = await AdminUser.findById(req.params.id);
+  if (!admin) return res.status(404).json({ error: 'Account not found' });
+  await admin.deleteOne();
+  audit(req, 'Removed team account', admin.username, admin.role, '');
+  res.json({ ok: true });
 });
 
 module.exports = router;
