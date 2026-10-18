@@ -6,7 +6,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
-import { VenueTabBar } from '../components/TabBar';
 import { api } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
@@ -79,8 +78,6 @@ export default function HallsScreen({ navigation }: Props) {
           </View>
         </TouchableOpacity>
       </ScrollView>
-
-      <VenueTabBar active="hall" navigation={navigation} />
     </SafeAreaView>
   );
 }

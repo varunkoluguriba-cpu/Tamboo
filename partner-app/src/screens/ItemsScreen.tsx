@@ -6,7 +6,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
-import { TentTabBar } from '../components/TabBar';
 import { api, ApiError } from '../api/client';
 import { colors, gradients, shadow } from '../theme';
 import { useLanguage } from '../context/LanguageContext';
@@ -142,8 +141,6 @@ export default function ItemsScreen({ navigation }: Props) {
           </>
         )}
       </ScrollView>
-
-      <TentTabBar active="items" navigation={navigation} />
     </SafeAreaView>
   );
 }

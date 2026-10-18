@@ -5,7 +5,6 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RemoteHallBooking, RemoteOrderSummary, RootStackParamList } from '../navigation/types';
-import TabBar from '../components/TabBar';
 import { api, ApiError } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
@@ -257,8 +256,6 @@ export default function BookingsScreen({ navigation }: Props) {
           </View>
         )}
       </ScrollView>
-
-      <TabBar active="bookings" navigation={navigation} />
     </SafeAreaView>
   );
 }

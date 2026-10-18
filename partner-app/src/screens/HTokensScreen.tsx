@@ -3,7 +3,6 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
-import { VenueTabBar } from '../components/TabBar';
 import { statusColors, type TokenStatus } from '../data/catalog';
 import { useHallTokens, tokenUiStatus } from '../hooks/useHallTokens';
 import { useLanguage } from '../context/LanguageContext';
@@ -90,8 +89,6 @@ export default function HTokensScreen({ navigation }: Props) {
           </View>
         )}
       </ScrollView>
-
-      <VenueTabBar active="htokens" navigation={navigation} />
     </SafeAreaView>
   );
 }

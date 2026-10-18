@@ -3,7 +3,6 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
-import { TentTabBar } from '../components/TabBar';
 import { statusColors } from '../data/catalog';
 import { useOrders } from '../hooks/useOrders';
 import { useQuotes } from '../hooks/useQuotes';
@@ -119,8 +118,6 @@ export default function OrdersScreen({ navigation }: Props) {
           </View>
         )}
       </ScrollView>
-
-      <TentTabBar active="orders" navigation={navigation} />
     </SafeAreaView>
   );
 }

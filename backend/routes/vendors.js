@@ -8,9 +8,30 @@ const Partner = require('../models/Partner');
 const Package = require('../models/Package');
 const mongoose = require('mongoose');
 const { getClient: getAnthropicClient } = require('../config/anthropic');
+const { getApiKey: getPhotoroomKey } = require('../config/photoroom');
 const { CATEGORY_IDS, UNIT_OPTIONS } = require('../data/itemCatalogOptions');
 const ItemPreset = require('../models/ItemPreset');
 const { getCommittedQtyByItem } = require('../lib/itemAvailability');
+
+// A few concrete example items per category, so the model grounds ambiguous/India-specific
+// terms correctly — e.g. without this, "Desert Cooler" (a large evaporative air-cooling
+// appliance, very common at Indian outdoor events) got classified as kitchenware, because the
+// model read "cooler" as a food/drink icebox instead of an electrical appliance.
+const CATEGORY_EXAMPLES = {
+  tent: 'shamiana, canopy, marquee tent, side walls',
+  seat: 'plastic/steel chairs, sofa, napoleon chair',
+  table: 'round/rectangular banquet table, cocktail table',
+  kitchen: 'gas stove, cooking vessels, kadai, tawa, water can — food preparation equipment',
+  crockery: 'plates, spoons, serving dishes, glasses — food serving items',
+  floor: 'carpet, mattress/gaddi, wooden flooring panel',
+  stage: 'stage platform, mandap, crowd barricade, chowkey stand',
+  light: 'LED lights, string lights, diesel generator, desert/air cooler, fan — electrical/power appliances',
+  decor: 'flower decoration, backdrop curtain, balloon decoration',
+  av: 'PA sound system, DJ setup, projector, wireless microphone',
+  staff: 'waiter service, setup/dismantling crew',
+};
+
+const CATEGORY_GUIDE = CATEGORY_IDS.map((c) => `${c.id} (${c.name} — e.g. ${CATEGORY_EXAMPLES[c.id]})`).join('; ');
 
 function buildClassifyPrompt(categoryGuide) {
   return `Reply with ONLY a JSON object, no other text, no markdown fences, in exactly this shape:
@@ -186,7 +207,6 @@ router.post('/me/items/classify-text', requirePartnerAuth, requireTentRole, asyn
     return res.json({ name: existing.name, cat: existing.cat, unit: existing.unit, specs: existing.specs });
   }
 
-  const categoryGuide = CATEGORY_IDS.map((c) => `${c.id} (${c.name})`).join(', ');
   let message;
   try {
     message = await getAnthropicClient().messages.create({
@@ -196,7 +216,7 @@ router.post('/me/items/classify-text', requirePartnerAuth, requireTentRole, asyn
         role: 'user',
         content: `You are helping an Indian tent-house/event-rental vendor list an item for rent on a marketplace app. The vendor typed this item name: "${name.trim()}".
 
-${buildClassifyPrompt(categoryGuide)}`,
+${buildClassifyPrompt(CATEGORY_GUIDE)}`,
       }],
     });
   } catch (e) {
@@ -227,7 +247,6 @@ router.post('/me/items/analyze-photo', requirePartnerAuth, requireTentRole, asyn
   if (!match) return res.status(400).json({ error: 'imageBase64 must be a data URI' });
   const [, mediaType, data] = match;
 
-  const categoryGuide = CATEGORY_IDS.map((c) => `${c.id} (${c.name})`).join(', ');
   let message;
   try {
     message = await getAnthropicClient().messages.create({
@@ -241,7 +260,7 @@ router.post('/me/items/analyze-photo', requirePartnerAuth, requireTentRole, asyn
             type: 'text',
             text: `You are helping an Indian tent-house/event-rental vendor list an item for rent on a marketplace app. Look at the photo and identify the single item shown (e.g. a plastic chair, a round banquet table, an LED par light, a shamiana/tent canopy).
 
-${buildClassifyPrompt(categoryGuide)}`,
+${buildClassifyPrompt(CATEGORY_GUIDE)}`,
           },
         ],
       }],
@@ -258,6 +277,47 @@ ${buildClassifyPrompt(categoryGuide)}`,
   }
   if (!result) return res.status(422).json({ error: 'Could not clearly identify an item in that photo. Try a clearer shot or fill it in manually.' });
   res.json(result);
+});
+
+// Cleans up the background of an item photo (PhotoRoom's segment API) so listings look
+// professional instead of showing whatever messy real-world background the vendor shot
+// against. Applies to any item photo, known or unknown — not tied to the classify flow above.
+router.post('/me/items/clean-photo-background', requirePartnerAuth, requireTentRole, async (req, res) => {
+  console.log('[clean-photo-background] request received, body size:', JSON.stringify(req.body || {}).length);
+  const { imageBase64 } = req.body || {};
+  if (!imageBase64 || typeof imageBase64 !== 'string') {
+    console.log('[clean-photo-background] missing imageBase64');
+    return res.status(400).json({ error: 'imageBase64 is required' });
+  }
+  const match = imageBase64.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
+  if (!match) {
+    console.log('[clean-photo-background] imageBase64 did not match data URI pattern, prefix:', imageBase64.slice(0, 40));
+    return res.status(400).json({ error: 'imageBase64 must be a data URI' });
+  }
+  const [, , data] = match;
+  console.log('[clean-photo-background] calling PhotoRoom, data length:', data.length);
+
+  try {
+    const photoroomRes = await fetch('https://sdk.photoroom.com/v1/segment', {
+      method: 'POST',
+      headers: { 'x-api-key': getPhotoroomKey(), 'Content-Type': 'application/json' },
+      // Solid white background + jpg reads as a clean, professional product photo rather
+      // than a floating transparent cutout — closer to "neat and good" than a raw segment.
+      body: JSON.stringify({ image_file_b64: data, bg_color: '#FFFFFF', format: 'jpg' }),
+    });
+    console.log('[clean-photo-background] PhotoRoom status:', photoroomRes.status);
+    if (!photoroomRes.ok) {
+      const errText = await photoroomRes.text().catch(() => '');
+      console.log('[clean-photo-background] PhotoRoom error body:', errText.slice(0, 300));
+      return res.status(502).json({ error: 'Could not clean up the photo background right now. The original photo will be used.' });
+    }
+    const resultBuffer = Buffer.from(await photoroomRes.arrayBuffer());
+    console.log('[clean-photo-background] success, result bytes:', resultBuffer.length);
+    res.json({ imageBase64: `data:image/jpeg;base64,${resultBuffer.toString('base64')}` });
+  } catch (e) {
+    console.log('[clean-photo-background] threw:', e.message);
+    res.status(502).json({ error: 'Could not clean up the photo background right now. The original photo will be used.' });
+  }
 });
 
 router.get('/me/items', requirePartnerAuth, requireTentRole, async (req, res) => {

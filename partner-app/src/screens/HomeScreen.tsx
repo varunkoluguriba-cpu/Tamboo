@@ -6,7 +6,6 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
-import { TentTabBar } from '../components/TabBar';
 import LanguageSheet from '../components/LanguageSheet';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -135,7 +134,6 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
 
-      <TentTabBar active="home" navigation={navigation} badge={{ orders: newCount || undefined }} />
       <LanguageSheet visible={langSheet} onClose={() => setLangSheet(false)} />
     </SafeAreaView>
   );

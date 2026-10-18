@@ -8,6 +8,7 @@ const Booking = require('../models/Booking');
 const PayoutEntry = require('../models/PayoutEntry');
 const { getMonthAvailability, isSlotTaken } = require('../lib/hallAvailability');
 const { getClient: getAnthropicClient } = require('../config/anthropic');
+const Config = require('../models/Config');
 
 const VISIT_HOURS = 48;
 
@@ -161,7 +162,7 @@ function requireVenue(req, res, next) {
   next();
 }
 
-function parseHallBody(body) {
+function parseHallBody(body, defaultAdvancePct) {
   const {
     name, venueType, address, seated, floating, sqft, parking, rooms, pricingMode, rent, platePrice, minPlates, token, advancePct,
     ac, crockery, kitchen, crockeryNote, catering, amenities, blurb, photos,
@@ -175,7 +176,7 @@ function parseHallBody(body) {
     name: String(name).trim(), venueType, address, seated, floating, sqft, parking, rooms,
     pricingMode: pricingMode === 'perPlate' ? 'perPlate' : 'rent',
     rent, platePrice, minPlates, token,
-    advancePct: advancePct > 0 && advancePct <= 100 ? advancePct : 25,
+    advancePct: advancePct > 0 && advancePct <= 100 ? advancePct : defaultAdvancePct,
     ac, crockery, kitchen, crockeryNote, catering, amenities, blurb,
   };
   if (Array.isArray(photos)) update.photos = photos.slice(0, 15);
@@ -189,7 +190,8 @@ router.get('/me/halls', requirePartnerAuth, requireVenue, async (req, res) => {
 });
 
 router.post('/me/halls', requirePartnerAuth, requireVenue, async (req, res) => {
-  const parsed = parseHallBody(req.body);
+  const { defaultAdvancePct } = await Config.get();
+  const parsed = parseHallBody(req.body, defaultAdvancePct);
   if (parsed.error) return res.status(400).json({ error: parsed.error });
   const hall = await Hall.create({ ...parsed.update, partner: req.partner.id });
   res.status(201).json(serializeOwn(hall));
@@ -202,7 +204,8 @@ router.get('/me/halls/:hallId', requirePartnerAuth, requireVenue, async (req, re
 });
 
 router.put('/me/halls/:hallId', requirePartnerAuth, requireVenue, async (req, res) => {
-  const parsed = parseHallBody(req.body);
+  const { defaultAdvancePct } = await Config.get();
+  const parsed = parseHallBody(req.body, defaultAdvancePct);
   if (parsed.error) return res.status(400).json({ error: parsed.error });
   const hall = await Hall.findOneAndUpdate(
     { _id: req.params.hallId, partner: req.partner.id },
@@ -420,7 +423,7 @@ router.patch('/me/tokens/:id', requirePartnerAuth, async (req, res) => {
     const hall = mongoose.isValidObjectId(booking.hallId)
       ? await Hall.findOne({ _id: booking.hallId, partner: req.partner.id })
       : null;
-    const advancePct = hall?.advancePct > 0 ? hall.advancePct : 25;
+    const advancePct = hall?.advancePct > 0 ? hall.advancePct : (await Config.get()).defaultAdvancePct;
     booking.status = 'awaiting_advance';
     booking.finalRent = finalRent;
     booking.advancePct = advancePct;

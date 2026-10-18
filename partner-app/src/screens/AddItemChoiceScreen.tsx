@@ -27,8 +27,8 @@ export default function AddItemChoiceScreen({ navigation }: Props) {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return presets.slice(0, 30);
-    return presets.filter((p) => p.name.toLowerCase().includes(q)).slice(0, 30);
+    if (!q) return presets;
+    return presets.filter((p) => p.name.toLowerCase().includes(q));
   }, [presets, query]);
 
   const goToForm = (initial?: Classified, initialPhotos?: string[]) => {

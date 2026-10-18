@@ -7,15 +7,14 @@ require Pod::Executable.execute_command('node', ['-p',
 
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
-use_modular_headers!
 
-$RNFirebaseAsStaticFramework = true
-
-linkage = ENV['USE_FRAMEWORKS']
-if linkage != nil
-  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
-  use_frameworks! :linkage => linkage.to_sym
-end
+# Switched to dynamic framework linking to fix a persistent, non-deterministic
+# 'FirebaseAuth/FirebaseAuth-Swift.h' file not found build error under static linking —
+# see the removed post_install hacks below (kept in git history) for everything tried first.
+# Dynamic frameworks embed each pod's Swift/ObjC interop headers inside the framework bundle
+# itself, found automatically via framework search paths, which sidesteps this whole class of
+# static-lib header-timing race rather than working around it.
+use_frameworks! :linkage => :dynamic
 
 target 'TambooPartner' do
   config = use_native_modules!
@@ -39,51 +38,19 @@ target 'TambooPartner' do
           config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
         end
       end
-      # Firebase 12.x's Core/Installations/CoreExtension pods don't set DEFINES_MODULE in a
-      # static-linking (non use_frameworks!) setup, so the FirebaseAuth-Swift.h compatibility
-      # header they generate can't be found by anything that imports <FirebaseAuth/...>
-      # ("'FirebaseAuth/FirebaseAuth-Swift.h' file not found" in RNFBApp/RNFBAuth). See
-      # https://github.com/firebase/firebase-ios-sdk/pull/15506 for the upstream root cause.
-      if ['FirebaseCore', 'FirebaseInstallations', 'FirebaseCoreExtension'].include?(target.name)
+      # react-native-image-picker uses kUTTypeJPEG/kUTTypeMovie (MobileCoreServices constants)
+      # without declaring that framework as a dependency in its podspec. Under static linking
+      # this was masked by getting pulled in transitively from elsewhere; under use_frameworks!
+      # dynamic linking each framework only sees what it explicitly links, so it needs adding
+      # here directly — "ld: symbol(s) not found ... _kUTTypeJPEG/_kUTTypeMovie" otherwise.
+      if target.name == 'react-native-image-picker'
         target.build_configurations.each do |config|
-          config.build_settings['DEFINES_MODULE'] = 'YES'
-        end
-      end
-      # Belt-and-braces: explicitly point every target's header search at the directory
-      # FirebaseAuth actually generates its Swift compatibility header into, since the
-      # DEFINES_MODULE fix above isn't sufficient on its own in this project's configuration.
-      # NOTE: PODS_CONFIGURATION_BUILD_DIR is per-pod-target in CocoaPods' generated xcconfig
-      # (resolves to .../<PodName>, not the shared Products dir) — that was the bug in the
-      # first version of this fix. BUILD_DIR is the aggregate derivedData Products root that
-      # actually holds FirebaseAuth's output, confirmed on disk at
-      # build/Build/Products/Debug-iphonesimulator/FirebaseAuth/Swift Compatibility Header/.
-      target.build_configurations.each do |config|
-        paths = config.build_settings['HEADER_SEARCH_PATHS'] || ['$(inherited)']
-        paths = [paths] if paths.is_a?(String)
-        paths += ['"$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/FirebaseAuth/Swift Compatibility Header"']
-        config.build_settings['HEADER_SEARCH_PATHS'] = paths
-      end
-      # The above two fixes still fail non-deterministically (different RNFB* target each
-      # time) — Xcode 26+'s "explicit module build" dependency scanner races against
-      # FirebaseAuth's Swift header being written to disk. Disabling explicit modules forces
-      # the older, serialized-by-necessity module resolution, which doesn't have this race.
-      target.build_configurations.each do |config|
-        config.build_settings['CLANG_ENABLE_EXPLICIT_MODULES'] = 'NO'
-        config.build_settings['SWIFT_ENABLE_EXPLICIT_MODULES'] = 'NO'
-      end
-    end
-    # The real root cause: the generated Pods project has no explicit target dependency from
-    # RNFB* targets onto FirebaseAuth, so Xcode's scheduler is free to start compiling RNFBAuth
-    # (which #imports <FirebaseAuth/FirebaseAuth-Swift.h> via Firebase.h) before FirebaseAuth's
-    # own Swift compile has finished *writing* that generated header — every fix above was
-    # pointing at the right file with the right path, just before it existed yet. Forcing the
-    # dependency edge directly is what actually serializes this correctly.
-    firebase_auth_target = installer.pods_project.targets.find { |t| t.name == 'FirebaseAuth' }
-    if firebase_auth_target
-      installer.pods_project.targets.each do |target|
-        next if target.name == 'FirebaseAuth'
-        if target.name.start_with?('RNFB')
-          target.add_dependency(firebase_auth_target)
+          flags = config.build_settings['OTHER_LDFLAGS'] || ['$(inherited)']
+          flags = [flags] if flags.is_a?(String)
+          # Mixes legacy (kUTTypeJPEG, MobileCoreServices) and modern (UTTypeImage,
+          # UniformTypeIdentifiers) UTI APIs across different files — needs both frameworks.
+          flags += ['-framework', 'MobileCoreServices', '-framework', 'UniformTypeIdentifiers']
+          config.build_settings['OTHER_LDFLAGS'] = flags
         end
       end
     end

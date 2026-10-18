@@ -5,7 +5,6 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import type { IconName } from '../components/icons';
-import TabBar from '../components/TabBar';
 import { useLanguage } from '../context/LanguageContext';
 import type { Key } from '../i18n';
 import { useCatalog } from '../context/CatalogContext';
@@ -191,8 +190,6 @@ export default function BrowseScreen({ navigation, route }: Props) {
           </View>
         )}
       </ScrollView>
-
-      <TabBar active="search" navigation={navigation} />
     </SafeAreaView>
   );
 }

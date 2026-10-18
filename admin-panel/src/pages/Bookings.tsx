@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api, ApiError } from '../api';
 import { useAuth } from '../context/AuthContext';
 
@@ -89,7 +90,7 @@ export default function Bookings() {
           <div className="empty-state">No token payments yet.</div>
         ) : (
           bookings.map((b) => (
-            <div key={b.id} className="ledger-row">
+            <Link key={b.id} to={`/hall-bookings/${b.id}`} className="ledger-row">
               <div className="ledger-desc">
                 <div className="d">{b.hallName} · {b.date} · {b.slot}</div>
                 <div className="m">
@@ -100,14 +101,14 @@ export default function Bookings() {
                 <div className="ledger-amt credit">{inr(b.amount)}</div>
                 <div className="m" style={{ marginTop: 2 }}>{inr(b.commission)} commission ({b.commissionPct}%)</div>
               </div>
-            </div>
+            </Link>
           ))
         )
       ) : orders.length === 0 ? (
         <div className="empty-state">No rental orders yet.</div>
       ) : (
         orders.map((o) => (
-          <div key={o.id} className="ledger-row">
+          <Link key={o.id} to={`/orders/${o.id}`} className="ledger-row">
             <div className="ledger-desc">
               <div className="d">{o.code} · {o.vendorName} · {o.eventName || 'Event'}</div>
               <div className="m">
@@ -118,7 +119,7 @@ export default function Bookings() {
               <div className="ledger-amt credit">{inr(o.value)}</div>
               <div className="m" style={{ marginTop: 2 }}>{inr(o.commission)} commission ({o.commissionPct}%)</div>
             </div>
-          </div>
+          </Link>
         ))
       )}
     </div>

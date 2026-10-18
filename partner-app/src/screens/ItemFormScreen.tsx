@@ -58,6 +58,7 @@ export default function ItemFormScreen({ navigation, route }: Props) {
   const [photos, setPhotos] = useState<string[]>(initialPhotos || []);
   const [err, setErr] = useState('');
   const [saving, setSaving] = useState(false);
+  const [cleaningPhoto, setCleaningPhoto] = useState(false);
 
   useEffect(() => {
     if (!editingId) return;
@@ -85,7 +86,20 @@ export default function ItemFormScreen({ navigation, route }: Props) {
   const addPhoto = async () => {
     if (photos.length >= MAX_ITEM_PHOTOS) return;
     const uri = await pickImageBase64();
-    if (uri) setPhotos((prev) => [...prev, uri]);
+    if (!uri) return;
+    setCleaningPhoto(true);
+    try {
+      // Cleans up the background so listings look professional instead of whatever messy
+      // real-world background the vendor shot against — applies to any photo, known or
+      // unknown item. Falls back to the original photo if the service call fails, since a
+      // raw photo is always better than blocking the vendor from adding the item at all.
+      const result = await api.post<{ imageBase64: string }>('/api/vendors/me/items/clean-photo-background', { imageBase64: uri });
+      setPhotos((prev) => [...prev, result.imageBase64]);
+    } catch {
+      setPhotos((prev) => [...prev, uri]);
+    } finally {
+      setCleaningPhoto(false);
+    }
   };
 
   const removePhoto = (idx: number) => setPhotos((prev) => prev.filter((_, i) => i !== idx));
@@ -164,9 +178,15 @@ export default function ItemFormScreen({ navigation, route }: Props) {
               </View>
             ))}
             {photos.length < MAX_ITEM_PHOTOS && (
-              <TouchableOpacity style={styles.photoAddTile} activeOpacity={0.85} onPress={addPhoto}>
-                <Icon name="camera" size={22} color={colors.pinkStrong} strokeWidth={1.5} />
-                <Text style={styles.photoText}>{t.itemFormCoverPhotoText}</Text>
+              <TouchableOpacity style={styles.photoAddTile} activeOpacity={0.85} onPress={addPhoto} disabled={cleaningPhoto}>
+                {cleaningPhoto ? (
+                  <ActivityIndicator color={colors.pinkStrong} size="small" />
+                ) : (
+                  <>
+                    <Icon name="camera" size={22} color={colors.pinkStrong} strokeWidth={1.5} />
+                    <Text style={styles.photoText}>{t.itemFormCoverPhotoText}</Text>
+                  </>
+                )}
               </TouchableOpacity>
             )}
           </View>

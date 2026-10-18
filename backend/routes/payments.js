@@ -8,8 +8,7 @@ const Partner = require('../models/Partner');
 const PayoutEntry = require('../models/PayoutEntry');
 const { isSlotTaken } = require('../lib/hallAvailability');
 const { checkItemStock } = require('../lib/itemAvailability');
-
-const DEFAULT_COMMISSION_PCT = 10;
+const Config = require('../models/Config');
 
 function orderCode() {
   return 'TB-' + (250000 + Math.floor(Math.random() * 9999));
@@ -116,6 +115,11 @@ router.post('/verify', requireAuth, async (req, res) => {
   // Booking context is optional so /verify still works for any future non-hall-token
   // payment; when it's present (the hall pre-booking flow) we persist the booking and,
   // if the hall is linked to a real registered partner, auto-credit their payout ledger.
+  // Fetched once per request, not cached across requests — so an admin's commission-%
+  // change via the Fees settings page takes effect on the very next order, not after a
+  // server restart.
+  const { commissionPct: DEFAULT_COMMISSION_PCT } = await Config.get();
+
   let bookingId;
   let bookingConflict = false;
   if (hallId && hallName && date && slot && typeof amount === 'number') {

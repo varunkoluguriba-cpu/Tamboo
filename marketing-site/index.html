@@ -25,9 +25,9 @@
     <div class="hero-blob a"></div>
     <div class="hero-blob b"></div>
     <div class="wrap hero-inner">
-      <span class="eyebrow">Now live in Hyderabad</span>
-      <h1>Book your event, without the guesswork.</h1>
-      <p>
+      <span class="eyebrow" id="hero-eyebrow">Now live in Hyderabad</span>
+      <h1 id="hero-title">Book your event, without the guesswork.</h1>
+      <p id="hero-body">
         Browse verified function halls, banquet halls and tent-house vendors, pay a small
         refundable token to pre-book, and lock in your date — all in one app.
       </p>
@@ -45,21 +45,21 @@
         <h2>Three steps to a locked-in date</h2>
         <p>No more visiting five halls, no more "someone else already booked it" calls.</p>
       </div>
-      <div class="steps">
+      <div class="steps" id="steps-list">
         <div class="step-card">
           <div class="step-num">1</div>
-          <h3>Browse verified venues</h3>
-          <p>See real photos, pricing, capacity and a live calendar for every hall and vendor — no surprises when you show up.</p>
+          <h3 class="step-title">Browse verified venues</h3>
+          <p class="step-body">See real photos, pricing, capacity and a live calendar for every hall and vendor — no surprises when you show up.</p>
         </div>
         <div class="step-card">
           <div class="step-num">2</div>
-          <h3>Pre-book with a token</h3>
-          <p>Pay a small refundable token to hold your date and slot while you visit in person and finalize the details.</p>
+          <h3 class="step-title">Pre-book with a token</h3>
+          <p class="step-body">Pay a small refundable token to hold your date and slot while you visit in person and finalize the details.</p>
         </div>
         <div class="step-card">
           <div class="step-num">3</div>
-          <h3>Confirm your event</h3>
-          <p>Like what you see? Confirm directly with the venue. Change your mind before visiting? Get a full refund.</p>
+          <h3 class="step-title">Confirm your event</h3>
+          <p class="step-body">Like what you see? Confirm directly with the venue. Change your mind before visiting? Get a full refund.</p>
         </div>
       </div>
     </div>
@@ -68,9 +68,9 @@
   <section id="for-businesses">
     <div class="wrap split">
       <div class="split-card dark">
-        <h2>Own a hall or run a tent house?</h2>
-        <p>List your business on Tamboo and reach customers actively planning an event right now — no more relying on word of mouth alone.</p>
-        <ul class="check-list">
+        <h2 id="biz-title">Own a hall or run a tent house?</h2>
+        <p id="biz-body">List your business on Tamboo and reach customers actively planning an event right now — no more relying on word of mouth alone.</p>
+        <ul class="check-list" id="biz-checklist">
           <li><span class="dot">✓</span> Free listing, get paid for every confirmed pre-booking</li>
           <li><span class="dot">✓</span> A live calendar that stops double-bookings before they happen</li>
           <li><span class="dot">✓</span> Manage orders, quotes and your earnings from one app</li>
@@ -92,7 +92,7 @@
         <h2>Where Tamboo works today</h2>
         <p>Starting in Hyderabad, expanding across Telangana and beyond.</p>
       </div>
-      <div class="cities">
+      <div class="cities" id="cities-list">
         <span class="city-chip live">Hyderabad — live</span>
         <span class="city-chip">Secunderabad — soon</span>
         <span class="city-chip">Warangal — soon</span>
@@ -106,8 +106,8 @@
       <h2>Get Tamboo on your phone</h2>
       <p>Planning an event or running a venue — the app you need is one tap away.</p>
       <div class="hero-ctas">
-        <a href="#" class="btn btn-outline">Customer app — coming to Play Store</a>
-        <a href="#" class="btn btn-outline">Partner app — coming to Play Store</a>
+        <a href="#" id="customer-app-link" class="btn btn-outline">Customer app — coming to Play Store</a>
+        <a href="#" id="partner-app-link" class="btn btn-outline">Partner app — coming to Play Store</a>
       </div>
     </div>
   </section>
@@ -123,6 +123,63 @@
       <span class="footer-note">© 2026 Tamboo. Made for Hyderabad.</span>
     </div>
   </footer>
+
+  <script>
+    // Hydrates the page with live copy from the admin-editable CMS backend. The HTML above is
+    // real content, not a loading placeholder — so if this fetch fails (offline, API down), the
+    // page still reads fine as-is instead of breaking or showing blanks.
+    (function () {
+      var API_BASE = 'https://tamboo-varun-backend.onrender.com';
+      fetch(API_BASE + '/api/site-content')
+        .then(function (res) { return res.ok ? res.json() : null; })
+        .then(function (c) {
+          if (!c) return;
+          var setText = function (id, value) { var el = document.getElementById(id); if (el && value) el.textContent = value; };
+          setText('hero-eyebrow', c.heroEyebrow);
+          setText('hero-title', c.heroTitle);
+          setText('hero-body', c.heroBody);
+          setText('biz-title', c.businessPitchTitle);
+          setText('biz-body', c.businessPitchBody);
+
+          if (Array.isArray(c.steps) && c.steps.length) {
+            var stepCards = document.querySelectorAll('#steps-list .step-card');
+            c.steps.forEach(function (step, i) {
+              if (!stepCards[i]) return;
+              var t = stepCards[i].querySelector('.step-title');
+              var b = stepCards[i].querySelector('.step-body');
+              if (t && step.title) t.textContent = step.title;
+              if (b && step.body) b.textContent = step.body;
+            });
+          }
+
+          if (Array.isArray(c.businessChecklist) && c.businessChecklist.length) {
+            var list = document.getElementById('biz-checklist');
+            list.innerHTML = c.businessChecklist.map(function (item) {
+              return '<li><span class="dot">✓</span> ' + item + '</li>';
+            }).join('');
+          }
+
+          if (Array.isArray(c.cities) && c.cities.length) {
+            var cities = document.getElementById('cities-list');
+            cities.innerHTML = c.cities.map(function (city) {
+              return '<span class="city-chip' + (city.live ? ' live' : '') + '">' + city.name + ' — ' + (city.live ? 'live' : 'soon') + '</span>';
+            }).join('');
+          }
+
+          if (c.customerAppUrl) {
+            var ca = document.getElementById('customer-app-link');
+            ca.href = c.customerAppUrl;
+            ca.textContent = 'Download the Customer app';
+          }
+          if (c.partnerAppUrl) {
+            var pa = document.getElementById('partner-app-link');
+            pa.href = c.partnerAppUrl;
+            pa.textContent = 'Download the Partner app';
+          }
+        })
+        .catch(function () { /* page already shows good default copy, nothing to do */ });
+    })();
+  </script>
 
 </body>
 </html>

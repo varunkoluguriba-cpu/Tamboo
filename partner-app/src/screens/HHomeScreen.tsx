@@ -5,7 +5,6 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
-import { VenueTabBar } from '../components/TabBar';
 import LanguageSheet from '../components/LanguageSheet';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -146,7 +145,6 @@ export default function HHomeScreen() {
         </TouchableOpacity>
       </ScrollView>
 
-      <VenueTabBar active="hhome" navigation={navigation} badge={{ htokens: active.length || undefined }} />
       <LanguageSheet visible={langSheet} onClose={() => setLangSheet(false)} />
     </SafeAreaView>
   );

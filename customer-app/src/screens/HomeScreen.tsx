@@ -8,7 +8,6 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import type { IconName } from '../components/icons';
-import TabBar from '../components/TabBar';
 import LanguageSheet from '../components/LanguageSheet';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
@@ -397,7 +396,6 @@ export default function HomeScreen() {
         )}
       </ScrollView>
 
-      <TabBar active="home" navigation={navigation} />
       <LanguageSheet visible={langSheet} onClose={() => setLangSheet(false)} />
     </SafeAreaView>
   );

@@ -15,7 +15,10 @@ export default function Login() {
   return (
     <div className="login-wrap">
       <form className="login-card" onSubmit={submit}>
-        <div className="login-badge">tamboo</div>
+        <div className="login-logo-row">
+          <span className="login-badge">tamboo</span>
+          <span className="sidebar-sub">ADMIN</span>
+        </div>
         <div className="login-sub">Admin panel</div>
 
         <label className="field-label" htmlFor="username">Username</label>

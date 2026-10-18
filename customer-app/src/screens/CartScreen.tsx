@@ -5,7 +5,6 @@ import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
-import TabBar from '../components/TabBar';
 import { useCart } from '../context/CartContext';
 import { useEvent } from '../context/EventContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -139,8 +138,6 @@ export default function CartScreen({ navigation }: Props) {
           </>
         )}
       </ScrollView>
-
-      <TabBar active="cart" navigation={navigation} />
     </SafeAreaView>
   );
 }
