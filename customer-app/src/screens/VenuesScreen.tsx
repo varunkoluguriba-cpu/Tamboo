@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
@@ -29,6 +29,7 @@ export default function VenuesScreen({ navigation }: Props) {
   const { t } = useLanguage();
   const { event } = useEvent();
   const { halls: HALLS } = useCatalog();
+  const [q, setQ] = useState('');
   const [venueType, setVenueType] = useState('All');
   const [slot, setSlot] = useState('Any time');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
@@ -73,13 +74,14 @@ export default function VenuesScreen({ navigation }: Props) {
 
   const halls = useMemo(() => {
     let list = HALLS.filter((h) => venueType === 'All' || h.type === venueType);
+    if (q.trim()) list = list.filter((h) => h.name.toLowerCase().includes(q.trim().toLowerCase()));
     if (verifiedOnly) list = list.filter((h) => h.verified);
     if (sort === 'nearest') list = [...list].sort((a, b) => (a.km ?? Infinity) - (b.km ?? Infinity));
     if (sort === 'rating') list = [...list].sort((a, b) => b.rating - a.rating);
     if (sort === 'priceLow') list = [...list].sort((a, b) => a.token - b.token);
     if (sort === 'priceHigh') list = [...list].sort((a, b) => b.token - a.token);
     return list;
-  }, [HALLS, venueType, verifiedOnly, sort]);
+  }, [HALLS, q, venueType, verifiedOnly, sort]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -93,6 +95,17 @@ export default function VenuesScreen({ navigation }: Props) {
             <Icon name="pin" size={13} color={colors.pinkStrong} />
             <Text style={styles.cityText}>Hyderabad</Text>
           </View>
+        </View>
+
+        <View style={styles.searchBar}>
+          <Icon name="search" size={18} color={colors.textMuted} />
+          <TextInput
+            value={q}
+            onChangeText={setQ}
+            placeholder={t.venuesSearchPlaceholder}
+            placeholderTextColor={colors.textMuted}
+            style={styles.searchInput}
+          />
         </View>
 
         <View style={styles.grid2}>
@@ -187,6 +200,8 @@ const styles = StyleSheet.create({
   headerTitle: { flex: 1, fontFamily: 'Sora', fontSize: 20, fontWeight: '800', color: colors.text },
   cityPill: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.surface, borderRadius: 999, paddingVertical: 6, paddingHorizontal: 10, ...shadow.card },
   cityText: { fontSize: 12.5, fontWeight: '700', color: colors.pinkStrong },
+  searchBar: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.surface, borderRadius: 16, height: 50, paddingHorizontal: 14, ...shadow.card },
+  searchInput: { flex: 1, fontSize: 14.5, color: colors.text },
   grid2: { flexDirection: 'row', gap: 8 },
   field: { flex: 1, backgroundColor: colors.surface, borderRadius: 18, padding: 10, ...shadow.card },
   fieldLabel: { fontSize: 11, color: colors.textMuted },
