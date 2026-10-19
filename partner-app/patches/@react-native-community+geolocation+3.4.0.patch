@@ -1,0 +1,1336 @@
+diff --git a/node_modules/@react-native-community/geolocation/android/build.gradle b/node_modules/@react-native-community/geolocation/android/build.gradle
+index aab4a31..3857b07 100644
+--- a/node_modules/@react-native-community/geolocation/android/build.gradle
++++ b/node_modules/@react-native-community/geolocation/android/build.gradle
+@@ -35,6 +35,10 @@ android {
+ 
+   compileSdkVersion getExtOrIntegerDefault('compileSdkVersion')
+ 
++  buildFeatures {
++    buildConfig true
++  }
++
+   defaultConfig {
+     minSdkVersion getExtOrIntegerDefault('minSdkVersion')
+     targetSdkVersion getExtOrIntegerDefault('targetSdkVersion')
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/results.bin b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/results.bin
+new file mode 100644
+index 0000000..7ed749e
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/results.bin
+@@ -0,0 +1 @@
++o/bundleLibRuntimeToDirDebug
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/AndroidLocationManager$1.dex b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/AndroidLocationManager$1.dex
+new file mode 100644
+index 0000000..0d227d4
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/AndroidLocationManager$1.dex differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest$1.dex b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest$1.dex
+new file mode 100644
+index 0000000..e9140e9
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest$1.dex differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest$2.dex b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest$2.dex
+new file mode 100644
+index 0000000..ba1dfe2
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest$2.dex differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest.dex b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest.dex
+new file mode 100644
+index 0000000..9b22881
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest.dex differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/AndroidLocationManager.dex b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/AndroidLocationManager.dex
+new file mode 100644
+index 0000000..f94039d
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/AndroidLocationManager.dex differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/BaseLocationManager$LocationOptions.dex b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/BaseLocationManager$LocationOptions.dex
+new file mode 100644
+index 0000000..5850fd0
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/BaseLocationManager$LocationOptions.dex differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/BaseLocationManager.dex b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/BaseLocationManager.dex
+new file mode 100644
+index 0000000..bf7835b
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/BaseLocationManager.dex differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/BuildConfig.dex b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/BuildConfig.dex
+new file mode 100644
+index 0000000..2f4fdc6
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/BuildConfig.dex differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/GeolocationModule$Configuration.dex b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/GeolocationModule$Configuration.dex
+new file mode 100644
+index 0000000..9d4bfa7
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/GeolocationModule$Configuration.dex differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/GeolocationModule.dex b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/GeolocationModule.dex
+new file mode 100644
+index 0000000..e684ddd
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/GeolocationModule.dex differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/GeolocationPackage.dex b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/GeolocationPackage.dex
+new file mode 100644
+index 0000000..63a3c5a
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/GeolocationPackage.dex differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/NativeRNCGeolocationSpec.dex b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/NativeRNCGeolocationSpec.dex
+new file mode 100644
+index 0000000..256c780
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/NativeRNCGeolocationSpec.dex differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/PlayServicesLocationManager$1.dex b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/PlayServicesLocationManager$1.dex
+new file mode 100644
+index 0000000..ac006c0
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/PlayServicesLocationManager$1.dex differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/PlayServicesLocationManager$2.dex b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/PlayServicesLocationManager$2.dex
+new file mode 100644
+index 0000000..1d29ac0
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/PlayServicesLocationManager$2.dex differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/PlayServicesLocationManager$CallbackHolder.dex b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/PlayServicesLocationManager$CallbackHolder.dex
+new file mode 100644
+index 0000000..d918863
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/PlayServicesLocationManager$CallbackHolder.dex differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/PlayServicesLocationManager.dex b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/PlayServicesLocationManager.dex
+new file mode 100644
+index 0000000..7e90d20
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/PlayServicesLocationManager.dex differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/PositionError.dex b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/PositionError.dex
+new file mode 100644
+index 0000000..a9a08ff
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/PositionError.dex differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/RNCGeolocationModule.dex b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/RNCGeolocationModule.dex
+new file mode 100644
+index 0000000..155bef4
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_dex/com/reactnativecommunity/geolocation/RNCGeolocationModule.dex differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$1d77bf30515c38740cc541de6d5b82256ffadeb52fc92de865ef62f96588b1b4$0.globals b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$1d77bf30515c38740cc541de6d5b82256ffadeb52fc92de865ef62f96588b1b4$0.globals
+new file mode 100644
+index 0000000..cf6ce7d
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$1d77bf30515c38740cc541de6d5b82256ffadeb52fc92de865ef62f96588b1b4$0.globals differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$1d77bf30515c38740cc541de6d5b82256ffadeb52fc92de865ef62f96588b1b4$1.globals b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$1d77bf30515c38740cc541de6d5b82256ffadeb52fc92de865ef62f96588b1b4$1.globals
+new file mode 100644
+index 0000000..cf6ce7d
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$1d77bf30515c38740cc541de6d5b82256ffadeb52fc92de865ef62f96588b1b4$1.globals differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$227bd991ea5ccacbfe1f71f94c24829a8b3966791745c77dbff5da5dc38ae712$0.globals b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$227bd991ea5ccacbfe1f71f94c24829a8b3966791745c77dbff5da5dc38ae712$0.globals
+new file mode 100644
+index 0000000..cf6ce7d
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$227bd991ea5ccacbfe1f71f94c24829a8b3966791745c77dbff5da5dc38ae712$0.globals differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$f4affb59b432d30acca8f5d14c11a7f1eccbb94ebc56319c06ea8e68dd2f4584$0.globals b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$f4affb59b432d30acca8f5d14c11a7f1eccbb94ebc56319c06ea8e68dd2f4584$0.globals
+new file mode 100644
+index 0000000..cf6ce7d
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$f4affb59b432d30acca8f5d14c11a7f1eccbb94ebc56319c06ea8e68dd2f4584$0.globals differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$f4affb59b432d30acca8f5d14c11a7f1eccbb94ebc56319c06ea8e68dd2f4584$1.globals b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$f4affb59b432d30acca8f5d14c11a7f1eccbb94ebc56319c06ea8e68dd2f4584$1.globals
+new file mode 100644
+index 0000000..cf6ce7d
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$f4affb59b432d30acca8f5d14c11a7f1eccbb94ebc56319c06ea8e68dd2f4584$1.globals differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$f4affb59b432d30acca8f5d14c11a7f1eccbb94ebc56319c06ea8e68dd2f4584$2.globals b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$f4affb59b432d30acca8f5d14c11a7f1eccbb94ebc56319c06ea8e68dd2f4584$2.globals
+new file mode 100644
+index 0000000..cf6ce7d
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$f4affb59b432d30acca8f5d14c11a7f1eccbb94ebc56319c06ea8e68dd2f4584$2.globals differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$f4affb59b432d30acca8f5d14c11a7f1eccbb94ebc56319c06ea8e68dd2f4584$3.globals b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$f4affb59b432d30acca8f5d14c11a7f1eccbb94ebc56319c06ea8e68dd2f4584$3.globals
+new file mode 100644
+index 0000000..cf6ce7d
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$f4affb59b432d30acca8f5d14c11a7f1eccbb94ebc56319c06ea8e68dd2f4584$3.globals differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$f4affb59b432d30acca8f5d14c11a7f1eccbb94ebc56319c06ea8e68dd2f4584$4.globals b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$f4affb59b432d30acca8f5d14c11a7f1eccbb94ebc56319c06ea8e68dd2f4584$4.globals
+new file mode 100644
+index 0000000..cf6ce7d
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationModule$$InternalSyntheticLambda$4$f4affb59b432d30acca8f5d14c11a7f1eccbb94ebc56319c06ea8e68dd2f4584$4.globals differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationPackage$$InternalSyntheticLambda$2$52f6341d0c251be19c1cf124f620dfb7bf765a5bfda605cf409d5982ca4333a6$0.globals b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationPackage$$InternalSyntheticLambda$2$52f6341d0c251be19c1cf124f620dfb7bf765a5bfda605cf409d5982ca4333a6$0.globals
+new file mode 100644
+index 0000000..cf6ce7d
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/GeolocationPackage$$InternalSyntheticLambda$2$52f6341d0c251be19c1cf124f620dfb7bf765a5bfda605cf409d5982ca4333a6$0.globals differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/PlayServicesLocationManager$$InternalSyntheticLambda$6$05fc0513e7719efdd2445220b8e0061bad004fb00125904769991cd508d3ba3d$0.globals b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/PlayServicesLocationManager$$InternalSyntheticLambda$6$05fc0513e7719efdd2445220b8e0061bad004fb00125904769991cd508d3ba3d$0.globals
+new file mode 100644
+index 0000000..cf6ce7d
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/PlayServicesLocationManager$$InternalSyntheticLambda$6$05fc0513e7719efdd2445220b8e0061bad004fb00125904769991cd508d3ba3d$0.globals differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/PlayServicesLocationManager$$InternalSyntheticLambda$6$d66de50f381c6746050588cf03b2b690e39925bcc13d6f10818ce594743daf4b$0.globals b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/PlayServicesLocationManager$$InternalSyntheticLambda$6$d66de50f381c6746050588cf03b2b690e39925bcc13d6f10818ce594743daf4b$0.globals
+new file mode 100644
+index 0000000..cf6ce7d
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/PlayServicesLocationManager$$InternalSyntheticLambda$6$d66de50f381c6746050588cf03b2b690e39925bcc13d6f10818ce594743daf4b$0.globals differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/PlayServicesLocationManager$$InternalSyntheticLambda$6$d66de50f381c6746050588cf03b2b690e39925bcc13d6f10818ce594743daf4b$1.globals b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/PlayServicesLocationManager$$InternalSyntheticLambda$6$d66de50f381c6746050588cf03b2b690e39925bcc13d6f10818ce594743daf4b$1.globals
+new file mode 100644
+index 0000000..cf6ce7d
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/PlayServicesLocationManager$$InternalSyntheticLambda$6$d66de50f381c6746050588cf03b2b690e39925bcc13d6f10818ce594743daf4b$1.globals differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/PlayServicesLocationManager$$InternalSyntheticLambda$7$05fc0513e7719efdd2445220b8e0061bad004fb00125904769991cd508d3ba3d$0.globals b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/PlayServicesLocationManager$$InternalSyntheticLambda$7$05fc0513e7719efdd2445220b8e0061bad004fb00125904769991cd508d3ba3d$0.globals
+new file mode 100644
+index 0000000..cf6ce7d
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/PlayServicesLocationManager$$InternalSyntheticLambda$7$05fc0513e7719efdd2445220b8e0061bad004fb00125904769991cd508d3ba3d$0.globals differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/PlayServicesLocationManager$$InternalSyntheticLambda$7$d66de50f381c6746050588cf03b2b690e39925bcc13d6f10818ce594743daf4b$0.globals b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/PlayServicesLocationManager$$InternalSyntheticLambda$7$d66de50f381c6746050588cf03b2b690e39925bcc13d6f10818ce594743daf4b$0.globals
+new file mode 100644
+index 0000000..cf6ce7d
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/PlayServicesLocationManager$$InternalSyntheticLambda$7$d66de50f381c6746050588cf03b2b690e39925bcc13d6f10818ce594743daf4b$0.globals differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/PlayServicesLocationManager$$InternalSyntheticLambda$7$d66de50f381c6746050588cf03b2b690e39925bcc13d6f10818ce594743daf4b$1.globals b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/PlayServicesLocationManager$$InternalSyntheticLambda$7$d66de50f381c6746050588cf03b2b690e39925bcc13d6f10818ce594743daf4b$1.globals
+new file mode 100644
+index 0000000..cf6ce7d
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/bundleLibRuntimeToDirDebug_global-synthetics/com/reactnativecommunity/geolocation/PlayServicesLocationManager$$InternalSyntheticLambda$7$d66de50f381c6746050588cf03b2b690e39925bcc13d6f10818ce594743daf4b$1.globals differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin
+new file mode 100644
+index 0000000..f826ebf
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/.transforms/934ca0f75ac1e6ab5d0198476b4ad556/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/generated/source/buildConfig/debug/com/reactnativecommunity/geolocation/BuildConfig.java b/node_modules/@react-native-community/geolocation/android/build/generated/source/buildConfig/debug/com/reactnativecommunity/geolocation/BuildConfig.java
+new file mode 100644
+index 0000000..e82cc2d
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/generated/source/buildConfig/debug/com/reactnativecommunity/geolocation/BuildConfig.java
+@@ -0,0 +1,12 @@
++/**
++ * Automatically generated file. DO NOT MODIFY
++ */
++package com.reactnativecommunity.geolocation;
++
++public final class BuildConfig {
++  public static final boolean DEBUG = Boolean.parseBoolean("true");
++  public static final String LIBRARY_PACKAGE_NAME = "com.reactnativecommunity.geolocation";
++  public static final String BUILD_TYPE = "debug";
++  // Field from default config.
++  public static final boolean IS_NEW_ARCHITECTURE_ENABLED = true;
++}
+diff --git a/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/java/com/reactnativecommunity/geolocation/NativeRNCGeolocationSpec.java b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/java/com/reactnativecommunity/geolocation/NativeRNCGeolocationSpec.java
+new file mode 100644
+index 0000000..a92e375
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/java/com/reactnativecommunity/geolocation/NativeRNCGeolocationSpec.java
+@@ -0,0 +1,63 @@
++
++/**
++ * This code was generated by [react-native-codegen](https://www.npmjs.com/package/react-native-codegen).
++ *
++ * Do not edit this file as changes may cause incorrect behavior and will be lost
++ * once the code is regenerated.
++ *
++ * @generated by codegen project: GenerateModuleJavaSpec.js
++ *
++ * @nolint
++ */
++
++package com.reactnativecommunity.geolocation;
++
++import com.facebook.proguard.annotations.DoNotStrip;
++import com.facebook.react.bridge.Callback;
++import com.facebook.react.bridge.ReactApplicationContext;
++import com.facebook.react.bridge.ReactContextBaseJavaModule;
++import com.facebook.react.bridge.ReactMethod;
++import com.facebook.react.bridge.ReadableMap;
++import com.facebook.react.turbomodule.core.interfaces.TurboModule;
++import javax.annotation.Nonnull;
++
++public abstract class NativeRNCGeolocationSpec extends ReactContextBaseJavaModule implements TurboModule {
++  public static final String NAME = "RNCGeolocation";
++
++  public NativeRNCGeolocationSpec(ReactApplicationContext reactContext) {
++    super(reactContext);
++  }
++
++  @Override
++  public @Nonnull String getName() {
++    return NAME;
++  }
++
++  @ReactMethod
++  @DoNotStrip
++  public abstract void setConfiguration(ReadableMap config);
++
++  @ReactMethod
++  @DoNotStrip
++  public abstract void requestAuthorization(Callback success, Callback error);
++
++  @ReactMethod
++  @DoNotStrip
++  public abstract void getCurrentPosition(ReadableMap options, Callback position, Callback error);
++
++  @ReactMethod
++  @DoNotStrip
++  public abstract void startObserving(ReadableMap options);
++
++  @ReactMethod
++  @DoNotStrip
++  public abstract void stopObserving();
++
++  @ReactMethod
++  @DoNotStrip
++  public abstract void addListener(String eventName);
++
++  @ReactMethod
++  @DoNotStrip
++  public abstract void removeListeners(double count);
++}
+diff --git a/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/CMakeLists.txt b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/CMakeLists.txt
+new file mode 100644
+index 0000000..80adca0
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/CMakeLists.txt
+@@ -0,0 +1,28 @@
++# Copyright (c) Meta Platforms, Inc. and affiliates.
++#
++# This source code is licensed under the MIT license found in the
++# LICENSE file in the root directory of this source tree.
++
++cmake_minimum_required(VERSION 3.13)
++set(CMAKE_VERBOSE_MAKEFILE on)
++
++file(GLOB react_codegen_SRCS CONFIGURE_DEPENDS *.cpp react/renderer/components/RNCGeolocationSpec/*.cpp)
++
++add_library(
++  react_codegen_RNCGeolocationSpec
++  OBJECT
++  ${react_codegen_SRCS}
++)
++
++target_include_directories(react_codegen_RNCGeolocationSpec PUBLIC . react/renderer/components/RNCGeolocationSpec)
++
++target_link_libraries(
++  react_codegen_RNCGeolocationSpec
++  fbjni
++  jsi
++  # We need to link different libraries based on whether we are building rncore or not, that's necessary
++  # because we want to break a circular dependency between react_codegen_rncore and reactnative
++  reactnative
++)
++
++target_compile_reactnative_options(react_codegen_RNCGeolocationSpec PRIVATE)
+diff --git a/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/RNCGeolocationSpec-generated.cpp b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/RNCGeolocationSpec-generated.cpp
+new file mode 100644
+index 0000000..fa2f595
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/RNCGeolocationSpec-generated.cpp
+@@ -0,0 +1,68 @@
++
++/**
++ * This code was generated by [react-native-codegen](https://www.npmjs.com/package/react-native-codegen).
++ *
++ * Do not edit this file as changes may cause incorrect behavior and will be lost
++ * once the code is regenerated.
++ *
++ * @generated by codegen project: GenerateModuleJniCpp.js
++ */
++
++#include "RNCGeolocationSpec.h"
++
++namespace facebook::react {
++
++static facebook::jsi::Value __hostFunction_NativeRNCGeolocationSpecJSI_setConfiguration(facebook::jsi::Runtime& rt, TurboModule &turboModule, const facebook::jsi::Value* args, size_t count) {
++  static jmethodID cachedMethodId = nullptr;
++  return static_cast<JavaTurboModule &>(turboModule).invokeJavaMethod(rt, VoidKind, "setConfiguration", "(Lcom/facebook/react/bridge/ReadableMap;)V", args, count, cachedMethodId);
++}
++
++static facebook::jsi::Value __hostFunction_NativeRNCGeolocationSpecJSI_requestAuthorization(facebook::jsi::Runtime& rt, TurboModule &turboModule, const facebook::jsi::Value* args, size_t count) {
++  static jmethodID cachedMethodId = nullptr;
++  return static_cast<JavaTurboModule &>(turboModule).invokeJavaMethod(rt, VoidKind, "requestAuthorization", "(Lcom/facebook/react/bridge/Callback;Lcom/facebook/react/bridge/Callback;)V", args, count, cachedMethodId);
++}
++
++static facebook::jsi::Value __hostFunction_NativeRNCGeolocationSpecJSI_getCurrentPosition(facebook::jsi::Runtime& rt, TurboModule &turboModule, const facebook::jsi::Value* args, size_t count) {
++  static jmethodID cachedMethodId = nullptr;
++  return static_cast<JavaTurboModule &>(turboModule).invokeJavaMethod(rt, VoidKind, "getCurrentPosition", "(Lcom/facebook/react/bridge/ReadableMap;Lcom/facebook/react/bridge/Callback;Lcom/facebook/react/bridge/Callback;)V", args, count, cachedMethodId);
++}
++
++static facebook::jsi::Value __hostFunction_NativeRNCGeolocationSpecJSI_startObserving(facebook::jsi::Runtime& rt, TurboModule &turboModule, const facebook::jsi::Value* args, size_t count) {
++  static jmethodID cachedMethodId = nullptr;
++  return static_cast<JavaTurboModule &>(turboModule).invokeJavaMethod(rt, VoidKind, "startObserving", "(Lcom/facebook/react/bridge/ReadableMap;)V", args, count, cachedMethodId);
++}
++
++static facebook::jsi::Value __hostFunction_NativeRNCGeolocationSpecJSI_stopObserving(facebook::jsi::Runtime& rt, TurboModule &turboModule, const facebook::jsi::Value* args, size_t count) {
++  static jmethodID cachedMethodId = nullptr;
++  return static_cast<JavaTurboModule &>(turboModule).invokeJavaMethod(rt, VoidKind, "stopObserving", "()V", args, count, cachedMethodId);
++}
++
++static facebook::jsi::Value __hostFunction_NativeRNCGeolocationSpecJSI_addListener(facebook::jsi::Runtime& rt, TurboModule &turboModule, const facebook::jsi::Value* args, size_t count) {
++  static jmethodID cachedMethodId = nullptr;
++  return static_cast<JavaTurboModule &>(turboModule).invokeJavaMethod(rt, VoidKind, "addListener", "(Ljava/lang/String;)V", args, count, cachedMethodId);
++}
++
++static facebook::jsi::Value __hostFunction_NativeRNCGeolocationSpecJSI_removeListeners(facebook::jsi::Runtime& rt, TurboModule &turboModule, const facebook::jsi::Value* args, size_t count) {
++  static jmethodID cachedMethodId = nullptr;
++  return static_cast<JavaTurboModule &>(turboModule).invokeJavaMethod(rt, VoidKind, "removeListeners", "(D)V", args, count, cachedMethodId);
++}
++
++NativeRNCGeolocationSpecJSI::NativeRNCGeolocationSpecJSI(const JavaTurboModule::InitParams &params)
++  : JavaTurboModule(params) {
++  methodMap_["setConfiguration"] = MethodMetadata {1, __hostFunction_NativeRNCGeolocationSpecJSI_setConfiguration};
++  methodMap_["requestAuthorization"] = MethodMetadata {2, __hostFunction_NativeRNCGeolocationSpecJSI_requestAuthorization};
++  methodMap_["getCurrentPosition"] = MethodMetadata {3, __hostFunction_NativeRNCGeolocationSpecJSI_getCurrentPosition};
++  methodMap_["startObserving"] = MethodMetadata {1, __hostFunction_NativeRNCGeolocationSpecJSI_startObserving};
++  methodMap_["stopObserving"] = MethodMetadata {0, __hostFunction_NativeRNCGeolocationSpecJSI_stopObserving};
++  methodMap_["addListener"] = MethodMetadata {1, __hostFunction_NativeRNCGeolocationSpecJSI_addListener};
++  methodMap_["removeListeners"] = MethodMetadata {1, __hostFunction_NativeRNCGeolocationSpecJSI_removeListeners};
++}
++
++std::shared_ptr<TurboModule> RNCGeolocationSpec_ModuleProvider(const std::string &moduleName, const JavaTurboModule::InitParams &params) {
++  if (moduleName == "RNCGeolocation") {
++    return std::make_shared<NativeRNCGeolocationSpecJSI>(params);
++  }
++  return nullptr;
++}
++
++} // namespace facebook::react
+diff --git a/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/RNCGeolocationSpec.h b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/RNCGeolocationSpec.h
+new file mode 100644
+index 0000000..9112b37
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/RNCGeolocationSpec.h
+@@ -0,0 +1,31 @@
++
++/**
++ * This code was generated by [react-native-codegen](https://www.npmjs.com/package/react-native-codegen).
++ *
++ * Do not edit this file as changes may cause incorrect behavior and will be lost
++ * once the code is regenerated.
++ *
++ * @generated by codegen project: GenerateModuleJniH.js
++ */
++
++#pragma once
++
++#include <ReactCommon/JavaTurboModule.h>
++#include <ReactCommon/TurboModule.h>
++#include <jsi/jsi.h>
++
++namespace facebook::react {
++
++/**
++ * JNI C++ class for module 'NativeRNCGeolocation'
++ */
++class JSI_EXPORT NativeRNCGeolocationSpecJSI : public JavaTurboModule {
++public:
++  NativeRNCGeolocationSpecJSI(const JavaTurboModule::InitParams &params);
++};
++
++
++JSI_EXPORT
++std::shared_ptr<TurboModule> RNCGeolocationSpec_ModuleProvider(const std::string &moduleName, const JavaTurboModule::InitParams &params);
++
++} // namespace facebook::react
+diff --git a/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/ComponentDescriptors.cpp b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/ComponentDescriptors.cpp
+new file mode 100644
+index 0000000..f3f7389
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/ComponentDescriptors.cpp
+@@ -0,0 +1,22 @@
++
++/**
++ * This code was generated by [react-native-codegen](https://www.npmjs.com/package/react-native-codegen).
++ *
++ * Do not edit this file as changes may cause incorrect behavior and will be lost
++ * once the code is regenerated.
++ *
++ * @generated by codegen project: GenerateComponentDescriptorCpp.js
++ */
++
++#include <react/renderer/components/RNCGeolocationSpec/ComponentDescriptors.h>
++#include <react/renderer/core/ConcreteComponentDescriptor.h>
++#include <react/renderer/componentregistry/ComponentDescriptorProviderRegistry.h>
++
++namespace facebook::react {
++
++void RNCGeolocationSpec_registerComponentDescriptorsFromCodegen(
++  std::shared_ptr<const ComponentDescriptorProviderRegistry> registry) {
++
++}
++
++} // namespace facebook::react
+diff --git a/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/ComponentDescriptors.h b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/ComponentDescriptors.h
+new file mode 100644
+index 0000000..066162d
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/ComponentDescriptors.h
+@@ -0,0 +1,24 @@
++
++/**
++ * This code was generated by [react-native-codegen](https://www.npmjs.com/package/react-native-codegen).
++ *
++ * Do not edit this file as changes may cause incorrect behavior and will be lost
++ * once the code is regenerated.
++ *
++ * @generated by codegen project: GenerateComponentDescriptorH.js
++ */
++
++#pragma once
++
++#include <react/renderer/components/RNCGeolocationSpec/ShadowNodes.h>
++#include <react/renderer/core/ConcreteComponentDescriptor.h>
++#include <react/renderer/componentregistry/ComponentDescriptorProviderRegistry.h>
++
++namespace facebook::react {
++
++
++
++void RNCGeolocationSpec_registerComponentDescriptorsFromCodegen(
++  std::shared_ptr<const ComponentDescriptorProviderRegistry> registry);
++
++} // namespace facebook::react
+diff --git a/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/EventEmitters.cpp b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/EventEmitters.cpp
+new file mode 100644
+index 0000000..5b64840
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/EventEmitters.cpp
+@@ -0,0 +1,16 @@
++
++/**
++ * This code was generated by [react-native-codegen](https://www.npmjs.com/package/react-native-codegen).
++ *
++ * Do not edit this file as changes may cause incorrect behavior and will be lost
++ * once the code is regenerated.
++ *
++ * @generated by codegen project: GenerateEventEmitterCpp.js
++ */
++
++#include <react/renderer/components/RNCGeolocationSpec/EventEmitters.h>
++
++
++namespace facebook::react {
++
++} // namespace facebook::react
+diff --git a/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/EventEmitters.h b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/EventEmitters.h
+new file mode 100644
+index 0000000..2845a63
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/EventEmitters.h
+@@ -0,0 +1,17 @@
++
++/**
++ * This code was generated by [react-native-codegen](https://www.npmjs.com/package/react-native-codegen).
++ *
++ * Do not edit this file as changes may cause incorrect behavior and will be lost
++ * once the code is regenerated.
++ *
++ * @generated by codegen project: GenerateEventEmitterH.js
++ */
++#pragma once
++
++#include <react/renderer/components/view/ViewEventEmitter.h>
++
++
++namespace facebook::react {
++
++} // namespace facebook::react
+diff --git a/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/Props.cpp b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/Props.cpp
+new file mode 100644
+index 0000000..0aa3bfe
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/Props.cpp
+@@ -0,0 +1,19 @@
++
++/**
++ * This code was generated by [react-native-codegen](https://www.npmjs.com/package/react-native-codegen).
++ *
++ * Do not edit this file as changes may cause incorrect behavior and will be lost
++ * once the code is regenerated.
++ *
++ * @generated by codegen project: GeneratePropsCpp.js
++ */
++
++#include <react/renderer/components/RNCGeolocationSpec/Props.h>
++#include <react/renderer/core/PropsParserContext.h>
++#include <react/renderer/core/propsConversions.h>
++
++namespace facebook::react {
++
++
++
++} // namespace facebook::react
+diff --git a/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/Props.h b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/Props.h
+new file mode 100644
+index 0000000..870864b
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/Props.h
+@@ -0,0 +1,18 @@
++
++/**
++ * This code was generated by [react-native-codegen](https://www.npmjs.com/package/react-native-codegen).
++ *
++ * Do not edit this file as changes may cause incorrect behavior and will be lost
++ * once the code is regenerated.
++ *
++ * @generated by codegen project: GeneratePropsH.js
++ */
++#pragma once
++
++
++
++namespace facebook::react {
++
++
++
++} // namespace facebook::react
+diff --git a/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/RNCGeolocationSpecJSI.h b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/RNCGeolocationSpecJSI.h
+new file mode 100644
+index 0000000..02d25aa
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/RNCGeolocationSpecJSI.h
+@@ -0,0 +1,296 @@
++/**
++ * This code was generated by [react-native-codegen](https://www.npmjs.com/package/react-native-codegen).
++ *
++ * Do not edit this file as changes may cause incorrect behavior and will be lost
++ * once the code is regenerated.
++ *
++ * @generated by codegen project: GenerateModuleH.js
++ */
++
++#pragma once
++
++#include <ReactCommon/TurboModule.h>
++#include <react/bridging/Bridging.h>
++
++namespace facebook::react {
++
++
++#pragma mark - NativeRNCGeolocationGeolocationError
++
++template <typename P0, typename P1, typename P2, typename P3, typename P4>
++struct NativeRNCGeolocationGeolocationError {
++  P0 code{};
++  P1 message{};
++  P2 PERMISSION_DENIED{};
++  P3 POSITION_UNAVAILABLE{};
++  P4 TIMEOUT;
++  bool operator==(const NativeRNCGeolocationGeolocationError &other) const {
++    return code == other.code && message == other.message && PERMISSION_DENIED == other.PERMISSION_DENIED && POSITION_UNAVAILABLE == other.POSITION_UNAVAILABLE && TIMEOUT == other.TIMEOUT;
++  }
++};
++
++template <typename T>
++struct NativeRNCGeolocationGeolocationErrorBridging {
++  static T types;
++
++  static T fromJs(
++      jsi::Runtime &rt,
++      const jsi::Object &value,
++      const std::shared_ptr<CallInvoker> &jsInvoker) {
++    T result{
++      bridging::fromJs<decltype(types.code)>(rt, value.getProperty(rt, "code"), jsInvoker),
++      bridging::fromJs<decltype(types.message)>(rt, value.getProperty(rt, "message"), jsInvoker),
++      bridging::fromJs<decltype(types.PERMISSION_DENIED)>(rt, value.getProperty(rt, "PERMISSION_DENIED"), jsInvoker),
++      bridging::fromJs<decltype(types.POSITION_UNAVAILABLE)>(rt, value.getProperty(rt, "POSITION_UNAVAILABLE"), jsInvoker),
++      bridging::fromJs<decltype(types.TIMEOUT)>(rt, value.getProperty(rt, "TIMEOUT"), jsInvoker)};
++    return result;
++  }
++
++#ifdef DEBUG
++  static double codeToJs(jsi::Runtime &rt, decltype(types.code) value) {
++    return bridging::toJs(rt, value);
++  }
++  static jsi::String messageToJs(jsi::Runtime &rt, decltype(types.message) value) {
++    return bridging::toJs(rt, value);
++  }
++  static double PERMISSION_DENIEDToJs(jsi::Runtime &rt, decltype(types.PERMISSION_DENIED) value) {
++    return bridging::toJs(rt, value);
++  }
++  static double POSITION_UNAVAILABLEToJs(jsi::Runtime &rt, decltype(types.POSITION_UNAVAILABLE) value) {
++    return bridging::toJs(rt, value);
++  }
++  static double TIMEOUTToJs(jsi::Runtime &rt, decltype(types.TIMEOUT) value) {
++    return bridging::toJs(rt, value);
++  }
++#endif
++
++  static jsi::Object toJs(
++      jsi::Runtime &rt,
++      const T &value,
++      const std::shared_ptr<CallInvoker> &jsInvoker) {
++    auto result = facebook::jsi::Object(rt);
++    result.setProperty(rt, "code", bridging::toJs(rt, value.code, jsInvoker));
++    result.setProperty(rt, "message", bridging::toJs(rt, value.message, jsInvoker));
++    result.setProperty(rt, "PERMISSION_DENIED", bridging::toJs(rt, value.PERMISSION_DENIED, jsInvoker));
++    result.setProperty(rt, "POSITION_UNAVAILABLE", bridging::toJs(rt, value.POSITION_UNAVAILABLE, jsInvoker));
++    result.setProperty(rt, "TIMEOUT", bridging::toJs(rt, value.TIMEOUT, jsInvoker));
++    return result;
++  }
++};
++
++
++
++#pragma mark - NativeRNCGeolocationGeolocationOptions
++
++template <typename P0, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6>
++struct NativeRNCGeolocationGeolocationOptions {
++  P0 timeout{};
++  P1 maximumAge{};
++  P2 enableHighAccuracy{};
++  P3 distanceFilter{};
++  P4 useSignificantChanges{};
++  P5 interval{};
++  P6 fastestInterval;
++  bool operator==(const NativeRNCGeolocationGeolocationOptions &other) const {
++    return timeout == other.timeout && maximumAge == other.maximumAge && enableHighAccuracy == other.enableHighAccuracy && distanceFilter == other.distanceFilter && useSignificantChanges == other.useSignificantChanges && interval == other.interval && fastestInterval == other.fastestInterval;
++  }
++};
++
++template <typename T>
++struct NativeRNCGeolocationGeolocationOptionsBridging {
++  static T types;
++
++  static T fromJs(
++      jsi::Runtime &rt,
++      const jsi::Object &value,
++      const std::shared_ptr<CallInvoker> &jsInvoker) {
++    T result{
++      bridging::fromJs<decltype(types.timeout)>(rt, value.getProperty(rt, "timeout"), jsInvoker),
++      bridging::fromJs<decltype(types.maximumAge)>(rt, value.getProperty(rt, "maximumAge"), jsInvoker),
++      bridging::fromJs<decltype(types.enableHighAccuracy)>(rt, value.getProperty(rt, "enableHighAccuracy"), jsInvoker),
++      bridging::fromJs<decltype(types.distanceFilter)>(rt, value.getProperty(rt, "distanceFilter"), jsInvoker),
++      bridging::fromJs<decltype(types.useSignificantChanges)>(rt, value.getProperty(rt, "useSignificantChanges"), jsInvoker),
++      bridging::fromJs<decltype(types.interval)>(rt, value.getProperty(rt, "interval"), jsInvoker),
++      bridging::fromJs<decltype(types.fastestInterval)>(rt, value.getProperty(rt, "fastestInterval"), jsInvoker)};
++    return result;
++  }
++
++#ifdef DEBUG
++  static double timeoutToJs(jsi::Runtime &rt, decltype(types.timeout) value) {
++    return bridging::toJs(rt, value);
++  }
++  static double maximumAgeToJs(jsi::Runtime &rt, decltype(types.maximumAge) value) {
++    return bridging::toJs(rt, value);
++  }
++  static bool enableHighAccuracyToJs(jsi::Runtime &rt, decltype(types.enableHighAccuracy) value) {
++    return bridging::toJs(rt, value);
++  }
++  static double distanceFilterToJs(jsi::Runtime &rt, decltype(types.distanceFilter) value) {
++    return bridging::toJs(rt, value);
++  }
++  static bool useSignificantChangesToJs(jsi::Runtime &rt, decltype(types.useSignificantChanges) value) {
++    return bridging::toJs(rt, value);
++  }
++  static double intervalToJs(jsi::Runtime &rt, decltype(types.interval) value) {
++    return bridging::toJs(rt, value);
++  }
++  static double fastestIntervalToJs(jsi::Runtime &rt, decltype(types.fastestInterval) value) {
++    return bridging::toJs(rt, value);
++  }
++#endif
++
++  static jsi::Object toJs(
++      jsi::Runtime &rt,
++      const T &value,
++      const std::shared_ptr<CallInvoker> &jsInvoker) {
++    auto result = facebook::jsi::Object(rt);
++    if (value.timeout) {
++      result.setProperty(rt, "timeout", bridging::toJs(rt, value.timeout.value(), jsInvoker));
++    }
++    if (value.maximumAge) {
++      result.setProperty(rt, "maximumAge", bridging::toJs(rt, value.maximumAge.value(), jsInvoker));
++    }
++    if (value.enableHighAccuracy) {
++      result.setProperty(rt, "enableHighAccuracy", bridging::toJs(rt, value.enableHighAccuracy.value(), jsInvoker));
++    }
++    if (value.distanceFilter) {
++      result.setProperty(rt, "distanceFilter", bridging::toJs(rt, value.distanceFilter.value(), jsInvoker));
++    }
++    if (value.useSignificantChanges) {
++      result.setProperty(rt, "useSignificantChanges", bridging::toJs(rt, value.useSignificantChanges.value(), jsInvoker));
++    }
++    if (value.interval) {
++      result.setProperty(rt, "interval", bridging::toJs(rt, value.interval.value(), jsInvoker));
++    }
++    if (value.fastestInterval) {
++      result.setProperty(rt, "fastestInterval", bridging::toJs(rt, value.fastestInterval.value(), jsInvoker));
++    }
++    return result;
++  }
++};
++
++
++
++#pragma mark - NativeRNCGeolocationGeolocationResponse
++
++template <typename P0, typename P1>
++struct NativeRNCGeolocationGeolocationResponse {
++  P0 coords{};
++  P1 timestamp;
++  bool operator==(const NativeRNCGeolocationGeolocationResponse &other) const {
++    return coords == other.coords && timestamp == other.timestamp;
++  }
++};
++
++template <typename T>
++struct NativeRNCGeolocationGeolocationResponseBridging {
++  static T types;
++
++  static T fromJs(
++      jsi::Runtime &rt,
++      const jsi::Object &value,
++      const std::shared_ptr<CallInvoker> &jsInvoker) {
++    T result{
++      bridging::fromJs<decltype(types.coords)>(rt, value.getProperty(rt, "coords"), jsInvoker),
++      bridging::fromJs<decltype(types.timestamp)>(rt, value.getProperty(rt, "timestamp"), jsInvoker)};
++    return result;
++  }
++
++#ifdef DEBUG
++  static jsi::Object coordsToJs(jsi::Runtime &rt, decltype(types.coords) value) {
++    return bridging::toJs(rt, value);
++  }
++  static double timestampToJs(jsi::Runtime &rt, decltype(types.timestamp) value) {
++    return bridging::toJs(rt, value);
++  }
++#endif
++
++  static jsi::Object toJs(
++      jsi::Runtime &rt,
++      const T &value,
++      const std::shared_ptr<CallInvoker> &jsInvoker) {
++    auto result = facebook::jsi::Object(rt);
++    result.setProperty(rt, "coords", bridging::toJs(rt, value.coords, jsInvoker));
++    result.setProperty(rt, "timestamp", bridging::toJs(rt, value.timestamp, jsInvoker));
++    return result;
++  }
++};
++
++
++template <typename T>
++class JSI_EXPORT NativeRNCGeolocationCxxSpec : public TurboModule {
++public:
++  static constexpr std::string_view kModuleName = "RNCGeolocation";
++
++protected:
++  NativeRNCGeolocationCxxSpec(std::shared_ptr<CallInvoker> jsInvoker) : TurboModule(std::string{NativeRNCGeolocationCxxSpec::kModuleName}, jsInvoker) {
++    methodMap_["setConfiguration"] = MethodMetadata {.argCount = 1, .invoker = __setConfiguration};
++    methodMap_["requestAuthorization"] = MethodMetadata {.argCount = 2, .invoker = __requestAuthorization};
++    methodMap_["getCurrentPosition"] = MethodMetadata {.argCount = 3, .invoker = __getCurrentPosition};
++    methodMap_["startObserving"] = MethodMetadata {.argCount = 1, .invoker = __startObserving};
++    methodMap_["stopObserving"] = MethodMetadata {.argCount = 0, .invoker = __stopObserving};
++    methodMap_["addListener"] = MethodMetadata {.argCount = 1, .invoker = __addListener};
++    methodMap_["removeListeners"] = MethodMetadata {.argCount = 1, .invoker = __removeListeners};
++  }
++  
++private:
++  static jsi::Value __setConfiguration(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
++    static_assert(
++      bridging::getParameterCount(&T::setConfiguration) == 2,
++      "Expected setConfiguration(...) to have 2 parameters");
++    bridging::callFromJs<void>(rt, &T::setConfiguration,  static_cast<NativeRNCGeolocationCxxSpec*>(&turboModule)->jsInvoker_, static_cast<T*>(&turboModule),
++      count <= 0 ? throw jsi::JSError(rt, "Expected argument in position 0 to be passed") : args[0].asObject(rt));return jsi::Value::undefined();
++  }
++
++  static jsi::Value __requestAuthorization(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
++    static_assert(
++      bridging::getParameterCount(&T::requestAuthorization) == 3,
++      "Expected requestAuthorization(...) to have 3 parameters");
++    bridging::callFromJs<void>(rt, &T::requestAuthorization,  static_cast<NativeRNCGeolocationCxxSpec*>(&turboModule)->jsInvoker_, static_cast<T*>(&turboModule),
++      count <= 0 ? throw jsi::JSError(rt, "Expected argument in position 0 to be passed") : args[0].asObject(rt).asFunction(rt),
++      count <= 1 ? throw jsi::JSError(rt, "Expected argument in position 1 to be passed") : args[1].asObject(rt).asFunction(rt));return jsi::Value::undefined();
++  }
++
++  static jsi::Value __getCurrentPosition(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
++    static_assert(
++      bridging::getParameterCount(&T::getCurrentPosition) == 4,
++      "Expected getCurrentPosition(...) to have 4 parameters");
++    bridging::callFromJs<void>(rt, &T::getCurrentPosition,  static_cast<NativeRNCGeolocationCxxSpec*>(&turboModule)->jsInvoker_, static_cast<T*>(&turboModule),
++      count <= 0 ? throw jsi::JSError(rt, "Expected argument in position 0 to be passed") : args[0].asObject(rt),
++      count <= 1 ? throw jsi::JSError(rt, "Expected argument in position 1 to be passed") : args[1].asObject(rt).asFunction(rt),
++      count <= 2 ? throw jsi::JSError(rt, "Expected argument in position 2 to be passed") : args[2].asObject(rt).asFunction(rt));return jsi::Value::undefined();
++  }
++
++  static jsi::Value __startObserving(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
++    static_assert(
++      bridging::getParameterCount(&T::startObserving) == 2,
++      "Expected startObserving(...) to have 2 parameters");
++    bridging::callFromJs<void>(rt, &T::startObserving,  static_cast<NativeRNCGeolocationCxxSpec*>(&turboModule)->jsInvoker_, static_cast<T*>(&turboModule),
++      count <= 0 ? throw jsi::JSError(rt, "Expected argument in position 0 to be passed") : args[0].asObject(rt));return jsi::Value::undefined();
++  }
++
++  static jsi::Value __stopObserving(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* /*args*/, size_t /*count*/) {
++    static_assert(
++      bridging::getParameterCount(&T::stopObserving) == 1,
++      "Expected stopObserving(...) to have 1 parameters");
++    bridging::callFromJs<void>(rt, &T::stopObserving,  static_cast<NativeRNCGeolocationCxxSpec*>(&turboModule)->jsInvoker_, static_cast<T*>(&turboModule));return jsi::Value::undefined();
++  }
++
++  static jsi::Value __addListener(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
++    static_assert(
++      bridging::getParameterCount(&T::addListener) == 2,
++      "Expected addListener(...) to have 2 parameters");
++    bridging::callFromJs<void>(rt, &T::addListener,  static_cast<NativeRNCGeolocationCxxSpec*>(&turboModule)->jsInvoker_, static_cast<T*>(&turboModule),
++      count <= 0 ? throw jsi::JSError(rt, "Expected argument in position 0 to be passed") : args[0].asString(rt));return jsi::Value::undefined();
++  }
++
++  static jsi::Value __removeListeners(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
++    static_assert(
++      bridging::getParameterCount(&T::removeListeners) == 2,
++      "Expected removeListeners(...) to have 2 parameters");
++    bridging::callFromJs<void>(rt, &T::removeListeners,  static_cast<NativeRNCGeolocationCxxSpec*>(&turboModule)->jsInvoker_, static_cast<T*>(&turboModule),
++      count <= 0 ? throw jsi::JSError(rt, "Expected argument in position 0 to be passed") : args[0].asNumber());return jsi::Value::undefined();
++  }
++};
++
++} // namespace facebook::react
+diff --git a/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/ShadowNodes.cpp b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/ShadowNodes.cpp
+new file mode 100644
+index 0000000..0d58d3e
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/ShadowNodes.cpp
+@@ -0,0 +1,17 @@
++
++/**
++ * This code was generated by [react-native-codegen](https://www.npmjs.com/package/react-native-codegen).
++ *
++ * Do not edit this file as changes may cause incorrect behavior and will be lost
++ * once the code is regenerated.
++ *
++ * @generated by codegen project: GenerateShadowNodeCpp.js
++ */
++
++#include <react/renderer/components/RNCGeolocationSpec/ShadowNodes.h>
++
++namespace facebook::react {
++
++
++
++} // namespace facebook::react
+diff --git a/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/ShadowNodes.h b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/ShadowNodes.h
+new file mode 100644
+index 0000000..90859f6
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/ShadowNodes.h
+@@ -0,0 +1,23 @@
++
++/**
++ * This code was generated by [react-native-codegen](https://www.npmjs.com/package/react-native-codegen).
++ *
++ * Do not edit this file as changes may cause incorrect behavior and will be lost
++ * once the code is regenerated.
++ *
++ * @generated by codegen project: GenerateShadowNodeH.js
++ */
++
++#pragma once
++
++#include <react/renderer/components/RNCGeolocationSpec/EventEmitters.h>
++#include <react/renderer/components/RNCGeolocationSpec/Props.h>
++#include <react/renderer/components/RNCGeolocationSpec/States.h>
++#include <react/renderer/components/view/ConcreteViewShadowNode.h>
++#include <jsi/jsi.h>
++
++namespace facebook::react {
++
++
++
++} // namespace facebook::react
+diff --git a/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/States.cpp b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/States.cpp
+new file mode 100644
+index 0000000..1f535a8
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/States.cpp
+@@ -0,0 +1,16 @@
++
++/**
++ * This code was generated by [react-native-codegen](https://www.npmjs.com/package/react-native-codegen).
++ *
++ * Do not edit this file as changes may cause incorrect behavior and will be lost
++ * once the code is regenerated.
++ *
++ * @generated by codegen project: GenerateStateCpp.js
++ */
++#include <react/renderer/components/RNCGeolocationSpec/States.h>
++
++namespace facebook::react {
++
++
++
++} // namespace facebook::react
+diff --git a/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/States.h b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/States.h
+new file mode 100644
+index 0000000..2e55bce
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/react/renderer/components/RNCGeolocationSpec/States.h
+@@ -0,0 +1,20 @@
++/**
++ * This code was generated by [react-native-codegen](https://www.npmjs.com/package/react-native-codegen).
++ *
++ * Do not edit this file as changes may cause incorrect behavior and will be lost
++ * once the code is regenerated.
++ *
++ * @generated by codegen project: GenerateStateH.js
++ */
++#pragma once
++
++#include <react/renderer/core/StateData.h>
++#ifdef RN_SERIALIZABLE_STATE
++#include <folly/dynamic.h>
++#endif
++
++namespace facebook::react {
++
++
++
++} // namespace facebook::react
+\ No newline at end of file
+diff --git a/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/schema.json b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/schema.json
+new file mode 100644
+index 0000000..d779138
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/schema.json
+@@ -0,0 +1 @@
++{"libraryName":"","modules":{"NativeRNCGeolocation":{"type":"NativeModule","aliasMap":{"GeolocationError":{"type":"ObjectTypeAnnotation","properties":[{"name":"code","optional":false,"typeAnnotation":{"type":"NumberTypeAnnotation"}},{"name":"message","optional":false,"typeAnnotation":{"type":"StringTypeAnnotation"}},{"name":"PERMISSION_DENIED","optional":false,"typeAnnotation":{"type":"NumberTypeAnnotation"}},{"name":"POSITION_UNAVAILABLE","optional":false,"typeAnnotation":{"type":"NumberTypeAnnotation"}},{"name":"TIMEOUT","optional":false,"typeAnnotation":{"type":"NumberTypeAnnotation"}}]},"GeolocationOptions":{"type":"ObjectTypeAnnotation","properties":[{"name":"timeout","optional":true,"typeAnnotation":{"type":"NumberTypeAnnotation"}},{"name":"maximumAge","optional":true,"typeAnnotation":{"type":"NumberTypeAnnotation"}},{"name":"enableHighAccuracy","optional":true,"typeAnnotation":{"type":"BooleanTypeAnnotation"}},{"name":"distanceFilter","optional":true,"typeAnnotation":{"type":"NumberTypeAnnotation"}},{"name":"useSignificantChanges","optional":true,"typeAnnotation":{"type":"BooleanTypeAnnotation"}},{"name":"interval","optional":true,"typeAnnotation":{"type":"NumberTypeAnnotation"}},{"name":"fastestInterval","optional":true,"typeAnnotation":{"type":"NumberTypeAnnotation"}}]},"GeolocationResponse":{"type":"ObjectTypeAnnotation","properties":[{"name":"coords","optional":false,"typeAnnotation":{"type":"ObjectTypeAnnotation","properties":[{"name":"latitude","optional":false,"typeAnnotation":{"type":"NumberTypeAnnotation"}},{"name":"longitude","optional":false,"typeAnnotation":{"type":"NumberTypeAnnotation"}},{"name":"altitude","optional":false,"typeAnnotation":{"type":"NullableTypeAnnotation","typeAnnotation":{"type":"NumberTypeAnnotation"}}},{"name":"accuracy","optional":false,"typeAnnotation":{"type":"NumberTypeAnnotation"}},{"name":"altitudeAccuracy","optional":false,"typeAnnotation":{"type":"NullableTypeAnnotation","typeAnnotation":{"type":"NumberTypeAnnotation"}}},{"name":"heading","optional":false,"typeAnnotation":{"type":"NullableTypeAnnotation","typeAnnotation":{"type":"NumberTypeAnnotation"}}},{"name":"speed","optional":false,"typeAnnotation":{"type":"NullableTypeAnnotation","typeAnnotation":{"type":"NumberTypeAnnotation"}}}]}},{"name":"timestamp","optional":false,"typeAnnotation":{"type":"NumberTypeAnnotation"}}]}},"enumMap":{},"spec":{"eventEmitters":[],"methods":[{"name":"setConfiguration","optional":false,"typeAnnotation":{"type":"FunctionTypeAnnotation","returnTypeAnnotation":{"type":"VoidTypeAnnotation"},"params":[{"name":"config","optional":false,"typeAnnotation":{"type":"ObjectTypeAnnotation","properties":[{"name":"skipPermissionRequests","optional":false,"typeAnnotation":{"type":"BooleanTypeAnnotation"}},{"name":"authorizationLevel","optional":true,"typeAnnotation":{"type":"StringTypeAnnotation"}},{"name":"enableBackgroundLocationUpdates","optional":true,"typeAnnotation":{"type":"StringTypeAnnotation"}}]}}]}},{"name":"requestAuthorization","optional":false,"typeAnnotation":{"type":"FunctionTypeAnnotation","returnTypeAnnotation":{"type":"VoidTypeAnnotation"},"params":[{"name":"success","optional":false,"typeAnnotation":{"type":"FunctionTypeAnnotation","returnTypeAnnotation":{"type":"VoidTypeAnnotation"},"params":[]}},{"name":"error","optional":false,"typeAnnotation":{"type":"FunctionTypeAnnotation","returnTypeAnnotation":{"type":"VoidTypeAnnotation"},"params":[{"name":"error","optional":false,"typeAnnotation":{"type":"TypeAliasTypeAnnotation","name":"GeolocationError"}}]}}]}},{"name":"getCurrentPosition","optional":false,"typeAnnotation":{"type":"FunctionTypeAnnotation","returnTypeAnnotation":{"type":"VoidTypeAnnotation"},"params":[{"name":"options","optional":false,"typeAnnotation":{"type":"TypeAliasTypeAnnotation","name":"GeolocationOptions"}},{"name":"position","optional":false,"typeAnnotation":{"type":"FunctionTypeAnnotation","returnTypeAnnotation":{"type":"VoidTypeAnnotation"},"params":[{"name":"position","optional":false,"typeAnnotation":{"type":"TypeAliasTypeAnnotation","name":"GeolocationResponse"}}]}},{"name":"error","optional":false,"typeAnnotation":{"type":"FunctionTypeAnnotation","returnTypeAnnotation":{"type":"VoidTypeAnnotation"},"params":[{"name":"error","optional":false,"typeAnnotation":{"type":"TypeAliasTypeAnnotation","name":"GeolocationError"}}]}}]}},{"name":"startObserving","optional":false,"typeAnnotation":{"type":"FunctionTypeAnnotation","returnTypeAnnotation":{"type":"VoidTypeAnnotation"},"params":[{"name":"options","optional":false,"typeAnnotation":{"type":"TypeAliasTypeAnnotation","name":"GeolocationOptions"}}]}},{"name":"stopObserving","optional":false,"typeAnnotation":{"type":"FunctionTypeAnnotation","returnTypeAnnotation":{"type":"VoidTypeAnnotation"},"params":[]}},{"name":"addListener","optional":false,"typeAnnotation":{"type":"FunctionTypeAnnotation","returnTypeAnnotation":{"type":"VoidTypeAnnotation"},"params":[{"name":"eventName","optional":false,"typeAnnotation":{"type":"StringTypeAnnotation"}}]}},{"name":"removeListeners","optional":false,"typeAnnotation":{"type":"FunctionTypeAnnotation","returnTypeAnnotation":{"type":"VoidTypeAnnotation"},"params":[{"name":"count","optional":false,"typeAnnotation":{"type":"NumberTypeAnnotation"}}]}}]},"moduleName":"RNCGeolocation"}}}
+\ No newline at end of file
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml b/node_modules/@react-native-community/geolocation/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+new file mode 100644
+index 0000000..1ee21b1
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.reactnativecommunity.geolocation" >
++
++    <uses-sdk android:minSdkVersion="24" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json b/node_modules/@react-native-community/geolocation/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+new file mode 100644
+index 0000000..66f947d
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+@@ -0,0 +1,18 @@
++{
++  "version": 3,
++  "artifactType": {
++    "type": "AAPT_FRIENDLY_MERGED_MANIFESTS",
++    "kind": "Directory"
++  },
++  "applicationId": "com.reactnativecommunity.geolocation",
++  "variantName": "debug",
++  "elements": [
++    {
++      "type": "SINGLE",
++      "filters": [],
++      "attributes": [],
++      "outputFile": "AndroidManifest.xml"
++    }
++  ],
++  "elementType": "File"
++}
+\ No newline at end of file
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar b/node_modules/@react-native-community/geolocation/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar
+new file mode 100644
+index 0000000..d52f3c3
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties b/node_modules/@react-native-community/geolocation/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+new file mode 100644
+index 0000000..b4c821b
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+@@ -0,0 +1,7 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=37
++minCompileMinorSdk=0
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
++coreLibraryDesugaringEnabled=false
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/android_res_source_set_path_map/debug/mapDebugSourceSetPaths/file-map.txt b/node_modules/@react-native-community/geolocation/android/build/intermediates/android_res_source_set_path_map/debug/mapDebugSourceSetPaths/file-map.txt
+new file mode 100644
+index 0000000..2a74692
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/intermediates/android_res_source_set_path_map/debug/mapDebugSourceSetPaths/file-map.txt
+@@ -0,0 +1,9 @@
++com.reactnativecommunity.geolocation.react-native-community_geolocation-pngs-0 /Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/build/generated/res/pngs/debug
++com.reactnativecommunity.geolocation.react-native-community_geolocation-updated_navigation_xml-1 /Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/build/generated/updated_navigation_xml/debug
++com.reactnativecommunity.geolocation.react-native-community_geolocation-mergeDebugResources-2 /Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/build/intermediates/incremental/debug/mergeDebugResources/merged.dir
++com.reactnativecommunity.geolocation.react-native-community_geolocation-mergeDebugResources-3 /Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/build/intermediates/incremental/debug/mergeDebugResources/stripped.dir
++com.reactnativecommunity.geolocation.react-native-community_geolocation-debug-4 /Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/build/intermediates/merged_res/debug/mergeDebugResources
++com.reactnativecommunity.geolocation.react-native-community_geolocation-debug-5 /Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/build/intermediates/packaged_res/debug/packageDebugResources
++com.reactnativecommunity.geolocation.react-native-community_geolocation-debug-6 /Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/debug/res
++com.reactnativecommunity.geolocation.react-native-community_geolocation-main-7 /Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/main/res
++gradleHome-0 /Users/varunkoluguri/.gradle
+\ No newline at end of file
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json b/node_modules/@react-native-community/geolocation/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+new file mode 100644
+index 0000000..9e26dfe
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+@@ -0,0 +1 @@
++{}
+\ No newline at end of file
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/annotations_typedef_file/debug/extractDebugAnnotations/typedefs.txt b/node_modules/@react-native-community/geolocation/android/build/intermediates/annotations_typedef_file/debug/extractDebugAnnotations/typedefs.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar b/node_modules/@react-native-community/geolocation/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
+new file mode 100644
+index 0000000..aa50313
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar b/node_modules/@react-native-community/geolocation/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar
+new file mode 100644
+index 0000000..93870d4
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt b/node_modules/@react-native-community/geolocation/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/incremental/debug-mergeJavaRes/merge-state b/node_modules/@react-native-community/geolocation/android/build/intermediates/incremental/debug-mergeJavaRes/merge-state
+new file mode 100644
+index 0000000..1c983fc
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/incremental/debug-mergeJavaRes/merge-state differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties b/node_modules/@react-native-community/geolocation/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+new file mode 100644
+index 0000000..110f769
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+@@ -0,0 +1 @@
++#Sun Oct 18 21:55:45 IST 2026
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml b/node_modules/@react-native-community/geolocation/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+new file mode 100644
+index 0000000..0013c02
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~:!&lt;dir>navigation"><source path="/Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~:!&lt;dir>navigation"><source path="/Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"/><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~:!&lt;dir>navigation"/><mergedItems/></merger>
+\ No newline at end of file
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/incremental/mergeDebugAssets/merger.xml b/node_modules/@react-native-community/geolocation/android/build/intermediates/incremental/mergeDebugAssets/merger.xml
+new file mode 100644
+index 0000000..fbd21a4
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/intermediates/incremental/mergeDebugAssets/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/main/assets"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/debug/assets"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml b/node_modules/@react-native-community/geolocation/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+new file mode 100644
+index 0000000..73409b2
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/main/jniLibs"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/debug/jniLibs"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/AndroidLocationManager$1.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/AndroidLocationManager$1.class
+new file mode 100644
+index 0000000..85ad77b
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/AndroidLocationManager$1.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest$1.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest$1.class
+new file mode 100644
+index 0000000..2f11168
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest$1.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest$2.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest$2.class
+new file mode 100644
+index 0000000..8242119
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest$2.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest.class
+new file mode 100644
+index 0000000..ed5b4e4
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/AndroidLocationManager.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/AndroidLocationManager.class
+new file mode 100644
+index 0000000..34be5dd
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/AndroidLocationManager.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/BaseLocationManager$LocationOptions.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/BaseLocationManager$LocationOptions.class
+new file mode 100644
+index 0000000..d60005f
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/BaseLocationManager$LocationOptions.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/BaseLocationManager.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/BaseLocationManager.class
+new file mode 100644
+index 0000000..338371e
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/BaseLocationManager.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/BuildConfig.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/BuildConfig.class
+new file mode 100644
+index 0000000..06c6e16
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/BuildConfig.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/GeolocationModule$Configuration.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/GeolocationModule$Configuration.class
+new file mode 100644
+index 0000000..68469d9
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/GeolocationModule$Configuration.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/GeolocationModule.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/GeolocationModule.class
+new file mode 100644
+index 0000000..579ab0b
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/GeolocationModule.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/GeolocationPackage.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/GeolocationPackage.class
+new file mode 100644
+index 0000000..b5daf92
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/GeolocationPackage.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/NativeRNCGeolocationSpec.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/NativeRNCGeolocationSpec.class
+new file mode 100644
+index 0000000..f23e1fc
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/NativeRNCGeolocationSpec.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/PlayServicesLocationManager$1.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/PlayServicesLocationManager$1.class
+new file mode 100644
+index 0000000..ffc4d86
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/PlayServicesLocationManager$1.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/PlayServicesLocationManager$2.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/PlayServicesLocationManager$2.class
+new file mode 100644
+index 0000000..69135fb
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/PlayServicesLocationManager$2.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/PlayServicesLocationManager$CallbackHolder.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/PlayServicesLocationManager$CallbackHolder.class
+new file mode 100644
+index 0000000..7edcd0f
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/PlayServicesLocationManager$CallbackHolder.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/PlayServicesLocationManager.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/PlayServicesLocationManager.class
+new file mode 100644
+index 0000000..fe4fd6f
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/PlayServicesLocationManager.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/PositionError.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/PositionError.class
+new file mode 100644
+index 0000000..a1b5b07
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/PositionError.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/RNCGeolocationModule.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/RNCGeolocationModule.class
+new file mode 100644
+index 0000000..c4a4425
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/reactnativecommunity/geolocation/RNCGeolocationModule.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt b/node_modules/@react-native-community/geolocation/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+new file mode 100644
+index 0000000..78ac5b8
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+@@ -0,0 +1,2 @@
++R_DEF: Internal format may change without notice
++local
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt b/node_modules/@react-native-community/geolocation/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+new file mode 100644
+index 0000000..2b0e56c
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+@@ -0,0 +1,9 @@
++1<?xml version="1.0" encoding="utf-8"?>
++2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++3    package="com.reactnativecommunity.geolocation" >
++4
++5    <uses-sdk android:minSdkVersion="24" />
++5-->INJECTED
++5-->INJECTED
++6
++7</manifest>
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/merged_java_res/debug/mergeDebugJavaResource/feature-react-native-community_geolocation.jar b/node_modules/@react-native-community/geolocation/android/build/intermediates/merged_java_res/debug/mergeDebugJavaResource/feature-react-native-community_geolocation.jar
+new file mode 100644
+index 0000000..15cb0ec
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/merged_java_res/debug/mergeDebugJavaResource/feature-react-native-community_geolocation.jar differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml b/node_modules/@react-native-community/geolocation/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+new file mode 100644
+index 0000000..1ee21b1
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.reactnativecommunity.geolocation" >
++
++    <uses-sdk android:minSdkVersion="24" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json b/node_modules/@react-native-community/geolocation/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+new file mode 100644
+index 0000000..0637a08
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+@@ -0,0 +1 @@
++[]
+\ No newline at end of file
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt b/node_modules/@react-native-community/geolocation/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+new file mode 100644
+index 0000000..08f4ebe
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+@@ -0,0 +1 @@
++0 Warning/Error
+\ No newline at end of file
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/AndroidLocationManager$1.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/AndroidLocationManager$1.class
+new file mode 100644
+index 0000000..85ad77b
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/AndroidLocationManager$1.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest$1.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest$1.class
+new file mode 100644
+index 0000000..2f11168
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest$1.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest$2.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest$2.class
+new file mode 100644
+index 0000000..8242119
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest$2.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest.class
+new file mode 100644
+index 0000000..ed5b4e4
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/AndroidLocationManager$SingleUpdateRequest.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/AndroidLocationManager.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/AndroidLocationManager.class
+new file mode 100644
+index 0000000..34be5dd
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/AndroidLocationManager.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/BaseLocationManager$LocationOptions.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/BaseLocationManager$LocationOptions.class
+new file mode 100644
+index 0000000..d60005f
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/BaseLocationManager$LocationOptions.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/BaseLocationManager.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/BaseLocationManager.class
+new file mode 100644
+index 0000000..338371e
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/BaseLocationManager.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/BuildConfig.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/BuildConfig.class
+new file mode 100644
+index 0000000..06c6e16
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/BuildConfig.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/GeolocationModule$Configuration.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/GeolocationModule$Configuration.class
+new file mode 100644
+index 0000000..68469d9
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/GeolocationModule$Configuration.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/GeolocationModule.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/GeolocationModule.class
+new file mode 100644
+index 0000000..579ab0b
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/GeolocationModule.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/GeolocationPackage.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/GeolocationPackage.class
+new file mode 100644
+index 0000000..b5daf92
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/GeolocationPackage.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/NativeRNCGeolocationSpec.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/NativeRNCGeolocationSpec.class
+new file mode 100644
+index 0000000..f23e1fc
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/NativeRNCGeolocationSpec.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/PlayServicesLocationManager$1.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/PlayServicesLocationManager$1.class
+new file mode 100644
+index 0000000..ffc4d86
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/PlayServicesLocationManager$1.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/PlayServicesLocationManager$2.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/PlayServicesLocationManager$2.class
+new file mode 100644
+index 0000000..69135fb
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/PlayServicesLocationManager$2.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/PlayServicesLocationManager$CallbackHolder.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/PlayServicesLocationManager$CallbackHolder.class
+new file mode 100644
+index 0000000..7edcd0f
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/PlayServicesLocationManager$CallbackHolder.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/PlayServicesLocationManager.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/PlayServicesLocationManager.class
+new file mode 100644
+index 0000000..fe4fd6f
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/PlayServicesLocationManager.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/PositionError.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/PositionError.class
+new file mode 100644
+index 0000000..a1b5b07
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/PositionError.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/RNCGeolocationModule.class b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/RNCGeolocationModule.class
+new file mode 100644
+index 0000000..c4a4425
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/reactnativecommunity/geolocation/RNCGeolocationModule.class differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt b/node_modules/@react-native-community/geolocation/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+new file mode 100644
+index 0000000..a265004
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+@@ -0,0 +1 @@
++com.reactnativecommunity.geolocation
+diff --git a/node_modules/@react-native-community/geolocation/android/build/outputs/aar/react-native-community_geolocation-debug.aar b/node_modules/@react-native-community/geolocation/android/build/outputs/aar/react-native-community_geolocation-debug.aar
+new file mode 100644
+index 0000000..c8bc81b
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/outputs/aar/react-native-community_geolocation-debug.aar differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/outputs/logs/manifest-merger-debug-report.txt b/node_modules/@react-native-community/geolocation/android/build/outputs/logs/manifest-merger-debug-report.txt
+new file mode 100644
+index 0000000..292b335
+--- /dev/null
++++ b/node_modules/@react-native-community/geolocation/android/build/outputs/logs/manifest-merger-debug-report.txt
+@@ -0,0 +1,17 @@
++-- Merging decision tree log ---
++manifest
++ADDED from /Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/main/AndroidManifest.xml:2:1-5:12
++INJECTED from /Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/main/AndroidManifest.xml:2:1-5:12
++	package
++		ADDED from /Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/main/AndroidManifest.xml:3:11-57
++		INJECTED from /Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/main/AndroidManifest.xml
++	xmlns:android
++		ADDED from /Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/main/AndroidManifest.xml:2:11-69
++uses-sdk
++INJECTED from /Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/main/AndroidManifest.xml reason: use-sdk injection requested
++INJECTED from /Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/main/AndroidManifest.xml
++INJECTED from /Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/main/AndroidManifest.xml
++	android:targetSdkVersion
++		INJECTED from /Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/main/AndroidManifest.xml
++	android:minSdkVersion
++		INJECTED from /Users/varunkoluguri/Desktop/ My Coding Projects /Tamboo/partner-app/node_modules/@react-native-community/geolocation/android/src/main/AndroidManifest.xml
+diff --git a/node_modules/@react-native-community/geolocation/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/BuildConfig.class.uniqueId2 b/node_modules/@react-native-community/geolocation/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/BuildConfig.class.uniqueId2
+new file mode 100644
+index 0000000..eb1acac
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/BuildConfig.class.uniqueId2 differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/GeolocationPackage.class.uniqueId0 b/node_modules/@react-native-community/geolocation/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/GeolocationPackage.class.uniqueId0
+new file mode 100644
+index 0000000..9a1be14
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/GeolocationPackage.class.uniqueId0 differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/RNCGeolocationModule.class.uniqueId1 b/node_modules/@react-native-community/geolocation/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/RNCGeolocationModule.class.uniqueId1
+new file mode 100644
+index 0000000..c58ebc2
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/RNCGeolocationModule.class.uniqueId1 differ
+diff --git a/node_modules/@react-native-community/geolocation/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin b/node_modules/@react-native-community/geolocation/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+new file mode 100644
+index 0000000..67782f6
+Binary files /dev/null and b/node_modules/@react-native-community/geolocation/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin differ
