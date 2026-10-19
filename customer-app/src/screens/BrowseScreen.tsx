@@ -16,16 +16,18 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Browse'>;
 type ResTab = 'items' | 'vendors';
 type Sort = 'priceLow' | 'priceHigh' | 'rating' | 'nearest';
 
-// `value` must match the `cat` field used in the catalog data (src/data/catalog.ts) exactly —
-// only `labelKey` (the displayed text) is localized.
+// `value` must match the real Item.cat codes partners pick from in CATEGORY_OPTIONS
+// (partner-app/src/data/catalog.ts: tent/seat/table/kitchen/crockery/floor/stage/light/decor/av/staff)
+// — a chip covering more than one code joins them with '|'. Only `labelKey` (the displayed
+// text) is localized.
 const CAT_CHIPS: Array<{ value: string; labelKey: Key }> = [
   { value: 'All', labelKey: 'browseCatAll' },
-  { value: 'Shamiana & Tents', labelKey: 'browseCatTents' },
-  { value: 'Chairs & Tables', labelKey: 'browseCatChairs' },
-  { value: 'Crockery & Vessels', labelKey: 'browseCatCrockery' },
-  { value: 'Lighting', labelKey: 'browseCatLighting' },
-  { value: 'Sound & DJ', labelKey: 'browseCatSound' },
-  { value: 'Decor', labelKey: 'browseCatDecor' },
+  { value: 'tent', labelKey: 'browseCatTents' },
+  { value: 'seat|table', labelKey: 'browseCatChairs' },
+  { value: 'crockery', labelKey: 'browseCatCrockery' },
+  { value: 'light', labelKey: 'browseCatLighting' },
+  { value: 'av', labelKey: 'browseCatSound' },
+  { value: 'decor', labelKey: 'browseCatDecor' },
 ];
 const SORTS: Array<{ key: Sort; labelKey: Key }> = [
   { key: 'priceLow', labelKey: 'browseSortPriceLow' },
@@ -63,7 +65,7 @@ export default function BrowseScreen({ navigation, route }: Props) {
   );
 
   const items = useMemo(() => {
-    let list = ITEMS.filter((p) => cat === 'All' || p.cat === cat);
+    let list = ITEMS.filter((p) => cat === 'All' || cat.split('|').includes(p.cat));
     if (q.trim()) list = list.filter((p) => p.name.toLowerCase().includes(q.trim().toLowerCase()) || p.vendorName.toLowerCase().includes(q.trim().toLowerCase()));
     if (verifiedOnly) list = list.filter((p) => p.vendorVerified);
     if (inStockOnly) list = list.filter((p) => availBadge(p).ok);

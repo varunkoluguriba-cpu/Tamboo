@@ -171,7 +171,7 @@ export default function VenueScreen({ navigation, route }: Props) {
             </Text>
           </View>
           {!hall.hasCrockery && (
-            <TouchableOpacity style={styles.rentBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Browse', { category: 'Crockery & Vessels' })}>
+            <TouchableOpacity style={styles.rentBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Browse', { category: 'crockery' })}>
               <Text style={styles.rentBtnText}>{t.venueRentCrockeryBtn}</Text>
             </TouchableOpacity>
           )}

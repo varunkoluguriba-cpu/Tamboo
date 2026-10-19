@@ -40,12 +40,12 @@ const EV_TYPES = (t: LangStrings): Option[] => [
 ];
 
 const CATEGORIES = (t: LangStrings) => [
-  { n: '01', name: t.homeScreenCatTents, ex: t.homeScreenCatTentsEx, navName: 'Shamiana & Tents' },
-  { n: '02', name: t.homeScreenCatChairsTables, ex: t.homeScreenCatChairsTablesEx, navName: 'Chairs & Tables' },
-  { n: '03', name: t.homeScreenCatCrockeryVessels, ex: t.homeScreenCatCrockeryVesselsEx, navName: 'Crockery & Vessels' },
-  { n: '04', name: t.homeScreenCatLighting, ex: t.homeScreenCatLightingEx, navName: 'Lighting' },
-  { n: '05', name: t.homeScreenCatSoundDJ, ex: t.homeScreenCatSoundDJEx, navName: 'Sound & DJ' },
-  { n: '06', name: t.homeScreenCatDecor, ex: t.homeScreenCatDecorEx, navName: 'Decor' },
+  { n: '01', name: t.homeScreenCatTents, ex: t.homeScreenCatTentsEx, navName: 'tent' },
+  { n: '02', name: t.homeScreenCatChairsTables, ex: t.homeScreenCatChairsTablesEx, navName: 'seat|table' },
+  { n: '03', name: t.homeScreenCatCrockeryVessels, ex: t.homeScreenCatCrockeryVesselsEx, navName: 'crockery' },
+  { n: '04', name: t.homeScreenCatLighting, ex: t.homeScreenCatLightingEx, navName: 'light' },
+  { n: '05', name: t.homeScreenCatSoundDJ, ex: t.homeScreenCatSoundDJEx, navName: 'av' },
+  { n: '06', name: t.homeScreenCatDecor, ex: t.homeScreenCatDecorEx, navName: 'decor' },
 ];
 
 type RemotePackage = {
