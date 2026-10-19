@@ -3,11 +3,13 @@ const express = require('express');
 const { requireAuth } = require('../middleware/auth');
 const { getClient } = require('../config/razorpay');
 const Booking = require('../models/Booking');
+const Hall = require('../models/Hall');
 const Order = require('../models/Order');
 const Partner = require('../models/Partner');
 const PayoutEntry = require('../models/PayoutEntry');
 const { isSlotTaken } = require('../lib/hallAvailability');
 const { checkItemStock } = require('../lib/itemAvailability');
+const { priceCartGroups, getCouponDiscountPct, computeTotals, DELIVERY_FEE_PER_VENDOR } = require('../lib/cartPricing');
 const Config = require('../models/Config');
 
 function orderCode() {
@@ -20,36 +22,65 @@ function nowTxt() {
 
 const router = express.Router();
 
-// TODO: hall/venue pricing is still trusted from the client here and again in /verify —
-// revisit once a listing's token/rent amount can't be tampered with client-side at all.
+// The amount actually charged is always derived server-side here — from the real Hall.token
+// or by re-pricing the cart against the real Item catalog — never trusted from the client.
+// A tampered request (modified app, intercepted call) can no longer pay less than the real
+// price; see lib/cartPricing.js for the cart-side recompute.
 router.post('/create-order', requireAuth, async (req, res) => {
-  const { amount, hallId, date, slot, cart } = req.body;
-  if (!amount || typeof amount !== 'number' || amount <= 0) {
-    return res.status(400).json({ error: 'amount (in rupees) is required' });
+  const { hallId, date, slot, cart } = req.body;
+
+  if (hallId) {
+    const hall = await Hall.findById(hallId).select('token').lean();
+    if (!hall) return res.status(404).json({ error: 'Hall not found' });
+    // Hall-booking payments carry date/slot — reject before any money moves if the slot's
+    // already taken, so the common case never even opens the Razorpay checkout sheet.
+    if (date && slot) {
+      const { taken, reason } = await isSlotTaken(hallId, date, slot);
+      if (taken) return res.status(409).json({ error: reason });
+    }
+    const order = await getClient().orders.create({
+      amount: Math.round(hall.token * 100),
+      currency: 'INR',
+      receipt: `tamboo_${Date.now()}`,
+    });
+    return res.json({ orderId: order.id, amount: order.amount, currency: order.currency, keyId: process.env.RAZORPAY_KEY_ID });
   }
-  // Hall-booking payments carry hallId/date/slot — reject before any money moves if the
-  // slot's already taken, so the common case never even opens the Razorpay checkout sheet.
-  if (hallId && date && slot) {
-    const { taken, reason } = await isSlotTaken(hallId, date, slot);
-    if (taken) return res.status(409).json({ error: reason });
-  }
-  // Cart checkout carries item lines with itemId — reject before payment if any line would
-  // outsell the vendor's stock, same early-rejection principle as the hall-slot check above.
+
   if (cart && Array.isArray(cart.groups)) {
-    for (const g of cart.groups) {
-      for (const l of g.lines || []) {
-        if (!l.itemId) continue;
+    const priced = await priceCartGroups(cart.groups);
+    if (priced.error) return res.status(400).json({ error: priced.error });
+
+    // Reject before payment if any line would outsell the vendor's stock.
+    for (const g of priced.groups) {
+      for (const l of g.lines) {
         const { ok, reason } = await checkItemStock(l.itemId, l.qty, cart.dateTxt);
         if (!ok) return res.status(409).json({ error: reason });
       }
     }
+
+    let discountPct = 0;
+    if (cart.couponCode) {
+      discountPct = await getCouponDiscountPct(cart.couponCode);
+      if (discountPct == null) return res.status(400).json({ error: 'Invalid or expired coupon code' });
+    }
+
+    const totals = computeTotals({
+      subtotal: priced.subtotal,
+      deliveryMode: cart.deliveryMode,
+      vendorCount: priced.groups.length,
+      discountPct,
+    });
+    const due = cart.payMode === 'advance' ? Math.round(totals.total * 0.3) : totals.total;
+
+    const order = await getClient().orders.create({
+      amount: Math.round(due * 100),
+      currency: 'INR',
+      receipt: `tamboo_${Date.now()}`,
+    });
+    return res.json({ orderId: order.id, amount: order.amount, currency: order.currency, keyId: process.env.RAZORPAY_KEY_ID });
   }
-  const order = await getClient().orders.create({
-    amount: Math.round(amount * 100),
-    currency: 'INR',
-    receipt: `tamboo_${Date.now()}`,
-  });
-  res.json({ orderId: order.id, amount: order.amount, currency: order.currency, keyId: process.env.RAZORPAY_KEY_ID });
+
+  return res.status(400).json({ error: 'Nothing to pay for' });
 });
 
 // Advance payment on an existing hall pre-booking — the amount is server-owned (read from
@@ -76,7 +107,7 @@ router.post('/create-advance-order', requireAuth, async (req, res) => {
 router.post('/verify', requireAuth, async (req, res) => {
   const {
     razorpay_order_id, razorpay_payment_id, razorpay_signature,
-    hallId, hallName, date, slot, guests, amount, partnerId, customerName, customerPhone,
+    hallId, hallName, date, slot, guests, partnerId, customerName, customerPhone,
     cart, advanceForBookingId,
   } = req.body;
   if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
@@ -122,9 +153,14 @@ router.post('/verify', requireAuth, async (req, res) => {
 
   let bookingId;
   let bookingConflict = false;
-  if (hallId && hallName && date && slot && typeof amount === 'number') {
+  if (hallId && hallName && date && slot) {
     let partner = null;
     if (partnerId) partner = await Partner.findById(partnerId).catch(() => null);
+
+    // Amount is re-derived from the real Hall record here too — never trusted from the
+    // client — so it always matches what create-order actually charged via Razorpay.
+    const hall = await Hall.findById(hallId).select('token').lean();
+    const amount = hall ? hall.token : 0;
 
     // Re-check right before creating the booking — the /create-order check already caught
     // the common case, but payment can take a minute or two in the Razorpay sheet, so this
@@ -171,8 +207,15 @@ router.post('/verify', requireAuth, async (req, res) => {
   // partner and the customer paid in full (advance/partial payments are reconciled manually).
   let orders;
   if (cart && Array.isArray(cart.groups)) {
+    // Prices re-derived from the real Item catalog here too — see lib/cartPricing.js —
+    // so a vendor's recorded order value/commission/payout always reflects real prices,
+    // never whatever the client's cart payload claimed.
+    const priced = await priceCartGroups(cart.groups);
+    if (priced.error) return res.status(400).json({ error: priced.error });
+    const deliveryFeePerGroup = cart.deliveryMode === 'delivery' ? DELIVERY_FEE_PER_VENDOR : 0;
+
     orders = [];
-    for (const g of cart.groups) {
+    for (const g of priced.groups) {
       let partner = null;
       if (g.vendorId) partner = await Partner.findById(g.vendorId).catch(() => null);
 
@@ -182,13 +225,12 @@ router.post('/verify', requireAuth, async (req, res) => {
       // there's no refund automation yet, so a real clash here is recorded as 'DISPUTED'
       // (same principle as the hall-booking conflict handling) rather than silently oversold.
       let lineConflict = false;
-      for (const l of g.lines || []) {
-        if (!l.itemId) continue;
+      for (const l of g.lines) {
         const { ok } = await checkItemStock(l.itemId, l.qty, cart.dateTxt);
         if (!ok) { lineConflict = true; break; }
       }
 
-      const value = Math.round((g.subtotal || 0) + (g.deliveryFee || 0));
+      const value = Math.round(g.subtotal + deliveryFeePerGroup);
       const commission = Math.round(value * (DEFAULT_COMMISSION_PCT / 100));
       const order = await Order.create({
         code: orderCode(),
@@ -202,7 +244,7 @@ router.post('/verify', requireAuth, async (req, res) => {
         dateTxt: cart.dateTxt || '',
         address: cart.address || '',
         guests: cart.guests || 0,
-        lines: (g.lines || []).map((l) => ({ itemId: l.itemId || null, name: l.name, qty: l.qty, unitPrice: l.unitPrice })),
+        lines: g.lines.map((l) => ({ itemId: l.itemId, name: l.name, qty: l.qty, unitPrice: l.unitPrice })),
         value,
         commissionPct: DEFAULT_COMMISSION_PCT,
         commission,

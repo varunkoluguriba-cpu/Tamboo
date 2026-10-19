@@ -29,7 +29,11 @@ export default function CartScreen({ navigation }: Props) {
     { label: t.cartTaxes, value: inr(pricing.tax) },
   ];
 
-  const onApplyCoupon = () => setCouponError(coupon.trim().length > 0 && !applyCoupon(coupon));
+  const onApplyCoupon = async () => {
+    if (coupon.trim().length === 0) return;
+    const ok = await applyCoupon(coupon);
+    setCouponError(!ok);
+  };
 
   const empty = groups.length === 0;
 

@@ -23,7 +23,7 @@ const HOLD_SECONDS = 15 * 60;
 export default function PayScreen({ navigation }: Props) {
   const { user } = useAuth();
   const { event } = useEvent();
-  const { pricing, groups, deliveryMode, clearCart } = useCart();
+  const { pricing, groups, deliveryMode, couponCode, clearCart } = useCart();
   const { t } = useLanguage();
 
   const METHODS: Array<{ key: Method; label: string; sub: string }> = [
@@ -53,7 +53,8 @@ export default function PayScreen({ navigation }: Props) {
     try {
       const cartPayload = {
         payMode,
-        due,
+        deliveryMode,
+        couponCode,
         customerName: user?.name,
         customerPhone: user?.phone,
         eventType: event.venueType,
@@ -72,7 +73,7 @@ export default function PayScreen({ navigation }: Props) {
 
       const order = await api.post<{ orderId: string; amount: number; currency: string; keyId: string }>(
         '/api/payments/create-order',
-        { amount: due, cart: cartPayload },
+        { cart: cartPayload },
       );
 
       let checkoutResult: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string };

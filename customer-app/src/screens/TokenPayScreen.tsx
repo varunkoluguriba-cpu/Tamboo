@@ -59,7 +59,7 @@ export default function TokenPayScreen({ navigation, route }: Props) {
     try {
       const order = await api.post<{ orderId: string; amount: number; currency: string; keyId: string }>(
         '/api/payments/create-order',
-        { amount: hall.token, hallId: hall.id, date: route.params.date, slot: route.params.slot },
+        { hallId: hall.id, date: route.params.date, slot: route.params.slot },
       );
 
       let checkoutResult: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string };
@@ -91,7 +91,6 @@ export default function TokenPayScreen({ navigation, route }: Props) {
         date: route.params.date,
         slot: route.params.slot,
         guests: event.guests,
-        amount: hall.token,
         partnerId: hall.partnerId,
         customerName: user?.name,
         customerPhone: user?.phone,

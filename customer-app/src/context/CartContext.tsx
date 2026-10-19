@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { api } from '../api/client';
 import { useCatalog } from './CatalogContext';
 
 type Line = { productId: string; qty: number };
@@ -31,7 +32,7 @@ interface CartContextValue {
   subtotal: number;
   vendorCount: number;
   couponCode: string | null;
-  applyCoupon: (code: string) => boolean;
+  applyCoupon: (code: string) => Promise<boolean>;
   pricing: Pricing;
   deliveryMode: DeliveryMode;
   setDeliveryMode: (mode: DeliveryMode) => void;
@@ -39,12 +40,14 @@ interface CartContextValue {
 
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 
-const VALID_COUPONS: Record<string, number> = { TAMBOO10: 0.1 };
-
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const { getProduct, getVendor } = useCatalog();
   const [lines, setLines] = useState<Line[]>([]);
   const [couponCode, setCouponCode] = useState<string | null>(null);
+  // Real discount %, fetched from the backend's Coupon collection when a code is applied —
+  // never a hardcoded client-side map, so it always matches what admins actually create and
+  // what create-order/verify will independently re-validate at checkout.
+  const [couponDiscountPct, setCouponDiscountPct] = useState(0);
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>('delivery');
 
   const addToCart = useCallback((productId: string, qty: number) => {
@@ -69,16 +72,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const clearCart = useCallback(() => {
     setLines([]);
     setCouponCode(null);
+    setCouponDiscountPct(0);
     setDeliveryMode('delivery');
   }, []);
 
-  const applyCoupon = useCallback((code: string) => {
+  const applyCoupon = useCallback(async (code: string) => {
     const normalized = code.trim().toUpperCase();
-    if (VALID_COUPONS[normalized]) {
-      setCouponCode(normalized);
-      return true;
+    try {
+      const res = await api.get<{ valid: boolean; discountPct?: number }>(`/api/coupons/${encodeURIComponent(normalized)}`);
+      if (res.valid && res.discountPct) {
+        setCouponCode(normalized);
+        setCouponDiscountPct(res.discountPct);
+        return true;
+      }
+    } catch {
+      // fall through to the invalid-coupon path below
     }
     setCouponCode(null);
+    setCouponDiscountPct(0);
     return false;
   }, []);
 
@@ -105,11 +116,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const pricing = useMemo<Pricing>(() => {
     const delivery = deliveryMode === 'delivery' ? groups.length * 300 : 0;
     const platformFee = Math.round(subtotal * 0.02);
-    const discount = couponCode ? Math.round(subtotal * (VALID_COUPONS[couponCode] || 0)) : 0;
+    const discount = couponCode ? Math.round(subtotal * (couponDiscountPct / 100)) : 0;
     const tax = Math.round((subtotal - discount) * 0.05);
     const total = subtotal - discount + delivery + platformFee + tax;
     return { subtotal, delivery, platformFee, discount, tax, total };
-  }, [groups.length, subtotal, couponCode, deliveryMode]);
+  }, [groups.length, subtotal, couponCode, couponDiscountPct, deliveryMode]);
 
   const value = useMemo(
     () => ({
