@@ -283,19 +283,13 @@ ${buildClassifyPrompt(CATEGORY_GUIDE)}`,
 // professional instead of showing whatever messy real-world background the vendor shot
 // against. Applies to any item photo, known or unknown — not tied to the classify flow above.
 router.post('/me/items/clean-photo-background', requirePartnerAuth, requireTentRole, async (req, res) => {
-  console.log('[clean-photo-background] request received, body size:', JSON.stringify(req.body || {}).length);
   const { imageBase64 } = req.body || {};
   if (!imageBase64 || typeof imageBase64 !== 'string') {
-    console.log('[clean-photo-background] missing imageBase64');
     return res.status(400).json({ error: 'imageBase64 is required' });
   }
   const match = imageBase64.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
-  if (!match) {
-    console.log('[clean-photo-background] imageBase64 did not match data URI pattern, prefix:', imageBase64.slice(0, 40));
-    return res.status(400).json({ error: 'imageBase64 must be a data URI' });
-  }
+  if (!match) return res.status(400).json({ error: 'imageBase64 must be a data URI' });
   const [, , data] = match;
-  console.log('[clean-photo-background] calling PhotoRoom, data length:', data.length);
 
   try {
     const photoroomRes = await fetch('https://sdk.photoroom.com/v1/segment', {
@@ -305,17 +299,12 @@ router.post('/me/items/clean-photo-background', requirePartnerAuth, requireTentR
       // than a floating transparent cutout — closer to "neat and good" than a raw segment.
       body: JSON.stringify({ image_file_b64: data, bg_color: '#FFFFFF', format: 'jpg' }),
     });
-    console.log('[clean-photo-background] PhotoRoom status:', photoroomRes.status);
     if (!photoroomRes.ok) {
-      const errText = await photoroomRes.text().catch(() => '');
-      console.log('[clean-photo-background] PhotoRoom error body:', errText.slice(0, 300));
       return res.status(502).json({ error: 'Could not clean up the photo background right now. The original photo will be used.' });
     }
     const resultBuffer = Buffer.from(await photoroomRes.arrayBuffer());
-    console.log('[clean-photo-background] success, result bytes:', resultBuffer.length);
     res.json({ imageBase64: `data:image/jpeg;base64,${resultBuffer.toString('base64')}` });
   } catch (e) {
-    console.log('[clean-photo-background] threw:', e.message);
     res.status(502).json({ error: 'Could not clean up the photo background right now. The original photo will be used.' });
   }
 });

@@ -35,7 +35,7 @@ export async function scheduleRegisterPhotoReminder(): Promise<void> {
         id: NOTIFICATION_ID,
         title: 'Update your booking register',
         body: "Got any new bookings today? Snap a photo of your register so your Tamboo calendar stays accurate.",
-        android: { channelId: 'register-reminders', pressAction: { id: 'default' } },
+        android: { channelId: 'register-reminders', smallIcon: 'ic_notification', color: '#e75480', pressAction: { id: 'default' } },
       },
       {
         type: TriggerType.TIMESTAMP,
