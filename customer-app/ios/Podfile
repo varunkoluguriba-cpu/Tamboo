@@ -7,15 +7,14 @@ require Pod::Executable.execute_command('node', ['-p',
 
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
-use_modular_headers!
 
-$RNFirebaseAsStaticFramework = true
-
-linkage = ENV['USE_FRAMEWORKS']
-if linkage != nil
-  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
-  use_frameworks! :linkage => linkage.to_sym
-end
+# Switched to dynamic framework linking to fix a persistent, non-deterministic
+# 'FirebaseAuth/FirebaseAuth-Swift.h' file not found build error under static linking —
+# same fix already proven on the Partner app's Podfile (see its comment for the full
+# explanation). Dynamic frameworks embed each pod's Swift/ObjC interop headers inside the
+# framework bundle itself, found automatically via framework search paths, which sidesteps
+# this whole class of static-lib header-timing race rather than working around it.
+use_frameworks! :linkage => :dynamic
 
 target 'TambooCustomer' do
   config = use_native_modules!
@@ -37,6 +36,21 @@ target 'TambooCustomer' do
       target.build_configurations.each do |config|
         if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 15.0
           config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+        end
+      end
+      # react-native-image-picker uses kUTTypeJPEG/kUTTypeMovie (MobileCoreServices constants)
+      # without declaring that framework as a dependency in its podspec. Under static linking
+      # this was masked by getting pulled in transitively from elsewhere; under use_frameworks!
+      # dynamic linking each framework only sees what it explicitly links, so it needs adding
+      # here directly — "ld: symbol(s) not found ... _kUTTypeJPEG/_kUTTypeMovie" otherwise.
+      if target.name == 'react-native-image-picker'
+        target.build_configurations.each do |config|
+          flags = config.build_settings['OTHER_LDFLAGS'] || ['$(inherited)']
+          flags = [flags] if flags.is_a?(String)
+          # Mixes legacy (kUTTypeJPEG, MobileCoreServices) and modern (UTTypeImage,
+          # UniformTypeIdentifiers) UTI APIs across different files — needs both frameworks.
+          flags += ['-framework', 'MobileCoreServices', '-framework', 'UniformTypeIdentifiers']
+          config.build_settings['OTHER_LDFLAGS'] = flags
         end
       end
     end
