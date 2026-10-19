@@ -205,7 +205,12 @@ export type Hall = {
   verified: boolean;
   rating: number;
   reviews: number;
-  km: number;
+  // Real straight-line distance from the customer's current location, computed by the
+  // backend — null until the customer's lat/lng are sent and the hall owner has captured
+  // GPS coords for the hall (see Hall.lat/lng on the backend model).
+  km: number | null;
+  lat?: number | null;
+  lng?: number | null;
   area: string;
   city: string;
   blurb: string;

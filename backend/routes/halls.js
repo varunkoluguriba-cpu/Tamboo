@@ -82,7 +82,20 @@ async function sweepExpiredAdvance(booking) {
 
 const router = express.Router();
 
-function serializePublic(hall, partner) {
+// Straight-line distance in km between two lat/lng points — good enough for "X km away"
+// sorting/display, not meant to match real driving distance.
+function haversineKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function serializePublic(hall, partner, fromLat, fromLng) {
+  const km = (fromLat != null && fromLng != null && hall.lat != null && hall.lng != null)
+    ? Math.round(haversineKm(fromLat, fromLng, hall.lat, hall.lng) * 10) / 10
+    : null;
   return {
     id: hall.id,
     type: hall.venueType,
@@ -91,7 +104,9 @@ function serializePublic(hall, partner) {
     verified: true,
     rating: 0,
     reviews: 0,
-    km: 0,
+    km,
+    lat: hall.lat,
+    lng: hall.lng,
     area: partner.area,
     city: partner.city,
     blurb: hall.blurb,
@@ -126,6 +141,8 @@ function serializeOwn(hall) {
     name: hall.name,
     venueType: hall.venueType,
     address: hall.address,
+    lat: hall.lat,
+    lng: hall.lng,
     seated: hall.seated,
     floating: hall.floating,
     sqft: hall.sqft,
@@ -149,11 +166,15 @@ function serializeOwn(hall) {
   };
 }
 
-// Public: list halls from verified venue partners with a published hall page.
+// Public: list halls from verified venue partners with a published hall page. ?lat=&lng=
+// (the customer's own current location) are optional — when present, each hall's `km` is a
+// real straight-line distance instead of null.
 router.get('/', async (req, res) => {
+  const fromLat = req.query.lat !== undefined ? Number(req.query.lat) : null;
+  const fromLng = req.query.lng !== undefined ? Number(req.query.lng) : null;
   const halls = await Hall.find().populate({ path: 'partner', match: { role: 'venue', verificationStatus: 'verified' } });
   const live = halls.filter((h) => h.partner);
-  res.json(live.map((h) => serializePublic(h, h.partner)));
+  res.json(live.map((h) => serializePublic(h, h.partner, fromLat, fromLng)));
 });
 
 // Venue partners can list several halls under one property (e.g. a hotel with 3-4 halls).
@@ -164,7 +185,7 @@ function requireVenue(req, res, next) {
 
 function parseHallBody(body, defaultAdvancePct) {
   const {
-    name, venueType, address, seated, floating, sqft, parking, rooms, pricingMode, rent, platePrice, minPlates, token, advancePct,
+    name, venueType, address, lat, lng, seated, floating, sqft, parking, rooms, pricingMode, rent, platePrice, minPlates, token, advancePct,
     ac, crockery, kitchen, crockeryNote, catering, amenities, blurb, photos,
   } = body || {};
   if (!name || !String(name).trim()) return { error: 'Enter the hall name' };
@@ -173,7 +194,10 @@ function parseHallBody(body, defaultAdvancePct) {
   if (pricingMode !== 'perPlate' && !(rent > 0)) return { error: 'Enter the hall rent' };
 
   const update = {
-    name: String(name).trim(), venueType, address, seated, floating, sqft, parking, rooms,
+    name: String(name).trim(), venueType, address,
+    lat: typeof lat === 'number' ? lat : null,
+    lng: typeof lng === 'number' ? lng : null,
+    seated, floating, sqft, parking, rooms,
     pricingMode: pricingMode === 'perPlate' ? 'perPlate' : 'rent',
     rent, platePrice, minPlates, token,
     advancePct: advancePct > 0 && advancePct <= 100 ? advancePct : defaultAdvancePct,

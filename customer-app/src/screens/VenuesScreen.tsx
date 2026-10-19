@@ -74,7 +74,7 @@ export default function VenuesScreen({ navigation }: Props) {
   const halls = useMemo(() => {
     let list = HALLS.filter((h) => venueType === 'All' || h.type === venueType);
     if (verifiedOnly) list = list.filter((h) => h.verified);
-    if (sort === 'nearest') list = [...list].sort((a, b) => a.km - b.km);
+    if (sort === 'nearest') list = [...list].sort((a, b) => (a.km ?? Infinity) - (b.km ?? Infinity));
     if (sort === 'rating') list = [...list].sort((a, b) => b.rating - a.rating);
     if (sort === 'priceLow') list = [...list].sort((a, b) => a.token - b.token);
     if (sort === 'priceHigh') list = [...list].sort((a, b) => b.token - a.token);
@@ -154,7 +154,7 @@ export default function VenuesScreen({ navigation }: Props) {
                   <View style={styles.hallTopRow}>
                     <View style={{ flex: 1, minWidth: 0 }}>
                       <Text style={styles.hallName}>{h.name}</Text>
-                      <Text style={styles.hallMeta}>{h.type} · {h.area} · {h.km} km</Text>
+                      <Text style={styles.hallMeta}>{h.type} · {h.area}{h.km != null ? ` · ${h.km} km` : ''}</Text>
                     </View>
                     <Text style={styles.hallRating}>★ {h.rating}</Text>
                   </View>

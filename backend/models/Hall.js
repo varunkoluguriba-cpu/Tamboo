@@ -6,6 +6,11 @@ const hallSchema = new mongoose.Schema({
   name: { type: String, default: '' },
   venueType: { type: String, default: '' },
   address: { type: String, default: '' },
+  // Real GPS coordinates, captured via "Use my current location" when the owner registers/
+  // edits the hall — lets the customer app show distance instead of relying on the free-text
+  // address alone. Null until the owner captures it (older halls, or if they skip the step).
+  lat: { type: Number, default: null },
+  lng: { type: Number, default: null },
   seated: { type: Number, default: 0 },
   floating: { type: Number, default: 0 },
   sqft: { type: Number, default: 0 },

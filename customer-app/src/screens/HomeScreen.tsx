@@ -245,7 +245,7 @@ export default function HomeScreen() {
                       <View style={styles.hallTopRow}>
                         <View style={{ flex: 1, minWidth: 0 }}>
                           <Text style={styles.hallName}>{v.name}</Text>
-                          <Text style={styles.hallMeta}>{v.type} · {v.area} · {v.km} km</Text>
+                          <Text style={styles.hallMeta}>{v.type} · {v.area}{v.km != null ? ` · ${v.km} km` : ''}</Text>
                         </View>
                         <Text style={styles.hallRating}>★ {v.rating}</Text>
                       </View>

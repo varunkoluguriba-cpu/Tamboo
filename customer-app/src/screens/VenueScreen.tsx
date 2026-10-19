@@ -144,7 +144,7 @@ export default function VenueScreen({ navigation, route }: Props) {
               )}
             </View>
             <Text style={styles.name}>{hall.name}</Text>
-            <Text style={styles.ratingLine}>★ {hall.rating} · {hall.reviews} {t.venueReviewsLabel} · {hall.km} km</Text>
+            <Text style={styles.ratingLine}>★ {hall.rating} · {hall.reviews} {t.venueReviewsLabel}{hall.km != null ? ` · ${hall.km} km` : ''}</Text>
           </View>
 
           <Text style={styles.blurb}>{hall.blurb}</Text>

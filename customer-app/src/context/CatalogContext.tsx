@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { PermissionsAndroid, Platform } from 'react-native';
+import Geolocation from '@react-native-community/geolocation';
 import { api } from '../api/client';
 import { useEvent } from './EventContext';
 import type { Hall, Vendor, Product } from '../data/catalog';
@@ -20,9 +22,30 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
   const [realHalls, setRealHalls] = useState<Hall[]>([]);
   const [realVendors, setRealVendors] = useState<Vendor[]>([]);
   const [realProducts, setRealProducts] = useState<Product[]>([]);
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+
+  // Best-effort — if permission is denied or location fails, halls load without distance.
+  useEffect(() => {
+    const getLocation = async () => {
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) return;
+      }
+      Geolocation.getCurrentPosition(
+        (pos) => setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        () => {},
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+      );
+    };
+    getLocation();
+  }, []);
 
   useEffect(() => {
-    api.get<Hall[]>('/api/halls').then(setRealHalls).catch(() => {});
+    const qs = coords ? `?lat=${coords.lat}&lng=${coords.lng}` : '';
+    api.get<Hall[]>(`/api/halls${qs}`).then(setRealHalls).catch(() => {});
+  }, [coords]);
+
+  useEffect(() => {
     api.get<Vendor[]>('/api/vendors').then(setRealVendors).catch(() => {});
   }, []);
 

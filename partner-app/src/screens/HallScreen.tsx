@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Linking, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Linking, PermissionsAndroid, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
+import Geolocation from '@react-native-community/geolocation';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
@@ -19,6 +20,8 @@ type RemoteHall = {
   name: string;
   venueType: string;
   address: string;
+  lat: number | null;
+  lng: number | null;
   seated: number;
   floating: number;
   sqft: number;
@@ -79,6 +82,9 @@ export default function HallScreen({ navigation, route }: Props) {
   const [name, setName] = useState('');
   const [type, setType] = useState(partner?.venueType || VENUE_TYPES[0]);
   const [address, setAddress] = useState('');
+  const [lat, setLat] = useState<number | null>(null);
+  const [lng, setLng] = useState<number | null>(null);
+  const [locating, setLocating] = useState(false);
   const [pricingMode, setPricingMode] = useState<PricingMode>('rent');
   const [rent, setRent] = useState('');
   const [platePrice, setPlatePrice] = useState('');
@@ -105,6 +111,8 @@ export default function HallScreen({ navigation, route }: Props) {
         setName(hall.name || '');
         setType(hall.venueType || VENUE_TYPES[0]);
         setAddress(hall.address);
+        setLat(hall.lat ?? null);
+        setLng(hall.lng ?? null);
         setNums({
           seated: String(hall.seated || ''),
           floating: String(hall.floating || ''),
@@ -151,6 +159,29 @@ export default function HallScreen({ navigation, route }: Props) {
     Linking.openURL(url).catch(() => {});
   };
 
+  const useCurrentLocation = async () => {
+    if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+        Alert.alert(t.hallLocationErrTitle, t.hallLocationErr);
+        return;
+      }
+    }
+    setLocating(true);
+    Geolocation.getCurrentPosition(
+      (pos) => {
+        setLat(pos.coords.latitude);
+        setLng(pos.coords.longitude);
+        setLocating(false);
+      },
+      () => {
+        setLocating(false);
+        Alert.alert(t.hallLocationErrTitle, t.hallLocationErr);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+    );
+  };
+
   const deleteHall = () => {
     Alert.alert(t.hallDeleteConfirmTitle, t.hallDeleteConfirmMsg, [
       { text: t.cancel, style: 'cancel' },
@@ -191,6 +222,8 @@ export default function HallScreen({ navigation, route }: Props) {
         name: name.trim(),
         venueType: type,
         address,
+        lat,
+        lng,
         seated,
         floating,
         sqft: parseInt(nums.sqft || '0', 10),
@@ -274,6 +307,20 @@ export default function HallScreen({ navigation, route }: Props) {
         <View style={{ gap: 6 }}>
           <Text style={styles.fieldLabel}>{t.hallAddressLabel}</Text>
           <TextInput value={address} onChangeText={setAddress} multiline numberOfLines={2} style={[styles.input, styles.textarea]} />
+        </View>
+
+        <View style={{ gap: 6 }}>
+          <TouchableOpacity style={styles.locationBtn} activeOpacity={0.85} onPress={useCurrentLocation} disabled={locating}>
+            {locating ? (
+              <ActivityIndicator size="small" color={colors.pinkStrong} />
+            ) : (
+              <Icon name="pin" size={14} color={colors.pinkStrong} />
+            )}
+            <Text style={styles.locationBtnText}>{locating ? t.hallLocatingText : t.hallUseLocationBtn}</Text>
+          </TouchableOpacity>
+          {lat != null && lng != null && (
+            <Text style={styles.locationSetText}>{t.hallLocationSetText}</Text>
+          )}
         </View>
 
         <TouchableOpacity style={styles.mapLink} activeOpacity={0.7} onPress={openMap}>
@@ -439,6 +486,9 @@ const styles = StyleSheet.create({
   textarea: { height: undefined, minHeight: 60, paddingTop: 10, textAlignVertical: 'top' },
   mapLink: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
   mapLinkText: { color: colors.pinkStrong, fontWeight: '700', fontSize: 13 },
+  locationBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'flex-start', backgroundColor: colors.pinkBg, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 20 },
+  locationBtnText: { color: colors.pinkStrong, fontWeight: '700', fontSize: 13 },
+  locationSetText: { color: colors.green, fontWeight: '600', fontSize: 12 },
   pricingCard: { flexDirection: 'row', gap: 12, alignItems: 'flex-start', backgroundColor: colors.surface, borderRadius: 16, borderWidth: 1.5, borderColor: colors.divider, padding: 14 },
   pricingCardSel: { borderColor: colors.pink, backgroundColor: colors.pinkBg },
   pricingCardLabel: { fontSize: 14, fontWeight: '700', color: colors.text },
