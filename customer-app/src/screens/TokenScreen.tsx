@@ -19,13 +19,19 @@ const VISIT_TIME_KEYS = ['morning', 'afternoon', 'evening', 'night'] as const;
 
 export default function TokenScreen({ navigation }: Props) {
   const { t } = useLanguage();
-  const { token, markVisited, cancelToken, notBookingToken, disputeToken } = useToken();
+  const { token, markVisited, cancelToken, notBookingToken, disputeToken, scheduleVisit } = useToken();
   const [busy, setBusy] = useState(false);
+  const [savingVisit, setSavingVisit] = useState(false);
   const { getHall } = useCatalog();
   const hall = token ? getHall(token.hallId) : undefined;
   const [, forceTick] = useState(0);
-  const [visitDay, setVisitDay] = useState<string | null>(null);
-  const [visitTime, setVisitTime] = useState<string | null>(null);
+  const [visitDay, setVisitDay] = useState<string | null>(token?.visitDay || null);
+  const [visitTime, setVisitTime] = useState<string | null>(token?.visitTime || null);
+
+  useEffect(() => {
+    setVisitDay(token?.visitDay || null);
+    setVisitTime(token?.visitTime || null);
+  }, [token?.visitDay, token?.visitTime]);
 
   const VISIT_DAY_LABELS: Record<string, string> = {
     today: t.tokenVisitDayToday,
@@ -150,15 +156,23 @@ export default function TokenScreen({ navigation }: Props) {
     ]);
   };
 
-  const saveVisit = () => {
+  const saveVisit = async () => {
     if (!visitDay || !visitTime) {
       Alert.alert(t.tokenPickDayTimeTitle, t.tokenPickDayTimeMsg);
       return;
     }
-    Alert.alert(
-      t.tokenVisitScheduledTitle,
-      t.tokenVisitScheduledMsg.replace('{day}', VISIT_DAY_LABELS[visitDay]).replace('{time}', VISIT_TIME_LABELS[visitTime]),
-    );
+    setSavingVisit(true);
+    try {
+      await scheduleVisit(visitDay, visitTime);
+      Alert.alert(
+        t.tokenVisitScheduledTitle,
+        t.tokenVisitScheduledMsg.replace('{day}', VISIT_DAY_LABELS[visitDay]).replace('{time}', VISIT_TIME_LABELS[visitTime]),
+      );
+    } catch (e) {
+      Alert.alert(t.tryAgain, e instanceof ApiError ? e.message : t.tryAgain);
+    } finally {
+      setSavingVisit(false);
+    }
   };
 
   return (
@@ -214,8 +228,8 @@ export default function TokenScreen({ navigation }: Props) {
                 </TouchableOpacity>
               ))}
             </View>
-            <TouchableOpacity style={styles.saveBtn} activeOpacity={0.85} onPress={saveVisit}>
-              <Text style={styles.saveBtnText}>{t.tokenSaveVisitTime}</Text>
+            <TouchableOpacity style={styles.saveBtn} activeOpacity={0.85} onPress={saveVisit} disabled={savingVisit}>
+              <Text style={styles.saveBtnText}>{savingVisit ? '…' : t.tokenSaveVisitTime}</Text>
             </TouchableOpacity>
           </View>
         )}

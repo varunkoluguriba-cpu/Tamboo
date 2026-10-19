@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../navigation/types';
+import type { RemoteHallBooking, RemoteOrderSummary, RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import type { IconName } from '../components/icons';
 import LanguageSheet from '../components/LanguageSheet';
@@ -80,6 +80,31 @@ export default function HomeScreen() {
 
   useEffect(() => {
     api.get<RemotePackage[]>('/api/vendors/packages').then(setPackages).catch(() => setPackages([]));
+  }, []);
+
+  // Real counts for the two stat cards below — mirrors BookingsScreen's own filtering so the
+  // numbers here always match what tapping through to Bookings actually shows.
+  const [activeBookingsCount, setActiveBookingsCount] = useState(0);
+  const [quotesToReviewCount, setQuotesToReviewCount] = useState(0);
+
+  useEffect(() => {
+    api.get<RemoteOrderSummary[]>('/api/orders/me')
+      .then((orders) => {
+        const active = orders.filter((o) => ['PENDING', 'CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED'].includes(o.status));
+        setActiveBookingsCount((n) => n + active.length);
+      })
+      .catch(() => {});
+    api.get<RemoteHallBooking[]>('/api/halls/my-tokens')
+      .then((bookings) => {
+        const active = bookings.filter((b) => ['token_paid', 'visited', 'awaiting_advance', 'confirmed'].includes(b.status));
+        setActiveBookingsCount((n) => n + active.length);
+      })
+      .catch(() => {});
+    api.get<Array<{ status: string }>>('/api/quotes/me')
+      .then((quotes) => {
+        setQuotesToReviewCount(quotes.filter((q) => q.status === 'OFFER_SENT' || q.status === 'REVISION_REQUESTED').length);
+      })
+      .catch(() => {});
   }, []);
 
   const nearHalls = halls.slice(0, 4);
@@ -306,11 +331,11 @@ export default function HomeScreen() {
             <View style={styles.statGrid}>
               <TouchableOpacity style={styles.statCard} activeOpacity={0.85} onPress={() => navigation.navigate('Bookings')}>
                 <Text style={styles.statLabel}>{t.homeScreenActiveBookings}</Text>
-                <Text style={styles.statValue}>0</Text>
+                <Text style={styles.statValue}>{activeBookingsCount}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.statCard, styles.statCardPink]} activeOpacity={0.85} onPress={() => navigation.navigate('Bookings')}>
                 <Text style={styles.statLabel}>{t.homeScreenQuotesToReview}</Text>
-                <Text style={[styles.statValue, { color: colors.pinkStrong }]}>0</Text>
+                <Text style={[styles.statValue, { color: colors.pinkStrong }]}>{quotesToReviewCount}</Text>
               </TouchableOpacity>
             </View>
 

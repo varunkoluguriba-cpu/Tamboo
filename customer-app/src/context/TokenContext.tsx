@@ -9,6 +9,8 @@ export type HallToken = {
   date: string;
   slot: 'Morning' | 'Evening';
   guests: string;
+  visitDay?: string | null;
+  visitTime?: string | null;
   amount: number;
   heldAtMs: number;
   visitHours: number;
@@ -26,6 +28,7 @@ interface TokenContextValue {
   markVisited: () => void;
   clearToken: () => void;
   refreshToken: () => Promise<void>;
+  scheduleVisit: (visitDay: string, visitTime: string) => Promise<void>;
   cancelToken: () => Promise<void>;
   notBookingToken: () => Promise<void>;
   disputeToken: () => Promise<void>;
@@ -56,6 +59,12 @@ export function TokenProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const scheduleVisit = useCallback(async (visitDay: string, visitTime: string) => {
+    if (!token) return;
+    const updated = await api.patch<HallToken>(`/api/halls/my-token/${token.id}`, { action: 'scheduleVisit', visitDay, visitTime });
+    setToken(updated);
+  }, [token]);
+
   const cancelToken = useCallback(async () => {
     if (!token) return;
     await api.patch(`/api/halls/my-token/${token.id}`, { action: 'cancel' });
@@ -79,8 +88,8 @@ export function TokenProvider({ children }: { children: React.ReactNode }) {
   }, [user, refreshToken]);
 
   const value = useMemo(
-    () => ({ token, startToken, markVisited, clearToken, refreshToken, cancelToken, notBookingToken, disputeToken }),
-    [token, startToken, markVisited, clearToken, refreshToken, cancelToken, notBookingToken, disputeToken],
+    () => ({ token, startToken, markVisited, clearToken, refreshToken, scheduleVisit, cancelToken, notBookingToken, disputeToken }),
+    [token, startToken, markVisited, clearToken, refreshToken, scheduleVisit, cancelToken, notBookingToken, disputeToken],
   );
 
   return <TokenContext.Provider value={value}>{children}</TokenContext.Provider>;

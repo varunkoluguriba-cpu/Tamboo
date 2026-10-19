@@ -43,6 +43,8 @@ function serializeTokenForCustomer(b) {
     date: b.date,
     slot: b.slot,
     guests: String(b.guests || ''),
+    visitDay: b.visitDay || null,
+    visitTime: b.visitTime || null,
     amount: b.amount,
     finalRent: b.finalRent,
     advancePct: b.advancePct,
@@ -509,7 +511,16 @@ router.patch('/my-token/:id', requireAuth, async (req, res) => {
   const { action } = req.body || {};
   const originalNet = Math.round(booking.amount * (1 - booking.commissionPct / 100));
 
-  if (action === 'cancel') {
+  if (action === 'scheduleVisit') {
+    const { visitDay, visitTime } = req.body || {};
+    const VALID_DAYS = ['today', 'tomorrow', 'dayAfter'];
+    const VALID_TIMES = ['morning', 'afternoon', 'evening', 'night'];
+    if (!VALID_DAYS.includes(visitDay) || !VALID_TIMES.includes(visitTime)) {
+      return res.status(400).json({ error: 'Invalid visit day/time' });
+    }
+    booking.visitDay = visitDay;
+    booking.visitTime = visitTime;
+  } else if (action === 'cancel') {
     booking.status = 'cancelled';
     if (booking.partner && originalNet > 0) {
       await PayoutEntry.create({

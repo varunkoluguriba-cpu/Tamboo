@@ -284,7 +284,7 @@ const EN = {
   notifTime2: '5 hours ago',
   notifMsg3: 'Booking TB-250142 confirmed by Sai Tent House. Delivery is scheduled for 12 Nov 2026.',
   notifTime3: '1 day ago',
-  notifWelcomeOffer: 'Welcome to Tamboo! Use FIRST500 for ₹500 off your first booking.',
+  notifWelcomeOffer: 'Welcome to Tamboo! Use TAMBOO10 for 10% off your first rental cart.',
   notifOfferLabel: 'Offer',
 
   // ---- otp / pay / product / profile ----
@@ -647,7 +647,7 @@ const TE: Partial<Record<Key, string>> = {
   notifMsg1: 'Sai Tent House మీ కోట్ రిక్వెస్ట్ QT-5498ను ఆమోదించింది. బుకింగ్‌లలో ఆఫర్‌ను చూడండి.', notifTime1: '2 గంటల క్రితం',
   notifMsg2: 'రిమైండర్: Sri Kalyana Mandapam వద్ద మీ హాల్ ప్రీ-బుకింగ్ 24 గంటల్లో గడువు తీరుతుంది. ఖరారు చేయడానికి త్వరలో సందర్శించండి.', notifTime2: '5 గంటల క్రితం',
   notifMsg3: 'బుకింగ్ TB-250142ను Sai Tent House నిర్ధారించింది. డెలివరీ 12 నవంబర్ 2026న షెడ్యూల్ చేయబడింది.', notifTime3: '1 రోజు క్రితం',
-  notifWelcomeOffer: 'Tambooకి స్వాగతం! మీ మొదటి బుకింగ్‌పై ₹500 తగ్గింపు కోసం FIRST500 ఉపయోగించండి.', notifOfferLabel: 'ఆఫర్',
+  notifWelcomeOffer: 'Tambooకి స్వాగతం! మీ మొదటి రెంటల్ కార్ట్‌పై 10% తగ్గింపు కోసం TAMBOO10 ఉపయోగించండి.', notifOfferLabel: 'ఆఫర్',
 
   otpScreenEnterCode: 'మీ ఫోన్‌కు పంపిన కోడ్‌ను నమోదు చేయండి', otpScreenIncorrectCode: 'తప్పు కోడ్. దయచేసి మళ్లీ ప్రయత్నించండి.',
   otpScreenResendFailed: 'మళ్లీ పంపలేకపోయాం. మీ కనెక్షన్‌ను చెక్ చేయండి.', otpScreenSentTo: '{param}కు పంపబడింది.', otpScreenResendOtp: 'OTP మళ్లీ పంపండి',
@@ -869,7 +869,7 @@ const HI: Partial<Record<Key, string>> = {
   notifMsg1: 'Sai Tent House ने आपके कोट रिक्वेस्ट QT-5498 को स्वीकार कर लिया है। बुकिंग में ऑफर देखें।', notifTime1: '2 घंटे पहले',
   notifMsg2: 'रिमाइंडर: Sri Kalyana Mandapam में आपकी हॉल प्री-बुकिंग 24 घंटे में समाप्त हो जाएगी। फाइनल करने के लिए जल्द विज़िट करें।', notifTime2: '5 घंटे पहले',
   notifMsg3: 'बुकिंग TB-250142 को Sai Tent House ने कन्फर्म कर दिया है। डिलीवरी 12 नवंबर 2026 के लिए शेड्यूल की गई है।', notifTime3: '1 दिन पहले',
-  notifWelcomeOffer: 'Tamboo में आपका स्वागत है! अपनी पहली बुकिंग पर ₹500 की छूट के लिए FIRST500 का उपयोग करें।', notifOfferLabel: 'ऑफर',
+  notifWelcomeOffer: 'Tamboo में आपका स्वागत है! अपने पहले रेंटल कार्ट पर 10% छूट के लिए TAMBOO10 का उपयोग करें।', notifOfferLabel: 'ऑफर',
 
   otpScreenEnterCode: 'आपके फ़ोन पर भेजा गया कोड दर्ज करें', otpScreenIncorrectCode: 'गलत कोड। कृपया फिर से कोशिश करें।',
   otpScreenResendFailed: 'फिर से भेज नहीं सके। अपना कनेक्शन जांचें।', otpScreenSentTo: '{param} पर भेजा गया।', otpScreenResendOtp: 'OTP फिर से भेजें',
@@ -1089,7 +1089,7 @@ const UR: Partial<Record<Key, string>> = {
   notifMsg1: 'Sai Tent House نے آپ کی کوٹ ریکویسٹ QT-5498 منظور کر لی ہے۔ بکنگز میں آفر دیکھیں۔', notifTime1: '2 گھنٹے پہلے',
   notifMsg2: 'یاد دہانی: Sri Kalyana Mandapam میں آپ کی ہال پری بکنگ 24 گھنٹوں میں ختم ہو جائے گی۔ حتمی کرنے کے لیے جلد وزٹ کریں۔', notifTime2: '5 گھنٹے پہلے',
   notifMsg3: 'بکنگ TB-250142 کو Sai Tent House نے کنفرم کر دیا ہے۔ ڈیلیوری 12 نومبر 2026 کے لیے شیڈول کی گئی ہے۔', notifTime3: '1 دن پہلے',
-  notifWelcomeOffer: 'Tamboo میں خوش آمدید! اپنی پہلی بکنگ پر ₹500 کی چھوٹ کے لیے FIRST500 استعمال کریں۔', notifOfferLabel: 'آفر',
+  notifWelcomeOffer: 'Tamboo میں خوش آمدید! اپنی پہلی رینٹل کارٹ پر 10% چھوٹ کے لیے TAMBOO10 استعمال کریں۔', notifOfferLabel: 'آفر',
 
   otpScreenEnterCode: 'آپ کے فون پر بھیجا گیا کوڈ درج کریں', otpScreenIncorrectCode: 'غلط کوڈ۔ براہ کرم دوبارہ کوشش کریں۔',
   otpScreenResendFailed: 'دوبارہ نہیں بھیج سکے۔ اپنا کنکشن چیک کریں۔', otpScreenSentTo: '{param} پر بھیجا گیا۔', otpScreenResendOtp: 'OTP دوبارہ بھیجیں',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from './Icon';
 import type { IconName } from './icons';
 import { useLanguage } from '../context/LanguageContext';
@@ -26,10 +26,6 @@ const TABS: Array<{ key: TabKey; icon: IconName }> = [
   { key: 'profile', icon: 'user' },
 ];
 
-function soon() {
-  Alert.alert('Coming soon', 'This is being built next.');
-}
-
 export default function TabBar({
   active,
   navigation,
@@ -47,7 +43,6 @@ export default function TabBar({
     if (key === 'cart') return navigation.navigate('Cart');
     if (key === 'bookings') return navigation.navigate('Bookings');
     if (key === 'profile') return navigation.navigate('Profile');
-    soon();
   };
 
   return (

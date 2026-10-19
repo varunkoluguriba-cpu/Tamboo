@@ -42,7 +42,7 @@ export default function NotificationsScreen({ navigation }: Props) {
           </TouchableOpacity>
         ))}
 
-        <View style={styles.card}>
+        <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={() => navigation.navigate('Cart')}>
           <View style={styles.iconCircle}>
             <Icon name="tagi" size={17} color={colors.pinkStrong} />
           </View>
@@ -50,7 +50,7 @@ export default function NotificationsScreen({ navigation }: Props) {
             <Text style={styles.cardText}>{t.notifWelcomeOffer}</Text>
             <Text style={styles.cardTime}>{t.notifOfferLabel}</Text>
           </View>
-        </View>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
