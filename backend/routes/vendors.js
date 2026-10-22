@@ -11,6 +11,7 @@ const { getClient: getAnthropicClient } = require('../config/anthropic');
 const { getApiKey: getPhotoroomKey } = require('../config/photoroom');
 const { CATEGORY_IDS, UNIT_OPTIONS } = require('../data/itemCatalogOptions');
 const ItemPreset = require('../models/ItemPreset');
+const Conversation = require('../models/Conversation');
 const { getCommittedQtyByItem } = require('../lib/itemAvailability');
 
 // A few concrete example items per category, so the model grounds ambiguous/India-specific
@@ -372,6 +373,22 @@ router.get('/me/items/market-price', requirePartnerAuth, requireTentRole, async 
   const mid = Math.floor(prices.length / 2);
   const median = prices.length % 2 === 0 ? Math.round((prices[mid - 1] + prices[mid]) / 2) : prices[mid];
   res.json({ available: true, count: prices.length, median, min: prices[0], max: prices[prices.length - 1] });
+});
+
+// WhatsApp conversation summaries for this partner — populated by routes/whatsapp.js's
+// webhook as messages come in from Tamboo's WhatsApp Business number, AI-summarized into a
+// MOM-style recap + action items. Open to both roles (tent and venue), unlike most of this
+// file, since either kind of partner can have WhatsApp conversations with Tamboo/customers.
+router.get('/me/conversations', requirePartnerAuth, async (req, res) => {
+  const convos = await Conversation.find({ partner: req.partner.id }).sort({ lastMessageAt: -1 }).limit(50);
+  res.json(convos.map((c) => ({
+    id: c.id,
+    phone: c.phone,
+    summary: c.summary,
+    actionItems: c.actionItems,
+    messageCount: c.messages.length,
+    lastMessageAt: c.lastMessageAt,
+  })));
 });
 
 router.get('/me/orders', requirePartnerAuth, requireTentRole, async (req, res) => {

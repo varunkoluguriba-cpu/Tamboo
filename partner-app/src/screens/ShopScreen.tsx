@@ -154,6 +154,14 @@ export default function ShopScreen({ navigation }: Props) {
           <TouchableOpacity
             style={styles.logoutBtn}
             activeOpacity={0.85}
+            onPress={() => navigation.navigate('Conversations')}
+          >
+            <Text style={styles.logoutText}>{t.whatsappInsights}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.logoutBtn}
+            activeOpacity={0.85}
             onPress={() => navigation.navigate('Chat', { customerName: t.tambooSupport })}
           >
             <Text style={styles.logoutText}>{t.tambooSupport}</Text>

@@ -24,6 +24,7 @@ import HallScreen from '../screens/HallScreen';
 import HallsScreen from '../screens/HallsScreen';
 import EarningsScreen from '../screens/EarningsScreen';
 import ChatScreen from '../screens/ChatScreen';
+import ConversationsScreen from '../screens/ConversationsScreen';
 import { TentTabBar, VenueTabBar, type TentTab, type VenueTab } from '../components/TabBar';
 import { tokenUiStatus, type RemoteHallToken } from '../hooks/useHallTokens';
 import { useAuth } from '../context/AuthContext';
@@ -123,6 +124,7 @@ export default function RootNavigator() {
                   <Stack.Screen name="RegisterPhoto" component={RegisterPhotoScreen} />
                   <Stack.Screen name="Earnings" component={EarningsScreen} />
                   <Stack.Screen name="Chat" component={ChatScreen} />
+                  <Stack.Screen name="Conversations" component={ConversationsScreen} />
                 </>
               ) : (
                 <>
@@ -139,6 +141,7 @@ export default function RootNavigator() {
                   <Stack.Screen name="Shop" component={ShopScreen} />
                   <Stack.Screen name="Earnings" component={EarningsScreen} />
                   <Stack.Screen name="Chat" component={ChatScreen} />
+                  <Stack.Screen name="Conversations" component={ConversationsScreen} />
                 </>
               )}
             </Stack.Navigator>

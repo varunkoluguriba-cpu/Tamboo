@@ -27,4 +27,5 @@ export type RootStackParamList = {
   Hall: { hallId?: string };
   Earnings: undefined;
   Chat: { customerId?: string; customerName: string };
+  Conversations: undefined;
 };

@@ -17,6 +17,7 @@ const messagesRoutes = require('./routes/messages');
 const ordersRoutes = require('./routes/orders');
 const siteContentRoutes = require('./routes/siteContent');
 const couponsRoutes = require('./routes/coupons');
+const whatsappRoutes = require('./routes/whatsapp');
 
 const app = express();
 app.use(cors());
@@ -37,6 +38,7 @@ app.use('/api/messages', messagesRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/site-content', siteContentRoutes);
 app.use('/api/coupons', couponsRoutes);
+app.use('/api/whatsapp', whatsappRoutes);
 
 app.use((req, res) => res.status(404).json({ error: 'Not found' }));
 

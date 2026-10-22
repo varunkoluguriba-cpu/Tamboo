@@ -48,6 +48,11 @@ const EN = {
   chatWithCustomer: 'Chat',
   chatMessagePlaceholder: 'Message…',
   tambooSupport: 'Tamboo Support',
+  whatsappInsights: 'WhatsApp Insights',
+  convosTitle: 'WhatsApp Insights',
+  convosHint: 'AI-summarized recaps and action items from your WhatsApp conversations with Tamboo.',
+  convosEmpty: 'No WhatsApp conversations yet.',
+  convosLoadError: 'Could not load conversations. Please try again.',
 
   // ---- calendar / earnings / hhome / htoken ----
   calendarTitle: 'Calendar', calendarMon: 'Mo', calendarTue: 'Tu', calendarWed: 'We', calendarThu: 'Th', calendarFri: 'Fr', calendarSat: 'Sa', calendarSun: 'Su',
@@ -197,6 +202,9 @@ const TE: Partial<Record<Key, string>> = {
   yes: 'అవును', no: 'కాదు', ok: 'సరే', back: 'వెనక్కి', done: 'పూర్తయింది', close: 'మూసివేయండి',
   submit: 'సమర్పించండి', update: 'నవీకరించండి', viewDetails: 'వివరాలు చూడండి', comingSoon: 'త్వరలో వస్తుంది',
   logout: 'లాగ్ అవుట్', or: 'లేదా', chatWithCustomer: 'చాట్', chatMessagePlaceholder: 'మెసేజ్…', tambooSupport: 'టాంబూ సపోర్ట్',
+  whatsappInsights: 'వాట్సాప్ ఇన్‌సైట్స్', convosTitle: 'వాట్సాప్ ఇన్‌సైట్స్',
+  convosHint: 'టాంబూతో మీ వాట్సాప్ సంభాషణల నుండి AI సారాంశాలు మరియు చేయవలసిన పనులు.',
+  convosEmpty: 'ఇంకా వాట్సాప్ సంభాషణలు లేవు.', convosLoadError: 'సంభాషణలను లోడ్ చేయలేకపోయాం. మళ్లీ ప్రయత్నించండి.',
 
   calendarTitle: 'క్యాలెండర్', calendarMon: 'సోమ', calendarTue: 'మంగళ', calendarWed: 'బుధ', calendarThu: 'గురు', calendarFri: 'శుక్ర', calendarSat: 'శని', calendarSun: 'ఆది',
   calendarBooked: 'బుక్ అయింది', calendarBlocked: 'బ్లాక్ చేయబడింది', calendarBlockedNote: 'బ్లాక్ చేయబడింది: {reason}. కస్టమర్లు ఈ రోజున మీను బుక్ చేయలేరు.',
@@ -336,6 +344,9 @@ const HI: Partial<Record<Key, string>> = {
   yes: 'हाँ', no: 'नहीं', ok: 'ठीक है', back: 'वापस', done: 'पूर्ण', close: 'बंद करें',
   submit: 'जमा करें', update: 'अपडेट करें', viewDetails: 'विवरण देखें', comingSoon: 'जल्द आ रहा है',
   logout: 'लॉगआउट', or: 'या', chatWithCustomer: 'चैट', chatMessagePlaceholder: 'मैसेज…', tambooSupport: 'टैम्बू सपोर्ट',
+  whatsappInsights: 'व्हाट्सएप इनसाइट्स', convosTitle: 'व्हाट्सएप इनसाइट्स',
+  convosHint: 'टैम्बू के साथ आपकी व्हाट्सएप बातचीत से AI सारांश और करने योग्य काम।',
+  convosEmpty: 'अभी तक कोई व्हाट्सएप बातचीत नहीं।', convosLoadError: 'बातचीत लोड नहीं हो सकी। फिर से कोशिश करें।',
 
   calendarTitle: 'कैलेंडर', calendarMon: 'सोम', calendarTue: 'मंगल', calendarWed: 'बुध', calendarThu: 'गुरु', calendarFri: 'शुक्र', calendarSat: 'शनि', calendarSun: 'रवि',
   calendarBooked: 'बुक है', calendarBlocked: 'ब्लॉक है', calendarBlockedNote: 'ब्लॉक किया गया: {reason}. ग्राहक इस दिन आपको बुक नहीं कर सकते।',
@@ -475,6 +486,9 @@ const UR: Partial<Record<Key, string>> = {
   yes: 'جی ہاں', no: 'نہیں', ok: 'ٹھیک ہے', back: 'واپس', done: 'مکمل', close: 'بند کریں',
   submit: 'جمع کریں', update: 'اپ ڈیٹ کریں', viewDetails: 'تفصیلات دیکھیں', comingSoon: 'آنے والا ہے',
   logout: 'لاگ آؤٹ', or: 'یا', chatWithCustomer: 'چیٹ', chatMessagePlaceholder: 'پیغام…', tambooSupport: 'ٹیمبو سپورٹ',
+  whatsappInsights: 'واٹس ایپ انسائٹس', convosTitle: 'واٹس ایپ انسائٹس',
+  convosHint: 'ٹیمبو کے ساتھ آپ کی واٹس ایپ گفتگو سے AI خلاصے اور کرنے والے کام۔',
+  convosEmpty: 'ابھی تک کوئی واٹس ایپ گفتگو نہیں۔', convosLoadError: 'گفتگو لوڈ نہیں ہو سکی۔ دوبارہ کوشش کریں۔',
 
   calendarTitle: 'کیلنڈر', calendarMon: 'پیر', calendarTue: 'منگل', calendarWed: 'بدھ', calendarThu: 'جمعرات', calendarFri: 'جمعہ', calendarSat: 'ہفتہ', calendarSun: 'اتوار',
   calendarBooked: 'بک ہے', calendarBlocked: 'بلاک ہے', calendarBlockedNote: 'بلاک کر دیا گیا: {reason}۔ گاہک اس دن آپ کو بک نہیں کر سکتے۔',
