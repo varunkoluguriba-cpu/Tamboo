@@ -216,6 +216,8 @@ export type Hall = {
   blurb: string;
   address: string;
   cap: string;
+  seated?: number;
+  floating?: number;
   ac: boolean;
   facts: Array<{ k: string; v: string }>;
   hasCrockery: boolean;

@@ -33,7 +33,23 @@ export default function VenuesScreen({ navigation }: Props) {
   const [venueType, setVenueType] = useState('All');
   const [slot, setSlot] = useState('Any time');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [fitsGuests, setFitsGuests] = useState(false);
+  const [acOnly, setAcOnly] = useState(false);
+  const [crockeryOnly, setCrockeryOnly] = useState(false);
   const [sort, setSort] = useState<Sort | null>(null);
+
+  // What the customer actually pays for the hall itself — the token (₹5,000 typical, capped
+  // at ₹10,000) is just a refundable hold, not a meaningful number to sort/compare halls by.
+  // Per-plate halls are normalized to an estimated total (plate price × guest count, or the
+  // hall's own minimum plate count if no guest count is set yet) so they sort fairly
+  // alongside flat-rent halls rather than comparing a per-plate rate to a lump sum.
+  const effectiveRate = (h: (typeof HALLS)[number]) => {
+    if (h.pricingMode === 'perPlate') {
+      const guests = Number(event.guests) > 0 ? Number(event.guests) : (h.minPlates || 0);
+      return (h.platePrice || 0) * guests;
+    }
+    return h.rent || 0;
+  };
 
   const venueTypeLabel = (v: string) => {
     switch (v) {
@@ -59,8 +75,8 @@ export default function VenuesScreen({ navigation }: Props) {
     switch (key) {
       case 'nearest': return t.venuesSortNearest;
       case 'rating': return t.venuesSortTopRated;
-      case 'priceLow': return t.venuesSortTokenLow;
-      case 'priceHigh': return t.venuesSortTokenHigh;
+      case 'priceLow': return t.venuesSortPriceLow;
+      case 'priceHigh': return t.venuesSortPriceHigh;
       default: return '';
     }
   };
@@ -76,12 +92,17 @@ export default function VenuesScreen({ navigation }: Props) {
     let list = HALLS.filter((h) => venueType === 'All' || h.type === venueType);
     if (q.trim()) list = list.filter((h) => h.name.toLowerCase().includes(q.trim().toLowerCase()));
     if (verifiedOnly) list = list.filter((h) => h.verified);
+    if (acOnly) list = list.filter((h) => h.ac);
+    if (crockeryOnly) list = list.filter((h) => h.hasCrockery);
+    if (fitsGuests && Number(event.guests) > 0) {
+      list = list.filter((h) => h.floating == null || h.floating >= Number(event.guests));
+    }
     if (sort === 'nearest') list = [...list].sort((a, b) => (a.km ?? Infinity) - (b.km ?? Infinity));
     if (sort === 'rating') list = [...list].sort((a, b) => b.rating - a.rating);
-    if (sort === 'priceLow') list = [...list].sort((a, b) => a.token - b.token);
-    if (sort === 'priceHigh') list = [...list].sort((a, b) => b.token - a.token);
+    if (sort === 'priceLow') list = [...list].sort((a, b) => effectiveRate(a) - effectiveRate(b));
+    if (sort === 'priceHigh') list = [...list].sort((a, b) => effectiveRate(b) - effectiveRate(a));
     return list;
-  }, [HALLS, q, venueType, verifiedOnly, sort]);
+  }, [HALLS, q, venueType, verifiedOnly, acOnly, crockeryOnly, fitsGuests, sort, event.guests]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -139,6 +160,15 @@ export default function VenuesScreen({ navigation }: Props) {
           <TouchableOpacity activeOpacity={0.85} onPress={() => setVerifiedOnly((v) => !v)} style={[styles.chip, verifiedOnly ? styles.chipSel : styles.chipUnsel]}>
             <Text style={[styles.chipText, verifiedOnly && styles.chipTextSel]}>{t.venuesVerifiedOnlyChip}</Text>
           </TouchableOpacity>
+          <TouchableOpacity activeOpacity={0.85} onPress={() => setFitsGuests((v) => !v)} style={[styles.chip, fitsGuests ? styles.chipSel : styles.chipUnsel]}>
+            <Text style={[styles.chipText, fitsGuests && styles.chipTextSel]}>{t.venuesFitsGuestsChip}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity activeOpacity={0.85} onPress={() => setAcOnly((v) => !v)} style={[styles.chip, acOnly ? styles.chipSel : styles.chipUnsel]}>
+            <Text style={[styles.chipText, acOnly && styles.chipTextSel]}>{t.venuesACOnlyChip}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity activeOpacity={0.85} onPress={() => setCrockeryOnly((v) => !v)} style={[styles.chip, crockeryOnly ? styles.chipSel : styles.chipUnsel]}>
+            <Text style={[styles.chipText, crockeryOnly && styles.chipTextSel]}>{t.venuesCrockeryOnlyChip}</Text>
+          </TouchableOpacity>
         </ScrollView>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
@@ -179,7 +209,14 @@ export default function VenuesScreen({ navigation }: Props) {
                     </Text>
                   </View>
                   <View style={styles.hallBottomRow}>
-                    <Text style={styles.tokenText}>{t.venuesTokenLabel} <Text style={styles.tokenAmount}>₹{h.token.toLocaleString('en-IN')}</Text></Text>
+                    <View>
+                      <Text style={styles.tokenAmount}>
+                        {h.pricingMode === 'perPlate'
+                          ? `₹${(h.platePrice || 0).toLocaleString('en-IN')}${t.venuesPerPlateLabel}`
+                          : `${t.venuesRentLabel} ₹${(h.rent || 0).toLocaleString('en-IN')}`}
+                      </Text>
+                      <Text style={styles.tokenText}>{t.venuesTokenLabel} ₹{h.token.toLocaleString('en-IN')}</Text>
+                    </View>
                     <Text style={[styles.availBadge, styles.chipOk]}>{t.venuesAvailableBadge}</Text>
                   </View>
                 </View>

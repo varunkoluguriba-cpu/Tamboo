@@ -116,6 +116,8 @@ function serializePublic(hall, partner, fromLat, fromLng) {
     address: hall.address,
     photos: hall.photos || [],
     cap: `${hall.seated}–${hall.floating} pax`,
+    seated: hall.seated,
+    floating: hall.floating,
     ac: hall.ac,
     facts: [
       { k: 'Capacity', v: `${hall.seated}–${hall.floating} pax` },
