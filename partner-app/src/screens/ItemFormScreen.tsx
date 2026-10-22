@@ -30,6 +30,8 @@ type RemoteItem = {
 
 const MAX_ITEM_PHOTOS = 15;
 
+type MarketPrice = { available: boolean; count: number; median?: number; min?: number; max?: number };
+
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <View style={{ gap: 6 }}>
@@ -59,6 +61,7 @@ export default function ItemFormScreen({ navigation, route }: Props) {
   const [err, setErr] = useState('');
   const [saving, setSaving] = useState(false);
   const [cleaningPhoto, setCleaningPhoto] = useState(false);
+  const [marketPrice, setMarketPrice] = useState<MarketPrice | null>(null);
 
   useEffect(() => {
     if (!editingId) return;
@@ -81,7 +84,34 @@ export default function ItemFormScreen({ navigation, route }: Props) {
       .finally(() => setLoadingItem(false));
   }, [editingId]);
 
+  // Debounced so we don't fire a request on every keystroke — only once the vendor pauses
+  // typing a rent amount for at least 500ms, with a real category + a plausible price.
+  useEffect(() => {
+    const priceNum = parseInt(price, 10);
+    if (!cat || !(priceNum > 0)) {
+      setMarketPrice(null);
+      return;
+    }
+    const handle = setTimeout(() => {
+      api.get<MarketPrice>(`/api/vendors/me/items/market-price?cat=${encodeURIComponent(cat)}&unit=${encodeURIComponent(unit)}`)
+        .then(setMarketPrice)
+        .catch(() => setMarketPrice(null));
+    }, 500);
+    return () => clearTimeout(handle);
+  }, [cat, unit, price]);
+
   const needsReview = partner?.verificationStatus !== 'verified';
+
+  const priceHintText = (() => {
+    const priceNum = parseInt(price, 10);
+    if (!marketPrice || !marketPrice.available || !marketPrice.median || !(priceNum > 0)) return '';
+    const diffPct = Math.round(((priceNum - marketPrice.median) / marketPrice.median) * 100);
+    const vars = { pct: String(Math.abs(diffPct)), median: String(marketPrice.median), count: String(marketPrice.count) };
+    const fill = (s: string) => s.replace('{pct}', vars.pct).replace('{median}', vars.median).replace('{count}', vars.count);
+    if (diffPct > 10) return fill(t.itemFormPriceHigh);
+    if (diffPct < -10) return fill(t.itemFormPriceLow);
+    return fill(t.itemFormPriceFair);
+  })();
 
   const addPhoto = async () => {
     if (photos.length >= MAX_ITEM_PHOTOS) return;
@@ -211,6 +241,7 @@ export default function ItemFormScreen({ navigation, route }: Props) {
           <View style={styles.gridItem}>
             <Field label={t.itemFormRentLabel}>
               <TextInput value={price} onChangeText={(v) => setPrice(v.replace(/\D/g, ''))} keyboardType="number-pad" style={styles.input} placeholder="25" placeholderTextColor={colors.textMuted} />
+              {!!priceHintText && <Text style={styles.priceHint}>{priceHintText}</Text>}
             </Field>
           </View>
           <View style={styles.gridItem}>
@@ -306,6 +337,7 @@ const styles = StyleSheet.create({
   photoAddTile: { width: 100, height: 100, borderRadius: 14, backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center', gap: 4, borderWidth: 1.5, borderColor: colors.divider, borderStyle: 'dashed' },
   photoHint: { fontSize: 11.5, color: colors.textMuted, marginTop: 6 },
   fieldLabel: { fontSize: 12.5, fontWeight: '600', color: colors.textSoft },
+  priceHint: { fontSize: 11, color: colors.textMuted, lineHeight: 14 },
   input: { height: 50, borderRadius: 14, borderWidth: 1.5, borderColor: colors.divider, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.surface },
   textarea: { height: undefined, minHeight: 80, paddingTop: 12, textAlignVertical: 'top' },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },

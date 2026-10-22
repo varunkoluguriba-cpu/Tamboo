@@ -53,6 +53,21 @@ target 'TambooCustomer' do
           config.build_settings['OTHER_LDFLAGS'] = flags
         end
       end
+      # react-native-razorpay's RazorpayCheckout.mm references the Swift class
+      # RazorpayCheckout, which lives in the "Razorpay" module — vendored by razorpay-core-pod
+      # (a transitive dependency via razorpay-pod), not in razorpay-pod's own RazorpayStandard
+      # framework. Under static linking this resolved fine at the final app link step, but as
+      # its own dynamic framework it must resolve every symbol at its own link time, and
+      # CocoaPods only auto-links a pod's *direct* dependency's framework, not transitive ones —
+      # "Undefined symbols ... _OBJC_CLASS_$__TtC8Razorpay16RazorpayCheckout" otherwise.
+      if target.name == 'react-native-razorpay'
+        target.build_configurations.each do |config|
+          flags = config.build_settings['OTHER_LDFLAGS'] || ['$(inherited)']
+          flags = [flags] if flags.is_a?(String)
+          flags += ['-framework', 'Razorpay', '-framework', 'RazorpayCore']
+          config.build_settings['OTHER_LDFLAGS'] = flags
+        end
+      end
     end
   end
 end

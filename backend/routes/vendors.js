@@ -351,6 +351,29 @@ router.delete('/me/items/:itemId', requirePartnerAuth, requireTentRole, async (r
   res.status(204).send();
 });
 
+// Market-price comparison: median price other tent-house partners in the same city charge
+// for the same category + unit, excluding the requesting partner's own items. Requires at
+// least 3 other listings to avoid a misleading "median" off a single data point.
+router.get('/me/items/market-price', requirePartnerAuth, requireTentRole, async (req, res) => {
+  const { cat, unit } = req.query;
+  if (!cat) return res.status(400).json({ error: 'Category required' });
+
+  const peersInCity = await Partner.find({ city: req.partner.city, role: 'tent' }).select('_id');
+  const peerIds = peersInCity.map((p) => p._id).filter((id) => String(id) !== String(req.partner.id));
+
+  const query = { cat, partner: { $in: peerIds } };
+  if (unit) query.unit = unit;
+
+  const items = await Item.find(query).select('price').lean();
+  const prices = items.map((i) => i.price).filter((p) => p > 0).sort((a, b) => a - b);
+
+  if (prices.length < 3) return res.json({ available: false, count: prices.length });
+
+  const mid = Math.floor(prices.length / 2);
+  const median = prices.length % 2 === 0 ? Math.round((prices[mid - 1] + prices[mid]) / 2) : prices[mid];
+  res.json({ available: true, count: prices.length, median, min: prices[0], max: prices[prices.length - 1] });
+});
+
 router.get('/me/orders', requirePartnerAuth, requireTentRole, async (req, res) => {
   const orders = await Order.find({ partner: req.partner.id }).sort({ createdAt: -1 });
   res.json(orders.map(serializeOrderOwn));

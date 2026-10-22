@@ -121,6 +121,9 @@ const EN = {
   itemFormPendingReviewMsg: "It'll go live once your account is verified.", itemFormLiveMsg: "It's live now.",
   itemFormErrSaveFailed: 'Could not save this item. Please try again.', itemFormDeleteConfirmTitle: 'Delete this item?', itemFormDeleteConfirmMsg: 'This cannot be undone.',
   itemFormErrDeleteTitle: 'Could not delete', itemFormSaveChanges: 'Save changes', itemFormDeleteThisItem: 'Delete this item',
+  itemFormPriceHigh: '{pct}% higher than the market (₹{median} median, {count} nearby listings)',
+  itemFormPriceLow: '{pct}% lower than the market (₹{median} median, {count} nearby listings)',
+  itemFormPriceFair: 'Right around the market price (₹{median} median, {count} nearby listings)',
 
   // ---- items / language / login / onboarding ----
   itemsTitle: 'My items', itemsAddBtn: 'Add item', itemsEmptyText: 'No items yet. Add your first rental item to start getting orders.',
@@ -264,6 +267,9 @@ const TE: Partial<Record<Key, string>> = {
   itemFormPendingReviewMsg: 'మీ ఖాతా వెరిఫై అయిన తర్వాత ఇది లైవ్ అవుతుంది.', itemFormLiveMsg: 'ఇది ఇప్పుడు లైవ్‌లో ఉంది.',
   itemFormErrSaveFailed: 'ఈ ఐటమ్‌ను సేవ్ చేయలేకపోయాం. దయచేసి మళ్లీ ప్రయత్నించండి.', itemFormDeleteConfirmTitle: 'ఈ ఐటమ్‌ను తొలగించాలా?', itemFormDeleteConfirmMsg: 'దీన్ని తిరిగి పొందలేరు.',
   itemFormErrDeleteTitle: 'తొలగించలేకపోయాం', itemFormSaveChanges: 'మార్పులను సేవ్ చేయండి', itemFormDeleteThisItem: 'ఈ ఐటమ్‌ను తొలగించండి',
+  itemFormPriceHigh: 'మార్కెట్ కంటే {pct}% ఎక్కువ (₹{median} సగటు, {count} సమీప లిస్టింగ్‌లు)',
+  itemFormPriceLow: 'మార్కెట్ కంటే {pct}% తక్కువ (₹{median} సగటు, {count} సమీప లిస్టింగ్‌లు)',
+  itemFormPriceFair: 'మార్కెట్ ధరకు దగ్గరగా ఉంది (₹{median} సగటు, {count} సమీప లిస్టింగ్‌లు)',
 
   itemsTitle: 'నా వస్తువులు', itemsAddBtn: 'వస్తువును జోడించండి', itemsEmptyText: 'ఇంకా వస్తువులు లేవు. ఆర్డర్లు పొందడం మొదలుపెట్టడానికి మీ మొదటి రెంటల్ వస్తువును జోడించండి.',
   addItemChoiceTitle: 'వస్తువును జోడించండి', addItemChoiceSubtitle: 'సాధారణ వస్తువును ఎంచుకోండి, అది ఏమిటో టైప్ చేయండి, లేదా ఫోటో తీయండి — మిగతాది మేము పూరిస్తాము.', addItemChoiceSearchPlaceholder: 'సాధారణ వస్తువులను వెతకండి…', addItemChoiceNoPresets: 'సరిపోలే వస్తువులు లేవు. కింద టైప్ చేయండి.', addItemChoiceOr: 'లేదా', addItemChoiceTypeLabel: 'అది ఏమిటో టైప్ చేయండి', addItemChoiceTypePlaceholder: 'ఉదా. ప్లాస్టిక్ కుర్చీ', addItemChoiceTypeBtn: 'కొనసాగించండి', addItemChoicePhotoBtn: 'బదులుగా ఫోటో తీయండి', addItemChoiceManualLink: 'నేనే వివరాలు నింపుతాను', addItemChoiceWorking: 'పరిశీలిస్తోంది…',
@@ -400,6 +406,9 @@ const HI: Partial<Record<Key, string>> = {
   itemFormPendingReviewMsg: 'आपका खाता वेरिफाई होने के बाद यह लाइव हो जाएगा।', itemFormLiveMsg: 'यह अभी लाइव है।',
   itemFormErrSaveFailed: 'यह आइटम सेव नहीं हो सका। कृपया फिर से कोशिश करें।', itemFormDeleteConfirmTitle: 'इस आइटम को हटाना है?', itemFormDeleteConfirmMsg: 'इसे वापस नहीं लाया जा सकता।',
   itemFormErrDeleteTitle: 'हटाया नहीं जा सका', itemFormSaveChanges: 'बदलाव सेव करें', itemFormDeleteThisItem: 'इस आइटम को हटाएं',
+  itemFormPriceHigh: 'बाज़ार से {pct}% ज़्यादा (₹{median} औसत, {count} आस-पास की लिस्टिंग)',
+  itemFormPriceLow: 'बाज़ार से {pct}% कम (₹{median} औसत, {count} आस-पास की लिस्टिंग)',
+  itemFormPriceFair: 'बाज़ार भाव के आसपास (₹{median} औसत, {count} आस-पास की लिस्टिंग)',
 
   itemsTitle: 'मेरे आइटम', itemsAddBtn: 'आइटम जोड़ें', itemsEmptyText: 'अभी तक कोई आइटम नहीं है। ऑर्डर पाना शुरू करने के लिए अपना पहला रेंटल आइटम जोड़ें।',
   addItemChoiceTitle: 'आइटम जोड़ें', addItemChoiceSubtitle: 'कोई सामान्य आइटम चुनें, टाइप करें कि यह क्या है, या फ़ोटो लें — बाकी हम भर देंगे।', addItemChoiceSearchPlaceholder: 'सामान्य आइटम खोजें…', addItemChoiceNoPresets: 'कोई मिलता-जुलता आइटम नहीं मिला। नीचे टाइप करके देखें।', addItemChoiceOr: 'या', addItemChoiceTypeLabel: 'टाइप करें कि यह क्या है', addItemChoiceTypePlaceholder: 'जैसे प्लास्टिक कुर्सी', addItemChoiceTypeBtn: 'जारी रखें', addItemChoicePhotoBtn: 'इसके बजाय फ़ोटो लें', addItemChoiceManualLink: 'मैं खुद विवरण भरूंगा', addItemChoiceWorking: 'पता लगाया जा रहा है…',
@@ -535,6 +544,9 @@ const UR: Partial<Record<Key, string>> = {
   itemFormPendingReviewMsg: 'آپ کا اکاؤنٹ تصدیق ہونے کے بعد یہ لائیو ہو جائے گا۔', itemFormLiveMsg: 'یہ ابھی لائیو ہے۔',
   itemFormErrSaveFailed: 'یہ آئٹم محفوظ نہیں ہو سکا۔ براہ کرم دوبارہ کوشش کریں۔', itemFormDeleteConfirmTitle: 'اس آئٹم کو حذف کرنا ہے؟', itemFormDeleteConfirmMsg: 'اسے واپس نہیں لایا جا سکتا۔',
   itemFormErrDeleteTitle: 'حذف نہیں ہو سکا', itemFormSaveChanges: 'تبدیلیاں محفوظ کریں', itemFormDeleteThisItem: 'اس آئٹم کو حذف کریں',
+  itemFormPriceHigh: 'مارکیٹ سے {pct}% زیادہ (₹{median} اوسط، {count} قریبی لسٹنگز)',
+  itemFormPriceLow: 'مارکیٹ سے {pct}% کم (₹{median} اوسط، {count} قریبی لسٹنگز)',
+  itemFormPriceFair: 'مارکیٹ قیمت کے قریب (₹{median} اوسط، {count} قریبی لسٹنگز)',
 
   itemsTitle: 'میرے آئٹمز', itemsAddBtn: 'آئٹم شامل کریں', itemsEmptyText: 'ابھی تک کوئی آئٹم نہیں ہے۔ آرڈرز حاصل کرنا شروع کرنے کے لیے اپنا پہلا رینٹل آئٹم شامل کریں۔',
   addItemChoiceTitle: 'آئٹم شامل کریں', addItemChoiceSubtitle: 'کوئی عام آئٹم منتخب کریں، ٹائپ کریں کہ یہ کیا ہے، یا تصویر لیں — باقی ہم بھر دیں گے۔', addItemChoiceSearchPlaceholder: 'عام آئٹمز تلاش کریں…', addItemChoiceNoPresets: 'کوئی ملتا جلتا آئٹم نہیں ملا۔ نیچے ٹائپ کر کے دیکھیں۔', addItemChoiceOr: 'یا', addItemChoiceTypeLabel: 'ٹائپ کریں کہ یہ کیا ہے', addItemChoiceTypePlaceholder: 'مثلاً پلاسٹک کرسی', addItemChoiceTypeBtn: 'جاری رکھیں', addItemChoicePhotoBtn: 'اس کے بجائے تصویر لیں', addItemChoiceManualLink: 'میں خود تفصیلات بھروں گا', addItemChoiceWorking: 'معلوم کیا جا رہا ہے…',

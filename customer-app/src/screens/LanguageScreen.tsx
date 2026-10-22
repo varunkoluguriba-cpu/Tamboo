@@ -44,24 +44,16 @@ export default function LanguageScreen({ navigation }: Props) {
               const sel = intent === o.key;
               return (
                 <TouchableOpacity key={o.key} activeOpacity={0.85} onPress={() => setIntent(o.key)}>
-                  {sel ? (
-                    <View style={[styles.intentCard, styles.intentCardSel]}>
+                  <View key={sel ? 'sel' : 'unsel'} style={[styles.intentCard, sel ? styles.intentCardSel : styles.intentCardUnsel]}>
+                    {sel && (
                       <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
-                      <Icon name={o.icon} size={24} color="#fff" strokeWidth={1.5} />
-                      <View style={styles.intentText}>
-                        <Text style={[styles.intentLabel, styles.intentLabelSel]}>{o.label}</Text>
-                        <Text style={[styles.intentDesc, styles.intentDescSel]}>{o.desc}</Text>
-                      </View>
+                    )}
+                    <Icon name={o.icon} size={24} color={sel ? '#fff' : colors.text} strokeWidth={1.5} />
+                    <View style={styles.intentText}>
+                      <Text style={[styles.intentLabel, sel && styles.intentLabelSel]}>{o.label}</Text>
+                      <Text style={[styles.intentDesc, sel ? styles.intentDescSel : { color: colors.textMuted }]}>{o.desc}</Text>
                     </View>
-                  ) : (
-                    <View style={[styles.intentCard, styles.intentCardUnsel]}>
-                      <Icon name={o.icon} size={24} color={colors.text} strokeWidth={1.5} />
-                      <View style={styles.intentText}>
-                        <Text style={styles.intentLabel}>{o.label}</Text>
-                        <Text style={[styles.intentDesc, { color: colors.textMuted }]}>{o.desc}</Text>
-                      </View>
-                    </View>
-                  )}
+                  </View>
                 </TouchableOpacity>
               );
             })}
@@ -81,18 +73,13 @@ export default function LanguageScreen({ navigation }: Props) {
             const sel = lang === code;
             return (
               <TouchableOpacity key={code} activeOpacity={0.85} onPress={() => setLang(code)} style={[styles.tileWrap, i % 2 === 0 ? { paddingRight: 5 } : { paddingLeft: 5 }]}>
-                {sel ? (
-                  <View style={styles.tile}>
+                <View key={sel ? 'sel' : 'unsel'} style={[styles.tile, !sel && styles.tileUnsel]}>
+                  {sel && (
                     <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
-                    <Text style={[styles.tileNative, styles.tileTextSel]}>{native}</Text>
-                    <Text style={[styles.tileEn, styles.tileSubSel]}>{en}</Text>
-                  </View>
-                ) : (
-                  <View style={[styles.tile, styles.tileUnsel]}>
-                    <Text style={styles.tileNative}>{native}</Text>
-                    <Text style={[styles.tileEn, styles.tileSub]}>{en}</Text>
-                  </View>
-                )}
+                  )}
+                  <Text style={[styles.tileNative, sel && styles.tileTextSel]}>{native}</Text>
+                  <Text style={[styles.tileEn, sel ? styles.tileSubSel : styles.tileSub]}>{en}</Text>
+                </View>
               </TouchableOpacity>
             );
           })}

@@ -27,18 +27,13 @@ export default function LanguageSheet({ visible, onClose }: { visible: boolean; 
                     }}
                     style={styles.tileWrap}
                   >
-                    {sel ? (
-                      <View style={styles.tile}>
+                    <View key={sel ? 'sel' : 'unsel'} style={[styles.tile, !sel && styles.tileUnsel]}>
+                      {sel && (
                         <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
-                        <Text style={[styles.native, styles.textSel]}>{native}</Text>
-                        <Text style={[styles.en, styles.subSel]}>{en}</Text>
-                      </View>
-                    ) : (
-                      <View style={[styles.tile, styles.tileUnsel]}>
-                        <Text style={styles.native}>{native}</Text>
-                        <Text style={[styles.en, styles.sub]}>{en}</Text>
-                      </View>
-                    )}
+                      )}
+                      <Text style={[styles.native, sel && styles.textSel]}>{native}</Text>
+                      <Text style={[styles.en, sel ? styles.subSel : styles.sub]}>{en}</Text>
+                    </View>
                   </TouchableOpacity>
                 );
               })}
