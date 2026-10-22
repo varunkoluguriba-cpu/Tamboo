@@ -9,6 +9,7 @@ const PayoutEntry = require('../models/PayoutEntry');
 const { getMonthAvailability, isSlotTaken } = require('../lib/hallAvailability');
 const { getClient: getAnthropicClient } = require('../config/anthropic');
 const Config = require('../models/Config');
+const User = require('../models/User');
 
 const VISIT_HOURS = 48;
 
@@ -418,6 +419,24 @@ router.get('/me/tokens', requirePartnerAuth, async (req, res) => {
   if (req.partner.role !== 'venue') return res.status(403).json({ error: 'Only venue partners have pre-bookings' });
   const bookings = await Booking.find({ partner: req.partner.id }).sort({ createdAt: -1 });
   await Promise.all(bookings.map(sweepExpiredAdvance));
+
+  // Backfill customerName/customerPhone for bookings whose snapshot came out blank (e.g. the
+  // customer hadn't finished their profile at booking time) — permanent fix, not just masked
+  // for this response, so the admin panel and anywhere else reading these fields picks it up.
+  const missingInfo = bookings.filter((b) => (!b.customerName || !b.customerPhone) && b.customer);
+  if (missingInfo.length > 0) {
+    const users = await User.find({ _id: { $in: missingInfo.map((b) => b.customer) } }).select('name phone').lean();
+    const userById = new Map(users.map((u) => [String(u._id), u]));
+    await Promise.all(missingInfo.map((b) => {
+      const user = userById.get(String(b.customer));
+      if (!user) return null;
+      let changed = false;
+      if (!b.customerName && user.name) { b.customerName = user.name; changed = true; }
+      if (!b.customerPhone && user.phone) { b.customerPhone = user.phone; changed = true; }
+      return changed ? b.save() : null;
+    }));
+  }
+
   res.json(bookings.map(serializeTokenOwn));
 });
 
