@@ -78,12 +78,16 @@ export default function BrowseScreen({ navigation, route }: Props) {
 
   const vendors = useMemo(() => {
     let list = VENDORS;
+    if (cat !== 'All') {
+      const catSet = new Set(cat.split('|'));
+      list = list.filter((v) => products.some((p) => p.vendorId === v.id && catSet.has(p.cat)));
+    }
     if (q.trim()) list = list.filter((v) => v.name.toLowerCase().includes(q.trim().toLowerCase()));
     if (verifiedOnly) list = list.filter((v) => v.verified);
     if (sort === 'rating') list = [...list].sort((a, b) => b.rating - a.rating);
     if (sort === 'nearest') list = [...list].sort((a, b) => a.km - b.km);
     return list;
-  }, [VENDORS, q, verifiedOnly, sort]);
+  }, [VENDORS, products, cat, q, verifiedOnly, sort]);
 
   const results = resTab === 'items' ? items : vendors;
 

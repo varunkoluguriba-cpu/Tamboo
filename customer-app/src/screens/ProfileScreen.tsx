@@ -17,7 +17,6 @@ type PaymentEntry = { id: string; label: string; status: string; amount: number;
 
 const NOTIF_PREFS_KEY = 'tamboo-customer-notif-prefs';
 const ADDRESSES_KEY = 'tamboo-customer-addresses';
-const DEFAULT_ADDRESS = '12-3-45, Ameerpet, Hyderabad, Telangana 500016';
 
 function Toggle({ on, onPress }: { on: boolean; onPress: () => void }) {
   return (
@@ -31,7 +30,7 @@ export default function ProfileScreen({ navigation }: Props) {
   const { user, logout } = useAuth();
   const { t, lang, setLang } = useLanguage();
   const [langModal, setLangModal] = useState(false);
-  const [addrs, setAddrs] = useState<string[]>([DEFAULT_ADDRESS]);
+  const [addrs, setAddrs] = useState<string[]>([]);
   const [newAddr, setNewAddr] = useState('');
   const [toggles, setToggles] = useState({ booking: true, offers: true, whatsapp: false });
   const [payments, setPayments] = useState<PaymentEntry[]>([]);

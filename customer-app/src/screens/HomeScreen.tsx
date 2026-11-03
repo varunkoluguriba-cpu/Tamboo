@@ -202,16 +202,25 @@ export default function HomeScreen() {
 
         {mode === 'venues' ? (
           <>
-            {token && (
-              <TouchableOpacity style={styles.tokenBanner} activeOpacity={0.85} onPress={() => navigation.navigate('Token')}>
-                <View style={styles.tokenBannerTop}>
-                  <Text style={styles.tokenBannerLabel}>{t.homeScreenHallPreBooked}</Text>
-                  <Text style={styles.tokenBannerLeft}>{t.homeScreenTimeLeft.replace('{time}', formatHoursLeft(msLeft(token)))}</Text>
-                </View>
-                <Text style={styles.tokenBannerHall}>{token.hallName}</Text>
-                <Text style={styles.tokenBannerSub}>{t.homeScreenVisitWithin.replace('{hours}', String(token.visitHours))}</Text>
-              </TouchableOpacity>
-            )}
+            {token && (() => {
+              const isExpired = msLeft(token) <= 0 && !token.visited && token.status !== 'confirmed' && token.status !== 'awaiting_advance';
+              return (
+                <TouchableOpacity style={[styles.tokenBanner, isExpired && styles.tokenBannerExpired]} activeOpacity={0.85} onPress={() => navigation.navigate('Token')}>
+                  <View style={styles.tokenBannerTop}>
+                    <Text style={styles.tokenBannerLabel}>{t.homeScreenHallPreBooked}</Text>
+                    {isExpired ? (
+                      <Text style={styles.tokenBannerLeftExpired}>{t.tokenStatusExpired}</Text>
+                    ) : (
+                      <Text style={styles.tokenBannerLeft}>{t.homeScreenTimeLeft.replace('{time}', formatHoursLeft(msLeft(token)))}</Text>
+                    )}
+                  </View>
+                  <Text style={styles.tokenBannerHall}>{token.hallName}</Text>
+                  <Text style={styles.tokenBannerSub}>
+                    {isExpired ? t.tokenNoteExpired : t.homeScreenVisitWithin.replace('{hours}', String(token.visitHours))}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })()}
 
             <View style={styles.hero}>
               <LinearGradient
@@ -443,9 +452,11 @@ const styles = StyleSheet.create({
   addrText: { fontSize: 13, fontWeight: '600', color: colors.text },
   modeToggle: { flexDirection: 'row', gap: 4, backgroundColor: colors.surface, borderRadius: 999, padding: 4, ...shadow.card },
   tokenBanner: { borderWidth: 1.5, borderColor: '#f6c9d7', backgroundColor: '#fffafc', borderRadius: 18, padding: 14, gap: 4 },
+  tokenBannerExpired: { borderColor: colors.dangerBg, backgroundColor: colors.dangerBg },
   tokenBannerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   tokenBannerLabel: { fontSize: 12, fontWeight: '700', color: colors.pinkStrong },
   tokenBannerLeft: { fontSize: 12, fontWeight: '800', color: colors.amber },
+  tokenBannerLeftExpired: { fontSize: 12, fontWeight: '800', color: colors.dangerStrong },
   tokenBannerHall: { fontSize: 15, fontWeight: '700', color: colors.text },
   tokenBannerSub: { fontSize: 12.5, color: colors.textSoft },
   modeBtnWrap: { flex: 1 },
