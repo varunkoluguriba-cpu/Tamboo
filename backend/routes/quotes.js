@@ -23,7 +23,9 @@ function serializeForVendor(q) {
     need: q.need,
     isRevision: q.status === 'REVISION_REQUESTED',
     revisionNote: q.revisionNote || '',
-    status: q.status === 'AWAITING_VENDOR' ? 'AWAITING VENDOR' : q.status === 'REVISION_REQUESTED' ? 'REVISION REQUESTED' : 'OFFER SENT',
+    // Space-separated labels the partner app keys on; accepted/declined were previously all
+    // reported as 'OFFER SENT', so vendors never learned the customer's answer.
+    status: q.status.replace(/_/g, ' '),
     versions: q.versions.map((v) => ({ v: v.v, total: v.total, lines: v.lines })),
   };
 }

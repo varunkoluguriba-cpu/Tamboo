@@ -208,6 +208,11 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
   });
   await check('Customer accepts offer', async () => { const r = await call('PATCH', '/api/quotes/me/' + quoteId, CT, { action: 'accept' }); expect(r.status === 200 && r.data.status === 'ACCEPTED' && r.data.quotedTotal === 10000, JSON.stringify(r.data)); });
 
+  await check('Vendor sees the customer accepted', async () => {
+    const v = (await call('GET', '/api/quotes/vendor/me', TT)).data.find((q) => q.id === quoteId);
+    expect(v && v.status === 'ACCEPTED', 'vendor sees ' + (v && v.status));
+  });
+
   // ---------- CHAT + SUPPORT ----------
   await check('Customer → vendor chat', async () => { const r = await call('POST', '/api/messages/' + tent.id, CT, { text: 'E2E hello' }); expect(r.status < 300, JSON.stringify(r.data)); });
   await check('Vendor sees conversation + replies', async () => {

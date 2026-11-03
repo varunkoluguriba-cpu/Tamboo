@@ -90,7 +90,7 @@ export default function QuoteScreen({ navigation, route }: Props) {
               {!!quote.revisionNote && <Text style={styles.revisionText}>"{quote.revisionNote}"</Text>}
             </View>
           )}
-          <Text style={styles.statusText}>{editable ? quote.status : t.quoteOfferSent}</Text>
+          <Text style={styles.statusText}>{quote.status === 'ACCEPTED' ? t.ordersQuoteStatusAccepted : quote.status === 'DECLINED' ? t.ordersQuoteStatusDeclined : editable ? quote.status : t.quoteOfferSent}</Text>
           {!!quote.customerId && (
             <TouchableOpacity
               style={styles.chatLink}

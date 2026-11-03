@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { api } from '../api/client';
 
-export type QuoteStatus = 'AWAITING VENDOR' | 'OFFER SENT' | 'REVISION REQUESTED';
+export type QuoteStatus = 'AWAITING VENDOR' | 'OFFER SENT' | 'REVISION REQUESTED' | 'ACCEPTED' | 'DECLINED';
 export type QuoteVersion = { v: number; total: number; lines: Array<{ label: string; amount: number }> };
 export type Quote = {
   id: string;

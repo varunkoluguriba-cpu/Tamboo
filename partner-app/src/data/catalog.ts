@@ -44,10 +44,12 @@ export function statusColors(status: string): { bg: string; color: string } {
     case 'DELIVERED':
     case 'COMPLETED':
     case 'VISITED':
+    case 'ACCEPTED':
       return { bg: '#e8f7f0', color: '#047857' };
     case 'CANCELLED':
     case 'DISPUTED':
     case 'EXPIRED':
+    case 'DECLINED':
       return { bg: '#fdecec', color: '#b91c1c' };
     case 'PACKED':
     case 'OUT_FOR_DELIVERY':

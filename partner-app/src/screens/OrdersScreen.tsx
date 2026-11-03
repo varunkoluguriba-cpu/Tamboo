@@ -36,12 +36,18 @@ export default function OrdersScreen({ navigation }: Props) {
   const QUOTE_STATUS_LABELS: Record<string, string> = {
     'AWAITING VENDOR': t.ordersQuoteStatusAwaitingVendor,
     'REVISION REQUESTED': t.ordersQuoteStatusRevisionRequested,
+    'OFFER SENT': t.ordersQuoteStatusOfferSent,
+    ACCEPTED: t.ordersQuoteStatusAccepted,
+    DECLINED: t.ordersQuoteStatusDeclined,
   };
 
   const newOrders = ORDERS.filter((o) => o.status === 'PENDING');
   const activeOrders = ORDERS.filter((o) => ACTIVE_STATUSES.includes(o.status));
   const doneOrders = ORDERS.filter((o) => DONE_STATUSES.includes(o.status));
-  const openQuotes = QUOTES.filter((q) => q.status === 'AWAITING VENDOR' || q.status === 'REVISION REQUESTED');
+  const isOpenQuote = (q: { status: string }) => q.status === 'AWAITING VENDOR' || q.status === 'REVISION REQUESTED';
+  const openQuotes = QUOTES.filter(isOpenQuote);
+  // Tab count = quotes needing a reply; the list also keeps answered ones so the vendor sees the outcome.
+  const allQuotes = [...openQuotes, ...QUOTES.filter((q) => !isOpenQuote(q))];
 
   const TABS: Array<{ key: Tab; label: string }> = [
     { key: 'new', label: `${t.ordersTabNew} · ${newOrders.length}` },
@@ -66,13 +72,13 @@ export default function OrdersScreen({ navigation }: Props) {
         </View>
 
         {tab === 'quotes' ? (
-          openQuotes.length === 0 ? (
+          allQuotes.length === 0 ? (
             <View style={styles.emptyCard}>
               <Text style={styles.emptyText}>{t.ordersNoQuotes}</Text>
             </View>
           ) : (
             <View style={{ gap: 10 }}>
-              {openQuotes.map((q) => (
+              {allQuotes.map((q) => (
                 <TouchableOpacity key={q.id} style={styles.card} activeOpacity={0.85} onPress={() => navigation.navigate('Quote', { id: q.id })}>
                   <View style={styles.cardTop}>
                     <Text style={styles.cardId}>{q.id}</Text>
