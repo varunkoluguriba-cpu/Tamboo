@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
+import FilterDrawer from '../components/FilterDrawer';
 import type { IconName } from '../components/icons';
 import { useLanguage } from '../context/LanguageContext';
 import type { Key } from '../i18n';
@@ -15,7 +16,7 @@ import { ratingText, metaLine } from '../utils/rating';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Browse'>;
 type ResTab = 'items' | 'vendors';
-type Sort = 'priceLow' | 'priceHigh' | 'rating' | 'nearest';
+type Sort = 'priceLow' | 'priceHigh';
 
 // `value` must match the real Item.cat codes partners pick from in CATEGORY_OPTIONS
 // (partner-app/src/data/catalog.ts: tent/seat/table/kitchen/crockery/floor/stage/light/decor/av/staff)
@@ -29,12 +30,14 @@ const CAT_CHIPS: Array<{ value: string; labelKey: Key }> = [
   { value: 'light', labelKey: 'browseCatLighting' },
   { value: 'av', labelKey: 'browseCatSound' },
   { value: 'decor', labelKey: 'browseCatDecor' },
+  { value: 'kitchen', labelKey: 'browseCatKitchen' },
+  { value: 'floor', labelKey: 'browseCatFlooring' },
+  { value: 'stage', labelKey: 'browseCatStage' },
+  { value: 'staff', labelKey: 'browseCatStaff' },
 ];
 const SORTS: Array<{ key: Sort; labelKey: Key }> = [
   { key: 'priceLow', labelKey: 'browseSortPriceLow' },
   { key: 'priceHigh', labelKey: 'browseSortPriceHigh' },
-  { key: 'rating', labelKey: 'browseSortTopRated' },
-  { key: 'nearest', labelKey: 'browseSortNearest' },
 ];
 
 function Photo({ icon, size = 84, radius = 14, uri }: { icon: IconName; size?: number; radius?: number; uri?: string }) {
@@ -56,6 +59,8 @@ export default function BrowseScreen({ navigation, route }: Props) {
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [resTab, setResTab] = useState<ResTab>('items');
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const activeCount = [cat !== 'All', sort != null, verifiedOnly, inStockOnly].filter(Boolean).length;
 
   const ITEMS = useMemo(
     () => products.filter((p) => p.isInstant).map((p) => {
@@ -72,8 +77,6 @@ export default function BrowseScreen({ navigation, route }: Props) {
     if (inStockOnly) list = list.filter((p) => availBadge(p).ok);
     if (sort === 'priceLow') list = [...list].sort((a, b) => a.price - b.price);
     if (sort === 'priceHigh') list = [...list].sort((a, b) => b.price - a.price);
-    if (sort === 'rating') list = [...list].sort((a, b) => b.rating - a.rating);
-    if (sort === 'nearest') list = [...list].sort((a, b) => a.km - b.km);
     return list;
   }, [ITEMS, cat, q, verifiedOnly, inStockOnly, sort]);
 
@@ -85,8 +88,14 @@ export default function BrowseScreen({ navigation, route }: Props) {
     }
     if (q.trim()) list = list.filter((v) => v.name.toLowerCase().includes(q.trim().toLowerCase()));
     if (verifiedOnly) list = list.filter((v) => v.verified);
-    if (sort === 'rating') list = [...list].sort((a, b) => b.rating - a.rating);
-    if (sort === 'nearest') list = [...list].sort((a, b) => a.km - b.km);
+    if (sort) {
+      // A vendor's price is their cheapest item in the chosen category.
+      const minPrice = (vid: string) => {
+        const ps = products.filter((p) => p.vendorId === vid && (cat === 'All' || cat.split('|').includes(p.cat)));
+        return ps.length ? Math.min(...ps.map((p) => p.price)) : Infinity;
+      };
+      list = [...list].sort((a, b) => (sort === 'priceLow' ? minPrice(a.id) - minPrice(b.id) : minPrice(b.id) - minPrice(a.id)));
+    }
     return list;
   }, [VENDORS, products, cat, q, verifiedOnly, sort]);
 
@@ -106,6 +115,10 @@ export default function BrowseScreen({ navigation, route }: Props) {
             placeholderTextColor={colors.textMuted}
             style={styles.searchInput}
           />
+          <TouchableOpacity style={[styles.filterBtn, activeCount > 0 && { backgroundColor: colors.maroon }]} activeOpacity={0.8} onPress={() => setFiltersOpen(true)} accessibilityLabel={t.venuesFilters}>
+            <Icon name="filter" size={18} color={activeCount ? '#fff' : colors.pinkStrong} />
+            {activeCount > 0 && <Text style={styles.filterBadge}>{activeCount}</Text>}
+          </TouchableOpacity>
         </View>
 
         <View style={styles.availRow}>
@@ -114,36 +127,6 @@ export default function BrowseScreen({ navigation, route }: Props) {
             {t.browseAvailabilityPrefix} <Text style={styles.availBold}>{event.date || 'DD/MM/YYYY'}</Text> · {t.browseGuestsCount.replace('{count}', String(event.guests))}
           </Text>
         </View>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
-          {CAT_CHIPS.map((c) => (
-            <TouchableOpacity key={c.value} activeOpacity={0.85} onPress={() => setCat(c.value)} style={[styles.chip, cat === c.value ? styles.chipSel : styles.chipUnsel]}>
-              <Text style={[styles.chipText, cat === c.value && styles.chipTextSel]}>{t[c.labelKey]}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
-          <View style={styles.sliderIcon}>
-            <Icon name="sliders" size={13} color={colors.textSoft} />
-          </View>
-          {SORTS.map((s) => (
-            <TouchableOpacity
-              key={s.key}
-              activeOpacity={0.85}
-              onPress={() => setSort((cur) => (cur === s.key ? null : s.key))}
-              style={[styles.sortChip, sort === s.key ? styles.chipSel : styles.chipUnsel]}
-            >
-              <Text style={[styles.sortChipText, sort === s.key && styles.chipTextSel]}>{t[s.labelKey]}</Text>
-            </TouchableOpacity>
-          ))}
-          <TouchableOpacity activeOpacity={0.85} onPress={() => setVerifiedOnly((v) => !v)} style={[styles.sortChip, verifiedOnly ? styles.chipSel : styles.chipUnsel]}>
-            <Text style={[styles.sortChipText, verifiedOnly && styles.chipTextSel]}>{t.browseVerifiedOnly}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.85} onPress={() => setInStockOnly((v) => !v)} style={[styles.sortChip, inStockOnly ? styles.chipSel : styles.chipUnsel]}>
-            <Text style={[styles.sortChipText, inStockOnly && styles.chipTextSel]}>{t.browseInStock}</Text>
-          </TouchableOpacity>
-        </ScrollView>
 
         <View style={styles.resTabs}>
           <TouchableOpacity style={[styles.resTab, resTab === 'items' && styles.resTabSel]} activeOpacity={0.85} onPress={() => setResTab('items')}>
@@ -197,6 +180,26 @@ export default function BrowseScreen({ navigation, route }: Props) {
           </View>
         )}
       </ScrollView>
+      <FilterDrawer
+        visible={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        title={t.venuesFilters}
+        clearLabel={t.venuesClearFilters}
+        sections={[
+          { title: t.browseCategory, options: CAT_CHIPS.map((c) => ({ label: t[c.labelKey], selected: cat === c.value, onPress: () => setCat(c.value) })) },
+          { title: t.venuesSortBy, options: SORTS.map((o) => ({ label: t[o.labelKey], selected: sort === o.key, onPress: () => setSort((cur) => (cur === o.key ? null : o.key)) })) },
+          {
+            title: t.venuesMustHave,
+            multi: true,
+            options: [
+              { label: t.browseVerifiedOnly, selected: verifiedOnly, onPress: () => setVerifiedOnly((v) => !v) },
+              { label: t.browseInStock, selected: inStockOnly, onPress: () => setInStockOnly((v) => !v) },
+            ],
+          },
+        ]}
+        onClear={() => { setCat('All'); setSort(null); setVerifiedOnly(false); setInStockOnly(false); }}
+        applyLabel={results.length === 1 ? t.browseShowOneResult : t.browseShowResults.replace('{count}', String(results.length))}
+      />
     </SafeAreaView>
   );
 }
@@ -207,6 +210,8 @@ const styles = StyleSheet.create({
   title: { fontFamily: 'Sora', fontSize: 22, fontWeight: '800', color: colors.text },
   searchBar: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.surface, borderRadius: 16, height: 50, paddingHorizontal: 14, ...shadow.card },
   searchInput: { flex: 1, fontSize: 14.5, color: colors.text },
+  filterBtn: { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.pinkBg },
+  filterBadge: { position: 'absolute', top: -4, right: -4, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: colors.maroon, color: '#fff', fontSize: 11, fontWeight: '800', textAlign: 'center', lineHeight: 18, overflow: 'hidden' },
   availRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   availText: { fontSize: 12, color: colors.textSoft },
   availBold: { color: colors.text, fontWeight: '700' },

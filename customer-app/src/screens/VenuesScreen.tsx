@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import { Animated, Dimensions, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
+import FilterDrawer from '../components/FilterDrawer';
 import type { IconName } from '../components/icons';
 import { useCatalog } from '../context/CatalogContext';
 import { useEvent } from '../context/EventContext';
@@ -146,7 +147,7 @@ export default function VenuesScreen({ navigation, route }: Props) {
           </View>
         </View>
 
-        <Text style={styles.countText}>{t.venuesCountFound.replace('{count}', String(halls.length))}</Text>
+        <Text style={styles.countText}>{halls.length === 1 ? t.venuesOneFound : t.venuesCountFound.replace('{count}', String(halls.length))}</Text>
 
         {halls.length === 0 ? (
           <Text style={styles.emptyText}>{t.venuesNoHallsMatch}</Text>
@@ -214,70 +215,9 @@ export default function VenuesScreen({ navigation, route }: Props) {
           },
         ]}
         onClear={() => { setVenueType('All'); setSort(null); setVerifiedOnly(false); setFitsGuests(false); setAcOnly(false); setCrockeryOnly(false); }}
-        applyLabel={t.venuesShowResults.replace('{count}', String(halls.length))}
+        applyLabel={halls.length === 1 ? t.venuesShowOneResult : t.venuesShowResults.replace('{count}', String(halls.length))}
       />
     </SafeAreaView>
-  );
-}
-
-type DrawerOption = { label: string; selected: boolean; onPress: () => void };
-
-// Right-side filter panel. Changes apply live (the button shows the live result count), so
-// "Show N halls" just closes it — no separate draft state that could drift from the list.
-function FilterDrawer({ visible, onClose, title, clearLabel, sections, onClear, applyLabel }: {
-  visible: boolean;
-  onClose: () => void;
-  title: string;
-  clearLabel: string;
-  sections: Array<{ title: string; multi?: boolean; options: DrawerOption[] }>;
-  onClear: () => void;
-  applyLabel: string;
-}) {
-  const width = Math.min(340, Dimensions.get('window').width * 0.86);
-  const x = React.useRef(new Animated.Value(width)).current;
-  React.useEffect(() => {
-    if (visible) Animated.timing(x, { toValue: 0, duration: 220, useNativeDriver: true }).start();
-    else x.setValue(width);
-  }, [visible, x, width]);
-
-  return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable style={styles.drawerBackdrop} onPress={onClose}>
-        <Animated.View style={[styles.drawer, { width, transform: [{ translateX: x }] }]}>
-          <Pressable style={{ flex: 1 }} onPress={(e) => e.stopPropagation()}>
-            <View style={styles.drawerHeader}>
-              <Text style={styles.drawerTitle}>{title}</Text>
-              <TouchableOpacity onPress={onClose} hitSlop={12} accessibilityLabel="Close">
-                <Icon name="x" size={20} color={colors.text} />
-              </TouchableOpacity>
-            </View>
-            <ScrollView contentContainerStyle={{ paddingBottom: 16, gap: 18 }}>
-              {sections.map((sec) => (
-                <View key={sec.title} style={{ gap: 4 }}>
-                  <Text style={styles.drawerSection}>{sec.title}</Text>
-                  {sec.options.map((o) => (
-                    <TouchableOpacity key={o.label} style={styles.drawerRow} activeOpacity={0.7} onPress={o.onPress}>
-                      <View style={[sec.multi ? styles.checkBox : styles.radio, o.selected && styles.markOn]}>
-                        {o.selected && <Icon name="check" size={12} color="#fff" strokeWidth={3} />}
-                      </View>
-                      <Text style={[styles.drawerRowText, o.selected && styles.drawerRowTextOn]}>{o.label}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              ))}
-            </ScrollView>
-            <View style={styles.drawerFooter}>
-              <TouchableOpacity style={styles.clearBtn} activeOpacity={0.8} onPress={onClear}>
-                <Text style={styles.clearBtnText}>{clearLabel}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.applyBtn} activeOpacity={0.85} onPress={onClose}>
-                <Text style={styles.applyBtnText}>{applyLabel}</Text>
-              </TouchableOpacity>
-            </View>
-          </Pressable>
-        </Animated.View>
-      </Pressable>
-    </Modal>
   );
 }
 
@@ -294,22 +234,6 @@ const styles = StyleSheet.create({
   filterBtn: { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.pinkBg },
   filterBadge: { position: 'absolute', top: -4, right: -4, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: colors.maroon, color: '#fff', fontSize: 11, fontWeight: '800', textAlign: 'center', lineHeight: 18, overflow: 'hidden' },
   fieldInput: { fontSize: 15, fontWeight: '700', color: colors.text, padding: 0, marginTop: 2 },
-  drawerBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)', alignItems: 'flex-end' },
-  drawer: { flex: 1, backgroundColor: colors.bg, paddingTop: 48, paddingHorizontal: 18, paddingBottom: 18 },
-  drawerHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
-  drawerTitle: { fontFamily: 'Sora', fontSize: 19, fontWeight: '800', color: colors.text },
-  drawerSection: { fontSize: 12, fontWeight: '800', color: colors.textMuted, letterSpacing: 0.6, textTransform: 'uppercase', marginBottom: 2 },
-  drawerRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10 },
-  radio: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: colors.dividerStrong, alignItems: 'center', justifyContent: 'center' },
-  checkBox: { width: 20, height: 20, borderRadius: 6, borderWidth: 2, borderColor: colors.dividerStrong, alignItems: 'center', justifyContent: 'center' },
-  markOn: { backgroundColor: colors.maroon, borderColor: colors.maroon },
-  drawerRowText: { fontSize: 14.5, color: colors.text },
-  drawerRowTextOn: { fontWeight: '700' },
-  drawerFooter: { flexDirection: 'row', gap: 10, paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.divider },
-  clearBtn: { flex: 1, height: 46, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center' },
-  clearBtnText: { fontSize: 14, fontWeight: '700', color: colors.text },
-  applyBtn: { flex: 1.6, height: 46, borderRadius: 999, backgroundColor: colors.maroon, alignItems: 'center', justifyContent: 'center' },
-  applyBtnText: { fontSize: 14, fontWeight: '700', color: '#fff' },
   grid2: { flexDirection: 'row', gap: 8 },
   field: { flex: 1, backgroundColor: colors.surface, borderRadius: 18, padding: 10, ...shadow.card },
   fieldLabel: { fontSize: 11, color: colors.textMuted },
