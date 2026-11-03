@@ -35,7 +35,7 @@ export default function FilterDrawer({ visible, onClose, title, clearLabel, sect
                 <Icon name="x" size={20} color={colors.text} />
               </TouchableOpacity>
             </View>
-            <ScrollView contentContainerStyle={{ paddingBottom: 16, gap: 18 }}>
+            <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 16, gap: 18 }}>
               {sections.map((sec) => (
                 <View key={sec.title} style={{ gap: 4 }}>
                   <Text style={styles.drawerSection}>{sec.title}</Text>

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
@@ -10,6 +11,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { pickImageBase64 } from '../utils/pickImage';
 import type { LangStrings } from '../i18n';
 import { colors, gradients, shadow } from '../theme';
+import { ADDRESSES_KEY } from '../constants';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Event'>;
 
@@ -75,6 +77,13 @@ export default function EventScreen({ navigation }: Props) {
   const [end, setEnd] = useState(event.end);
   const [venueType, setVenueType] = useState(event.venueType);
   const [address, setAddress] = useState(event.address);
+  // Addresses saved in Profile, offered here as one-tap picks.
+  const [saved, setSaved] = useState<string[]>([]);
+  useEffect(() => {
+    AsyncStorage.getItem(ADDRESSES_KEY)
+      .then((raw) => setSaved(raw ? JSON.parse(raw) : []))
+      .catch(() => {});
+  }, []);
   const [needs, setNeeds] = useState<string[]>([]);
   const [budget, setBudget] = useState(event.budget);
   const [notes, setNotes] = useState(event.notes);
@@ -98,7 +107,7 @@ export default function EventScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.headerRow}>
           <TouchableOpacity style={styles.backBtn} activeOpacity={0.8} onPress={() => navigation.goBack()}>
             <Icon name="left" size={18} color={colors.text} />
@@ -170,6 +179,16 @@ export default function EventScreen({ navigation }: Props) {
               numberOfLines={2}
               textAlignVertical="top"
             />
+            {saved.length > 0 && (
+              <View style={styles.savedRow}>
+                {saved.map((a) => (
+                  <TouchableOpacity key={a} activeOpacity={0.8} onPress={() => setAddress(a)} style={[styles.savedChip, address === a && styles.savedChipOn]}>
+                    <Icon name="pin" size={12} color={address === a ? '#fff' : colors.pinkStrong} />
+                    <Text numberOfLines={1} style={[styles.savedChipText, address === a && { color: '#fff' }]}>{a}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
           </Field>
 
           <Field label={t.eventFieldNeedsLabel}>
@@ -234,6 +253,10 @@ export default function EventScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
+  savedRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },
+  savedChip: { flexDirection: 'row', alignItems: 'center', gap: 5, maxWidth: '100%', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, backgroundColor: colors.pinkBg },
+  savedChipOn: { backgroundColor: colors.maroon, borderColor: colors.maroon },
+  savedChipText: { fontSize: 12.5, fontWeight: '600', color: colors.pinkStrong, flexShrink: 1 },
   container: { flex: 1, backgroundColor: colors.bg },
   scroll: { padding: 18, paddingTop: 6, gap: 16 },
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },

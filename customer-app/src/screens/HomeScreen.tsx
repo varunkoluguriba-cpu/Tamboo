@@ -152,7 +152,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.headerRow}>
           <View style={{ minWidth: 0 }}>
             <Text style={styles.helloSmall}>{t.hello},</Text>
@@ -175,11 +175,11 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.addrPill} activeOpacity={0.85} onPress={() => navigation.navigate('Profile')}>
+        {/* Only Hyderabad is live, so this is a label — no picker to open yet. */}
+        <View style={styles.addrPill}>
           <Icon name="pin" size={14} color={colors.pink} />
           <Text style={styles.addrText}>{user?.city || t.homeScreenDefaultCity}</Text>
-          <Icon name="down" size={14} color={colors.text} />
-        </TouchableOpacity>
+        </View>
 
         <View style={styles.modeToggle}>
           <TouchableOpacity style={styles.modeBtnWrap} activeOpacity={0.85} onPress={() => selectMode('venues')}>
@@ -354,7 +354,7 @@ export default function HomeScreen() {
                 <Text style={styles.statLabel}>{t.homeScreenActiveBookings}</Text>
                 <Text style={styles.statValue}>{activeBookingsCount}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.statCard, styles.statCardPink]} activeOpacity={0.85} onPress={() => navigation.navigate('Bookings')}>
+              <TouchableOpacity style={[styles.statCard, styles.statCardPink]} activeOpacity={0.85} onPress={() => navigation.navigate('Bookings', { tab: 'quotes' })}>
                 <Text style={styles.statLabel}>{t.homeScreenQuotesToReview}</Text>
                 <Text style={[styles.statValue, { color: colors.pinkStrong }]}>{quotesToReviewCount}</Text>
               </TouchableOpacity>
@@ -362,7 +362,7 @@ export default function HomeScreen() {
 
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>{t.homeScreenOccasionQuestion}</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
+              <ScrollView keyboardShouldPersistTaps="handled" horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
                 {EV_TYPES(t).map((e) => (
                   <TouchableOpacity
                     key={e.value}
@@ -402,7 +402,7 @@ export default function HomeScreen() {
 
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>{t.packages}</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
+              <ScrollView keyboardShouldPersistTaps="handled" horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
                 {packages.map((k) => (
                   <View key={k.id} style={styles.pkgCard}>
                     <Photo icon="package" height={130} radius={14} />

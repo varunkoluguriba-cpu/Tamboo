@@ -7,6 +7,7 @@ import { api } from '../api/client';
 import Icon from '../components/Icon';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, shadow } from '../theme';
+import { hallStatusText, orderStatusText, prettyDate } from '../utils/status';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Notifications'>;
 
@@ -27,13 +28,13 @@ export default function NotificationsScreen({ navigation }: Props) {
       const list: Notif[] = [
         ...orders.map((o) => ({
           id: 'o' + o.id,
-          text: t.notifOrderStatus.replace('{code}', o.code).replace('{vendor}', o.vendorName).replace('{status}', o.status),
+          text: t.notifOrderStatus.replace('{code}', o.code).replace('{vendor}', o.vendorName).replace('{status}', orderStatusText(o.status, t)),
           atMs: o.createdAtMs,
           onPress: () => navigation.navigate('BookingDetail', { kind: 'order', order: o }),
         })),
         ...halls.map((b) => ({
           id: 'h' + b.id,
-          text: t.notifHallStatus.replace('{hall}', b.hallName).replace('{date}', b.date).replace('{status}', b.status.replace(/_/g, ' ').toUpperCase()),
+          text: t.notifHallStatus.replace('{hall}', b.hallName).replace('{date}', prettyDate(b.date)).replace('{status}', hallStatusText(b, t)),
           atMs: b.heldAtMs,
           onPress: () => navigation.navigate('BookingDetail', { kind: 'hall', hall: b }),
         })),
@@ -41,7 +42,7 @@ export default function NotificationsScreen({ navigation }: Props) {
           id: 'q' + q.id,
           text: t.notifQuoteOffer.replace('{vendor}', q.vendorName).replace('{code}', q.code),
           atMs: q.createdAtMs || 0,
-          onPress: () => navigation.navigate('Bookings'),
+          onPress: () => navigation.navigate('Bookings', { tab: 'quotes' }),
         })),
       ];
       setNotifs(list.sort((a, b) => b.atMs - a.atMs).slice(0, 20));

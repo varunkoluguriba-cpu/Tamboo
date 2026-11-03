@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Keyboard, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from './Icon';
 import type { IconName } from './icons';
 import { useLanguage } from '../context/LanguageContext';
@@ -37,6 +37,13 @@ export default function TabBar({
 }) {
   const { t } = useLanguage();
   const { itemCount } = useCart();
+  // Hide while typing so the keyboard doesn't push the tab bar up over the text field.
+  const [keyboardUp, setKeyboardUp] = useState(false);
+  useEffect(() => {
+    const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardUp(true));
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardUp(false));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
 
   const go = (key: TabKey) => {
     if (key === active) return;
@@ -51,6 +58,8 @@ export default function TabBar({
     if (key === 'bookings') return navigation.navigate('Bookings');
     if (key === 'profile') return navigation.navigate('Profile');
   };
+
+  if (keyboardUp) return null;
 
   return (
     <View style={styles.tabBar}>

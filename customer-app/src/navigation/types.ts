@@ -18,6 +18,7 @@ export type RemoteOrderSummary = {
   guests: number;
   lines: Array<{ name: string; qty: number; unitPrice: number }>;
   value: number;
+  amountPaid?: number;
   history: Array<{ label: string; date: string }>;
   createdAtMs: number;
 };
@@ -53,7 +54,7 @@ export type RootStackParamList = {
   Checkout: undefined;
   Pay: undefined;
   Confirm: { orders: Array<{ id: string; vendor: string; total: number }> };
-  Bookings: undefined;
+  Bookings: { tab?: 'active' | 'past' | 'halls' | 'quotes' } | undefined;
   BookingDetail: BookingDetailParams;
   Venues: { venueType?: string } | undefined;
   Venue: { id: string };

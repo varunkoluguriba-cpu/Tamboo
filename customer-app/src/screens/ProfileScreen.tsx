@@ -11,13 +11,14 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { LANGS, langName } from '../i18n';
 import { colors, shadow } from '../theme';
+import { ADDRESSES_KEY } from '../constants';
+import { hallStatusText, orderStatusText } from '../utils/status';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Profile'>;
 
 type PaymentEntry = { id: string; label: string; status: string; amount: number; dateMs: number };
 
 const NOTIF_PREFS_KEY = 'tamboo-customer-notif-prefs';
-const ADDRESSES_KEY = 'tamboo-customer-addresses';
 
 function Toggle({ on, onPress }: { on: boolean; onPress: () => void }) {
   return (
@@ -53,16 +54,16 @@ export default function ProfileScreen({ navigation }: Props) {
       api.get<RemoteHallBooking[]>('/api/halls/my-tokens').catch(() => [] as RemoteHallBooking[]),
     ]).then(([orders, halls]) => {
       const fromOrders: PaymentEntry[] = orders.map((o) => ({
-        id: o.code, label: o.eventName || o.vendorName, status: o.status, amount: o.value, dateMs: o.createdAtMs,
+        id: o.code, label: o.vendorName || o.eventName, status: orderStatusText(o.status, t), amount: o.amountPaid ?? o.value, dateMs: o.createdAtMs,
       }));
       const fromHalls: PaymentEntry[] = halls
         .filter((h) => h.status !== 'token_paid' || h.amount > 0)
         .map((h) => ({
-          id: h.id.slice(-6).toUpperCase(), label: h.hallName, status: h.status.toUpperCase(), amount: h.amount, dateMs: h.heldAtMs,
+          id: h.id, label: h.hallName, status: hallStatusText(h, t), amount: h.amount, dateMs: h.heldAtMs,
         }));
       setPayments([...fromOrders, ...fromHalls].sort((a, b) => b.dateMs - a.dateMs).slice(0, 5));
     });
-  }, []);
+  }, [t]);
 
   const updateToggle = (key: keyof typeof toggles) => {
     setToggles((prev) => {
@@ -105,7 +106,7 @@ export default function ProfileScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.headRow}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{initials}</Text>
@@ -175,7 +176,7 @@ export default function ProfileScreen({ navigation }: Props) {
               <View key={p.id} style={styles.payRow}>
                 <View>
                   <Text style={styles.payEvent}>{p.label}</Text>
-                  <Text style={styles.paySub}>{p.id} · {p.status.replace(/_/g, ' ')}</Text>
+                  <Text style={styles.paySub}>{new Date(p.dateMs).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} · {p.status}</Text>
                 </View>
                 <Text style={styles.payAmount}>₹{p.amount.toLocaleString('en-IN')}</Text>
               </View>
@@ -201,7 +202,7 @@ export default function ProfileScreen({ navigation }: Props) {
         <View style={styles.modalBackdrop}>
           <View style={styles.modalSheet}>
             <Text style={styles.modalTitle}>{t.chooseLang}</Text>
-            <ScrollView style={{ maxHeight: 420 }}>
+            <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: 420 }}>
               {LANGS.map(([code, native, en]) => (
                 <TouchableOpacity
                   key={code}

@@ -1,4 +1,5 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '../api/client';
 import { useCatalog } from './CatalogContext';
 
@@ -40,6 +41,8 @@ interface CartContextValue {
 
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 
+const CART_KEY = 'tamboo-customer-cart';
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const { getProduct, getVendor } = useCatalog();
   const [lines, setLines] = useState<Line[]>([]);
@@ -49,6 +52,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // what create-order/verify will independently re-validate at checkout.
   const [couponDiscountPct, setCouponDiscountPct] = useState(0);
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>('delivery');
+
+  // Keep the cart across app restarts. Only ids + quantities are stored — prices always come
+  // from the live catalog, so a stored cart can never carry a stale price.
+  const loaded = useRef(false);
+  useEffect(() => {
+    AsyncStorage.getItem(CART_KEY)
+      .then((raw) => {
+        const saved = raw ? JSON.parse(raw) : null;
+        if (Array.isArray(saved)) setLines(saved.filter((l) => l && typeof l.productId === 'string' && l.qty > 0));
+      })
+      .catch(() => {})
+      .finally(() => { loaded.current = true; });
+  }, []);
+  useEffect(() => {
+    if (loaded.current) AsyncStorage.setItem(CART_KEY, JSON.stringify(lines)).catch(() => {});
+  }, [lines]);
 
   const addToCart = useCallback((productId: string, qty: number) => {
     setLines((prev) => {
@@ -110,8 +129,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return Array.from(byVendor.values());
   }, [lines, getProduct, getVendor]);
 
+  // Badge shows how many different items are in the cart (200 chairs is one line, not 200),
+  // counting only lines whose item still exists in the catalog.
+  const itemCount = useMemo(() => groups.reduce((n, g) => n + g.lines.length, 0), [groups]);
+
   const subtotal = useMemo(() => groups.reduce((sum, g) => sum + g.subtotal, 0), [groups]);
-  const itemCount = useMemo(() => lines.reduce((sum, l) => sum + l.qty, 0), [lines]);
 
   const pricing = useMemo<Pricing>(() => {
     const delivery = deliveryMode === 'delivery' ? groups.length * 300 : 0;

@@ -9,6 +9,7 @@ import { api, ApiError } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
 import { metaLine } from '../utils/rating';
+import { hallStatusText, orderStatusText, prettyDate, quoteStatusText } from '../utils/status';
 
 type RemoteQuote = {
   id: string;
@@ -38,9 +39,9 @@ function StatusPill({ label, ok }: { label: string; ok: boolean }) {
   );
 }
 
-export default function BookingsScreen({ navigation }: Props) {
+export default function BookingsScreen({ navigation, route }: Props) {
   const { t } = useLanguage();
-  const [tab, setTab] = useState<Tab>('active');
+  const [tab, setTab] = useState<Tab>(route.params?.tab || 'active');
   const [quotes, setQuotes] = useState<RemoteQuote[]>([]);
   const [quotesLoading, setQuotesLoading] = useState(true);
   const [busyQuoteId, setBusyQuoteId] = useState<string | null>(null);
@@ -121,7 +122,7 @@ export default function BookingsScreen({ navigation }: Props) {
                 <TouchableOpacity key={o.id} style={styles.card} activeOpacity={0.85} onPress={() => navigation.navigate('BookingDetail', { kind: 'order', order: o })}>
                   <View style={styles.cardTop}>
                     <Text style={styles.cardId}>{o.code}</Text>
-                    <StatusPill label={o.status} ok={OK_ORDER_STATUSES.includes(o.status)} />
+                    <StatusPill label={orderStatusText(o.status, t)} ok={OK_ORDER_STATUSES.includes(o.status)} />
                   </View>
                   <Text style={styles.cardTitle}>{o.eventName || o.eventType || t.bookings}</Text>
                   <View style={styles.cardBottom}>
@@ -145,7 +146,7 @@ export default function BookingsScreen({ navigation }: Props) {
                 <TouchableOpacity key={o.id} style={styles.card} activeOpacity={0.85} onPress={() => navigation.navigate('BookingDetail', { kind: 'order', order: o })}>
                   <View style={styles.cardTop}>
                     <Text style={styles.cardId}>{o.code}</Text>
-                    <StatusPill label={o.status} ok={OK_ORDER_STATUSES.includes(o.status)} />
+                    <StatusPill label={orderStatusText(o.status, t)} ok={OK_ORDER_STATUSES.includes(o.status)} />
                   </View>
                   <Text style={styles.cardTitle}>{o.eventName || o.eventType || t.bookings}</Text>
                   <View style={styles.cardBottom}>
@@ -173,11 +174,11 @@ export default function BookingsScreen({ navigation }: Props) {
                   <TouchableOpacity key={b.id} style={styles.card} activeOpacity={0.85} onPress={() => navigation.navigate('BookingDetail', { kind: 'hall', hall: b })}>
                     <View style={styles.cardTop}>
                       <Text style={styles.cardId}>{b.id.slice(-6).toUpperCase()}</Text>
-                      <StatusPill label={b.status.replace(/_/g, ' ')} ok={OK_HALL_STATUSES.includes(b.status)} />
+                      <StatusPill label={hallStatusText(b, t)} ok={OK_HALL_STATUSES.includes(b.status)} />
                     </View>
                     <Text style={styles.cardTitle}>{b.hallName}</Text>
                     <View style={styles.cardBottom}>
-                      <Text style={styles.cardMeta}>{b.date} · {b.slot}</Text>
+                      <Text style={styles.cardMeta}>{prettyDate(b.date)} · {b.slot}</Text>
                       <Text style={styles.cardAmount}>₹{b.amount.toLocaleString('en-IN')}</Text>
                     </View>
                     {left > 0 && (
@@ -212,7 +213,7 @@ export default function BookingsScreen({ navigation }: Props) {
                     <View style={styles.cardTop}>
                       <Text style={styles.cardId}>{q.code} {latest ? `v${latest.v}` : ''}</Text>
                       <View style={[styles.pill, styles.pillQuote]}>
-                        <Text style={[styles.pillText, styles.pillTextQuote]}>{q.status.replace(/_/g, ' ')}</Text>
+                        <Text style={[styles.pillText, styles.pillTextQuote]}>{quoteStatusText(q.status, t)}</Text>
                       </View>
                     </View>
                     <Text style={styles.cardTitle}>{q.productName || q.vendorName}</Text>

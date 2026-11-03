@@ -97,7 +97,7 @@ export default function ChatScreen({ navigation, route }: Props) {
           </View>
         </View>
 
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           {isSupport && msgs.length === 0 && (
             <View style={styles.bubbleTheirsWrap}>
               <Text style={styles.bubbleTheirsText}>{t.chatSupportGreeting}</Text>
@@ -120,9 +120,6 @@ export default function ChatScreen({ navigation, route }: Props) {
         </ScrollView>
 
         <View style={styles.inputRow}>
-          <View style={styles.cameraBtn}>
-            <Icon name="camera" size={18} color={colors.textSoft} />
-          </View>
           <TextInput
             value={draft}
             onChangeText={setDraft}
@@ -157,7 +154,6 @@ const styles = StyleSheet.create({
   bubbleTheirsText: { fontSize: 13.5, lineHeight: 19, color: colors.text },
   bubbleTheirsTime: { fontSize: 10, color: colors.textMuted, marginTop: 2 },
   inputRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 10 },
-  cameraBtn: { width: 44, height: 44, borderRadius: 22, borderWidth: 1.5, borderColor: colors.divider, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   input: { flex: 1, height: 44, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, backgroundColor: colors.surface, paddingHorizontal: 16, fontSize: 14, color: colors.text },
   sendBtnWrap: {},
   sendBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
