@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SEEN_ONBOARDING_KEY } from '../constants';
 import { ActivityIndicator, View } from 'react-native';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -58,8 +60,14 @@ const ROUTE_TAB: Partial<Record<keyof RootStackParamList, TabKey>> = {
 export default function RootNavigator() {
   const { user, loading } = useAuth();
   const [routeName, setRouteName] = useState<keyof RootStackParamList | undefined>();
+  // Returning users (e.g. after logout) skip the intro slides and go straight to Login.
+  const [seenOnboarding, setSeenOnboarding] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (user) AsyncStorage.setItem(SEEN_ONBOARDING_KEY, '1').catch(() => {});
+    AsyncStorage.getItem(SEEN_ONBOARDING_KEY).then((v) => setSeenOnboarding(v === '1')).catch(() => setSeenOnboarding(false));
+  }, [user]);
 
-  if (loading) {
+  if (loading || seenOnboarding === null) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface }}>
         <ActivityIndicator color={colors.pink} size="large" />
@@ -109,7 +117,7 @@ export default function RootNavigator() {
           </SafeAreaView>
         </View>
       ) : (
-        <AuthNavigator initialRouteName={user && !user.registered ? 'Register' : 'Onboarding'} />
+        <AuthNavigator initialRouteName={user && !user.registered ? 'Register' : seenOnboarding ? 'Login' : 'Onboarding'} />
       )}
     </NavigationContainer>
   );

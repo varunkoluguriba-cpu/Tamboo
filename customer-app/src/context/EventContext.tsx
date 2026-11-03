@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { useAuth } from './AuthContext';
 
 export type EventDetails = {
   name: string;
@@ -41,6 +42,9 @@ const EventContext = createContext<EventContextValue | undefined>(undefined);
 
 export function EventProvider({ children }: { children: React.ReactNode }) {
   const [event, setEvent] = useState<EventDetails>(DEFAULT_EVENT);
+  // Event details (address, date…) are personal — reset when nobody is logged in.
+  const { user } = useAuth();
+  useEffect(() => { if (!user) setEvent(DEFAULT_EVENT); }, [user]);
   const value = useMemo(() => ({ event, setEvent }), [event]);
   return <EventContext.Provider value={value}>{children}</EventContext.Provider>;
 }

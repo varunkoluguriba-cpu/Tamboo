@@ -2,6 +2,8 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '../api/client';
 import { useCatalog } from './CatalogContext';
+import { CART_KEY } from '../constants';
+import { useAuth } from './AuthContext';
 
 type Line = { productId: string; qty: number };
 export type DeliveryMode = 'delivery' | 'pickup';
@@ -41,7 +43,6 @@ interface CartContextValue {
 
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 
-const CART_KEY = 'tamboo-customer-cart';
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const { getProduct, getVendor } = useCatalog();
@@ -68,6 +69,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (loaded.current) AsyncStorage.setItem(CART_KEY, JSON.stringify(lines)).catch(() => {});
   }, [lines]);
+  // A cart belongs to whoever is logged in — empty it on logout / account deletion.
+  const { user } = useAuth();
+  useEffect(() => {
+    if (!user && loaded.current) setLines([]);
+  }, [user]);
 
   const addToCart = useCallback((productId: string, qty: number) => {
     setLines((prev) => {

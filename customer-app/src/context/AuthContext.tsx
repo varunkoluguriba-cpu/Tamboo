@@ -7,6 +7,11 @@ import {
   type ConfirmationResult,
 } from '../services/firebaseAuth';
 import type { AuthUser } from '../types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ADDRESSES_KEY, CART_KEY, NOTIF_PREFS_KEY } from '../constants';
+
+// Personal data kept on the phone — removed on logout so the next person can't see it.
+const clearPersonalData = () => Promise.all([ADDRESSES_KEY, CART_KEY, NOTIF_PREFS_KEY].map((k) => AsyncStorage.removeItem(k).catch(() => {})));
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -84,6 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
+    await clearPersonalData();
     await setToken(null);
     setUser(null);
   }, []);
@@ -91,6 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Server refuses (409) while a booking/order is in progress — the error message says why.
   const deleteAccount = useCallback(async () => {
     await api.delete('/api/auth/me');
+    await clearPersonalData();
     await setToken(null);
     setUser(null);
   }, []);

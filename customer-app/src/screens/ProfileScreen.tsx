@@ -11,7 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { LANGS, langName } from '../i18n';
 import { colors, shadow } from '../theme';
-import { ADDRESSES_KEY } from '../constants';
+import { ADDRESSES_KEY, NOTIF_PREFS_KEY } from '../constants';
 import { hallStatusText, orderStatusText } from '../utils/status';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -19,7 +19,6 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Profile'>;
 
 type PaymentEntry = { id: string; label: string; status: string; amount: number; dateMs: number };
 
-const NOTIF_PREFS_KEY = 'tamboo-customer-notif-prefs';
 
 function Toggle({ on, onPress }: { on: boolean; onPress: () => void }) {
   return (

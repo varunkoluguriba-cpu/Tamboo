@@ -10,7 +10,7 @@ import type { IconName } from '../components/icons';
 import { useLanguage } from '../context/LanguageContext';
 import { LANGS, isFullyTranslated, langName } from '../i18n';
 import { colors, gradients } from '../theme';
-import { HOME_MODE_KEY } from '../constants';
+import { HOME_MODE_KEY, SEEN_ONBOARDING_KEY } from '../constants';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Language'>;
 
@@ -31,6 +31,7 @@ export default function LanguageScreen({ navigation }: Props) {
     // 'Both' is "a hall plus everything for it" — start on halls; Rentals is one tap away.
     const homeMode = intent === 'rentals' ? 'rentals' : 'venues';
     await AsyncStorage.setItem(HOME_MODE_KEY, homeMode).catch(() => {});
+    await AsyncStorage.setItem(SEEN_ONBOARDING_KEY, '1').catch(() => {});
     navigation.replace('Login');
   };
 
