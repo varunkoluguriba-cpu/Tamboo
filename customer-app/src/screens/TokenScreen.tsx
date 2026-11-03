@@ -6,7 +6,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { useCatalog } from '../context/CatalogContext';
-import { useToken, msLeft, formatHoursLeft } from '../context/TokenContext';
+import { useToken, msLeft, cancelMsLeft, formatHoursLeft } from '../context/TokenContext';
 import { useLanguage } from '../context/LanguageContext';
 import { ApiError } from '../api/client';
 import { formatBookingDate } from '../utils/date';
@@ -234,9 +234,9 @@ export default function TokenScreen({ navigation }: Props) {
           </View>
         )}
 
-        {!token.visited && !expired && (
+        {!token.visited && !expired && cancelMsLeft(token) > 0 && (
           <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={cancel} disabled={busy}>
-            <Text style={styles.outlineBtnText}>{t.tokenCancelFullRefund.replace('{time}', left)}</Text>
+            <Text style={styles.outlineBtnText}>{t.tokenCancelFullRefund.replace('{time}', formatHoursLeft(cancelMsLeft(token)))}</Text>
           </TouchableOpacity>
         )}
 

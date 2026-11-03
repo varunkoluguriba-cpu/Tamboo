@@ -17,7 +17,9 @@ function serializeOrderForCustomer(o) {
     address: o.address,
     guests: o.guests,
     lines: o.lines,
-    value: o.value,
+    // Orders placed before customerTotal existed fall back to the vendor value.
+    value: o.customerTotal || o.value,
+    amountPaid: o.amountPaid || o.customerTotal || o.value,
     history: o.history,
     createdAtMs: o.createdAt ? new Date(o.createdAt).getTime() : Date.now(),
   };

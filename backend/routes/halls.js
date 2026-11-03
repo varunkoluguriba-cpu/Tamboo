@@ -12,6 +12,8 @@ const Config = require('../models/Config');
 const User = require('../models/User');
 
 const VISIT_HOURS = 48;
+// Matches the policy customers agree to before paying: full refund only within 2 hours.
+const FREE_CANCEL_HOURS = 2;
 
 function serializeTokenOwn(b) {
   return {
@@ -54,6 +56,7 @@ function serializeTokenForCustomer(b) {
     status: b.status,
     heldAtMs: b.createdAt ? new Date(b.createdAt).getTime() : Date.now(),
     visitHours: VISIT_HOURS,
+    freeCancelHours: FREE_CANCEL_HOURS,
     visited: b.status !== 'token_paid',
   };
 }
@@ -542,6 +545,10 @@ router.patch('/my-token/:id', requireAuth, async (req, res) => {
     booking.visitDay = visitDay;
     booking.visitTime = visitTime;
   } else if (action === 'cancel') {
+    if (booking.status !== 'token_paid') return res.status(400).json({ error: 'This pre-booking can no longer be cancelled' });
+    if (Date.now() - new Date(booking.createdAt).getTime() > FREE_CANCEL_HOURS * 3600 * 1000) {
+      return res.status(400).json({ error: `Free cancellation is only available within ${FREE_CANCEL_HOURS} hours of paying` });
+    }
     booking.status = 'cancelled';
     if (booking.partner && originalNet > 0) {
       await PayoutEntry.create({

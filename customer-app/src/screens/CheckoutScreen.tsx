@@ -19,6 +19,14 @@ export default function CheckoutScreen({ navigation }: Props) {
   const { pricing, deliveryMode: delivery, setDeliveryMode: setDelivery } = useCart();
   const { event } = useEvent();
   const [agree, setAgree] = useState(false);
+  // Vendors can't fulfil an order without knowing when (and, for delivery, where) — block
+  // payment until the event form has them, rather than creating an order they can't act on.
+  const missing = !event.date.trim()
+    ? t.checkoutNeedDate
+    : delivery === 'delivery' && !event.address.trim()
+      ? t.checkoutNeedAddress
+      : null;
+  const canPay = agree && !missing;
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -107,6 +115,14 @@ export default function CheckoutScreen({ navigation }: Props) {
           <Text style={styles.policyText}>{t.checkoutPolicyText}</Text>
         </View>
 
+        {missing && (
+          <TouchableOpacity style={styles.missingBox} activeOpacity={0.85} onPress={() => navigation.navigate('Event')}>
+            <Icon name="calendar" size={15} color={colors.dangerStrong} />
+            <Text style={styles.missingText}>{missing}</Text>
+            <Text style={styles.editLink}>{t.edit}</Text>
+          </TouchableOpacity>
+        )}
+
         <TouchableOpacity style={styles.agreeRow} activeOpacity={0.85} onPress={() => setAgree((a) => !a)}>
           <View style={[styles.checkbox, agree && styles.checkboxOn]}>
             {agree && <Icon name="check" size={13} color="#fff" strokeWidth={3} />}
@@ -116,12 +132,12 @@ export default function CheckoutScreen({ navigation }: Props) {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.payBtnWrap} activeOpacity={agree ? 0.85 : 1} disabled={!agree} onPress={() => navigation.navigate('Pay')}>
+        <TouchableOpacity style={styles.payBtnWrap} activeOpacity={canPay ? 0.85 : 1} disabled={!canPay} onPress={() => navigation.navigate('Pay')}>
           <LinearGradient
             colors={gradients.primaryButton.colors}
             start={gradients.primaryButton.start}
             end={gradients.primaryButton.end}
-            style={[styles.payBtn, !agree && styles.payBtnDisabled]}
+            style={[styles.payBtn, !canPay && styles.payBtnDisabled]}
           >
             <Text style={styles.payBtnText}>{t.checkoutContinueToPayment}</Text>
           </LinearGradient>
@@ -160,6 +176,8 @@ const styles = StyleSheet.create({
   totalValue: { fontFamily: 'Sora', fontSize: 20, fontWeight: '800', color: colors.maroon },
   policyBox: { backgroundColor: colors.bg, borderWidth: 1.5, borderColor: colors.divider, borderRadius: 16, padding: 14 },
   policyText: { fontSize: 12.5, color: '#4b4560', lineHeight: 19 },
+  missingBox: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 14, borderRadius: 14, backgroundColor: colors.dangerBg },
+  missingText: { flex: 1, fontSize: 13.5, fontWeight: '600', color: colors.dangerStrong },
   agreeRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
   checkbox: { width: 20, height: 20, borderRadius: 6, borderWidth: 1.5, borderColor: colors.dividerStrong, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   checkboxOn: { backgroundColor: colors.maroon, borderColor: colors.maroon },

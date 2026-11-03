@@ -17,7 +17,7 @@ function orderCode() {
 }
 
 function nowTxt() {
-  return new Date().toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true });
+  return new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true });
 }
 
 const router = express.Router();
@@ -213,6 +213,7 @@ router.post('/verify', requireAuth, async (req, res) => {
     const priced = await priceCartGroups(cart.groups);
     if (priced.error) return res.status(400).json({ error: priced.error });
     const deliveryFeePerGroup = cart.deliveryMode === 'delivery' ? DELIVERY_FEE_PER_VENDOR : 0;
+    const discountPct = cart.couponCode ? (await getCouponDiscountPct(cart.couponCode)) || 0 : 0;
 
     orders = [];
     for (const g of priced.groups) {
@@ -232,6 +233,8 @@ router.post('/verify', requireAuth, async (req, res) => {
 
       const value = Math.round(g.subtotal + deliveryFeePerGroup);
       const commission = Math.round(value * (DEFAULT_COMMISSION_PCT / 100));
+      const customerTotal = computeTotals({ subtotal: g.subtotal, deliveryMode: cart.deliveryMode, vendorCount: 1, discountPct }).total;
+      const amountPaid = cart.payMode === 'advance' ? Math.round(customerTotal * 0.3) : customerTotal;
       const order = await Order.create({
         code: orderCode(),
         customer: req.user.id,
@@ -246,6 +249,8 @@ router.post('/verify', requireAuth, async (req, res) => {
         guests: cart.guests || 0,
         lines: g.lines.map((l) => ({ itemId: l.itemId, name: l.name, qty: l.qty, unitPrice: l.unitPrice })),
         value,
+        customerTotal,
+        amountPaid,
         commissionPct: DEFAULT_COMMISSION_PCT,
         commission,
         earn: value - commission,
@@ -254,7 +259,7 @@ router.post('/verify', requireAuth, async (req, res) => {
         status: lineConflict ? 'DISPUTED' : 'PENDING',
         history: [{ label: lineConflict ? 'Order placed — stock conflict, needs review' : 'Order placed', date: nowTxt() }],
       });
-      orders.push({ id: order.id, code: order.code, vendor: g.vendorName || '', total: value, conflict: lineConflict });
+      orders.push({ id: order.id, code: order.code, vendor: g.vendorName || '', total: customerTotal, conflict: lineConflict });
 
       if (partner && cart.payMode === 'full' && !lineConflict) {
         await PayoutEntry.create({

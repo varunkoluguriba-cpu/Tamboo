@@ -55,7 +55,7 @@ export type RootStackParamList = {
   Confirm: { orders: Array<{ id: string; vendor: string; total: number }> };
   Bookings: undefined;
   BookingDetail: BookingDetailParams;
-  Venues: undefined;
+  Venues: { venueType?: string } | undefined;
   Venue: { id: string };
   TokenPay: { hallId: string; date: string; slot: 'Morning' | 'Evening' };
   TokenDone: undefined;

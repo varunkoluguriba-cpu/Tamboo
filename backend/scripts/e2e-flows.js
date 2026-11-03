@@ -122,6 +122,23 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
   });
   await check('Delete account blocked while booking active', async () => { const r = await call('DELETE', '/api/auth/me', CT); expect(r.status === 409, 'got ' + r.status + ' ' + JSON.stringify(r.data)); });
 
+  // ---------- FREE-CANCEL WINDOW (2 hours) ----------
+  const payToken = async (d, sl) => {
+    const r = await call('POST', '/api/payments/create-order', CT, { hallId: hall.id, date: d, slot: sl });
+    const pay = 'pay_E2EW' + Date.now();
+    const v = await call('POST', '/api/payments/verify', CT, { razorpay_order_id: r.data.orderId, razorpay_payment_id: pay, razorpay_signature: sign(r.data.orderId, pay), hallId: hall.id, hallName: hall.name, date: d, slot: sl, guests: 50, partnerId: hall.partnerId || venue.id });
+    created.bookings.push(v.data.bookingId); created.payoutRefs.push(v.data.bookingId); return v.data.bookingId;
+  };
+  await check('Cancel within 2h → full refund allowed', async () => {
+    const id = await payToken('2027-05-10', 'Evening');
+    const r = await call('PATCH', '/api/halls/my-token/' + id, CT, { action: 'cancel' }); expect(r.status === 200 && r.data.status === 'cancelled', JSON.stringify(r.data));
+  });
+  await check('Cancel after 2h → refused (matches policy)', async () => {
+    const id = await payToken('2027-05-11', 'Evening');
+    await Booking.collection.updateOne({ _id: new mongoose.Types.ObjectId(id) }, { $set: { createdAt: new Date(Date.now() - 3 * 3600 * 1000) } });
+    const r = await call('PATCH', '/api/halls/my-token/' + id, CT, { action: 'cancel' }); expect(r.status === 400, 'got ' + r.status + ' ' + JSON.stringify(r.data));
+  });
+
   // ---------- PARTNER VENUE ----------
   await check('Partner: my halls', async () => { const r = await call('GET', '/api/halls/me/halls', VT); expect(r.status === 200 && r.data.length > 0, JSON.stringify(r.data).slice(0, 200)); return r.data.length + ' halls'; });
   await check('Partner: offline booking add + remove', async () => {
@@ -134,7 +151,7 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
 
   // ---------- CART ORDER (tent house) ----------
   const p = products.find((x) => x.instant !== false && x.price > 0) || products[0];
-  let orderId;
+  let orderId, paidTotal;
   await check('Cart: create order + pay (full)', async () => {
     const cart = { groups: [{ vendorId: tent.id, vendorName: tent.businessName, lines: [{ itemId: p.id, name: p.name, qty: 2 }] }],
       deliveryMode: 'delivery', payMode: 'full', dateTxt: '15 Mar 2027', couponCode: 'TAMBOO10', customerName: 'E2E Test', customerPhone: '+919999900000', address: 'Test address', guests: 100, eventType: 'Wedding' };
@@ -143,13 +160,20 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
     const v = await call('POST', '/api/payments/verify', CT, { razorpay_order_id: r.data.orderId, razorpay_payment_id: pay, razorpay_signature: sign(r.data.orderId, pay), cart });
     expect(v.data.verified && v.data.orders && v.data.orders.length === 1 && !v.data.orders[0].conflict, JSON.stringify(v.data));
     orderId = v.data.orders[0].id; created.orders.push(orderId); created.payoutRefs.push(orderId);
+    paidTotal = r.data.amount / 100;
+    expect(v.data.orders[0].total === paidTotal, `confirmation shows ₹${v.data.orders[0].total}, paid ₹${paidTotal}`);
     return `${p.name} ×2, paid ₹${r.data.amount / 100}`;
   });
   await check('Cart: tampered price ignored (server re-prices)', async () => {
     const cart = { groups: [{ vendorId: tent.id, lines: [{ itemId: p.id, name: p.name, qty: 1, unitPrice: 1 }] }], deliveryMode: 'pickup', payMode: 'full' };
     const r = await call('POST', '/api/payments/create-order', CT, { cart }); expect(r.data.amount / 100 > 1, 'charged ' + r.data.amount);
   });
-  await check('Customer sees order', async () => { const r = await call('GET', '/api/orders/me', CT); expect(r.data.some((o) => o.id === orderId), 'missing'); });
+  await check('Customer sees order with the amount they paid', async () => {
+    const r = await call('GET', '/api/orders/me', CT); const o = r.data.find((x) => x.id === orderId);
+    expect(o, 'missing'); expect(o.value === paidTotal, `shows ₹${o.value}, paid ₹${paidTotal}`);
+    const ist = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', hour12: true });
+    expect(o.history[0].date.includes(ist.split(' ')[0]), `history time "${o.history[0].date}" not India time (now ${ist})`);
+  });
   await check('Vendor sees order', async () => { const r = await call('GET', '/api/vendors/me/orders', TT); expect(r.data.some((o) => o.id === orderId), 'missing'); });
   for (const st of ['CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'COMPLETED']) {
     await check('Vendor order → ' + st, async () => { const r = await call('PATCH', '/api/vendors/me/orders/' + orderId, TT, { status: st }); expect(r.status === 200 && r.data.status === st, JSON.stringify(r.data)); });

@@ -30,6 +30,10 @@ const orderSchema = new mongoose.Schema({
   guests: { type: Number, default: 0 },
   lines: [orderLineSchema],
   value: { type: Number, required: true }, // what the customer pays this vendor (subtotal + delivery share)
+  // What the customer pays for this vendor's share of the cart — after coupon, plus platform fee
+  // and tax — so the customer app shows the amount they actually paid, not the vendor's value.
+  customerTotal: { type: Number, default: 0 },
+  amountPaid: { type: Number, default: 0 }, // customerTotal, or the 30% share on an advance payment
   commissionPct: { type: Number, default: 10 },
   commission: { type: Number, required: true },
   earn: { type: Number, required: true }, // value - commission

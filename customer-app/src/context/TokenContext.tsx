@@ -14,6 +14,7 @@ export type HallToken = {
   amount: number;
   heldAtMs: number;
   visitHours: number;
+  freeCancelHours?: number;
   visited: boolean;
   status?: 'token_paid' | 'visited' | 'awaiting_advance' | 'confirmed' | 'not_booked' | 'cancelled' | 'disputed';
   finalRent?: number;
@@ -103,6 +104,11 @@ export function useToken() {
 
 export function msLeft(t: HallToken): number {
   return Math.max(0, t.heldAtMs + t.visitHours * 3600 * 1000 - Date.now());
+}
+
+// Full-refund cancellation is only open for the first couple of hours after paying.
+export function cancelMsLeft(t: HallToken): number {
+  return Math.max(0, t.heldAtMs + (t.freeCancelHours ?? 2) * 3600 * 1000 - Date.now());
 }
 
 export function formatHoursLeft(ms: number): string {

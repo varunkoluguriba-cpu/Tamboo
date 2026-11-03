@@ -14,7 +14,8 @@ import { ratingText, metaLine } from '../utils/rating';
 type Props = NativeStackScreenProps<RootStackParamList, 'Venues'>;
 type Sort = 'nearest' | 'rating' | 'priceLow' | 'priceHigh';
 
-const VENUE_TYPES = ['All', 'Marriage hall', 'Banquet hall', 'Outdoor / Lawn', 'Home / Backyard'];
+// Must match the partner app's VENUE_TYPES — these are the only values Hall.type can hold.
+const VENUE_TYPES = ['All', 'Function Hall', 'Banquet Hall', 'Marriage Hall', 'Hotel'];
 const SLOTS = ['Any time', 'Morning', 'Evening'];
 
 function Photo({ icon = 'home' as IconName, uri }: { icon?: IconName; uri?: string }) {
@@ -26,12 +27,12 @@ function Photo({ icon = 'home' as IconName, uri }: { icon?: IconName; uri?: stri
   );
 }
 
-export default function VenuesScreen({ navigation }: Props) {
+export default function VenuesScreen({ navigation, route }: Props) {
   const { t } = useLanguage();
   const { event } = useEvent();
   const { halls: HALLS } = useCatalog();
   const [q, setQ] = useState('');
-  const [venueType, setVenueType] = useState('All');
+  const [venueType, setVenueType] = useState(route.params?.venueType || 'All');
   const [slot, setSlot] = useState('Any time');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [fitsGuests, setFitsGuests] = useState(false);
@@ -55,10 +56,10 @@ export default function VenuesScreen({ navigation }: Props) {
   const venueTypeLabel = (v: string) => {
     switch (v) {
       case 'All': return t.venuesTypeAll;
-      case 'Marriage hall': return t.venuesTypeMarriageHall;
-      case 'Banquet hall': return t.venuesTypeBanquetHall;
-      case 'Outdoor / Lawn': return t.venuesTypeOutdoorLawn;
-      case 'Home / Backyard': return t.venuesTypeHomeBackyard;
+      case 'Function Hall': return t.venuesTypeFunctionHall;
+      case 'Marriage Hall': return t.venuesTypeMarriageHall;
+      case 'Banquet Hall': return t.venuesTypeBanquetHall;
+      case 'Hotel': return t.venuesTypeHotel;
       default: return v;
     }
   };
@@ -90,7 +91,7 @@ export default function VenuesScreen({ navigation }: Props) {
   ];
 
   const halls = useMemo(() => {
-    let list = HALLS.filter((h) => venueType === 'All' || h.type === venueType);
+    let list = HALLS.filter((h) => venueType === 'All' || (h.type || '').toLowerCase() === venueType.toLowerCase());
     if (q.trim()) list = list.filter((h) => h.name.toLowerCase().includes(q.trim().toLowerCase()));
     if (verifiedOnly) list = list.filter((h) => h.verified);
     if (acOnly) list = list.filter((h) => h.ac);

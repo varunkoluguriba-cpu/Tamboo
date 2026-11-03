@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../navigation/types';
+import type { RemoteHallBooking, RemoteOrderSummary, RootStackParamList } from '../navigation/types';
+import { api } from '../api/client';
 import Icon from '../components/Icon';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, shadow } from '../theme';
@@ -12,13 +13,43 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Notifications'>;
 export default function NotificationsScreen({ navigation }: Props) {
   const { t } = useLanguage();
 
-  // Sample notification feed (no real push-notification backend yet) — but each one is wired
-  // to the real screen it's actually about, so tapping isn't a dead end.
-  const NOTIFS = [
-    { id: 'n1', text: t.notifMsg1, at: t.notifTime1, onPress: () => navigation.navigate('Bookings') },
-    { id: 'n2', text: t.notifMsg2, at: t.notifTime2, onPress: () => navigation.navigate('Token') },
-    { id: 'n3', text: t.notifMsg3, at: t.notifTime3, onPress: () => navigation.navigate('Bookings') },
-  ];
+  // Built from the customer's real orders, hall pre-bookings and quote offers — there's no push
+  // backend yet, so this is the latest state of each rather than a log of every change.
+  type Notif = { id: string; text: string; atMs: number; onPress: () => void };
+  const [notifs, setNotifs] = useState<Notif[] | null>(null);
+
+  useEffect(() => {
+    Promise.all([
+      api.get<RemoteOrderSummary[]>('/api/orders/me').catch(() => []),
+      api.get<RemoteHallBooking[]>('/api/halls/my-tokens').catch(() => []),
+      api.get<Array<{ id: string; code: string; vendorName: string; status: string; createdAtMs?: number }>>('/api/quotes/me').catch(() => []),
+    ]).then(([orders, halls, quotes]) => {
+      const list: Notif[] = [
+        ...orders.map((o) => ({
+          id: 'o' + o.id,
+          text: t.notifOrderStatus.replace('{code}', o.code).replace('{vendor}', o.vendorName).replace('{status}', o.status),
+          atMs: o.createdAtMs,
+          onPress: () => navigation.navigate('BookingDetail', { kind: 'order', order: o }),
+        })),
+        ...halls.map((b) => ({
+          id: 'h' + b.id,
+          text: t.notifHallStatus.replace('{hall}', b.hallName).replace('{date}', b.date).replace('{status}', b.status.replace(/_/g, ' ').toUpperCase()),
+          atMs: b.heldAtMs,
+          onPress: () => navigation.navigate('BookingDetail', { kind: 'hall', hall: b }),
+        })),
+        ...quotes.filter((q) => q.status === 'OFFER_SENT').map((q) => ({
+          id: 'q' + q.id,
+          text: t.notifQuoteOffer.replace('{vendor}', q.vendorName).replace('{code}', q.code),
+          atMs: q.createdAtMs || 0,
+          onPress: () => navigation.navigate('Bookings'),
+        })),
+      ];
+      setNotifs(list.sort((a, b) => b.atMs - a.atMs).slice(0, 20));
+    });
+  }, [navigation, t]);
+
+  const when = (ms: number) =>
+    ms ? new Date(ms).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true }) : '';
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -30,14 +61,15 @@ export default function NotificationsScreen({ navigation }: Props) {
           <Text style={styles.headerTitle}>{t.notifTitle}</Text>
         </View>
 
-        {NOTIFS.map((n) => (
+        {notifs && notifs.length === 0 && <Text style={styles.empty}>{t.notifEmpty}</Text>}
+        {(notifs || []).map((n) => (
           <TouchableOpacity key={n.id} style={styles.card} activeOpacity={0.85} onPress={n.onPress}>
             <View style={styles.iconCircle}>
               <Icon name="bell" size={17} color={colors.pinkStrong} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.cardText}>{n.text}</Text>
-              <Text style={styles.cardTime}>{n.at}</Text>
+              <Text style={styles.cardTime}>{when(n.atMs)}</Text>
             </View>
           </TouchableOpacity>
         ))}
@@ -66,4 +98,5 @@ const styles = StyleSheet.create({
   iconCircle: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center' },
   cardText: { fontSize: 13.5, fontWeight: '600', color: colors.text, lineHeight: 19 },
   cardTime: { fontSize: 11, color: colors.textMuted, marginTop: 2 },
+  empty: { fontSize: 13.5, color: colors.textSoft, textAlign: 'center', paddingVertical: 24, lineHeight: 20 },
 });

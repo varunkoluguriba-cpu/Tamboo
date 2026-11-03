@@ -61,7 +61,7 @@ function parseClassifyResponse(message) {
 const router = express.Router();
 
 function nowTxt() {
-  return new Date().toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true });
+  return new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true });
 }
 
 function serializeOrderOwn(o) {

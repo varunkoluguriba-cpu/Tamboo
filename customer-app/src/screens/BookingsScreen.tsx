@@ -8,6 +8,7 @@ import type { RemoteHallBooking, RemoteOrderSummary, RootStackParamList } from '
 import { api, ApiError } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
+import { metaLine } from '../utils/rating';
 
 type RemoteQuote = {
   id: string;
@@ -124,7 +125,7 @@ export default function BookingsScreen({ navigation }: Props) {
                   </View>
                   <Text style={styles.cardTitle}>{o.eventName || o.eventType || t.bookings}</Text>
                   <View style={styles.cardBottom}>
-                    <Text style={styles.cardMeta}>{o.dateTxt} · {o.vendorName}</Text>
+                    <Text style={styles.cardMeta}>{metaLine(o.dateTxt, o.vendorName)}</Text>
                     <Text style={styles.cardAmount}>₹{o.value.toLocaleString('en-IN')}</Text>
                   </View>
                 </TouchableOpacity>
@@ -148,7 +149,7 @@ export default function BookingsScreen({ navigation }: Props) {
                   </View>
                   <Text style={styles.cardTitle}>{o.eventName || o.eventType || t.bookings}</Text>
                   <View style={styles.cardBottom}>
-                    <Text style={styles.cardMeta}>{o.dateTxt} · {o.vendorName}</Text>
+                    <Text style={styles.cardMeta}>{metaLine(o.dateTxt, o.vendorName)}</Text>
                     <Text style={styles.cardAmount}>₹{o.value.toLocaleString('en-IN')}</Text>
                   </View>
                 </TouchableOpacity>
@@ -215,7 +216,7 @@ export default function BookingsScreen({ navigation }: Props) {
                       </View>
                     </View>
                     <Text style={styles.cardTitle}>{q.productName || q.vendorName}</Text>
-                    <Text style={styles.cardMeta}>{q.vendorName} · {q.dateTxt}</Text>
+                    <Text style={styles.cardMeta}>{metaLine(q.vendorName, q.dateTxt)}</Text>
                     <View style={styles.needBox}>
                       <Text style={styles.needText}>{q.need}</Text>
                     </View>

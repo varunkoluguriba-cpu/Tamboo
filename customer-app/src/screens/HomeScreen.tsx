@@ -25,18 +25,18 @@ type Mode = 'venues' | 'rentals';
 
 type Option = { value: string; label: string };
 
-// Counts come from the live hall list (Hall.type is the partner's venueType, e.g. 'Function Hall').
-// A type with no halls yet shows no count rather than a misleading number.
-const VTYPE_TILES = (t: LangStrings, hallTypes: string[]): Array<{ key: string; label: string; count: string }> => {
-  const count = (...words: string[]) => {
-    const n = hallTypes.filter((ty) => words.some((w) => ty.toLowerCase().includes(w))).length;
+// Same four types partners pick from when listing a hall (partner-app VENUE_TYPES), with counts
+// from the live hall list. A type with no halls yet shows no count rather than a misleading number.
+const VTYPE_TILES = (t: LangStrings, hallTypes: string[]): Array<{ type: string; label: string; count: string }> => {
+  const count = (type: string) => {
+    const n = hallTypes.filter((ty) => ty.toLowerCase() === type.toLowerCase()).length;
     return n ? t.homeScreenNearbyCount.replace('{n}', String(n)) : '';
   };
   return [
-    { key: 'banquet', label: t.homeScreenBanquetHalls, count: count('banquet') },
-    { key: 'marriage', label: t.homeScreenMarriageHalls, count: count('marriage', 'function') },
-    { key: 'hotel', label: t.homeScreenHotels, count: count('hotel') },
-    { key: 'lawn', label: t.homeScreenLawnsGardens, count: count('lawn', 'garden') },
+    { type: 'Function Hall', label: t.homeScreenFunctionHalls, count: count('Function Hall') },
+    { type: 'Banquet Hall', label: t.homeScreenBanquetHalls, count: count('Banquet Hall') },
+    { type: 'Marriage Hall', label: t.homeScreenMarriageHalls, count: count('Marriage Hall') },
+    { type: 'Hotel', label: t.homeScreenHotels, count: count('Hotel') },
   ];
 };
 
@@ -83,7 +83,10 @@ export default function HomeScreen() {
   const { event, setEvent } = useEvent();
   const [mode, setMode] = useState<Mode>('rentals');
   const [langSheet, setLangSheet] = useState(false);
-  const [ev, setEv] = useState({ date: '', guests: '100' });
+  const [ev, setEv] = useState({ date: event.date, guests: event.guests || '100' });
+  // The hero's date/guests are what the customer means for this event — carry them into the
+  // shared event so the hall list, cart and checkout all use them.
+  const saveHero = () => setEvent({ ...event, date: ev.date.trim(), guests: ev.guests.trim() || event.guests });
 
   const [packages, setPackages] = useState<RemotePackage[]>([]);
 
@@ -263,7 +266,7 @@ export default function HomeScreen() {
                   />
                 </View>
               </View>
-              <TouchableOpacity style={styles.heroBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Venues')}>
+              <TouchableOpacity style={styles.heroBtn} activeOpacity={0.85} onPress={() => { saveHero(); navigation.navigate('Venues'); }}>
                 <Text style={styles.heroBtnText}>{t.homeScreenSearchHalls}</Text>
                 <Icon name="right" size={16} color={colors.maroon} />
               </TouchableOpacity>
@@ -271,7 +274,7 @@ export default function HomeScreen() {
 
             <View style={styles.tileGrid}>
               {VTYPE_TILES(t, halls.map((h) => h.type || '')).map((x) => (
-                <TouchableOpacity key={x.key} style={styles.tile} activeOpacity={0.85} onPress={() => navigation.navigate('Venues')}>
+                <TouchableOpacity key={x.type} style={styles.tile} activeOpacity={0.85} onPress={() => navigation.navigate('Venues', { venueType: x.type })}>
                   <Text style={styles.tileLabel}>{x.label}</Text>
                   <Text style={styles.tileCount}>{x.count}</Text>
                 </TouchableOpacity>
@@ -340,7 +343,7 @@ export default function HomeScreen() {
                   />
                 </View>
               </View>
-              <TouchableOpacity style={styles.heroBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Event')}>
+              <TouchableOpacity style={styles.heroBtn} activeOpacity={0.85} onPress={() => { saveHero(); navigation.navigate('Event'); }}>
                 <Text style={styles.heroBtnText}>{t.build}</Text>
                 <Icon name="right" size={16} color={colors.maroon} />
               </TouchableOpacity>

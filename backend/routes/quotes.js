@@ -40,6 +40,7 @@ function serializeForCustomer(q) {
     need: q.need,
     status: q.status,
     quotedTotal: latest ? latest.total : 0,
+    createdAtMs: q.createdAt ? new Date(q.createdAt).getTime() : 0,
     versions: q.versions.map((v) => ({ v: v.v, total: v.total, note: v.note, lines: v.lines })),
   };
 }
