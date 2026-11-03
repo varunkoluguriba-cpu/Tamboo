@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { api } from '../api/client';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
@@ -14,7 +15,6 @@ import { useHallTokens, tokenUiStatus } from '../hooks/useHallTokens';
 import { scheduleRegisterPhotoReminder } from '../utils/registerReminder';
 import { colors, shadow } from '../theme';
 
-const COMMISSION_PCT = 10;
 const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 
 export default function HHomeScreen() {
@@ -42,8 +42,12 @@ export default function HHomeScreen() {
   const active = HALL_TOKENS.filter((tok) => tok.status === 'ACTIVE');
   const visited = HALL_TOKENS.filter((tok) => tok.status === 'VISITED');
   const converted = HALL_TOKENS.filter((tok) => tok.status === 'CONFIRMED');
-  const totalTokenAmount = HALL_TOKENS.reduce((sum, tok) => sum + tok.amount, 0);
-  const income = Math.round(totalTokenAmount * (1 - COMMISSION_PCT / 100));
+  // Earnings come from the payout ledger — it already nets out commission (whatever the admin
+  // has set) and reverses refunded/cancelled tokens, unlike summing every token ever paid.
+  const [income, setIncome] = useState(0);
+  useFocusEffect(useCallback(() => {
+    api.get<{ balance: number }>('/api/partner-auth/payouts').then((r) => setIncome(r.balance)).catch(() => {});
+  }, []));
   const needsAttention = [...active, ...visited];
   const tokenStatusLabel = (s: string) => (s === 'ACTIVE' ? t.hhomeStatusActive : s === 'VISITED' ? t.hhomeStatusVisited : s);
 
@@ -90,7 +94,7 @@ export default function HHomeScreen() {
           <TouchableOpacity style={styles.statCard} activeOpacity={0.85} onPress={() => navigation.navigate('Earnings')}>
             <Text style={styles.statLabel}>{t.hhomeStatTokenIncome}</Text>
             <Text style={[styles.statValueSm, { color: colors.maroon }]}>{inr(income)}</Text>
-            <Text style={styles.statNote}>{t.hhomeCommissionNote.replace('{pct}', String(COMMISSION_PCT))}</Text>
+            <Text style={styles.statNote}>{t.hhomeEarningsNote}</Text>
           </TouchableOpacity>
         </View>
 
