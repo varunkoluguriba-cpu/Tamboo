@@ -1,7 +1,7 @@
 const Item = require('../models/Item');
 const Coupon = require('../models/Coupon');
+const Shop = require('../models/Shop');
 
-const DELIVERY_FEE_PER_VENDOR = 300;
 const PLATFORM_FEE_PCT = 0.02;
 const TAX_PCT = 0.05;
 
@@ -24,7 +24,11 @@ async function priceCartGroups(rawGroups) {
       lines.push({ itemId: l.itemId, name: item.name, qty, unitPrice: item.price, total });
       subtotal += total;
     }
-    groups.push({ vendorId: g.vendorId || null, vendorName: g.vendorName || '', lines, subtotal });
+    // Delivery + setup are each vendor's own fees from their shop settings (what the vendor
+    // page shows the customer), read here so the client can never set them.
+    const shop = g.vendorId ? await Shop.findOne({ partner: g.vendorId }).select('deliveryFee setupFee').lean().catch(() => null) : null;
+    const deliveryFee = Math.max(0, Number(shop?.deliveryFee) || 0) + Math.max(0, Number(shop?.setupFee) || 0);
+    groups.push({ vendorId: g.vendorId || null, vendorName: g.vendorName || '', lines, subtotal, deliveryFee });
   }
   return { groups, subtotal: groups.reduce((sum, g) => sum + g.subtotal, 0) };
 }
@@ -40,8 +44,9 @@ async function getCouponDiscountPct(code) {
 
 // Mirrors customer-app's CartContext pricing formula exactly, but fed the server-verified
 // subtotal and a real coupon discount instead of the client's own claimed numbers.
-function computeTotals({ subtotal, deliveryMode, vendorCount, discountPct }) {
-  const delivery = deliveryMode === 'delivery' ? vendorCount * DELIVERY_FEE_PER_VENDOR : 0;
+// `groups` are priced groups from priceCartGroups; delivery/setup only apply when delivering.
+function computeTotals({ subtotal, deliveryMode, groups, discountPct }) {
+  const delivery = deliveryMode === 'delivery' ? (groups || []).reduce((sum, g) => sum + (g.deliveryFee || 0), 0) : 0;
   const platformFee = Math.round(subtotal * PLATFORM_FEE_PCT);
   const discount = discountPct ? Math.round(subtotal * (discountPct / 100)) : 0;
   const tax = Math.round((subtotal - discount) * TAX_PCT);
@@ -49,4 +54,4 @@ function computeTotals({ subtotal, deliveryMode, vendorCount, discountPct }) {
   return { subtotal, delivery, platformFee, discount, tax, total };
 }
 
-module.exports = { priceCartGroups, getCouponDiscountPct, computeTotals, DELIVERY_FEE_PER_VENDOR };
+module.exports = { priceCartGroups, getCouponDiscountPct, computeTotals };

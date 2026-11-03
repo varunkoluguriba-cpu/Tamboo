@@ -164,6 +164,20 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
     expect(v.data.orders[0].total === paidTotal, `confirmation shows ₹${v.data.orders[0].total}, paid ₹${paidTotal}`);
     return `${p.name} ×2, paid ₹${r.data.amount / 100}`;
   });
+  await check("Cart: charges the vendor's own delivery + setup fee", async () => {
+    const before = await Shop.findOne({ partner: tent.id }).lean();
+    await Shop.updateOne({ partner: tent.id }, { $set: { deliveryFee: 250, setupFee: 100 } });
+    try {
+      const mk = (mode) => ({ groups: [{ vendorId: tent.id, lines: [{ itemId: p.id, name: p.name, qty: 1 }] }], deliveryMode: mode, payMode: 'full' });
+      const del = (await call('POST', '/api/payments/create-order', CT, { cart: mk('delivery') })).data.amount / 100;
+      const pick = (await call('POST', '/api/payments/create-order', CT, { cart: mk('pickup') })).data.amount / 100;
+      expect(del - pick === 350, `delivery adds ₹${del - pick}, expected ₹350`);
+      const pub = (await call('GET', '/api/vendors/' + tent.id)).data;
+      expect(pub.deliveryFee === 250 && pub.setupFee === 100, 'vendor page fees ' + JSON.stringify([pub.deliveryFee, pub.setupFee]));
+    } finally {
+      await Shop.updateOne({ partner: tent.id }, { $set: { deliveryFee: before.deliveryFee || 0, setupFee: before.setupFee || 0 } });
+    }
+  });
   await check('Cart: tampered price ignored (server re-prices)', async () => {
     const cart = { groups: [{ vendorId: tent.id, lines: [{ itemId: p.id, name: p.name, qty: 1, unitPrice: 1 }] }], deliveryMode: 'pickup', payMode: 'full' };
     const r = await call('POST', '/api/payments/create-order', CT, { cart }); expect(r.data.amount / 100 > 1, 'charged ' + r.data.amount);

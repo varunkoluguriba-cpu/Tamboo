@@ -9,7 +9,7 @@ const Partner = require('../models/Partner');
 const PayoutEntry = require('../models/PayoutEntry');
 const { isSlotTaken } = require('../lib/hallAvailability');
 const { checkItemStock } = require('../lib/itemAvailability');
-const { priceCartGroups, getCouponDiscountPct, computeTotals, DELIVERY_FEE_PER_VENDOR } = require('../lib/cartPricing');
+const { priceCartGroups, getCouponDiscountPct, computeTotals } = require('../lib/cartPricing');
 const Config = require('../models/Config');
 
 function orderCode() {
@@ -67,7 +67,7 @@ router.post('/create-order', requireAuth, async (req, res) => {
     const totals = computeTotals({
       subtotal: priced.subtotal,
       deliveryMode: cart.deliveryMode,
-      vendorCount: priced.groups.length,
+      groups: priced.groups,
       discountPct,
     });
     const due = cart.payMode === 'advance' ? Math.round(totals.total * 0.3) : totals.total;
@@ -212,7 +212,6 @@ router.post('/verify', requireAuth, async (req, res) => {
     // never whatever the client's cart payload claimed.
     const priced = await priceCartGroups(cart.groups);
     if (priced.error) return res.status(400).json({ error: priced.error });
-    const deliveryFeePerGroup = cart.deliveryMode === 'delivery' ? DELIVERY_FEE_PER_VENDOR : 0;
     const discountPct = cart.couponCode ? (await getCouponDiscountPct(cart.couponCode)) || 0 : 0;
 
     orders = [];
@@ -231,9 +230,9 @@ router.post('/verify', requireAuth, async (req, res) => {
         if (!ok) { lineConflict = true; break; }
       }
 
-      const value = Math.round(g.subtotal + deliveryFeePerGroup);
+      const value = Math.round(g.subtotal + (cart.deliveryMode === 'delivery' ? g.deliveryFee : 0));
       const commission = Math.round(value * (DEFAULT_COMMISSION_PCT / 100));
-      const customerTotal = computeTotals({ subtotal: g.subtotal, deliveryMode: cart.deliveryMode, vendorCount: 1, discountPct }).total;
+      const customerTotal = computeTotals({ subtotal: g.subtotal, deliveryMode: cart.deliveryMode, groups: [g], discountPct }).total;
       const amountPaid = cart.payMode === 'advance' ? Math.round(customerTotal * 0.3) : customerTotal;
       const order = await Order.create({
         code: orderCode(),

@@ -13,6 +13,7 @@ import { LANGS, langName } from '../i18n';
 import { colors, shadow } from '../theme';
 import { ADDRESSES_KEY } from '../constants';
 import { hallStatusText, orderStatusText } from '../utils/status';
+import { useFocusEffect } from '@react-navigation/native';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Profile'>;
 
@@ -49,6 +50,9 @@ export default function ProfileScreen({ navigation }: Props) {
       }
     });
 
+  }, []);
+
+  useFocusEffect(React.useCallback(() => {
     Promise.all([
       api.get<RemoteOrderSummary[]>('/api/orders/me').catch(() => [] as RemoteOrderSummary[]),
       api.get<RemoteHallBooking[]>('/api/halls/my-tokens').catch(() => [] as RemoteHallBooking[]),
@@ -63,7 +67,7 @@ export default function ProfileScreen({ navigation }: Props) {
         }));
       setPayments([...fromOrders, ...fromHalls].sort((a, b) => b.dateMs - a.dateMs).slice(0, 5));
     });
-  }, [t]);
+  }, [t]));
 
   const updateToggle = (key: keyof typeof toggles) => {
     setToggles((prev) => {

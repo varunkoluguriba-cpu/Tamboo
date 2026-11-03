@@ -46,7 +46,8 @@ export default function TabBar({
   }, []);
 
   const go = (key: TabKey) => {
-    if (key === active) return;
+    // No early return for the active tab: from a detail screen (e.g. a booking under the
+    // Bookings tab), tapping the tab must still take you back to that tab's main screen.
     if (key === 'home') return navigation.navigate('Home');
     // Search follows the Halls/Rentals toggle the customer last picked on Home.
     if (key === 'search') {

@@ -11,6 +11,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { ApiError } from '../api/client';
 import { formatBookingDate } from '../utils/date';
 import { colors, gradients, shadow } from '../theme';
+import { useFocusEffect } from '@react-navigation/native';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Token'>;
 
@@ -19,7 +20,8 @@ const VISIT_TIME_KEYS = ['morning', 'afternoon', 'evening', 'night'] as const;
 
 export default function TokenScreen({ navigation }: Props) {
   const { t } = useLanguage();
-  const { token, markVisited, cancelToken, notBookingToken, disputeToken, scheduleVisit } = useToken();
+  const { token, markVisited, cancelToken, notBookingToken, disputeToken, scheduleVisit, refreshToken } = useToken();
+  useFocusEffect(React.useCallback(() => { refreshToken(); }, [refreshToken]));
   const [busy, setBusy] = useState(false);
   const [savingVisit, setSavingVisit] = useState(false);
   const { getHall } = useCatalog();
@@ -74,7 +76,11 @@ export default function TokenScreen({ navigation }: Props) {
         onPress: async () => {
           try {
             await disputeToken();
-            Alert.alert(t.done, t.tokenRefundMismatch);
+            // Point them straight to support so they can say what didn't match.
+            Alert.alert(t.tokenDisputeRaisedTitle, t.tokenDisputeRaisedMsg, [
+              { text: t.tokenDisputeLater, style: 'cancel' },
+              { text: t.tokenDisputeAddDetails, onPress: () => navigation.navigate('Chat', { peerName: 'Tamboo Support' }) },
+            ]);
           } catch (e) {
             Alert.alert(t.tryAgain, e instanceof ApiError ? e.message : t.tryAgain);
           }
@@ -207,7 +213,7 @@ export default function TokenScreen({ navigation }: Props) {
             </>
           )}
           <Text style={styles.note}>
-            {expired ? t.tokenNoteExpired : t.tokenNoteActive}
+            {isConfirmed ? t.tokenNoteConfirmed : isAwaitingAdvance ? t.tokenNoteAwaitingAdvance : token.visited ? t.tokenNoteVisited : expired ? t.tokenNoteExpired : t.tokenNoteActive}
           </Text>
         </View>
 
@@ -280,17 +286,20 @@ export default function TokenScreen({ navigation }: Props) {
         {isConfirmed && (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>{t.tokenConfirmedTitle}</Text>
-            <Text style={styles.cardSub}>{t.tokenConfirmedMsg.replace('{rent}', (token.finalRent || 0).toLocaleString('en-IN'))}</Text>
+            <Text style={styles.cardSub}>{t.tokenConfirmedMsg.replace('{rent}', (token.finalRent || 0).toLocaleString('en-IN')).replace('{balance}', Math.max(0, (token.finalRent || 0) - token.amount - (token.advanceAmount || 0)).toLocaleString('en-IN'))}</Text>
           </View>
         )}
 
+        {/* The token refund rules only matter until the booking is confirmed. */}
+        {!isConfirmed && (
         <View style={styles.policyCard}>
           <Text style={styles.policyTitle}>{t.tokenRefundPolicyTitle}</Text>
           {REFUND_POLICY.map((r, i) => (
             <Text key={i} style={styles.policyLine}>• {r}</Text>
           ))}
-          <Text style={styles.policyFooter}>{t.tokenRefundPolicyFooter}</Text>
+          {!token.visited && <Text style={styles.policyFooter}>{t.tokenRefundPolicyFooter}</Text>}
         </View>
+        )}
 
         <View style={styles.grid2}>
           <TouchableOpacity style={[styles.outlineBtn, { flex: 1 }]} activeOpacity={0.85} onPress={openDirections}>

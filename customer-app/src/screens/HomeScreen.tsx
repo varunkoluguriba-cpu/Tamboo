@@ -3,7 +3,7 @@ import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View 
 import LinearGradient from 'react-native-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RemoteHallBooking, RemoteOrderSummary, RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
@@ -20,6 +20,7 @@ import type { LangStrings } from '../i18n';
 import { colors, gradients, shadow } from '../theme';
 import { HOME_MODE_KEY } from '../constants';
 import { ratingText, metaLine } from '../utils/rating';
+import { prettyDate } from '../utils/status';
 
 type Mode = 'venues' | 'rentals';
 
@@ -76,7 +77,9 @@ function Photo({ icon, height = 150, radius = 0, width }: { icon: IconName; heig
 export default function HomeScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { user } = useAuth();
-  const { token } = useToken();
+  const { token, refreshToken } = useToken();
+  // Pick up changes the hall made (visited / confirmed) whenever Home comes back into view.
+  useFocusEffect(React.useCallback(() => { refreshToken(); }, [refreshToken]));
   const { lang, t } = useLanguage();
   const { halls, vendors, getProduct, getVendor } = useCatalog();
   const { addToCart } = useCart();
@@ -99,25 +102,29 @@ export default function HomeScreen() {
   const [activeBookingsCount, setActiveBookingsCount] = useState(0);
   const [quotesToReviewCount, setQuotesToReviewCount] = useState(0);
 
-  useEffect(() => {
-    api.get<RemoteOrderSummary[]>('/api/orders/me')
-      .then((orders) => {
-        const active = orders.filter((o) => ['PENDING', 'CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED'].includes(o.status));
-        setActiveBookingsCount((n) => n + active.length);
-      })
-      .catch(() => {});
-    api.get<RemoteHallBooking[]>('/api/halls/my-tokens')
-      .then((bookings) => {
-        const active = bookings.filter((b) => ['token_paid', 'visited', 'awaiting_advance', 'confirmed'].includes(b.status));
-        setActiveBookingsCount((n) => n + active.length);
-      })
-      .catch(() => {});
-    api.get<Array<{ status: string }>>('/api/quotes/me')
-      .then((quotes) => {
-        setQuotesToReviewCount(quotes.filter((q) => q.status === 'OFFER_SENT' || q.status === 'REVISION_REQUESTED').length);
-      })
-      .catch(() => {});
-  }, []);
+  const [activeTab, setActiveTab] = useState<'active' | 'halls'>('active');
+
+  // Reloaded whenever Home is shown, and set (not added to) so refreshes can't double-count.
+  // Expired hall tokens never count.
+  useFocusEffect(React.useCallback(() => {
+    Promise.all([
+      api.get<RemoteOrderSummary[]>('/api/orders/me').catch(() => [] as RemoteOrderSummary[]),
+      api.get<RemoteHallBooking[]>('/api/halls/my-tokens').catch(() => [] as RemoteHallBooking[]),
+      api.get<Array<{ status: string }>>('/api/quotes/me').catch(() => [] as Array<{ status: string }>),
+    ]).then(([orders, bookings, quotes]) => {
+      const activeOrders = orders.filter((o) => ['PENDING', 'CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED'].includes(o.status)).length;
+      const liveHalls = bookings.filter((b) =>
+        ['visited', 'awaiting_advance', 'confirmed'].includes(b.status) ||
+        (b.status === 'token_paid' && Date.now() < b.heldAtMs + b.visitHours * 3600 * 1000)).length;
+      // The number must match the list the card opens: rental orders live in the Active tab,
+      // halls in the Halls tab (and on the banner above), so show halls only if there are no orders.
+      const showHalls = activeOrders === 0 && liveHalls > 0;
+      setActiveBookingsCount(showHalls ? liveHalls : activeOrders);
+      setActiveTab(showHalls ? 'halls' : 'active');
+      // Only offers waiting on the customer — a requested revision is waiting on the vendor.
+      setQuotesToReviewCount(quotes.filter((q) => q.status === 'OFFER_SENT').length);
+    });
+  }, []));
 
   const nearHalls = halls.slice(0, 4);
   const nearVendors = vendors.slice(0, 4);
@@ -212,27 +219,43 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* A hall booking needing action shows in both Halls and Rentals mode. */}
+        {token && (() => {
+          // The banner follows the booking's stage, not just the 48h visit window.
+          const st = token.status;
+          const isExpired = msLeft(token) <= 0 && !token.visited && st !== 'confirmed' && st !== 'awaiting_advance';
+          const advanceLeft = token.advanceDeadlineAtMs ? Math.max(0, token.advanceDeadlineAtMs - Date.now()) : 0;
+          const label = st === 'awaiting_advance' ? t.homeBannerPayAdvance : st === 'confirmed' ? t.homeBannerConfirmed : st === 'visited' ? t.homeBannerVisited : t.homeScreenHallPreBooked;
+          const right = isExpired
+            ? t.tokenStatusExpired
+            : st === 'awaiting_advance'
+              ? t.homeScreenTimeLeft.replace('{time}', formatHoursLeft(advanceLeft))
+              : st === 'token_paid'
+                ? t.homeScreenTimeLeft.replace('{time}', formatHoursLeft(msLeft(token)))
+                : '';
+          const sub = isExpired
+            ? t.tokenNoteExpired
+            : st === 'awaiting_advance'
+              ? t.homeBannerPayAdvanceSub.replace('{amount}', `₹${(token.advanceAmount || 0).toLocaleString('en-IN')}`)
+              : st === 'confirmed'
+                ? t.homeBannerConfirmedSub.replace('{date}', prettyDate(token.date))
+                : st === 'visited'
+                  ? t.homeBannerVisitedSub
+                  : t.homeScreenVisitWithin.replace('{hours}', String(token.visitHours));
+          return (
+            <TouchableOpacity style={[styles.tokenBanner, isExpired && styles.tokenBannerExpired]} activeOpacity={0.85} onPress={() => navigation.navigate('Token')}>
+              <View style={styles.tokenBannerTop}>
+                <Text style={styles.tokenBannerLabel}>{label}</Text>
+                {!!right && <Text style={isExpired ? styles.tokenBannerLeftExpired : styles.tokenBannerLeft}>{right}</Text>}
+              </View>
+              <Text style={styles.tokenBannerHall}>{token.hallName}</Text>
+              <Text style={styles.tokenBannerSub}>{sub}</Text>
+            </TouchableOpacity>
+          );
+        })()}
+
         {mode === 'venues' ? (
           <>
-            {token && (() => {
-              const isExpired = msLeft(token) <= 0 && !token.visited && token.status !== 'confirmed' && token.status !== 'awaiting_advance';
-              return (
-                <TouchableOpacity style={[styles.tokenBanner, isExpired && styles.tokenBannerExpired]} activeOpacity={0.85} onPress={() => navigation.navigate('Token')}>
-                  <View style={styles.tokenBannerTop}>
-                    <Text style={styles.tokenBannerLabel}>{t.homeScreenHallPreBooked}</Text>
-                    {isExpired ? (
-                      <Text style={styles.tokenBannerLeftExpired}>{t.tokenStatusExpired}</Text>
-                    ) : (
-                      <Text style={styles.tokenBannerLeft}>{t.homeScreenTimeLeft.replace('{time}', formatHoursLeft(msLeft(token)))}</Text>
-                    )}
-                  </View>
-                  <Text style={styles.tokenBannerHall}>{token.hallName}</Text>
-                  <Text style={styles.tokenBannerSub}>
-                    {isExpired ? t.tokenNoteExpired : t.homeScreenVisitWithin.replace('{hours}', String(token.visitHours))}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })()}
 
             <View style={styles.hero}>
               <LinearGradient
@@ -350,7 +373,7 @@ export default function HomeScreen() {
             </View>
 
             <View style={styles.statGrid}>
-              <TouchableOpacity style={styles.statCard} activeOpacity={0.85} onPress={() => navigation.navigate('Bookings')}>
+              <TouchableOpacity style={styles.statCard} activeOpacity={0.85} onPress={() => navigation.navigate('Bookings', { tab: activeTab })}>
                 <Text style={styles.statLabel}>{t.homeScreenActiveBookings}</Text>
                 <Text style={styles.statValue}>{activeBookingsCount}</Text>
               </TouchableOpacity>

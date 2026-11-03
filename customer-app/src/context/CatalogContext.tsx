@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { PermissionsAndroid, Platform } from 'react-native';
+import { PermissionsAndroid, Platform, AppState } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import { api } from '../api/client';
 import { useEvent } from './EventContext';
@@ -16,6 +16,17 @@ interface CatalogContextValue {
 }
 
 const CatalogContext = createContext<CatalogContextValue | undefined>(undefined);
+
+async function withRetry<T>(fn: () => Promise<T>, tries = 4): Promise<T> {
+  for (let i = 0; ; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (i >= tries - 1) throw err;
+      await new Promise<void>((r) => setTimeout(() => r(), 1500 * (i + 1)));
+    }
+  }
+}
 
 export function CatalogProvider({ children }: { children: React.ReactNode }) {
   const { event } = useEvent();
@@ -40,14 +51,26 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     getLocation();
   }, []);
 
+  // Mobile networks drop requests often, so retry a few times, and reload whenever the app
+  // comes back to the foreground — otherwise one failed request leaves the lists empty.
+  const [reloadKey, setReloadKey] = useState(0);
   useEffect(() => {
-    const qs = coords ? `?lat=${coords.lat}&lng=${coords.lng}` : '';
-    api.get<Hall[]>(`/api/halls${qs}`).then(setRealHalls).catch(() => {});
-  }, [coords]);
+    const sub = AppState.addEventListener('change', (st) => { if (st === 'active') setReloadKey((k) => k + 1); });
+    return () => sub.remove();
+  }, []);
 
   useEffect(() => {
-    api.get<Vendor[]>('/api/vendors').then(setRealVendors).catch(() => {});
-  }, []);
+    const qs = coords ? `?lat=${coords.lat}&lng=${coords.lng}` : '';
+    let cancelled = false;
+    withRetry(() => api.get<Hall[]>(`/api/halls${qs}`)).then((h) => { if (!cancelled) setRealHalls(h); }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [coords, reloadKey]);
+
+  useEffect(() => {
+    let cancelled = false;
+    withRetry(() => api.get<Vendor[]>('/api/vendors')).then((v) => { if (!cancelled) setRealVendors(v); }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [reloadKey]);
 
   // Refetches products whenever the event date changes, so "Booked"/"Free" on the product
   // screen reflects real committed stock for that date (see backend's getCommittedQtyByItem)

@@ -102,6 +102,8 @@ function serializeVendorPublic(shop, partner) {
     delivery: shop.deliveryFee > 0 ? `₹${shop.deliveryFee}` : 'Free',
     setup: shop.setupFee > 0 ? `₹${shop.setupFee}` : 'Included',
     minOrder: '—',
+    deliveryFee: Math.max(0, Number(shop.deliveryFee) || 0),
+    setupFee: Math.max(0, Number(shop.setupFee) || 0),
     areas: (shop.areas || '').split(',').map((s) => s.trim()).filter(Boolean),
     coverPhoto: shop.coverPhoto || '',
     logoPhoto: shop.logoPhoto || '',

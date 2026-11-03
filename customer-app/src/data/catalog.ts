@@ -30,6 +30,8 @@ export type Vendor = {
   years: string;
   blurb: string;
   delivery: string;
+  deliveryFee?: number; // numeric, charged per vendor at checkout (delivery mode)
+  setupFee?: number;
   setup: string;
   minOrder: string;
   areas: string[];
