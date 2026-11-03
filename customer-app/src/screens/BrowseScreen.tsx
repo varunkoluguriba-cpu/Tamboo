@@ -11,6 +11,7 @@ import { useCatalog } from '../context/CatalogContext';
 import { useEvent } from '../context/EventContext';
 import { availBadge } from '../data/catalog';
 import { colors, shadow } from '../theme';
+import { ratingText, metaLine } from '../utils/rating';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Browse'>;
 type ResTab = 'items' | 'vendors';
@@ -164,7 +165,7 @@ export default function BrowseScreen({ navigation, route }: Props) {
                   <Photo icon="package" uri={p.photos?.[0]} />
                   <View style={styles.itemBody}>
                     <Text style={styles.itemName}>{p.name}</Text>
-                    <Text style={styles.itemMeta}>{p.vendorName} · ★ {p.rating}</Text>
+                    <Text style={styles.itemMeta}>{metaLine(p.vendorName, ratingText(p.rating, 0, t))}</Text>
                     <View style={styles.itemFooter}>
                       <Text style={styles.itemPrice}>
                         ₹{p.price.toLocaleString('en-IN')} <Text style={styles.itemUnit}>{p.unit}</Text>
@@ -183,8 +184,8 @@ export default function BrowseScreen({ navigation, route }: Props) {
                 <Photo icon="tent" size={56} radius={14} />
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text style={styles.vendorName}>{v.name}</Text>
-                  <Text style={styles.itemMeta}>{v.area} · {v.km} km · {v.years}</Text>
-                  <Text style={styles.vendorRating}>★ {v.rating} <Text style={styles.itemUnit}>({v.reviews})</Text></Text>
+                  <Text style={styles.itemMeta}>{metaLine(v.area, v.km > 0 && `${v.km} km`, v.years)}</Text>
+                  <Text style={styles.vendorRating}>{ratingText(v.rating, 0, t)}{v.reviews ? <Text style={styles.itemUnit}> ({v.reviews})</Text> : null}</Text>
                 </View>
                 {v.verified && (
                   <View style={styles.verifiedBadge}>

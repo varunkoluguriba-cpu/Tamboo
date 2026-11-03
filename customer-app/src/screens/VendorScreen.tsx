@@ -10,6 +10,7 @@ import { useCatalog } from '../context/CatalogContext';
 import { useLanguage } from '../context/LanguageContext';
 import RequestQuoteModal from '../components/RequestQuoteModal';
 import { colors, gradients, shadow } from '../theme';
+import { ratingText, metaLine } from '../utils/rating';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Vendor'>;
 
@@ -60,11 +61,13 @@ export default function VendorScreen({ navigation, route }: Props) {
                 </View>
               )}
               <View style={[styles.badge, styles.badgePink]}>
-                <Text style={styles.badgePinkText}>★ {vendor.rating} · {vendor.reviews} {t.vendorReviewsLabel}</Text>
+                <Text style={styles.badgePinkText}>{ratingText(vendor.rating, vendor.reviews, t, t.vendorReviewsLabel)}</Text>
               </View>
-              <View style={[styles.badge, styles.badgeGrey]}>
-                <Text style={styles.badgeGreyText}>{vendor.years} {t.vendorSelfDeclared}</Text>
-              </View>
+              {!!vendor.years && (
+                <View style={[styles.badge, styles.badgeGrey]}>
+                  <Text style={styles.badgeGreyText}>{vendor.years} {t.vendorSelfDeclared}</Text>
+                </View>
+              )}
             </View>
 
             <Text style={styles.blurb}>{vendor.blurb}</Text>

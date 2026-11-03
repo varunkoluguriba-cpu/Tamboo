@@ -19,17 +19,26 @@ import { useToken, msLeft, formatHoursLeft } from '../context/TokenContext';
 import type { LangStrings } from '../i18n';
 import { colors, gradients, shadow } from '../theme';
 import { HOME_MODE_KEY } from '../constants';
+import { ratingText, metaLine } from '../utils/rating';
 
 type Mode = 'venues' | 'rentals';
 
 type Option = { value: string; label: string };
 
-const VTYPE_TILES = (t: LangStrings): Array<{ key: string; label: string; count: string }> => [
-  { key: 'banquet', label: t.homeScreenBanquetHalls, count: t.homeScreenNearbyCount.replace('{n}', '32') },
-  { key: 'marriage', label: t.homeScreenMarriageHalls, count: t.homeScreenNearbyCount.replace('{n}', '18') },
-  { key: 'hotel', label: t.homeScreenHotels, count: t.homeScreenNearbyCount.replace('{n}', '21') },
-  { key: 'lawn', label: t.homeScreenLawnsGardens, count: t.homeScreenNearbyCount.replace('{n}', '14') },
-];
+// Counts come from the live hall list (Hall.type is the partner's venueType, e.g. 'Function Hall').
+// A type with no halls yet shows no count rather than a misleading number.
+const VTYPE_TILES = (t: LangStrings, hallTypes: string[]): Array<{ key: string; label: string; count: string }> => {
+  const count = (...words: string[]) => {
+    const n = hallTypes.filter((ty) => words.some((w) => ty.toLowerCase().includes(w))).length;
+    return n ? t.homeScreenNearbyCount.replace('{n}', String(n)) : '';
+  };
+  return [
+    { key: 'banquet', label: t.homeScreenBanquetHalls, count: count('banquet') },
+    { key: 'marriage', label: t.homeScreenMarriageHalls, count: count('marriage', 'function') },
+    { key: 'hotel', label: t.homeScreenHotels, count: count('hotel') },
+    { key: 'lawn', label: t.homeScreenLawnsGardens, count: count('lawn', 'garden') },
+  ];
+};
 
 const EV_TYPES = (t: LangStrings): Option[] => [
   { value: 'Wedding', label: t.homeScreenOccasionWedding },
@@ -261,7 +270,7 @@ export default function HomeScreen() {
             </View>
 
             <View style={styles.tileGrid}>
-              {VTYPE_TILES(t).map((x) => (
+              {VTYPE_TILES(t, halls.map((h) => h.type || '')).map((x) => (
                 <TouchableOpacity key={x.key} style={styles.tile} activeOpacity={0.85} onPress={() => navigation.navigate('Venues')}>
                   <Text style={styles.tileLabel}>{x.label}</Text>
                   <Text style={styles.tileCount}>{x.count}</Text>
@@ -281,7 +290,7 @@ export default function HomeScreen() {
                           <Text style={styles.hallName}>{v.name}</Text>
                           <Text style={styles.hallMeta}>{v.type} · {v.area}{v.km != null ? ` · ${v.km} km` : ''}</Text>
                         </View>
-                        <Text style={styles.hallRating}>★ {v.rating}</Text>
+                        <Text style={styles.hallRating}>{ratingText(v.rating, 0, t)}</Text>
                       </View>
                       <View style={styles.chipRow}>
                         <Text style={styles.chip}>{v.cap}</Text>
@@ -419,7 +428,7 @@ export default function HomeScreen() {
                         <Text style={styles.vendorName}>{v.name}</Text>
                         {v.verified && <Icon name="shield" size={14} color={colors.green} />}
                       </View>
-                      <Text style={styles.vendorMeta}>★ {v.rating} · {v.reviews} {t.homeScreenReviews} · {v.km} km</Text>
+                      <Text style={styles.vendorMeta}>{metaLine(ratingText(v.rating, v.reviews, t, t.homeScreenReviews), v.km > 0 && `${v.km} km`)}</Text>
                     </View>
                     <Icon name="right" size={16} color={colors.dividerStrong} />
                   </TouchableOpacity>

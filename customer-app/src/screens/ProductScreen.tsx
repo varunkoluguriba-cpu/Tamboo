@@ -10,6 +10,7 @@ import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import RequestQuoteModal from '../components/RequestQuoteModal';
 import { colors, gradients, shadow } from '../theme';
+import { ratingText, metaLine } from '../utils/rating';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Product'>;
 
@@ -77,7 +78,7 @@ export default function ProductScreen({ navigation, route }: Props) {
             <Text style={styles.catLabel}>{product.cat}</Text>
             <Text style={styles.name}>{product.name}</Text>
             <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.push('Vendor', { id: vendor.id })}>
-              <Text style={styles.vendorLink}>{vendor.name} · ★ {product.rating} ›</Text>
+              <Text style={styles.vendorLink}>{metaLine(vendor.name, ratingText(product.rating, 0, t))} ›</Text>
             </TouchableOpacity>
           </View>
 
