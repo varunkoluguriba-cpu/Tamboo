@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RemoteHallBooking, RemoteOrderSummary, RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
+import DeleteAccountButton from '../components/DeleteAccountButton';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -193,6 +194,7 @@ export default function ProfileScreen({ navigation }: Props) {
         <TouchableOpacity style={styles.logoutBtn} activeOpacity={0.85} onPress={logout}>
           <Text style={styles.logoutText}>{t.logout}</Text>
         </TouchableOpacity>
+        <DeleteAccountButton />
       </ScrollView>
 
       <Modal visible={langModal} animationType="slide" transparent onRequestClose={() => setLangModal(false)}>

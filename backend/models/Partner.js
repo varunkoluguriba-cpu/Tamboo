@@ -20,6 +20,7 @@ const partnerSchema = new mongoose.Schema({
   registered: { type: Boolean, default: false }, // false until the registration form is submitted
   // Data-URI (base64) photos submitted at registration time, for Tamboo's review team.
   registrationPhotos: { type: [String], default: [] },
+  deletedAt: { type: Date, default: null }, // set by account deletion — see lib/accountDeletion.js
 }, { timestamps: true });
 
 module.exports = mongoose.model('Partner', partnerSchema);

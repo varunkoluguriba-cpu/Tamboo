@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, default: '' },
   city: { type: String, default: 'Hyderabad' },
   registered: { type: Boolean, default: false }, // false until name is set (post-OTP registration screen)
+  deletedAt: { type: Date, default: null }, // set by account deletion — see lib/accountDeletion.js
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

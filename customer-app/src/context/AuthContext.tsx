@@ -17,6 +17,7 @@ interface AuthContextValue {
   continueAsGuest: () => Promise<AuthUser>;
   register: (name: string, city: string) => Promise<void>;
   logout: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -85,9 +86,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   }, []);
 
+  // Server refuses (409) while a booking/order is in progress — the error message says why.
+  const deleteAccount = useCallback(async () => {
+    await api.delete('/api/auth/me');
+    await setToken(null);
+    setUser(null);
+  }, []);
+
   const value = useMemo(
-    () => ({ user, loading, sendOtp, verifyOtp, continueWithGoogle, continueAsGuest, register, logout }),
-    [user, loading, sendOtp, verifyOtp, continueWithGoogle, continueAsGuest, register, logout],
+    () => ({ user, loading, sendOtp, verifyOtp, continueWithGoogle, continueAsGuest, register, logout, deleteAccount }),
+    [user, loading, sendOtp, verifyOtp, continueWithGoogle, continueAsGuest, register, logout, deleteAccount],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -9,6 +9,7 @@ import LanguageSheet from '../components/LanguageSheet';
 import { api, ApiError } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import DeleteAccountButton from '../components/DeleteAccountButton';
 import { pickImageBase64 } from '../utils/pickImage';
 import { colors, gradients, shadow } from '../theme';
 
@@ -171,6 +172,7 @@ export default function ShopScreen({ navigation }: Props) {
             <Icon name="logout" size={16} color={colors.text} />
             <Text style={styles.logoutText}>{t.logout}</Text>
           </TouchableOpacity>
+          <DeleteAccountButton />
         </View>
       </ScrollView>
 

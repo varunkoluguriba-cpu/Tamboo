@@ -4,6 +4,7 @@ const admin = require('../config/firebaseAdmin');
 const Partner = require('../models/Partner');
 const PayoutEntry = require('../models/PayoutEntry');
 const { requirePartnerAuth } = require('../middleware/partnerAuth');
+const { partnerBlocker, deletePartner } = require('../lib/accountDeletion');
 
 const router = express.Router();
 
@@ -111,6 +112,18 @@ router.get('/payouts', requirePartnerAuth, async (req, res) => {
   const entries = await PayoutEntry.find({ partner: req.partner.id }).sort({ createdAt: -1 });
   const balance = entries.reduce((sum, e) => sum + (e.type === 'credit' ? e.amount : -e.amount), 0);
   res.json({ balance, entries });
+});
+
+// Play Store requires in-app account deletion. Refuses while a booking/order is in flight.
+router.delete('/me', requirePartnerAuth, async (req, res) => {
+  try {
+    const blocker = await partnerBlocker(req.partner._id);
+    if (blocker) return res.status(409).json({ error: blocker });
+    await deletePartner(req.partner);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Could not delete account. Please try again.' });
+  }
 });
 
 module.exports = router;

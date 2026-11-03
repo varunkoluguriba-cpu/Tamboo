@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const admin = require('../config/firebaseAdmin');
 const User = require('../models/User');
 const { requireAuth } = require('../middleware/auth');
+const { customerBlocker, deleteCustomer } = require('../lib/accountDeletion');
 
 const router = express.Router();
 
@@ -94,6 +95,18 @@ router.post('/register', requireAuth, async (req, res) => {
 
 router.get('/me', requireAuth, async (req, res) => {
   res.json(serialize(req.user));
+});
+
+// Play Store requires in-app account deletion. Refuses while a booking/order is in flight.
+router.delete('/me', requireAuth, async (req, res) => {
+  try {
+    const blocker = await customerBlocker(req.user._id);
+    if (blocker) return res.status(409).json({ error: blocker });
+    await deleteCustomer(req.user);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Could not delete account. Please try again.' });
+  }
 });
 
 module.exports = router;

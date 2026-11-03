@@ -8,6 +8,7 @@ import Icon from '../components/Icon';
 import LanguageSheet from '../components/LanguageSheet';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import DeleteAccountButton from '../components/DeleteAccountButton';
 import { statusColors } from '../data/catalog';
 import { useHallTokens, tokenUiStatus } from '../hooks/useHallTokens';
 import { scheduleRegisterPhotoReminder } from '../utils/registerReminder';
@@ -143,6 +144,7 @@ export default function HHomeScreen() {
           <Icon name="logout" size={16} color={colors.text} />
           <Text style={styles.logoutText}>{t.logout}</Text>
         </TouchableOpacity>
+        <DeleteAccountButton />
       </ScrollView>
 
       <LanguageSheet visible={langSheet} onClose={() => setLangSheet(false)} />

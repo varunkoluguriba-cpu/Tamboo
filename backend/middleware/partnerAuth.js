@@ -9,7 +9,7 @@ async function requirePartnerAuth(req, res, next) {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     if (payload.kind !== 'partner') return res.status(401).json({ error: 'Invalid token' });
     const partner = await Partner.findById(payload.sub);
-    if (!partner) return res.status(401).json({ error: 'Account no longer exists' });
+    if (!partner || partner.deletedAt) return res.status(401).json({ error: 'Account no longer exists' });
     req.partner = partner;
     next();
   } catch (err) {

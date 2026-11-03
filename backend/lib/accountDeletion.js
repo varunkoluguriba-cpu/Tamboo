@@ -1,0 +1,86 @@
+const admin = require('../config/firebaseAdmin');
+const Booking = require('../models/Booking');
+const Order = require('../models/Order');
+const Hall = require('../models/Hall');
+const Item = require('../models/Item');
+
+// Account deletion (Play Store requirement). We anonymise rather than hard-delete: bookings,
+// orders and payout entries are financial records we have to keep, and they still point at
+// the User/Partner doc. Personal fields are wiped, the Firebase login is removed so the same
+// phone/Google account can sign up fresh later, and the old JWT stops working because
+// login identifiers no longer match anything.
+
+const ACTIVE_BOOKING_STATUSES = ['token_paid', 'visited', 'awaiting_advance', 'confirmed'];
+const ACTIVE_ORDER_STATUSES = ['PENDING', 'CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY'];
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10); // Booking.date is YYYY-MM-DD
+}
+
+async function removeFirebaseUser(uid) {
+  if (!uid || uid.startsWith('deleted_')) return;
+  try {
+    await admin.auth().deleteUser(uid);
+  } catch (err) {
+    // Already gone on Firebase's side is fine — anything else shouldn't block deletion.
+    if (err.code !== 'auth/user-not-found') console.error('Firebase deleteUser failed', err.code);
+  }
+}
+
+// Returns an error message if the customer has something in progress, else null.
+async function customerBlocker(userId) {
+  const booking = await Booking.exists({
+    customer: userId,
+    status: { $in: ACTIVE_BOOKING_STATUSES },
+    date: { $gte: todayStr() },
+  });
+  if (booking) return 'You have an upcoming hall booking. Please complete or cancel it before deleting your account.';
+  const order = await Order.exists({ customer: userId, status: { $in: ACTIVE_ORDER_STATUSES } });
+  if (order) return 'You have an order in progress. Please wait until it is completed before deleting your account.';
+  return null;
+}
+
+async function partnerBlocker(partnerId) {
+  const booking = await Booking.exists({
+    partner: partnerId,
+    status: { $in: ACTIVE_BOOKING_STATUSES },
+    date: { $gte: todayStr() },
+  });
+  if (booking) return 'You have upcoming bookings. Please complete or cancel them before deleting your account.';
+  const order = await Order.exists({ partner: partnerId, status: { $in: ACTIVE_ORDER_STATUSES } });
+  if (order) return 'You have orders in progress. Please complete them before deleting your account.';
+  return null;
+}
+
+async function deleteCustomer(user) {
+  await removeFirebaseUser(user.firebaseUid);
+  user.phone = undefined;
+  user.firebaseUid = undefined;
+  user.guestId = undefined;
+  user.name = 'Deleted user';
+  user.email = '';
+  user.registered = false;
+  user.deletedAt = new Date();
+  await user.save();
+}
+
+async function deletePartner(partner) {
+  await removeFirebaseUser(partner.firebaseUid);
+  partner.phone = undefined;
+  partner.firebaseUid = `deleted_${partner.id}`; // required + unique on the schema
+  partner.email = '';
+  partner.ownerName = '';
+  partner.businessName = 'Deleted partner';
+  partner.taxId = '';
+  partner.bankAccount = '';
+  partner.registrationPhotos = [];
+  // Every public listing (halls, shops, items) is gated on verificationStatus === 'verified'.
+  partner.verificationStatus = 'rejected';
+  partner.registered = false;
+  partner.deletedAt = new Date();
+  await partner.save();
+  await Item.updateMany({ partner: partner.id }, { paused: true });
+  await Hall.updateMany({ partner: partner.id }, { $set: { photos: [] } });
+}
+
+module.exports = { customerBlocker, partnerBlocker, deleteCustomer, deletePartner };

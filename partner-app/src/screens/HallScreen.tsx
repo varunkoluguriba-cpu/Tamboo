@@ -10,6 +10,7 @@ import LanguageSheet from '../components/LanguageSheet';
 import { api, ApiError } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import DeleteAccountButton from '../components/DeleteAccountButton';
 import { pickImageBase64 } from '../utils/pickImage';
 import { colors, gradients, shadow } from '../theme';
 
@@ -451,6 +452,7 @@ export default function HallScreen({ navigation, route }: Props) {
         <TouchableOpacity style={styles.logoutBtn} activeOpacity={0.85} onPress={logout}>
           <Text style={styles.logoutText}>{t.logout}</Text>
         </TouchableOpacity>
+        <DeleteAccountButton />
       </ScrollView>
 
       <LanguageSheet visible={langSheet} onClose={() => setLangSheet(false)} />
