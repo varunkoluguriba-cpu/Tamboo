@@ -19,13 +19,38 @@ const auth = () => getAuth(getApp());
 export type ConfirmationResult = FirebaseAuthTypes.ConfirmationResult;
 
 export async function sendOtp(e164Phone: string): Promise<ConfirmationResult> {
+  // App logout only clears our JWT, so a previous Firebase session can still be around —
+  // clear it so the instant-verification check below can only ever match this number.
+  if (auth().currentUser) await firebaseSignOut(auth());
   return signInWithPhoneNumber(auth(), e164Phone);
 }
 
-export async function confirmOtp(confirmation: ConfirmationResult, code: string): Promise<FirebaseAuthTypes.User> {
-  const cred = await confirmation.confirm(code);
-  if (!cred?.user) throw new Error('Verification failed. Please try again.');
-  return cred.user;
+// Android can verify the number instantly (always for Firebase test numbers, and for real
+// numbers when it auto-reads the SMS) and sign in before the code is typed. The confirmation
+// then has no verificationId and confirm() throws, which used to surface as "Incorrect code".
+async function instantlyVerifiedUser(e164Phone: string): Promise<FirebaseAuthTypes.User | null> {
+  for (let i = 0; i < 6; i++) {
+    const u = auth().currentUser;
+    if (u && u.phoneNumber === e164Phone) return u;
+    await new Promise<void>((r) => setTimeout(() => r(), 500));
+  }
+  return null;
+}
+
+export async function confirmOtp(confirmation: ConfirmationResult, code: string, e164Phone: string): Promise<FirebaseAuthTypes.User> {
+  if (!confirmation.verificationId) {
+    const instant = await instantlyVerifiedUser(e164Phone);
+    if (instant) return instant;
+  }
+  try {
+    const cred = await confirmation.confirm(code);
+    if (!cred?.user) throw new Error('Verification failed. Please try again.');
+    return cred.user;
+  } catch (err) {
+    const instant = await instantlyVerifiedUser(e164Phone);
+    if (instant) return instant;
+    throw err;
+  }
 }
 
 let googleConfigured = false;

@@ -26,6 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [confirmation, setConfirmation] = useState<ConfirmationResult | null>(null);
+  const [otpPhone, setOtpPhone] = useState('');
 
   const loadMe = useCallback(async () => {
     try {
@@ -48,17 +49,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const sendOtp = useCallback(async (e164Phone: string) => {
     const conf = await fbSendOtp(e164Phone);
     setConfirmation(conf);
+    setOtpPhone(e164Phone);
   }, []);
 
   const verifyOtp = useCallback(async (code: string) => {
     if (!confirmation) throw new Error('Request an OTP first');
-    const fbUser = await fbConfirmOtp(confirmation, code);
+    const fbUser = await fbConfirmOtp(confirmation, code, otpPhone);
     const idToken = await fbUser.getIdToken();
     const res = await api.post<{ token: string; user: AuthUser }>('/api/auth/verify', { idToken });
     await setToken(res.token);
     setUser(res.user);
     return res.user;
-  }, [confirmation]);
+  }, [confirmation, otpPhone]);
 
   const continueWithGoogle = useCallback(async () => {
     const fbUser = await fbSignInWithGoogle();

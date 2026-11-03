@@ -33,6 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // logging in as a different business) inherit the first partner's acknowledgment.
   const [ackedPartnerId, setAckedPartnerId] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<ConfirmationResult | null>(null);
+  const [otpPhone, setOtpPhone] = useState('');
 
   const loadMe = useCallback(async () => {
     try {
@@ -64,17 +65,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const sendOtp = useCallback(async (e164Phone: string) => {
     const conf = await fbSendOtp(e164Phone);
     setConfirmation(conf);
+    setOtpPhone(e164Phone);
   }, []);
 
   const verifyOtp = useCallback(async (code: string) => {
     if (!confirmation) throw new Error('Request an OTP first');
-    const fbUser = await fbConfirmOtp(confirmation, code);
+    const fbUser = await fbConfirmOtp(confirmation, code, otpPhone);
     const idToken = await fbUser.getIdToken();
     const res = await api.post<{ token: string; partner: PartnerUser }>('/api/partner-auth/verify', { idToken });
     await setToken(res.token);
     setPartner(res.partner);
     return res.partner;
-  }, [confirmation]);
+  }, [confirmation, otpPhone]);
 
   const continueWithGoogle = useCallback(async () => {
     const fbUser = await fbSignInWithGoogle();
