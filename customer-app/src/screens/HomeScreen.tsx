@@ -163,7 +163,7 @@ export default function HomeScreen() {
               <Text style={styles.langChipDevanagari}>अ</Text>
               <Text style={styles.langChipText}>{lang.toUpperCase()}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => navigation.navigate('Browse', {})} accessibilityLabel={t.homeScreenSearchA11y} accessibilityRole="button">
+            <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => (mode === 'venues' ? navigation.navigate('Venues') : navigation.navigate('Browse', {}))} accessibilityLabel={t.homeScreenSearchA11y} accessibilityRole="button">
               <Icon name="search" size={19} color={colors.text} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => navigation.navigate('Notifications')} accessibilityLabel={t.homeScreenNotificationsA11y} accessibilityRole="button">

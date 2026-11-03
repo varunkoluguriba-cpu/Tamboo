@@ -1,4 +1,5 @@
 import React from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from './Icon';
 import type { IconName } from './icons';
@@ -6,6 +7,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useCart } from '../context/CartContext';
 import { colors } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
+import { HOME_MODE_KEY } from '../constants';
 
 export type TabKey = 'home' | 'search' | 'bookings' | 'cart' | 'profile';
 
@@ -39,7 +41,12 @@ export default function TabBar({
   const go = (key: TabKey) => {
     if (key === active) return;
     if (key === 'home') return navigation.navigate('Home');
-    if (key === 'search') return navigation.navigate('Browse', {});
+    // Search follows the Halls/Rentals toggle the customer last picked on Home.
+    if (key === 'search') {
+      return AsyncStorage.getItem(HOME_MODE_KEY)
+        .catch(() => null)
+        .then((m) => (m === 'venues' ? navigation.navigate('Venues') : navigation.navigate('Browse', {})));
+    }
     if (key === 'cart') return navigation.navigate('Cart');
     if (key === 'bookings') return navigation.navigate('Bookings');
     if (key === 'profile') return navigation.navigate('Profile');
