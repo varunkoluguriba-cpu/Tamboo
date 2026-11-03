@@ -22,6 +22,7 @@ function serializeForVendor(q) {
     guests: q.guests,
     need: q.need,
     isRevision: q.status === 'REVISION_REQUESTED',
+    revisionNote: q.revisionNote || '',
     status: q.status === 'AWAITING_VENDOR' ? 'AWAITING VENDOR' : q.status === 'REVISION_REQUESTED' ? 'REVISION REQUESTED' : 'OFFER SENT',
     versions: q.versions.map((v) => ({ v: v.v, total: v.total, lines: v.lines })),
   };
@@ -81,7 +82,10 @@ router.patch('/me/:id', requireAuth, async (req, res) => {
   const { action } = req.body || {};
   if (action === 'accept') quote.status = 'ACCEPTED';
   else if (action === 'decline') quote.status = 'DECLINED';
-  else if (action === 'requestRevision') quote.status = 'REVISION_REQUESTED';
+  else if (action === 'requestRevision') {
+    quote.status = 'REVISION_REQUESTED';
+    quote.revisionNote = String((req.body || {}).note || '').trim().slice(0, 500);
+  }
   else return res.status(400).json({ error: 'Invalid action' });
   await quote.save();
   res.json(serializeForCustomer(quote));

@@ -198,6 +198,14 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
   await check('Customer requests quote', async () => { const r = await call('POST', '/api/quotes', CT, { vendorId: tent.id, vendorName: tent.businessName, need: 'E2E test: 200 chairs + shamiana', dateTxt: '15 Mar 2027', guests: 200 }); expect(r.status === 201, JSON.stringify(r.data)); quoteId = r.data.id; created.quotes.push(quoteId); });
   await check('Vendor sees quote', async () => { const r = await call('GET', '/api/quotes/vendor/me', TT); expect(r.data.some((q) => q.id === quoteId), 'missing'); });
   await check('Vendor sends offer', async () => { const r = await call('PATCH', '/api/quotes/vendor/me/' + quoteId, TT, { lines: [{ label: 'Chairs', amount: 4000 }, { label: 'Shamiana', amount: 6000 }], note: 'test' }); expect(r.status === 200 && r.data.status === 'OFFER SENT', JSON.stringify(r.data)); });
+  await check('Customer asks for changes with a note → vendor sees it', async () => {
+    const r = await call('PATCH', '/api/quotes/me/' + quoteId, CT, { action: 'requestRevision', note: 'Need 250 chairs instead' });
+    expect(r.status === 200 && r.data.status === 'REVISION_REQUESTED', JSON.stringify(r.data));
+    const v = (await call('GET', '/api/quotes/vendor/me', TT)).data.find((q) => q.id === quoteId);
+    expect(v && v.isRevision && v.revisionNote === 'Need 250 chairs instead', JSON.stringify(v));
+    const o = await call('PATCH', '/api/quotes/vendor/me/' + quoteId, TT, { lines: [{ label: 'Chairs', amount: 4000 }, { label: 'Shamiana', amount: 6000 }] });
+    expect(o.status === 200, 'vendor re-offer ' + o.status);
+  });
   await check('Customer accepts offer', async () => { const r = await call('PATCH', '/api/quotes/me/' + quoteId, CT, { action: 'accept' }); expect(r.status === 200 && r.data.status === 'ACCEPTED' && r.data.quotedTotal === 10000, JSON.stringify(r.data)); });
 
   // ---------- CHAT + SUPPORT ----------

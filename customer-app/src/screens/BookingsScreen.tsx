@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
@@ -43,6 +43,9 @@ export default function BookingsScreen({ navigation, route }: Props) {
   const { t } = useLanguage();
   const [tab, setTab] = useState<Tab>(route.params?.tab || 'active');
   const [quotes, setQuotes] = useState<RemoteQuote[]>([]);
+  // 'Ask changes' opens a small box so the vendor is told what to change, not just that something should.
+  const [revisingId, setRevisingId] = useState<string | null>(null);
+  const [revisionText, setRevisionText] = useState('');
   const [quotesLoading, setQuotesLoading] = useState(true);
   const [busyQuoteId, setBusyQuoteId] = useState<string | null>(null);
   const [orders, setOrders] = useState<RemoteOrderSummary[]>([]);
@@ -76,10 +79,11 @@ export default function BookingsScreen({ navigation, route }: Props) {
   const activeOrders = orders.filter((o) => ACTIVE_ORDER_STATUSES.includes(o.status));
   const pastOrders = orders.filter((o) => !ACTIVE_ORDER_STATUSES.includes(o.status));
 
-  const respondToQuote = async (id: string, action: 'accept' | 'decline' | 'requestRevision') => {
+  const respondToQuote = async (id: string, action: 'accept' | 'decline' | 'requestRevision', note?: string) => {
     setBusyQuoteId(id);
     try {
-      await api.patch(`/api/quotes/me/${id}`, { action });
+      await api.patch(`/api/quotes/me/${id}`, { action, note });
+      if (action === 'requestRevision') { setRevisingId(null); setRevisionText(''); }
       loadQuotes();
       // Custom quotes are settled directly with the vendor — there's no in-app payment
       // step for these yet (unlike catalog items), so make that explicit on accept.
@@ -100,7 +104,7 @@ export default function BookingsScreen({ navigation, route }: Props) {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>{t.bookings}</Text>
 
         <View style={styles.tabRow}>
@@ -236,10 +240,10 @@ export default function BookingsScreen({ navigation, route }: Props) {
                         </View>
                         {!!latest.note && <Text style={styles.offerNote}>{latest.note}</Text>}
                         <View style={styles.offerActions}>
-                          <TouchableOpacity style={styles.offerOutlineBtn} activeOpacity={0.85} disabled={busy} onPress={() => respondToQuote(q.id, 'decline')}>
+                          <TouchableOpacity style={styles.offerOutlineBtn} activeOpacity={0.85} disabled={busy} onPress={() => Alert.alert(t.bookingsDeclineTitle, t.bookingsDeclineMsg, [{ text: t.cancel, style: 'cancel' }, { text: t.bookingsDecline, style: 'destructive', onPress: () => respondToQuote(q.id, 'decline') }])}>
                             <Text style={styles.offerOutlineText}>{t.bookingsDecline}</Text>
                           </TouchableOpacity>
-                          <TouchableOpacity style={styles.offerOutlineBtn} activeOpacity={0.85} disabled={busy} onPress={() => respondToQuote(q.id, 'requestRevision')}>
+                          <TouchableOpacity style={styles.offerOutlineBtn} activeOpacity={0.85} disabled={busy} onPress={() => { setRevisingId(q.id); setRevisionText(''); }}>
                             <Text style={styles.offerOutlineText}>{t.bookingsAskChanges}</Text>
                           </TouchableOpacity>
                           <TouchableOpacity style={styles.offerAcceptBtnWrap} activeOpacity={0.85} disabled={busy} onPress={() => respondToQuote(q.id, 'accept')}>
@@ -249,6 +253,32 @@ export default function BookingsScreen({ navigation, route }: Props) {
                             </View>
                           </TouchableOpacity>
                         </View>
+                        {revisingId === q.id && (
+                          <View style={styles.reviseBox}>
+                            <TextInput
+                              value={revisionText}
+                              onChangeText={setRevisionText}
+                              placeholder={t.bookingsRevisionPlaceholder}
+                              placeholderTextColor={colors.textMuted}
+                              multiline
+                              autoFocus
+                              style={styles.reviseInput}
+                            />
+                            <View style={styles.offerActions}>
+                              <TouchableOpacity style={styles.offerOutlineBtn} activeOpacity={0.85} onPress={() => setRevisingId(null)}>
+                                <Text style={styles.offerOutlineText}>{t.cancel}</Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                style={[styles.offerOutlineBtn, !revisionText.trim() && { opacity: 0.5 }]}
+                                activeOpacity={0.85}
+                                disabled={busy || !revisionText.trim()}
+                                onPress={() => respondToQuote(q.id, 'requestRevision', revisionText.trim())}
+                              >
+                                <Text style={styles.offerOutlineText}>{t.bookingsSendRevision}</Text>
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+                        )}
                       </View>
                     )}
                   </View>
@@ -263,6 +293,8 @@ export default function BookingsScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
+  reviseBox: { gap: 8, marginTop: 10 },
+  reviseInput: { minHeight: 70, borderRadius: 12, borderWidth: 1.5, borderColor: colors.divider, padding: 10, fontSize: 14, color: colors.text, textAlignVertical: 'top', backgroundColor: colors.surface },
   container: { flex: 1, backgroundColor: colors.bg },
   scroll: { padding: 18, paddingTop: 6, gap: 14 },
   title: { fontFamily: 'Sora', fontSize: 22, fontWeight: '800', color: colors.text },

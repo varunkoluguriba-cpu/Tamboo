@@ -14,6 +14,7 @@ export type Quote = {
   guests: number;
   need: string;
   isRevision: boolean;
+  revisionNote?: string;
   status: QuoteStatus;
   versions: QuoteVersion[];
 };

@@ -87,6 +87,7 @@ export default function QuoteScreen({ navigation, route }: Props) {
           {quote.isRevision && (
             <View style={styles.revisionBox}>
               <Text style={styles.revisionText}>{t.quoteRevisionRequested}</Text>
+              {!!quote.revisionNote && <Text style={styles.revisionText}>"{quote.revisionNote}"</Text>}
             </View>
           )}
           <Text style={styles.statusText}>{editable ? quote.status : t.quoteOfferSent}</Text>

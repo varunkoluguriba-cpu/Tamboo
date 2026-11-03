@@ -19,6 +19,7 @@ const quoteSchema = new mongoose.Schema({
   dateTxt: { type: String, default: '' },
   guests: { type: Number, default: 0 },
   need: { type: String, required: true }, // customer's free-text requirement
+  revisionNote: { type: String, default: '' }, // what the customer asked to change, on 'Ask changes'
   status: {
     type: String,
     enum: ['AWAITING_VENDOR', 'OFFER_SENT', 'REVISION_REQUESTED', 'ACCEPTED', 'DECLINED'],
