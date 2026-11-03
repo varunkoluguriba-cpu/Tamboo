@@ -94,7 +94,7 @@ export default function CheckoutScreen({ navigation }: Props) {
           )}
           <View style={styles.breakdownRow}>
             <Text style={styles.breakdownLabel}>{delivery === 'delivery' ? t.checkoutDeliveryPickup : t.checkoutSelfPickup}</Text>
-            <Text style={styles.breakdownValue}>{inr(pricing.delivery)}</Text>
+            <Text style={styles.breakdownValue}>{pricing.delivery ? inr(pricing.delivery) : t.priceFree}</Text>
           </View>
           <View style={styles.breakdownRow}>
             <Text style={styles.breakdownLabel}>{t.checkoutPlatformFee}</Text>

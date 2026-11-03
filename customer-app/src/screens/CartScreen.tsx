@@ -24,7 +24,7 @@ export default function CartScreen({ navigation }: Props) {
   const breakdown = [
     { label: t.cartSubtotal, value: inr(pricing.subtotal) },
     ...(pricing.discount > 0 ? [{ label: t.cartCouponDiscount, value: `-${inr(pricing.discount)}` }] : []),
-    { label: t.cartDeliveryPickup, value: inr(pricing.delivery) },
+    { label: t.cartDeliveryPickup, value: pricing.delivery ? inr(pricing.delivery) : t.priceFree },
     { label: t.cartPlatformFee, value: inr(pricing.platformFee) },
     { label: t.cartTaxes, value: inr(pricing.tax) },
   ];
