@@ -28,7 +28,8 @@ export default function LanguageScreen({ navigation }: Props) {
   ];
 
   const continueNext = async () => {
-    const homeMode = intent === 'venues' ? 'venues' : 'rentals';
+    // 'Both' is "a hall plus everything for it" — start on halls; Rentals is one tap away.
+    const homeMode = intent === 'rentals' ? 'rentals' : 'venues';
     await AsyncStorage.setItem(HOME_MODE_KEY, homeMode).catch(() => {});
     navigation.replace('Login');
   };
