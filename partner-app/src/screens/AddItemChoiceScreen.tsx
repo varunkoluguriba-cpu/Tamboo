@@ -81,33 +81,8 @@ export default function AddItemChoiceScreen({ navigation }: Props) {
         </View>
         <Text style={styles.subtitle}>{t.addItemChoiceSubtitle}</Text>
 
-        <TextInput
-          style={styles.input}
-          value={query}
-          onChangeText={setQuery}
-          placeholder={t.addItemChoiceSearchPlaceholder}
-          placeholderTextColor={colors.textMuted}
-        />
-
-        {filtered.length > 0 ? (
-          <View style={{ gap: 8 }}>
-            {filtered.map((p) => (
-              <TouchableOpacity key={p.name} style={styles.presetRow} activeOpacity={0.85} onPress={() => goToForm(p)}>
-                <Text style={styles.presetName}>{p.name}</Text>
-                <Icon name="right" size={16} color={colors.textMuted} />
-              </TouchableOpacity>
-            ))}
-          </View>
-        ) : (
-          <Text style={styles.noPresets}>{t.addItemChoiceNoPresets}</Text>
-        )}
-
-        <View style={styles.dividerRow}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>{t.addItemChoiceOr}</Text>
-          <View style={styles.dividerLine} />
-        </View>
-
+        {/* Typing or photographing the item (AI fills the rest) comes first — the common-items
+            list is long, and these options used to be hidden below ~95 rows. */}
         <View style={{ gap: 8 }}>
           <Text style={styles.fieldLabel}>{t.addItemChoiceTypeLabel}</Text>
           <View style={styles.typeRow}>
@@ -146,6 +121,34 @@ export default function AddItemChoiceScreen({ navigation }: Props) {
             </>
           )}
         </TouchableOpacity>
+
+        <View style={styles.dividerRow}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>{t.addItemChoiceOr}</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <TextInput
+          style={styles.input}
+          value={query}
+          onChangeText={setQuery}
+          placeholder={t.addItemChoiceSearchPlaceholder}
+          placeholderTextColor={colors.textMuted}
+        />
+
+        {filtered.length > 0 ? (
+          <View style={{ gap: 8 }}>
+            {filtered.map((p) => (
+              <TouchableOpacity key={p.name} style={styles.presetRow} activeOpacity={0.85} onPress={() => goToForm(p)}>
+                <Text style={styles.presetName}>{p.name}</Text>
+                <Icon name="right" size={16} color={colors.textMuted} />
+              </TouchableOpacity>
+            ))}
+          </View>
+        ) : (
+          <Text style={styles.noPresets}>{t.addItemChoiceNoPresets}</Text>
+        )}
+
 
         <TouchableOpacity style={styles.manualLink} activeOpacity={0.7} onPress={() => goToForm()}>
           <Text style={styles.manualLinkText}>{t.addItemChoiceManualLink}</Text>

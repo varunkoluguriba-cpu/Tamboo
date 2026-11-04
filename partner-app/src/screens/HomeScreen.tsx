@@ -90,7 +90,7 @@ export default function HomeScreen() {
           <TouchableOpacity style={styles.statCard} activeOpacity={0.85} onPress={() => navigation.navigate('Items')}>
             <Text style={styles.statLabel}>{t.pHomeItemsLive}</Text>
             <Text style={styles.statValueSm}>{liveItems}</Text>
-            <Text style={styles.statNote}>{reviewItems > 0 ? t.pHomeInReview.replace('{count}', String(reviewItems)) : t.pHomeAllApproved}</Text>
+            <Text style={styles.statNote}>{partner?.verificationStatus === 'rejected' ? t.pHomeHiddenCount.replace('{count}', String(reviewItems)) : reviewItems > 0 ? t.pHomeInReview.replace('{count}', String(reviewItems)) : t.pHomeAllApproved}</Text>
           </TouchableOpacity>
         </View>
 

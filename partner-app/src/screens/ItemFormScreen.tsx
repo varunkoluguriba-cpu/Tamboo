@@ -134,9 +134,22 @@ export default function ItemFormScreen({ navigation, route }: Props) {
 
   const removePhoto = (idx: number) => setPhotos((prev) => prev.filter((_, i) => i !== idx));
 
-  const save = async () => {
+  const save = async (confirmedHighPrice = false) => {
     if (!name.trim()) return setErr(t.itemFormErrName);
     if (instant && (!price || parseInt(price, 10) <= 0)) return setErr(t.itemFormErrRent);
+    const stockNum = parseInt(stock, 10) || 0;
+    const minNum = parseInt(min, 10) || 1;
+    // Customers can only book what's in stock — 0 stock makes the item unbookable.
+    if (instant && stockNum < 1) return setErr(t.itemFormErrStock);
+    if (instant && minNum > stockNum) return setErr(t.itemFormErrMinOverStock);
+    // Catch typos like an extra digit before customers see the price.
+    const priceNum = parseInt(price, 10) || 0;
+    if (instant && priceNum > 50000 && !confirmedHighPrice) {
+      return Alert.alert(t.itemFormCheckPriceTitle, t.itemFormCheckPriceMsg.replace('{price}', `₹${priceNum.toLocaleString('en-IN')}`).replace('{unit}', unit), [
+        { text: t.itemFormFixPrice, style: 'cancel' },
+        { text: t.itemFormPriceCorrect, onPress: () => save(true) },
+      ]);
+    }
     setErr('');
     setSaving(true);
     const payload = {
@@ -154,7 +167,7 @@ export default function ItemFormScreen({ navigation, route }: Props) {
     try {
       if (editingId) await api.put(`/api/vendors/me/items/${editingId}`, payload);
       else await api.post('/api/vendors/me/items', payload);
-      Alert.alert(editingId ? t.itemFormUpdatedTitle : t.itemFormAddedTitle, needsReview ? t.itemFormPendingReviewMsg : t.itemFormLiveMsg, [
+      Alert.alert(editingId ? t.itemFormUpdatedTitle : t.itemFormAddedTitle, partner?.verificationStatus === 'rejected' ? t.itemFormHiddenMsg : needsReview ? t.itemFormPendingReviewMsg : t.itemFormLiveMsg, [
         { text: t.ok, onPress: () => navigation.goBack() },
       ]);
     } catch (e) {
@@ -303,7 +316,7 @@ export default function ItemFormScreen({ navigation, route }: Props) {
 
         {!!err && <Text style={styles.error}>{err}</Text>}
 
-        <TouchableOpacity activeOpacity={0.85} onPress={save} disabled={saving}>
+        <TouchableOpacity activeOpacity={0.85} onPress={() => save()} disabled={saving}>
           <View style={styles.saveBtn}>
             <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
             {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>{editingId ? t.itemFormSaveChanges : t.itemFormAddTitle}</Text>}

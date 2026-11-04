@@ -321,6 +321,7 @@ router.post('/me/items', requirePartnerAuth, requireTentRole, async (req, res) =
   const { name, cat, price, unit, stock, min, deposit, specs, instant, photos } = req.body || {};
   if (!name || !name.trim()) return res.status(400).json({ error: 'Enter an item name' });
   if (instant && !(price > 0)) return res.status(400).json({ error: 'Enter the rent amount' });
+  if (instant && !(stock >= 1)) return res.status(400).json({ error: 'Enter how many you have in stock' });
   const item = await Item.create({
     partner: req.partner.id, name: name.trim(), cat, price, unit, stock, min, deposit, specs, instant,
     photos: Array.isArray(photos) ? photos.slice(0, 15) : [],

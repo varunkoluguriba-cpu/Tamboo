@@ -272,6 +272,11 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
   await check('Vendor: my items', async () => { const r = await call('GET', '/api/vendors/me/items', TT); expect(r.status === 200, JSON.stringify(r.data)); return r.data.length + ' items'; });
   let newItem;
   await check('Vendor: add item', async () => { const r = await call('POST', '/api/vendors/me/items', TT, { name: 'E2E Test Chair', cat: 'Chairs & Tables', price: 20, unit: '/ chair / day', stock: 50, instant: true }); expect(r.status === 201, JSON.stringify(r.data)); newItem = r.data; created.items.push(r.data.id); });
+  await check('Vendor: item with 0 stock is rejected', async () => {
+    const r = await call('POST', '/api/vendors/me/items', TT, { name: 'E2E Zero Stock', cat: 'seat', price: 20, unit: 'per unit / day', stock: 0, instant: true });
+    if (r.data && r.data.id) created.items.push(r.data.id);
+    expect(r.status === 400, 'got ' + r.status);
+  });
   await check('Vendor: pause item', async () => { const r = await call('PUT', '/api/vendors/me/items/' + newItem.id, TT, { paused: true }); expect(r.status === 200, JSON.stringify(r.data)); });
   await check('Vendor: market price suggestion', async () => { const r = await call('GET', '/api/vendors/me/items/market-price?cat=' + encodeURIComponent('Chairs & Tables') + '&unit=' + encodeURIComponent('/ chair / day'), TT); expect(r.status === 200, JSON.stringify(r.data)); });
   await check('Vendor: create + delete package', async () => {
@@ -296,6 +301,8 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
     await Package.deleteMany({ _id: { $in: created.packages } });
     await PayoutEntry.deleteMany({ reference: { $in: created.payoutRefs } });
     await Message.deleteMany({ createdAt: { $gte: msgSince }, text: /^E2E/ });
+    // Adding an item teaches the shared 'common items' list — remove what the test taught it.
+    await M('ItemPreset').deleteMany({ name: /^E2E/i });
     await User.deleteMany({ _id: { $in: created.users } });
     results.push(['INFO', 'Cleanup', 'all test records removed']);
   } catch (e) { results.push(['FAIL', 'Cleanup', e.message]); }

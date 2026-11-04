@@ -9,6 +9,7 @@ import Icon from '../components/Icon';
 import { api, ApiError } from '../api/client';
 import { colors, gradients, shadow } from '../theme';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Items'>;
 
@@ -33,13 +34,15 @@ const STATE_STYLE: Record<ItemState, { bg: string; color: string }> = {
 
 export default function ItemsScreen({ navigation }: Props) {
   const { t } = useLanguage();
+  const { partner } = useAuth();
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   const STATE_LABEL_TEXT: Record<ItemState, string> = {
     LIVE: t.itemsStateLive,
-    REVIEW: t.itemsStateReview,
+    // Nothing is being reviewed for a rejected partner — their items are simply not shown.
+    REVIEW: partner?.verificationStatus === 'rejected' ? t.itemsStateHidden : t.itemsStateReview,
     PAUSED: t.itemsStatePaused,
   };
 
