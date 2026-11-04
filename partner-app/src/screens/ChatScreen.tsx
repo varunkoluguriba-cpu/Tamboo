@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -48,8 +48,14 @@ export default function ChatScreen({ navigation, route }: Props) {
     const text = draft.trim();
     if (!text) return;
     setDraft('');
-    setMsgs((m) => [...m, { id: `tmp-${Date.now()}`, text, mine: true, at: 'now' }]);
-    api.post(endpoint, { text }).catch(() => {});
+    const tmpId = `tmp-${Date.now()}`;
+    setMsgs((m) => [...m, { id: tmpId, text, mine: true, at: 'now' }]);
+    api.post(endpoint, { text }).catch(() => {
+      // Don't let a failed send look delivered: take the bubble back and keep the text.
+      setMsgs((m) => m.filter((x) => x.id !== tmpId));
+      setDraft(text);
+      Alert.alert(t.chatNotSentTitle, t.loadFailedMsg);
+    });
   };
 
   return (
@@ -62,7 +68,7 @@ export default function ChatScreen({ navigation, route }: Props) {
           <Text style={styles.peerName}>{customerName}</Text>
         </View>
 
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           {msgs.map((m) =>
             m.mine ? (
               <View key={m.id} style={[styles.bubbleMineWrap, styles.bubbleMine]}>

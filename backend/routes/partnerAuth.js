@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const admin = require('../config/firebaseAdmin');
 const Partner = require('../models/Partner');
+const Config = require('../models/Config');
 const PayoutEntry = require('../models/PayoutEntry');
 const { requirePartnerAuth } = require('../middleware/partnerAuth');
 const { partnerBlocker, deletePartner } = require('../lib/accountDeletion');
@@ -48,7 +49,7 @@ router.post('/verify', async (req, res) => {
     if (!partner) {
       partner = await Partner.create({ phone: decoded.phone_number, firebaseUid: decoded.uid, authMethod: 'phone' });
     }
-    res.json({ token: issueToken(partner), partner: serialize(partner) });
+    res.json({ token: issueToken(partner), partner: { ...serialize(partner), commissionPct: (await Config.get()).commissionPct } });
   } catch (err) {
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -77,7 +78,7 @@ router.post('/google', async (req, res) => {
         ownerName: decoded.name || '',
       });
     }
-    res.json({ token: issueToken(partner), partner: serialize(partner) });
+    res.json({ token: issueToken(partner), partner: { ...serialize(partner), commissionPct: (await Config.get()).commissionPct } });
   } catch (err) {
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -101,11 +102,13 @@ router.post('/register', requirePartnerAuth, async (req, res) => {
   if (Array.isArray(photos)) p.registrationPhotos = photos.slice(0, 3);
   p.registered = true;
   await p.save();
-  res.json({ partner: serialize(p) });
+  res.json({ partner: { ...serialize(p), commissionPct: (await Config.get()).commissionPct } });
 });
 
 router.get('/me', requirePartnerAuth, async (req, res) => {
-  res.json(serialize(req.partner));
+  // commissionPct is the live admin setting, so the app's commission text always matches payouts.
+  const { commissionPct } = await Config.get();
+  res.json({ ...serialize(req.partner), commissionPct });
 });
 
 router.get('/payouts', requirePartnerAuth, async (req, res) => {

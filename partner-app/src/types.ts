@@ -16,6 +16,7 @@ export interface PartnerUser {
   bankAccount: string;
   verificationStatus: VerificationStatus;
   registered: boolean;
+  commissionPct?: number; // live Tamboo commission, from /me
 }
 
 export interface RegisterPayload {

@@ -92,7 +92,7 @@ export default function ShopScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
         <View style={styles.coverWrap}>
           <TouchableOpacity style={styles.cover} activeOpacity={0.85} onPress={pickCover}>
             {coverPhoto ? <Image source={{ uri: coverPhoto }} style={styles.coverImg} /> : <Icon name="camera" size={28} color={colors.pinkStrong} strokeWidth={1.5} />}

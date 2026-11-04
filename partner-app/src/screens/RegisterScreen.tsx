@@ -114,7 +114,7 @@ export default function RegisterScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.verifiedBadge}>
           <Icon name="check" size={14} color={colors.green} strokeWidth={3} />
           <Text style={styles.verifiedText}>{t.pRegisterMobileVerified}</Text>

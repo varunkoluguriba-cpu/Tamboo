@@ -184,7 +184,7 @@ export default function ItemFormScreen({ navigation, route }: Props) {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.headerRow}>
           <TouchableOpacity style={styles.backBtn} activeOpacity={0.8} onPress={() => navigation.goBack()}>
             <Icon name="left" size={18} color={colors.text} />

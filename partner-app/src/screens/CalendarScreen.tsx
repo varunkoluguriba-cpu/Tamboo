@@ -123,6 +123,7 @@ export default function CalendarScreen({ navigation }: Props) {
 
   const viewMonth = useMemo(() => new Date(today.getFullYear(), today.getMonth() + monthOffset, 1), [today, monthOffset]);
 
+  const todayStart = new Date(new Date().toDateString());
   const cells = useMemo(() => {
     const year = viewMonth.getFullYear();
     const month = viewMonth.getMonth();
@@ -197,7 +198,7 @@ export default function CalendarScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.headerRow}>
           <TouchableOpacity style={styles.backBtn} activeOpacity={0.8} onPress={() => navigation.goBack()}>
             <Icon name="left" size={18} color={colors.text} />
@@ -253,26 +254,30 @@ export default function CalendarScreen({ navigation }: Props) {
               const jobs = bookedJobsFor(c.date);
               const isBlockedDay = blockedDates.includes(isoDate(c.date));
               const isSel = selected && dateKey(selected) === key;
-              const bg = isBlockedDay ? '#1e1b2e' : jobs.length > 0 ? colors.pinkBg : '#fff';
-              const color = isBlockedDay ? '#fff' : colors.text;
+              const isPast = c.date < todayStart;
+              const booked = jobs.length > 0 && !isBlockedDay;
+              const bg = isBlockedDay ? '#1e1b2e' : booked ? colors.pink : '#fff';
+              const color = isBlockedDay || booked ? '#fff' : isPast ? colors.textMuted : colors.text;
+              // Outer view holds the grid spacing; the border lives on the inner button, so
+              // neighbouring cells never overlap.
               return (
-                <TouchableOpacity
-                  key={i}
-                  style={[styles.dayCell, styles.dayCellBtn, { backgroundColor: bg }, isSel && styles.dayCellSel]}
-                  activeOpacity={0.8}
-                  onPress={() => setSelected(c.date)}
-                >
-                  <Text style={[styles.dayNum, { color }]}>{c.date.getDate()}</Text>
-                  {jobs.length > 0 && !isBlockedDay && <Text style={styles.dayTag}>{jobs.length}</Text>}
-                  {isBlockedDay && <Text style={[styles.dayTag, { color: '#fff' }]}>—</Text>}
-                </TouchableOpacity>
+                <View key={i} style={styles.dayCell}>
+                  <TouchableOpacity
+                    style={[styles.dayCellBtn, { backgroundColor: bg }, isPast && !booked && !isBlockedDay && styles.dayCellPast, isSel && styles.dayCellSel]}
+                    activeOpacity={0.8}
+                    onPress={() => setSelected(c.date)}
+                  >
+                    <Text style={[styles.dayNum, { color }]}>{c.date.getDate()}</Text>
+                    {booked && <Text style={[styles.dayTag, { color: '#fff' }]}>{jobs.length}</Text>}
+                  </TouchableOpacity>
+                </View>
               );
             })}
           </View>
 
           <View style={styles.legendRow}>
             <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: colors.pinkBg }]} />
+              <View style={[styles.legendDot, { backgroundColor: colors.pink }]} />
               <Text style={styles.legendText}>{t.calendarBooked}</Text>
             </View>
             <View style={styles.legendItem}>
@@ -299,7 +304,7 @@ export default function CalendarScreen({ navigation }: Props) {
                     )}
                     <Text style={styles.jobText}><Text style={{ fontWeight: '700' }}>{j.event}</Text> · {j.customer}{j.slot ? ` · ${j.slot}` : ''}</Text>
                   </View>
-                  <Text style={styles.jobStatus}>{j.status === 'PENDING' ? t.calendarStatusPending : j.status === 'CONFIRMED' ? t.calendarStatusConfirmed : j.status}</Text>
+                  <Text style={styles.jobStatus}>{({ PENDING: t.calendarStatusPending, CONFIRMED: t.calendarStatusConfirmed, ACTIVE: t.htokensTabPending, VISITED: t.htokensTabVisited, AWAITING_ADVANCE: t.htokensTabAwaitingAdvance, EXPIRED: t.htokensTabExpired } as Record<string, string>)[j.status] || j.status}</Text>
                 </TouchableOpacity>
                 {isVenue && j.isOffline && (
                   <TouchableOpacity style={styles.removePill} activeOpacity={0.85} onPress={() => removeOfflineSlot(j)} disabled={markingBusy}>
@@ -373,7 +378,8 @@ const styles = StyleSheet.create({
   weekLabel: { width: `${100 / 7}%`, textAlign: 'center', fontSize: 11, fontWeight: '700', color: colors.textMuted },
   dayGrid: { flexDirection: 'row', flexWrap: 'wrap' },
   dayCell: { width: `${100 / 7}%`, aspectRatio: 1, padding: 2 },
-  dayCellBtn: { borderRadius: 12, borderWidth: 1.5, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center', gap: 1 },
+  dayCellBtn: { flex: 1, borderRadius: 12, borderWidth: 1.5, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center', gap: 1 },
+  dayCellPast: { backgroundColor: colors.bg, borderColor: 'transparent' },
   dayCellSel: { borderColor: colors.pink, borderWidth: 2 },
   dayNum: { fontSize: 13, fontWeight: '700' },
   dayTag: { fontSize: 9, fontWeight: '700', color: colors.pinkStrong },

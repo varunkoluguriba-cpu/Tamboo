@@ -74,7 +74,7 @@ export default function HallScreen({ navigation, route }: Props) {
     { key: 'kitchen', label: t.hallKitchenAvailable },
   ];
   const TOKEN_RULES = [
-    t.hallTokenRule1,
+    t.hallTokenRule1.replace('{pct}', String(partner?.commissionPct ?? 10)),
     t.hallTokenRule2,
     t.hallTokenRule3,
     t.hallTokenRule4,
@@ -257,7 +257,7 @@ export default function HallScreen({ navigation, route }: Props) {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.headRow}>
           <Text style={styles.title}>{t.hallTitle}</Text>
           <TouchableOpacity style={styles.langChip} activeOpacity={0.8} onPress={() => setLangSheet(true)}>
@@ -422,7 +422,7 @@ export default function HallScreen({ navigation, route }: Props) {
 
         <View style={styles.policyBox}>
           <Text style={styles.policyText}>
-            {t.hallPolicyText}
+            {t.hallPolicyText.replace('{pct}', String(partner?.commissionPct ?? 10))}
           </Text>
         </View>
 

@@ -129,6 +129,13 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
     const b = await Booking.findById(bookingId); expect(b.status === 'confirmed', 'status ' + b.status);
     return 'advance ₹' + r.data.amount / 100;
   });
+  await check('Commission % shown to partners matches what is deducted', async () => {
+    const me = (await call('GET', '/api/partner-auth/me', hallOwnerTok)).data;
+    const credit = (await PayoutEntry.findOne({ reference: bookingId, type: 'credit', description: /^Token/ }).lean());
+    const b = await Booking.findById(bookingId).lean();
+    const expectedNet = Math.round(b.amount * (1 - me.commissionPct / 100));
+    expect(typeof me.commissionPct === 'number' && credit && credit.amount === expectedNet, `shown ${me.commissionPct}%, credited ${credit && credit.amount} of ${b.amount}`);
+  });
   await check('Partner payouts credited (token + advance)', async () => {
     const r = await call('GET', '/api/partner-auth/payouts', hallOwnerTok);
     const n = r.data.entries.filter((e) => e.reference === bookingId && e.type === 'credit').length;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, Keyboard } from 'react-native';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -61,6 +61,12 @@ const VENUE_ROUTE_TAB: Partial<Record<keyof RootStackParamList, VenueTab>> = {
 };
 
 export default function RootNavigator() {
+  const [keyboardUp, setKeyboardUp] = useState(false);
+  useEffect(() => {
+    const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardUp(true));
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardUp(false));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
   const { partner, loading, pendingAck } = useAuth();
   const [routeName, setRouteName] = useState<keyof RootStackParamList | undefined>();
   const [newOrdersCount, setNewOrdersCount] = useState(0);
@@ -146,13 +152,14 @@ export default function RootNavigator() {
               )}
             </Stack.Navigator>
           </View>
-          <SafeAreaView edges={['bottom']} style={{ backgroundColor: colors.surface }}>
+          {/* Hidden while typing so the keyboard doesn't push the tab bar over the text field. */}
+          {!keyboardUp && <SafeAreaView edges={['bottom']} style={{ backgroundColor: colors.surface }}>
             {isVenue ? (
               <VenueTabBar active={venueActive} navigation={navigationRef} badge={{ htokens: activeTokensCount || undefined }} />
             ) : (
               <TentTabBar active={tentActive} navigation={navigationRef} badge={{ orders: newOrdersCount || undefined }} />
             )}
-          </SafeAreaView>
+          </SafeAreaView>}
         </View>
       ) : (
         <AuthNavigator key={authInitialRoute} initialRouteName={authInitialRoute} />
