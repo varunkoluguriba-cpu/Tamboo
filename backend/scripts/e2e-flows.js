@@ -8,8 +8,8 @@ const crypto = require('crypto');
 const mongoose = require(path.join(BACKEND, 'node_modules/mongoose'));
 const jwt = require(path.join(BACKEND, 'node_modules/jsonwebtoken'));
 const M = (n) => require(path.join(BACKEND, 'models', n));
-const [User, Partner, Hall, Booking, Order, Quote, Message, PayoutEntry, Item, Package, Shop] =
-  ['User', 'Partner', 'Hall', 'Booking', 'Order', 'Quote', 'Message', 'PayoutEntry', 'Item', 'Package', 'Shop'].map(M);
+const [User, Partner, Hall, Booking, Order, Quote, Message, PayoutEntry, Item, Package, Shop, AdminUser] =
+  ['User', 'Partner', 'Hall', 'Booking', 'Order', 'Quote', 'Message', 'PayoutEntry', 'Item', 'Package', 'Shop', 'AdminUser'].map(M);
 
 const B = 'http://localhost:4011';
 const results = [];
@@ -160,6 +160,40 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
     const r = await call('PATCH', '/api/halls/my-token/' + id, CT, { action: 'cancel' }); expect(r.status === 400, 'got ' + r.status + ' ' + JSON.stringify(r.data));
   });
 
+  // ---------- REFUNDS ----------
+  const admin = await AdminUser.findOne({ role: { $in: ['owner', 'admin', 'superadmin'] } }) || await AdminUser.findOne();
+  const AT = admin && jwt.sign({ sub: admin.id, kind: 'admin' }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  await check('Customer cancel within 2h records a full refund owed', async () => {
+    const id = await payToken('2027-06-10', 'Evening');
+    await call('PATCH', '/api/halls/my-token/' + id, CT, { action: 'cancel' });
+    const b = await Booking.findById(id).lean();
+    expect(b.refundStatus === 'pending' && b.refundAmount === b.amount, JSON.stringify({ s: b.refundStatus, amt: b.refundAmount, paid: b.amount }));
+    const mine = (await call('GET', '/api/halls/my-tokens', CT)).data.find((x) => x.id === id);
+    expect(mine && mine.refundStatus === 'pending', 'customer view: ' + (mine && mine.refundStatus));
+  });
+  await check("Hall can't host → full refund owed; not-booked → 80% owed", async () => {
+    const a = await payToken('2027-06-11', 'Evening');
+    await call('PATCH', '/api/halls/me/tokens/' + a, hallOwnerTok, { action: 'cantHost' });
+    const b = await payToken('2027-06-12', 'Evening');
+    await call('PATCH', '/api/halls/me/tokens/' + b, hallOwnerTok, { action: 'visited' });
+    await call('PATCH', '/api/halls/me/tokens/' + b, hallOwnerTok, { action: 'notBooked' });
+    const [ba, bb] = await Promise.all([Booking.findById(a).lean(), Booking.findById(b).lean()]);
+    expect(ba.refundStatus === 'pending' && ba.refundAmount === ba.amount, 'cantHost ' + ba.refundAmount);
+    expect(bb.refundStatus === 'pending' && bb.refundAmount === bb.amount - Math.round(bb.amount * 0.2), 'notBooked ' + bb.refundAmount);
+  });
+  await check('Admin sees pending refunds and can mark one paid', async () => {
+    expect(AT, 'no admin user to test with');
+    const list = (await call('GET', '/api/admin/refunds', AT)).data;
+    const mine = list.find((r) => r.customerPhone === '+919999900000' && r.kind === 'booking');
+    expect(mine, 'refund not listed');
+    const r = await call('POST', `/api/admin/refunds/booking/${mine.id}/mark-refunded`, AT, { ref: 'rfnd_E2E' });
+    expect(r.status === 200, 'mark ' + r.status);
+    const b = await Booking.findById(mine.id).lean();
+    expect(b.refundStatus === 'refunded' && b.refundRef === 'rfnd_E2E', b.refundStatus);
+    const again = await call('POST', `/api/admin/refunds/booking/${mine.id}/mark-refunded`, AT, {});
+    expect(again.status === 400, 'double-mark allowed');
+  });
+
   // ---------- PARTNER VENUE ----------
   await check('Partner: my halls', async () => { const r = await call('GET', '/api/halls/me/halls', VT); expect(r.status === 200 && r.data.length > 0, JSON.stringify(r.data).slice(0, 200)); return r.data.length + ' halls'; });
   await check('Hall save rejects token over ₹10,000 and advance over 100%', async () => {
@@ -234,6 +268,19 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
   for (const st of ['CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'COMPLETED']) {
     await check('Vendor order → ' + st, async () => { const r = await call('PATCH', '/api/vendors/me/orders/' + orderId, TT, { status: st }); expect(r.status === 200 && r.data.status === st, JSON.stringify(r.data)); });
   }
+
+  await check('Vendor declines a paid order → full refund owed to customer', async () => {
+    const cart = { groups: [{ vendorId: tent.id, vendorName: tent.businessName, lines: [{ itemId: p.id, name: p.name, qty: 1 }] }], deliveryMode: 'pickup', payMode: 'full', dateTxt: '16 Mar 2027' };
+    const r = await call('POST', '/api/payments/create-order', CT, { cart });
+    const pay = 'pay_E2ED' + Date.now();
+    const v = await call('POST', '/api/payments/verify', CT, { razorpay_order_id: r.data.orderId, razorpay_payment_id: pay, razorpay_signature: sign(r.data.orderId, pay), cart });
+    const oid = v.data.orders[0].id; created.orders.push(oid); created.payoutRefs.push(oid);
+    await call('PATCH', '/api/vendors/me/orders/' + oid, TT, { status: 'CANCELLED' });
+    const o = await Order.findById(oid).lean();
+    expect(o.refundStatus === 'pending' && o.refundAmount === r.data.amount / 100, JSON.stringify({ s: o.refundStatus, amt: o.refundAmount, paid: r.data.amount / 100 }));
+    const mine = (await call('GET', '/api/orders/me', CT)).data.find((x) => x.id === oid);
+    expect(mine && mine.refundStatus === 'pending', 'customer view');
+  });
 
   // ---------- QUOTES ----------
   let quoteId;

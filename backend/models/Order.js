@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { REFUND_FIELDS } = require('../lib/refunds');
 
 const orderLineSchema = new mongoose.Schema({
   // Null for any line not backed by a real catalog Item (legacy/mock-vendor checkout) —
@@ -45,6 +46,7 @@ const orderSchema = new mongoose.Schema({
     default: 'PENDING',
   },
   history: [historyEntrySchema],
+  ...REFUND_FIELDS,
 }, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);

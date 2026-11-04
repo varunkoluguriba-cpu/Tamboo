@@ -151,7 +151,7 @@ const EN = {
 
   // ---- order / orders / otp / pending review ----
   orderNotFound: 'Order not found.', orderComingSoonMsg: 'This is being built next.', orderUpdateFailedTitle: 'Could not update order',
-  orderDeclineConfirmTitle: 'Decline this order?', orderDeclineConfirmMsg: 'The customer will be notified and the stock hold released.',
+  orderDeclineConfirmTitle: 'Decline this order?', orderDeclineConfirmMsg: 'The customer will be notified and refunded in full by Tamboo.',
   orderKeepIt: 'Keep it', orderDecline: 'Decline', orderAcceptOrder: 'Accept order', orderStatusLabel: 'Status', orderStatusPending: 'Pending',
   orderStatusConfirmed: 'Confirmed', orderStatusPacked: 'Packed', orderStatusOutForDelivery: 'Out for delivery', orderStatusDelivered: 'Delivered',
   orderStatusCompleted: 'Completed', orderStatusCancelled: 'Cancelled', orderStatusDisputed: 'Disputed',
@@ -297,7 +297,7 @@ const TE: Partial<Record<Key, string>> = {
   pOnboardBrandBadge: 'పార్ట్‌నర్', pOnboardGetStarted: 'ప్రారంభించండి',
 
   orderNotFound: 'ఆర్డర్ కనుగొనబడలేదు.', orderComingSoonMsg: 'ఇది త్వరలో అందుబాటులోకి వస్తుంది.', orderUpdateFailedTitle: 'ఆర్డర్‌ను అప్‌డేట్ చేయలేకపోయాం',
-  orderDeclineConfirmTitle: 'ఈ ఆర్డర్‌ను తిరస్కరించాలా?', orderDeclineConfirmMsg: 'కస్టమర్‌కు సమాచారం ఇవ్వబడుతుంది మరియు స్టాక్ హోల్డ్ విడుదల చేయబడుతుంది.',
+  orderDeclineConfirmTitle: 'ఈ ఆర్డర్‌ను తిరస్కరించాలా?', orderDeclineConfirmMsg: 'కస్టమర్‌కు తెలియజేసి, టాంబూ పూర్తి మొత్తం రీఫండ్ చేస్తుంది.',
   orderKeepIt: 'ఉంచండి', orderDecline: 'తిరస్కరించండి', orderAcceptOrder: 'ఆర్డర్‌ను ఆమోదించండి', orderStatusLabel: 'స్థితి', orderStatusPending: 'పెండింగ్‌లో ఉంది',
   orderStatusConfirmed: 'నిర్ధారించబడింది', orderStatusPacked: 'ప్యాక్ చేయబడింది', orderStatusOutForDelivery: 'డెలివరీకి బయలుదేరింది', orderStatusDelivered: 'డెలివరీ అయింది',
   orderStatusCompleted: 'పూర్తయింది', orderStatusCancelled: 'రద్దు చేయబడింది', orderStatusDisputed: 'వివాదంలో ఉంది',
@@ -439,7 +439,7 @@ const HI: Partial<Record<Key, string>> = {
   pOnboardBrandBadge: 'पार्टनर', pOnboardGetStarted: 'शुरू करें',
 
   orderNotFound: 'ऑर्डर नहीं मिला.', orderComingSoonMsg: 'यह सुविधा जल्द ही उपलब्ध होगी.', orderUpdateFailedTitle: 'ऑर्डर अपडेट नहीं हो सका',
-  orderDeclineConfirmTitle: 'क्या इस ऑर्डर को अस्वीकार करें?', orderDeclineConfirmMsg: 'ग्राहक को सूचित कर दिया जाएगा और स्टॉक होल्ड हटा दिया जाएगा.',
+  orderDeclineConfirmTitle: 'क्या इस ऑर्डर को अस्वीकार करें?', orderDeclineConfirmMsg: 'ग्राहक को सूचित किया जाएगा और टैम्बू पूरा पैसा लौटाएगा।',
   orderKeepIt: 'रहने दें', orderDecline: 'अस्वीकार करें', orderAcceptOrder: 'ऑर्डर स्वीकार करें', orderStatusLabel: 'स्थिति', orderStatusPending: 'लंबित',
   orderStatusConfirmed: 'पुष्टि हो गई', orderStatusPacked: 'पैक हो गया', orderStatusOutForDelivery: 'डिलीवरी के लिए निकल गया', orderStatusDelivered: 'डिलीवर हो गया',
   orderStatusCompleted: 'पूर्ण हो गया', orderStatusCancelled: 'रद्द हो गया', orderStatusDisputed: 'विवादित',
@@ -580,7 +580,7 @@ const UR: Partial<Record<Key, string>> = {
   pOnboardBrandBadge: 'پارٹنر', pOnboardGetStarted: 'شروع کریں',
 
   orderNotFound: 'آرڈر نہیں ملا۔', orderComingSoonMsg: 'یہ سہولت جلد دستیاب ہوگی۔', orderUpdateFailedTitle: 'آرڈر اپ ڈیٹ نہیں ہو سکا',
-  orderDeclineConfirmTitle: 'کیا اس آرڈر کو مسترد کریں؟', orderDeclineConfirmMsg: 'کسٹمر کو مطلع کر دیا جائے گا اور اسٹاک ہولڈ ختم کر دیا جائے گا۔',
+  orderDeclineConfirmTitle: 'کیا اس آرڈر کو مسترد کریں؟', orderDeclineConfirmMsg: 'گاہک کو اطلاع دی جائے گی اور ٹیمبو پوری رقم واپس کرے گا۔',
   orderKeepIt: 'رہنے دیں', orderDecline: 'مسترد کریں', orderAcceptOrder: 'آرڈر قبول کریں', orderStatusLabel: 'حیثیت', orderStatusPending: 'زیر التوا',
   orderStatusConfirmed: 'تصدیق شدہ', orderStatusPacked: 'پیک ہو گیا', orderStatusOutForDelivery: 'ڈیلیوری کے لیے روانہ', orderStatusDelivered: 'ڈیلیور ہو گیا',
   orderStatusCompleted: 'مکمل ہو گیا', orderStatusCancelled: 'منسوخ ہو گیا', orderStatusDisputed: 'متنازع',

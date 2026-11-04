@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { REFUND_FIELDS } = require('../lib/refunds');
 
 const bookingSchema = new mongoose.Schema({
   // Null only for 'offline' bookings (see `source` below) — a walk-in/phone booking the
@@ -44,6 +45,7 @@ const bookingSchema = new mongoose.Schema({
     enum: ['token_paid', 'visited', 'awaiting_advance', 'confirmed', 'not_booked', 'cancelled', 'disputed'],
     default: 'token_paid',
   },
+  ...REFUND_FIELDS,
 }, { timestamps: true });
 
 module.exports = mongoose.model('Booking', bookingSchema);

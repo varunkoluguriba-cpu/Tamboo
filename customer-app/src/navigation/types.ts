@@ -19,6 +19,8 @@ export type RemoteOrderSummary = {
   lines: Array<{ name: string; qty: number; unitPrice: number }>;
   value: number;
   amountPaid?: number;
+  refundStatus?: 'none' | 'pending' | 'refunded';
+  refundAmount?: number;
   history: Array<{ label: string; date: string }>;
   createdAtMs: number;
 };
@@ -37,6 +39,8 @@ export type RemoteHallBooking = {
   advanceDeadlineAtMs: number | null;
   status: string;
   heldAtMs: number;
+  refundStatus?: 'none' | 'pending' | 'refunded';
+  refundAmount?: number;
   visitHours: number;
 };
 

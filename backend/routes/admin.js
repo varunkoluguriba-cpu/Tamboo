@@ -46,6 +46,7 @@ router.use('/bookings', requireSection('bookings'));
 router.use('/orders', requireSection('bookings'));
 router.use('/hall-bookings', requireSection('bookings'));
 router.use('/disputes', requireSection('disputes'));
+router.use('/refunds', requireSection('disputes'));
 router.use('/support', requireSection('support'));
 router.use('/config', requireSection('settings'));
 router.use('/coupons', requireSection('settings'));
@@ -223,7 +224,7 @@ router.post('/support/:type/:id', async (req, res) => {
 router.get('/dashboard', async (req, res) => {
   const [
     totalUsers, totalPartners, pendingVerification, totalHalls, totalItems,
-    disputedOrders, disputedBookings, bookings, orders,
+    disputedOrders, disputedBookings, bookings, orders, refundOrders, refundBookings,
   ] = await Promise.all([
     User.countDocuments({ registered: true }),
     Partner.countDocuments({ registered: true }),
@@ -234,6 +235,8 @@ router.get('/dashboard', async (req, res) => {
     Booking.countDocuments({ status: 'disputed' }),
     Booking.find().select('amount commissionPct'),
     Order.find().select('value commission'),
+    Order.countDocuments({ refundStatus: 'pending' }),
+    Booking.countDocuments({ refundStatus: 'pending' }),
   ]);
   const bookingCollected = bookings.reduce((sum, b) => sum + b.amount, 0);
   const bookingCommission = bookings.reduce((sum, b) => sum + Math.round(b.amount * (b.commissionPct / 100)), 0);
@@ -246,6 +249,7 @@ router.get('/dashboard', async (req, res) => {
     totalHalls,
     totalItems,
     disputedCount: disputedOrders + disputedBookings,
+    refundsPendingCount: refundOrders + refundBookings,
     totalCollected: bookingCollected + orderCollected,
     totalCommission: bookingCommission + orderCommission,
   });
@@ -272,6 +276,39 @@ router.get('/disputes', async (req, res) => {
       updatedAt: b.updatedAt,
     })),
   });
+});
+
+// --- Refunds owed to customers (paid manually from the Razorpay dashboard for now). ---
+router.get('/refunds', async (req, res) => {
+  const status = req.query.status === 'refunded' ? 'refunded' : 'pending';
+  const [orders, bookings] = await Promise.all([
+    Order.find({ refundStatus: status }).sort({ refundRequestedAt: -1 }).limit(200),
+    Booking.find({ refundStatus: status }).sort({ refundRequestedAt: -1 }).limit(200),
+  ]);
+  const row = (d, kind) => ({
+    id: d.id, kind,
+    title: kind === 'order' ? `${d.code} · ${d.vendorName}` : d.hallName,
+    customerName: d.customerName, customerPhone: d.customerPhone,
+    amount: d.refundAmount, reason: d.refundReason,
+    paymentId: kind === 'order' ? d.razorpayPaymentId : d.razorpayPaymentId,
+    requestedAt: d.refundRequestedAt, refundedAt: d.refundedAt, refundRef: d.refundRef,
+  });
+  res.json([...orders.map((o) => row(o, 'order')), ...bookings.map((b) => row(b, 'booking'))]
+    .sort((a, b) => new Date(b.requestedAt) - new Date(a.requestedAt)));
+});
+
+router.post('/refunds/:kind/:id/mark-refunded', async (req, res) => {
+  const Model = req.params.kind === 'order' ? Order : req.params.kind === 'booking' ? Booking : null;
+  if (!Model) return res.status(400).json({ error: 'Invalid kind' });
+  const doc = await Model.findById(req.params.id);
+  if (!doc) return res.status(404).json({ error: 'Not found' });
+  if (doc.refundStatus !== 'pending') return res.status(400).json({ error: 'No refund pending on this' });
+  doc.refundStatus = 'refunded';
+  doc.refundedAt = new Date();
+  doc.refundRef = String((req.body || {}).ref || '').trim().slice(0, 80);
+  await doc.save();
+  audit(req, 'Marked refund paid', doc.code || doc.hallName, `₹${doc.refundAmount}`, doc.refundRef || 'refunded');
+  res.json({ ok: true });
 });
 
 // --- Customers ---

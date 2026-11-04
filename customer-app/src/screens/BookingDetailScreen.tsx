@@ -6,7 +6,7 @@ import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, shadow } from '../theme';
-import { hallStatusText, orderStatusText } from '../utils/status';
+import { hallStatusText, orderStatusText, refundText } from '../utils/status';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BookingDetail'>;
 
@@ -55,6 +55,7 @@ function OrderDetail({ order }: { order: import('../navigation/types').RemoteOrd
         <Row label={t.guests} value={String(order.guests)} />
         {!!order.address && <Row label={t.bookingDetailAddress} value={order.address} />}
         <Row label={t.bookingDetailStatus} value={orderStatusText(order.status, t)} />
+        {!!refundText(order, t) && <Row label={t.refundLabel} value={refundText(order, t)} />}
       </View>
 
       <View style={styles.card}>
@@ -100,6 +101,7 @@ function HallDetail({ hall }: { hall: import('../navigation/types').RemoteHallBo
       <Row label={t.tokenPaySummarySlot} value={hall.slot} />
       <Row label={t.guests} value={hall.guests} />
       <Row label={t.bookingDetailStatus} value={hallStatusText(hall, t)} />
+      {!!refundText(hall, t) && <Row label={t.refundLabel} value={refundText(hall, t)} />}
       <Row label={t.tokenAmountPaidLabel} value={`₹${hall.amount.toLocaleString('en-IN')}`} />
       {hall.finalRent > 0 && <Row label={t.bookingDetailFinalRent} value={`₹${hall.finalRent.toLocaleString('en-IN')}`} />}
       {hall.status === 'awaiting_advance' && (

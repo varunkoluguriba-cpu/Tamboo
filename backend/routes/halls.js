@@ -1,4 +1,5 @@
 const express = require('express');
+const { markRefundDue } = require('../lib/refunds');
 const mongoose = require('mongoose');
 const { requirePartnerAuth } = require('../middleware/partnerAuth');
 const { requireAuth } = require('../middleware/auth');
@@ -60,6 +61,8 @@ function serializeTokenForCustomer(b) {
     visitHours: VISIT_HOURS,
     freeCancelHours: FREE_CANCEL_HOURS,
     visited: b.status !== 'token_paid',
+    refundStatus: b.refundStatus || 'none',
+    refundAmount: b.refundAmount || 0,
   };
 }
 
@@ -492,6 +495,7 @@ router.patch('/me/tokens/:id', requirePartnerAuth, async (req, res) => {
     booking.advanceDeadlineAt = new Date(Date.now() + 24 * 3600 * 1000);
   } else if (action === 'notBooked') {
     booking.status = 'not_booked';
+    if (booking.source !== 'offline') markRefundDue(booking, booking.amount - Math.round(booking.amount * 0.2), 'Customer visited and chose not to book (80% back)');
     const keep = Math.round(booking.amount * 0.2);
     const debit = originalNet - keep;
     if (debit > 0) {
@@ -502,6 +506,7 @@ router.patch('/me/tokens/:id', requirePartnerAuth, async (req, res) => {
     }
   } else if (action === 'cantHost') {
     booking.status = 'cancelled';
+    if (booking.source !== 'offline') markRefundDue(booking, booking.amount, "Hall couldn't host (full refund)");
     if (originalNet > 0) {
       await PayoutEntry.create({
         partner: req.partner.id, type: 'debit', amount: originalNet,
@@ -565,6 +570,7 @@ router.patch('/my-token/:id', requireAuth, async (req, res) => {
       return res.status(400).json({ error: `Free cancellation is only available within ${FREE_CANCEL_HOURS} hours of paying` });
     }
     booking.status = 'cancelled';
+    markRefundDue(booking, booking.amount, 'Customer cancelled within 2 hours (full refund)');
     if (booking.partner && originalNet > 0) {
       await PayoutEntry.create({
         partner: booking.partner, type: 'debit', amount: originalNet,
@@ -573,6 +579,7 @@ router.patch('/my-token/:id', requireAuth, async (req, res) => {
     }
   } else if (action === 'notBooking') {
     booking.status = 'not_booked';
+    markRefundDue(booking, booking.amount - Math.round(booking.amount * 0.2), 'Customer visited and chose not to book (80% back)');
     if (booking.partner) {
       const keep = Math.round(booking.amount * 0.2);
       const debit = originalNet - keep;

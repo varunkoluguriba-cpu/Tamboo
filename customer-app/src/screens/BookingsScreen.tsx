@@ -9,7 +9,7 @@ import { api, ApiError } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
 import { metaLine } from '../utils/rating';
-import { hallStatusText, orderStatusText, prettyDate, quoteStatusText } from '../utils/status';
+import { hallStatusText, orderStatusText, prettyDate, quoteStatusText, refundText } from '../utils/status';
 
 type RemoteQuote = {
   id: string;
@@ -143,6 +143,7 @@ export default function BookingsScreen({ navigation, route }: Props) {
                     <Text style={styles.cardMeta}>{metaLine(o.dateTxt, o.vendorName)}</Text>
                     <Text style={styles.cardAmount}>₹{o.value.toLocaleString('en-IN')}</Text>
                   </View>
+                  {!!refundText(o, t) && <Text style={[styles.refundText, o.refundStatus === 'refunded' && styles.refundDone]}>{refundText(o, t)}</Text>}
                 </TouchableOpacity>
               ))}
             </View>
@@ -167,6 +168,7 @@ export default function BookingsScreen({ navigation, route }: Props) {
                     <Text style={styles.cardMeta}>{metaLine(o.dateTxt, o.vendorName)}</Text>
                     <Text style={styles.cardAmount}>₹{o.value.toLocaleString('en-IN')}</Text>
                   </View>
+                  {!!refundText(o, t) && <Text style={[styles.refundText, o.refundStatus === 'refunded' && styles.refundDone]}>{refundText(o, t)}</Text>}
                 </TouchableOpacity>
               ))}
             </View>
@@ -198,6 +200,7 @@ export default function BookingsScreen({ navigation, route }: Props) {
                     {left > 0 && (
                       <Text style={styles.cardLeft}>{t.bookingsVisitLeft.replace('{hours}', String(Math.ceil(left / 3600000)))}</Text>
                     )}
+                  {!!refundText(b, t) && <Text style={[styles.refundText, b.refundStatus === 'refunded' && styles.refundDone]}>{refundText(b, t)}</Text>}
                   </TouchableOpacity>
                 );
               })
@@ -303,6 +306,8 @@ export default function BookingsScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
+  refundText: { fontSize: 12.5, fontWeight: '700', color: colors.amber, marginTop: 6 },
+  refundDone: { color: colors.green },
   offlineBox: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: 14, backgroundColor: colors.dangerBg },
   offlineText: { flex: 1, fontSize: 13.5, fontWeight: '600', color: colors.dangerStrong },
   offlineRetry: { fontSize: 13.5, fontWeight: '800', color: colors.maroon },

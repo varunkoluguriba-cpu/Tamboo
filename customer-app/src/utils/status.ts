@@ -60,3 +60,10 @@ export function quoteStatusText(status: string, t: LangStrings): string {
     default: return status;
   }
 }
+
+// "Refund of ₹4,000 in 5–7 days" / "Refunded ₹4,000" — or '' when nothing is owed.
+export function refundText(d: { refundStatus?: string; refundAmount?: number }, t: LangStrings): string {
+  if (!d.refundAmount || !d.refundStatus || d.refundStatus === 'none') return '';
+  const amt = `₹${d.refundAmount.toLocaleString('en-IN')}`;
+  return d.refundStatus === 'refunded' ? t.refundDone.replace('{amount}', amt) : t.refundPending.replace('{amount}', amt);
+}

@@ -1,4 +1,5 @@
 const express = require('express');
+const { markRefundDue } = require('../lib/refunds');
 const { requirePartnerAuth } = require('../middleware/partnerAuth');
 const Shop = require('../models/Shop');
 const Item = require('../models/Item');
@@ -415,6 +416,10 @@ router.patch('/me/orders/:orderId', requirePartnerAuth, requireTentRole, async (
   order.history.push({ label: historyLabel || status, date: nowTxt() });
   await order.save();
 
+  if (status === 'CANCELLED' && order.razorpayPaymentId) {
+    markRefundDue(order, order.amountPaid || order.customerTotal || order.value, wasPending ? 'Vendor declined the order' : 'Vendor cancelled the order');
+    await order.save();
+  }
   if (wasPending && status === 'CANCELLED') {
     await PayoutEntry.create({
       partner: req.partner.id,

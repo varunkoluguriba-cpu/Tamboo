@@ -3,7 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { api } from '../api';
 import { useAuth, type Section } from '../context/AuthContext';
 
-type Stats = { pendingVerification: number; disputedCount: number };
+type Stats = { pendingVerification: number; disputedCount: number; refundsPendingCount: number };
 
 const NAV_ITEMS: Array<{ to: string; label: string; end?: boolean; section?: Section; badgeKey?: keyof Stats }> = [
   { to: '/', label: 'Dashboard', end: true },
@@ -15,6 +15,7 @@ const NAV_ITEMS: Array<{ to: string; label: string; end?: boolean; section?: Sec
   { to: '/packages', label: 'Packages', section: 'packages' },
   { to: '/bookings', label: 'Bookings & revenue', section: 'bookings' },
   { to: '/disputes', label: 'Disputes', section: 'disputes', badgeKey: 'disputedCount' },
+  { to: '/refunds', label: 'Refunds', section: 'disputes', badgeKey: 'refundsPendingCount' },
   { to: '/support', label: 'Support', section: 'support' },
   { to: '/site-content', label: 'Marketing site', section: 'site-content' },
   { to: '/settings', label: 'Fees & coupons', section: 'settings' },
@@ -24,7 +25,7 @@ const NAV_ITEMS: Array<{ to: string; label: string; end?: boolean; section?: Sec
 
 export default function Layout() {
   const { logout, me, can } = useAuth();
-  const [stats, setStats] = useState<Stats>({ pendingVerification: 0, disputedCount: 0 });
+  const [stats, setStats] = useState<Stats>({ pendingVerification: 0, disputedCount: 0, refundsPendingCount: 0 });
 
   useEffect(() => {
     api.get<Stats>('/api/admin/dashboard').then(setStats).catch(() => {});

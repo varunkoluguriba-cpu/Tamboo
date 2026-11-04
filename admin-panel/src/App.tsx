@@ -20,6 +20,7 @@ import Bookings from './pages/Bookings';
 import OrderDetail from './pages/OrderDetail';
 import HallBookingDetail from './pages/HallBookingDetail';
 import Disputes from './pages/Disputes';
+import Refunds from './pages/Refunds';
 import Support from './pages/Support';
 import SupportThread from './pages/SupportThread';
 import SiteContent from './pages/SiteContent';
@@ -64,6 +65,7 @@ function AppRoutes() {
         <Route path="orders/:id" element={<SectionGate section="bookings"><OrderDetail /></SectionGate>} />
         <Route path="hall-bookings/:id" element={<SectionGate section="bookings"><HallBookingDetail /></SectionGate>} />
         <Route path="disputes" element={<SectionGate section="disputes"><Disputes /></SectionGate>} />
+        <Route path="refunds" element={<SectionGate section="disputes"><Refunds /></SectionGate>} />
         <Route path="support" element={<SectionGate section="support"><Support /></SectionGate>} />
         <Route path="support/:type/:id" element={<SectionGate section="support"><SupportThread /></SectionGate>} />
         <Route path="site-content" element={<SectionGate section="site-content"><SiteContent /></SectionGate>} />

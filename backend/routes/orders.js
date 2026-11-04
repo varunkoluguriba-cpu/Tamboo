@@ -21,6 +21,8 @@ function serializeOrderForCustomer(o) {
     value: o.customerTotal || o.value,
     amountPaid: o.amountPaid || o.customerTotal || o.value,
     history: o.history,
+    refundStatus: o.refundStatus || 'none',
+    refundAmount: o.refundAmount || 0,
     createdAtMs: o.createdAt ? new Date(o.createdAt).getTime() : Date.now(),
   };
 }
