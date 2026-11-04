@@ -99,7 +99,7 @@ export default function EarningsScreen({ navigation }: Props) {
                     </View>
                     <View style={{ flex: 1, minWidth: 0 }}>
                       <Text style={styles.entryDesc}>{e.description || (credit ? t.earningsBookingEarning : t.earningsPayout)}</Text>
-                      <Text style={styles.entryDate}>{dateTxt(e.createdAt)}{e.reference ? ` · ${e.reference}` : ''}</Text>
+                      <Text style={styles.entryDate}>{dateTxt(e.createdAt)}{e.reference ? ` · ${/^[0-9a-f]{24}$/.test(e.reference) ? e.reference.slice(-6).toUpperCase() : e.reference}` : ''}</Text>
                     </View>
                     <Text style={[styles.entryAmount, { color: credit ? colors.green : colors.textSoft }]}>
                       {credit ? '+' : '-'}{inr(e.amount)}

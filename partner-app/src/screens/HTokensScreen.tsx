@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { statusColors, type TokenStatus } from '../data/catalog';
-import { useHallTokens, tokenUiStatus, bookingRef } from '../hooks/useHallTokens';
+import { useHallTokens, tokenUiStatus, bookingRef, visitText } from '../hooks/useHallTokens';
 import { useLanguage } from '../context/LanguageContext';
 import { formatBookingDate } from '../utils/date';
 import { colors, shadow } from '../theme';
@@ -25,7 +25,7 @@ export default function HTokensScreen({ navigation }: Props) {
     date: tok.date,
     slot: tok.slot,
     guests: tok.guests,
-    visitTxt: tok.status === 'token_paid' ? t.htokensTabPending : t.htokensTabVisited,
+    visitTxt: visitText(tok, t),
   }));
 
   const STATUS_LABEL: Record<string, string> = {
@@ -86,7 +86,7 @@ export default function HTokensScreen({ navigation }: Props) {
                   </View>
                   <Text style={styles.cardTitle}>{tok.event}</Text>
                   <Text style={styles.cardMeta}>{tok.customer} · {formatBookingDate(tok.date)} · {tok.slot} · {t.htokensGuestsCount.replace('{count}', String(tok.guests))}</Text>
-                  <Text style={styles.cardVisit}>{t.htokensVisitLabel.replace('{value}', tok.visitTxt)}</Text>
+                  {!!tok.visitTxt && <Text style={styles.cardVisit}>{t.htokensVisitLabel.replace('{value}', tok.visitTxt)}</Text>}
                 </TouchableOpacity>
               );
             })}

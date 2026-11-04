@@ -2,6 +2,8 @@ import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { api } from '../api/client';
 import type { TokenStatus } from '../data/catalog';
+import type { LangStrings } from '../i18n';
+import { formatBookingDate } from '../utils/date';
 
 export type RemoteHallToken = {
   id: string;
@@ -65,4 +67,13 @@ export function useHallTokens() {
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
   return { tokens, loading, error, reload: load };
+}
+
+// The visit line for a pre-booking: only meaningful while the visit is still to happen.
+// Returns '' once visited/confirmed/expired, so callers can hide the line.
+export function visitText(tok: RemoteHallToken, t: LangStrings): string {
+  if (tokenUiStatus(tok) !== 'ACTIVE') return '';
+  if (!tok.visitDate) return t.visitNotScheduled;
+  const time = ({ morning: t.visitMorning, afternoon: t.visitAfternoon, evening: t.visitEvening, night: t.visitNight } as Record<string, string>)[tok.visitTime || ''];
+  return time ? `${formatBookingDate(tok.visitDate)} · ${time}` : formatBookingDate(tok.visitDate);
 }

@@ -16,8 +16,12 @@ async function priceCartGroups(rawGroups) {
     let subtotal = 0;
     for (const l of g.lines || []) {
       if (!l.itemId) return { error: `"${l.name || 'An item'}" could not be priced — missing item reference` };
-      const item = await Item.findById(l.itemId).select('name price').lean();
-      if (!item) return { error: `"${l.name || 'An item'}" is no longer available` };
+      const item = await Item.findById(l.itemId).select('name price paused partner').populate('partner', 'verificationStatus deletedAt').lean();
+      // Only items customers can actually see may be bought: listed by a verified, active
+      // partner and not paused.
+      if (!item || item.paused || !item.partner || item.partner.verificationStatus !== 'verified' || item.partner.deletedAt) {
+        return { error: `"${l.name || 'An item'}" is no longer available` };
+      }
       const qty = Number(l.qty) || 0;
       if (!(qty > 0)) return { error: `Invalid quantity for "${item.name}"` };
       const total = Math.round(item.price * qty);

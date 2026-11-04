@@ -30,6 +30,8 @@ import { tokenUiStatus, type RemoteHallToken } from '../hooks/useHallTokens';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 import { colors } from '../theme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SEEN_ONBOARDING_KEY } from '../constants';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
@@ -68,6 +70,12 @@ export default function RootNavigator() {
     return () => { show.remove(); hide.remove(); };
   }, []);
   const { partner, loading, pendingAck } = useAuth();
+  // Returning partners (e.g. after logout) skip the intro slides and go straight to Login.
+  const [seenOnboarding, setSeenOnboarding] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (partner) AsyncStorage.setItem(SEEN_ONBOARDING_KEY, '1').catch(() => {});
+    AsyncStorage.getItem(SEEN_ONBOARDING_KEY).then((v) => setSeenOnboarding(v === '1')).catch(() => setSeenOnboarding(false));
+  }, [partner]);
   const [routeName, setRouteName] = useState<keyof RootStackParamList | undefined>();
   const [newOrdersCount, setNewOrdersCount] = useState(0);
   const [activeTokensCount, setActiveTokensCount] = useState(0);
@@ -91,7 +99,7 @@ export default function RootNavigator() {
     }
   }, [showHome, isVenue]);
 
-  if (loading) {
+  if (loading || seenOnboarding === null) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface }}>
         <ActivityIndicator color={colors.pink} size="large" />
@@ -99,7 +107,7 @@ export default function RootNavigator() {
     );
   }
 
-  let authInitialRoute: 'Onboarding' | 'Register' | 'PendingReview' = 'Onboarding';
+  let authInitialRoute: 'Onboarding' | 'Login' | 'Register' | 'PendingReview' = seenOnboarding ? 'Login' : 'Onboarding';
   if (partner && !partner.registered) authInitialRoute = 'Register';
   else if (stillOnPendingReview) authInitialRoute = 'PendingReview';
 

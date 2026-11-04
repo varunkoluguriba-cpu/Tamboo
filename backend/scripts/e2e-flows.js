@@ -207,6 +207,19 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
       await Shop.updateOne({ partner: tent.id }, { $set: { deliveryFee: before.deliveryFee || 0, setupFee: before.setupFee || 0 } });
     }
   });
+  await check("Cart: can't buy a paused item or one from an unverified vendor", async () => {
+    const rejected = await Partner.findOne({ verificationStatus: { $ne: 'verified' }, role: 'tent' }).lean();
+    const hidden = rejected && await Item.findOne({ partner: rejected._id }).lean();
+    if (hidden) {
+      const r = await call('POST', '/api/payments/create-order', CT, { cart: { groups: [{ vendorId: String(rejected._id), lines: [{ itemId: String(hidden._id), qty: 1 }] }], deliveryMode: 'pickup', payMode: 'full' } });
+      expect(r.status === 400, 'unverified vendor item: ' + r.status);
+    }
+    await Item.updateOne({ _id: p.id }, { $set: { paused: true } });
+    try {
+      const r2 = await call('POST', '/api/payments/create-order', CT, { cart: { groups: [{ vendorId: tent.id, lines: [{ itemId: p.id, qty: 1 }] }], deliveryMode: 'pickup', payMode: 'full' } });
+      expect(r2.status === 400, 'paused item: ' + r2.status);
+    } finally { await Item.updateOne({ _id: p.id }, { $set: { paused: false } }); }
+  });
   await check('Cart: tampered price ignored (server re-prices)', async () => {
     const cart = { groups: [{ vendorId: tent.id, lines: [{ itemId: p.id, name: p.name, qty: 1, unitPrice: 1 }] }], deliveryMode: 'pickup', payMode: 'full' };
     const r = await call('POST', '/api/payments/create-order', CT, { cart }); expect(r.data.amount / 100 > 1, 'charged ' + r.data.amount);

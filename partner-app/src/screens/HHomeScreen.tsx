@@ -11,10 +11,11 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import DeleteAccountButton from '../components/DeleteAccountButton';
 import { statusColors } from '../data/catalog';
-import { useHallTokens, tokenUiStatus, bookingRef } from '../hooks/useHallTokens';
+import { useHallTokens, tokenUiStatus, bookingRef, visitText } from '../hooks/useHallTokens';
 import { formatBookingDate } from '../utils/date';
 import { scheduleRegisterPhotoReminder } from '../utils/registerReminder';
 import { colors, shadow } from '../theme';
+import VerificationBanner from '../components/VerificationBanner';
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 
@@ -37,9 +38,7 @@ export default function HHomeScreen() {
     slot: tok.slot,
     guests: tok.guests,
     amount: tok.amount,
-    visitTxt: tok.status !== 'token_paid' ? t.htokensTabVisited : tok.visitDate
-      ? `${formatBookingDate(tok.visitDate)} · ${({ morning: t.visitMorning, afternoon: t.visitAfternoon, evening: t.visitEvening, night: t.visitNight } as Record<string, string>)[tok.visitTime || ''] || ''}`
-      : t.visitNotScheduled,
+    visitTxt: visitText(tok, t),
   }));
 
   const active = HALL_TOKENS.filter((tok) => tok.status === 'ACTIVE');
@@ -78,6 +77,8 @@ export default function HHomeScreen() {
             <Text style={styles.langText}>{lang.toUpperCase()}</Text>
           </TouchableOpacity>
         </View>
+
+        <VerificationBanner />
 
         <View style={styles.statGrid}>
           <TouchableOpacity style={styles.statGrad} activeOpacity={0.85} onPress={() => navigation.navigate('HTokens')}>
@@ -132,7 +133,7 @@ export default function HHomeScreen() {
                     </View>
                     <Text style={styles.tokenEvent}>{tok.event}</Text>
                     <Text style={styles.tokenMeta}>{tok.customer} · {formatBookingDate(tok.date)} · {tok.slot} · {tok.guests} {t.hhomeGuestsSuffix}</Text>
-                    <Text style={styles.tokenVisit}>{t.hhomeVisitLabel}: {tok.visitTxt}</Text>
+                    {!!tok.visitTxt && <Text style={styles.tokenVisit}>{t.hhomeVisitLabel}: {tok.visitTxt}</Text>}
                   </TouchableOpacity>
                 );
               })}

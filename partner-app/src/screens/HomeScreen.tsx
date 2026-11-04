@@ -13,6 +13,7 @@ import { useOrders } from '../hooks/useOrders';
 import { api } from '../api/client';
 import { statusColors } from '../data/catalog';
 import { colors, gradients, shadow } from '../theme';
+import VerificationBanner from '../components/VerificationBanner';
 
 const ACTIVE_STATUSES = ['CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED'];
 
@@ -66,6 +67,8 @@ export default function HomeScreen() {
             <Text style={styles.langText}>{lang.toUpperCase()}</Text>
           </TouchableOpacity>
         </View>
+
+        <VerificationBanner />
 
         <View style={styles.statGrid}>
           <TouchableOpacity style={styles.statGrad} activeOpacity={0.85} onPress={() => navigation.navigate('Orders')}>

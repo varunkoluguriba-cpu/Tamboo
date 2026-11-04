@@ -10,7 +10,7 @@ import type { IconName } from '../components/icons';
 import { useLanguage } from '../context/LanguageContext';
 import { LANGS, isFullyTranslated, langName } from '../i18n';
 import { colors, gradients } from '../theme';
-import { ROLE_KEY } from '../constants';
+import { ROLE_KEY, SEEN_ONBOARDING_KEY } from '../constants';
 import type { PartnerRole } from '../types';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Language'>;
@@ -27,6 +27,7 @@ export default function LanguageScreen({ navigation }: Props) {
 
   const continueNext = async () => {
     await AsyncStorage.setItem(ROLE_KEY, role).catch(() => {});
+    await AsyncStorage.setItem(SEEN_ONBOARDING_KEY, '1').catch(() => {});
     navigation.replace('Login');
   };
 
