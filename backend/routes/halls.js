@@ -202,6 +202,11 @@ function parseHallBody(body, defaultAdvancePct) {
   if (!(seated > 0) || !(floating > 0)) return { error: 'Enter seating and floating capacity' };
   if (pricingMode === 'perPlate' && !(platePrice > 0)) return { error: 'Enter the price per plate' };
   if (pricingMode !== 'perPlate' && !(rent > 0)) return { error: 'Enter the hall rent' };
+  // Customers pay the token online, so it must be a real amount within the platform cap.
+  if (!(token >= 1 && token <= 10000)) return { error: 'Token must be between ₹1 and ₹10,000' };
+  if (advancePct != null && advancePct !== '' && !(advancePct >= 1 && advancePct <= 100)) {
+    return { error: 'Advance % must be between 1 and 100' };
+  }
 
   const update = {
     name: String(name).trim(), venueType, address,
@@ -210,7 +215,7 @@ function parseHallBody(body, defaultAdvancePct) {
     seated, floating, sqft, parking, rooms,
     pricingMode: pricingMode === 'perPlate' ? 'perPlate' : 'rent',
     rent, platePrice, minPlates, token,
-    advancePct: advancePct > 0 && advancePct <= 100 ? advancePct : defaultAdvancePct,
+    advancePct: advancePct >= 1 && advancePct <= 100 ? advancePct : defaultAdvancePct,
     ac, crockery, kitchen, crockeryNote, catering, amenities, blurb,
   };
   if (Array.isArray(photos)) update.photos = photos.slice(0, 15);

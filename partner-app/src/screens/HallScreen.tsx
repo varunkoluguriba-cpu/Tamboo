@@ -216,6 +216,14 @@ export default function HallScreen({ navigation, route }: Props) {
     if (!name.trim()) {
       return setErr(t.hallErrName);
     }
+    const tokenNum = parseInt(nums.token || '0', 10);
+    if (!(tokenNum >= 1 && tokenNum <= 10000)) {
+      return setErr(t.hallErrToken);
+    }
+    const advNum = parseInt(nums.advancePct || '0', 10);
+    if (nums.advancePct && !(advNum >= 1 && advNum <= 100)) {
+      return setErr(t.hallErrAdvance);
+    }
     setErr('');
     setSaving(true);
     try {

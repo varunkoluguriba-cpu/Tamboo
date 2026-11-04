@@ -162,6 +162,14 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
 
   // ---------- PARTNER VENUE ----------
   await check('Partner: my halls', async () => { const r = await call('GET', '/api/halls/me/halls', VT); expect(r.status === 200 && r.data.length > 0, JSON.stringify(r.data).slice(0, 200)); return r.data.length + ' halls'; });
+  await check('Hall save rejects token over ₹10,000 and advance over 100%', async () => {
+    const mh = (await call('GET', '/api/halls/me/halls', VT)).data[0];
+    const full = (await call('GET', '/api/halls/me/halls/' + mh.id, VT)).data;
+    const base = { ...full, name: full.name, seated: full.seated || 100, floating: full.floating || 100 };
+    const a = await call('PUT', '/api/halls/me/halls/' + mh.id, VT, { ...base, token: 50000 });
+    const b = await call('PUT', '/api/halls/me/halls/' + mh.id, VT, { ...base, token: full.token || 5000, advancePct: 150 });
+    expect(a.status === 400 && b.status === 400, `token ${a.status}, advance ${b.status}`);
+  });
   await check('Partner: offline booking add + remove', async () => {
     const mh = (await call('GET', '/api/halls/me/halls', VT)).data[0];
     const a = await call('POST', `/api/halls/me/halls/${mh.id}/offline-bookings`, VT, { date: '2027-04-20', slot: 'Evening' });
