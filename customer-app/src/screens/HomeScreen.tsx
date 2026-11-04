@@ -19,7 +19,7 @@ import { useToken, msLeft, formatHoursLeft } from '../context/TokenContext';
 import type { LangStrings } from '../i18n';
 import { colors, gradients, shadow } from '../theme';
 import { HOME_MODE_KEY } from '../constants';
-import { ratingText, metaLine } from '../utils/rating';
+import { ratingText, metaLine, kmText } from '../utils/rating';
 import { prettyDate } from '../utils/status';
 
 type Mode = 'venues' | 'rentals';
@@ -454,7 +454,7 @@ export default function HomeScreen() {
                         <Text style={styles.vendorName}>{v.name}</Text>
                         {v.verified && <Icon name="shield" size={14} color={colors.green} />}
                       </View>
-                      <Text style={styles.vendorMeta}>{metaLine(ratingText(v.rating, v.reviews, t, t.homeScreenReviews), v.km > 0 && `${v.km} km`)}</Text>
+                      <Text style={styles.vendorMeta}>{metaLine(ratingText(v.rating, v.reviews, t, t.homeScreenReviews), v.km > 0 && kmText(v.km))}</Text>
                     </View>
                     <Icon name="right" size={16} color={colors.dividerStrong} />
                   </TouchableOpacity>

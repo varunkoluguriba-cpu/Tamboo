@@ -16,7 +16,6 @@ import { formatBookingDate } from '../utils/date';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'TokenPay'>;
-type Method = 'upi' | 'card' | 'netbanking';
 
 const VISIT_HOURS = 48;
 
@@ -35,15 +34,8 @@ export default function TokenPayScreen({ navigation, route }: Props) {
   const { user } = useAuth();
   const { event } = useEvent();
   const { startToken } = useToken();
-  const [method, setMethod] = useState<Method>('upi');
   const [agree, setAgree] = useState(false);
   const [paying, setPaying] = useState(false);
-
-  const METHODS: Array<{ key: Method; label: string; sub: string }> = [
-    { key: 'upi', label: 'UPI', sub: t.tokenPayMethodUpiSub },
-    { key: 'card', label: t.tokenPayMethodCard, sub: 'Visa, Mastercard, RuPay' },
-    { key: 'netbanking', label: t.tokenPayMethodNetbanking, sub: t.tokenPayMethodNetbankingSub },
-  ];
 
   if (!hall) {
     return (
@@ -77,7 +69,7 @@ export default function TokenPayScreen({ navigation, route }: Props) {
       } catch (checkoutErr: any) {
         const description: string = checkoutErr?.description || '';
         if (!/cancel/i.test(description)) {
-          Alert.alert(t.tokenPayFailedTitle, description || t.tokenPayFailedDefaultMsg);
+          Alert.alert(t.payNotCompletedTitle, [description, t.payNotCompletedMsg].filter(Boolean).join('\n\n'));
         }
         return;
       }
@@ -166,22 +158,7 @@ export default function TokenPayScreen({ navigation, route }: Props) {
           </View>
         </View>
 
-        <View style={{ gap: 8 }}>
-          {METHODS.map((m) => {
-            const sel = method === m.key;
-            return (
-              <TouchableOpacity key={m.key} style={[styles.methodRow, { borderColor: sel ? colors.pink : colors.divider }]} activeOpacity={0.85} onPress={() => setMethod(m.key)}>
-                <View style={[styles.radio, { borderColor: sel ? colors.pink : colors.dividerStrong }]}>
-                  {sel && <View style={styles.radioDot} />}
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.methodLabel}>{m.label}</Text>
-                  <Text style={styles.methodSub}>{m.sub}</Text>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+        <Text style={styles.methodsNote}>{t.payMethodsNote}</Text>
 
         <TouchableOpacity style={styles.agreeRow} activeOpacity={0.85} onPress={() => setAgree((a) => !a)}>
           <View style={[styles.checkbox, agree && styles.checkboxOn]}>
@@ -222,6 +199,7 @@ const styles = StyleSheet.create({
   tokenRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', borderTopWidth: 1, borderTopColor: colors.divider, paddingTop: 8 },
   tokenLabel: { fontWeight: '700', color: colors.text },
   tokenValue: { fontFamily: 'Sora', fontWeight: '800', fontSize: 20, color: colors.maroon },
+  methodsNote: { fontSize: 13, color: colors.textSoft, textAlign: 'center' },
   methodRow: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.surface, borderRadius: 14, borderWidth: 1.5, padding: 14 },
   radio: { width: 18, height: 18, borderRadius: 9, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   radioDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: colors.pink },

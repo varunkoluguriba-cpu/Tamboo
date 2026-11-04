@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const express = require('express');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireAccount } = require('../middleware/auth');
 const { getClient } = require('../config/razorpay');
 const Booking = require('../models/Booking');
 const Hall = require('../models/Hall');
@@ -26,7 +26,7 @@ const router = express.Router();
 // or by re-pricing the cart against the real Item catalog — never trusted from the client.
 // A tampered request (modified app, intercepted call) can no longer pay less than the real
 // price; see lib/cartPricing.js for the cart-side recompute.
-router.post('/create-order', requireAuth, async (req, res) => {
+router.post('/create-order', requireAuth, requireAccount, async (req, res) => {
   const { hallId, date, slot, cart } = req.body;
 
   if (hallId) {
@@ -86,7 +86,7 @@ router.post('/create-order', requireAuth, async (req, res) => {
 // Advance payment on an existing hall pre-booking — the amount is server-owned (read from
 // the booking itself, never trusted from the client) so the customer can't under-pay by
 // tampering with the request. Only valid while the partner's advance request is still open.
-router.post('/create-advance-order', requireAuth, async (req, res) => {
+router.post('/create-advance-order', requireAuth, requireAccount, async (req, res) => {
   const { bookingId } = req.body || {};
   const booking = await Booking.findOne({ _id: bookingId, customer: req.user.id });
   if (!booking) return res.status(404).json({ error: 'Pre-booking not found' });
@@ -104,7 +104,7 @@ router.post('/create-advance-order', requireAuth, async (req, res) => {
   res.json({ orderId: order.id, amount: order.amount, currency: order.currency, keyId: process.env.RAZORPAY_KEY_ID });
 });
 
-router.post('/verify', requireAuth, async (req, res) => {
+router.post('/verify', requireAuth, requireAccount, async (req, res) => {
   const {
     razorpay_order_id, razorpay_payment_id, razorpay_signature,
     hallId, hallName, date, slot, guests, partnerId, customerName, customerPhone,

@@ -56,7 +56,7 @@ export default function AdvancePayScreen({ navigation }: Props) {
       } catch (checkoutErr: any) {
         const description: string = checkoutErr?.description || '';
         if (!/cancel/i.test(description)) {
-          Alert.alert(t.advancePayFailedTitle, description || t.advancePayFailedDefaultMsg);
+          Alert.alert(t.payNotCompletedTitle, [description, t.payNotCompletedMsg].filter(Boolean).join('\n\n'));
         }
         return;
       }

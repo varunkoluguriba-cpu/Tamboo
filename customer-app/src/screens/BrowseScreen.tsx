@@ -124,7 +124,7 @@ export default function BrowseScreen({ navigation, route }: Props) {
         <View style={styles.availRow}>
           <Icon name="calendar" size={14} color={colors.textSoft} />
           <Text style={styles.availText}>
-            {t.browseAvailabilityPrefix} <Text style={styles.availBold}>{event.date || 'DD/MM/YYYY'}</Text> · {t.browseGuestsCount.replace('{count}', String(event.guests))}
+            {t.browseAvailabilityPrefix} <Text style={styles.availBold}>{event.date || t.checkoutDateNotSet}</Text> · {t.browseGuestsCount.replace('{count}', String(event.guests))}
           </Text>
         </View>
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
@@ -15,10 +15,8 @@ import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Pay'>;
 type PayMode = 'full' | 'advance';
-type Method = 'upi' | 'card' | 'netbanking';
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
-const HOLD_SECONDS = 15 * 60;
 
 export default function PayScreen({ navigation }: Props) {
   const { user } = useAuth();
@@ -26,23 +24,9 @@ export default function PayScreen({ navigation }: Props) {
   const { pricing, groups, deliveryMode, couponCode, clearCart } = useCart();
   const { t } = useLanguage();
 
-  const METHODS: Array<{ key: Method; label: string; sub: string }> = [
-    { key: 'upi', label: t.payMethodUpi, sub: t.payMethodUpiSub },
-    { key: 'card', label: t.payMethodCard, sub: t.payMethodCardSub },
-    { key: 'netbanking', label: t.payMethodNetbanking, sub: t.payMethodNetbankingSub },
-  ];
   const [payMode, setPayMode] = useState<PayMode>('full');
-  const [method, setMethod] = useState<Method>('upi');
-  const [secondsLeft, setSecondsLeft] = useState(HOLD_SECONDS);
   const [paying, setPaying] = useState(false);
 
-  useEffect(() => {
-    const id = setInterval(() => setSecondsLeft((s) => Math.max(0, s - 1)), 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  const mm = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
-  const ss = String(secondsLeft % 60).padStart(2, '0');
 
   const due = payMode === 'full' ? pricing.total : Math.round(pricing.total * 0.3);
   const perGroupDelivery = deliveryMode === 'delivery' ? 300 : 0;
@@ -91,7 +75,7 @@ export default function PayScreen({ navigation }: Props) {
       } catch (checkoutErr: any) {
         const description: string = checkoutErr?.description || '';
         if (!/cancel/i.test(description)) {
-          Alert.alert(t.payPaymentFailedTitle, description || t.payPaymentFailedDefaultMsg);
+          Alert.alert(t.payNotCompletedTitle, [description, t.payNotCompletedMsg].filter(Boolean).join('\n\n'));
         }
         return;
       }
@@ -141,12 +125,6 @@ export default function PayScreen({ navigation }: Props) {
           <Text style={styles.headerTitle}>{t.payHeaderTitle}</Text>
         </View>
 
-        <View style={styles.holdBanner}>
-          <Icon name="clock" size={16} color={colors.amber} />
-          <Text style={styles.holdText}>{t.payHoldText}</Text>
-          <Text style={styles.holdTime}>{mm}:{ss}</Text>
-        </View>
-
         <View style={styles.dueCard}>
           <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
           <Text style={styles.dueLabel}>{payMode === 'full' ? t.payAmountDueNow : t.payAdvanceDueNow}</Text>
@@ -177,22 +155,7 @@ export default function PayScreen({ navigation }: Props) {
           </Text>
         )}
 
-        <View style={{ gap: 8 }}>
-          {METHODS.map((m) => {
-            const sel = method === m.key;
-            return (
-              <TouchableOpacity key={m.key} style={[styles.methodRow, { borderColor: sel ? colors.pink : colors.divider }]} activeOpacity={0.85} onPress={() => setMethod(m.key)}>
-                <View style={[styles.radio, { borderColor: sel ? colors.pink : colors.dividerStrong }]}>
-                  {sel && <View style={styles.radioDot} />}
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.methodLabel}>{m.label}</Text>
-                  <Text style={styles.methodSub}>{m.sub}</Text>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+        <Text style={styles.methodsNote}>{t.payMethodsNote}</Text>
 
         <Text style={styles.disclaimer}>{t.payDisclaimer}</Text>
 
@@ -227,6 +190,7 @@ const styles = StyleSheet.create({
   modeBtnText: { fontSize: 13, fontWeight: '700', color: colors.pinkStrong },
   modeBtnTextSel: { color: '#fff' },
   advanceNote: { fontSize: 11.5, color: colors.textSoft, lineHeight: 17 },
+  methodsNote: { fontSize: 13, color: colors.textSoft, textAlign: 'center' },
   methodRow: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.surface, borderRadius: 16, borderWidth: 1.5, padding: 14 },
   radio: { width: 18, height: 18, borderRadius: 9, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   radioDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: colors.pink },

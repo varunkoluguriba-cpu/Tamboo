@@ -1,5 +1,5 @@
 const express = require('express');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireAccount } = require('../middleware/auth');
 const { requirePartnerAuth } = require('../middleware/partnerAuth');
 const Quote = require('../models/Quote');
 const Partner = require('../models/Partner');
@@ -49,7 +49,7 @@ function serializeForCustomer(q) {
 }
 
 // Customer: request a custom quote from a vendor.
-router.post('/', requireAuth, async (req, res) => {
+router.post('/', requireAuth, requireAccount, async (req, res) => {
   const { vendorId, vendorName, productName, dateTxt, guests, need, customerName, customerPhone } = req.body || {};
   if (!need || !need.trim()) return res.status(400).json({ error: 'Describe what you need' });
 

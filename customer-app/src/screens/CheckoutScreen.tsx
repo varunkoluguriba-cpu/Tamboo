@@ -9,6 +9,9 @@ import { useCart } from '../context/CartContext';
 import { useEvent } from '../context/EventContext';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
+import { metaLine } from '../utils/rating';
+import { requireAccount } from '../utils/requireAccount';
+import { useAuth } from '../context/AuthContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Checkout'>;
 
@@ -16,6 +19,7 @@ const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 
 export default function CheckoutScreen({ navigation }: Props) {
   const { t } = useLanguage();
+  const { user, logout } = useAuth();
   const { pricing, deliveryMode: delivery, setDeliveryMode: setDelivery } = useCart();
   const { event } = useEvent();
   const [agree, setAgree] = useState(false);
@@ -48,7 +52,7 @@ export default function CheckoutScreen({ navigation }: Props) {
           <View style={styles.detailRow}>
             <Icon name="calendar" size={15} color={colors.pink} />
             <Text style={styles.detailText}>
-              {event.date || 'DD/MM/YYYY'} · {t.checkoutSetupLabel} {event.setup || '—'} · {event.start || '—'}–{event.end || '—'}
+              {metaLine(event.date || t.checkoutDateNotSet, event.setup && `${t.checkoutSetupLabel} ${event.setup}`, (event.start || event.end) && `${event.start || '?'}–${event.end || '?'}`)}
             </Text>
           </View>
           <View style={styles.detailRow}>
@@ -132,7 +136,7 @@ export default function CheckoutScreen({ navigation }: Props) {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.payBtnWrap} activeOpacity={canPay ? 0.85 : 1} disabled={!canPay} onPress={() => navigation.navigate('Pay')}>
+        <TouchableOpacity style={styles.payBtnWrap} activeOpacity={canPay ? 0.85 : 1} disabled={!canPay} onPress={() => requireAccount(user, t, logout) && navigation.navigate('Pay')}>
           <LinearGradient
             colors={gradients.primaryButton.colors}
             start={gradients.primaryButton.start}

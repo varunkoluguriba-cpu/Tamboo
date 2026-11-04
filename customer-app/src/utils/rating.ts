@@ -11,3 +11,8 @@ export function ratingText(rating: number, reviews: number | undefined, t: LangS
 export function metaLine(...parts: Array<string | false | null | undefined>): string {
   return parts.filter(Boolean).join(' · ');
 }
+
+// Distance label; under a kilometre reads as "<1 km" rather than "0 km".
+export function kmText(km: number): string {
+  return km < 1 ? '<1 km' : `${Math.round(km)} km`;
+}

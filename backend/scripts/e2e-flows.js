@@ -55,6 +55,11 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
   await check('Guest login', async () => { const r = await call('POST', '/api/auth/guest'); expect(r.status === 200 && r.data.token, JSON.stringify(r.data)); guestTok = r.data.token; created.users.push(r.data.user.id); });
   await check('Customer /me', async () => { const r = await call('GET', '/api/auth/me', CT); expect(r.status === 200 && r.data.phone === '+919999900000', JSON.stringify(r.data)); });
   await check('Customer register (name/city)', async () => { const r = await call('POST', '/api/auth/register', guestTok, { name: 'E2E Guest', city: 'Hyderabad' }); expect(r.status === 200 && r.data.user.name === 'E2E Guest', JSON.stringify(r.data)); });
+  await check('Guest cannot pay or request quotes', async () => {
+    const p1 = await call('POST', '/api/payments/create-order', guestTok, { hallId: 'x' });
+    const p2 = await call('POST', '/api/quotes', guestTok, { need: 'x' });
+    expect(p1.status === 403 && p2.status === 403, `pay ${p1.status}, quote ${p2.status}`);
+  });
   await check('Bad token rejected', async () => { const r = await call('GET', '/api/auth/me', 'garbage'); expect(r.status === 401, 'got ' + r.status); });
   await check('Partner /me (venue)', async () => { const r = await call('GET', '/api/partner-auth/me', VT); expect(r.status === 200 && r.data.role === 'venue', JSON.stringify(r.data)); return venue.businessName; });
   await check('Partner /me (tent)', async () => { const r = await call('GET', '/api/partner-auth/me', TT); expect(r.status === 200 && r.data.role === 'tent', JSON.stringify(r.data)); return tent.businessName; });

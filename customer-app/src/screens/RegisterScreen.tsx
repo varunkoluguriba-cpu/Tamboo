@@ -12,7 +12,8 @@ import { colors, gradients } from '../theme';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Register'>;
 
-const CITIES = ['Hyderabad', 'Secunderabad', 'Warangal', 'Vijayawada', 'Bengaluru'];
+// Only cities where Tamboo is live (matches the marketing site) — more get added as they launch.
+const CITIES = ['Hyderabad', 'Secunderabad'];
 
 export default function RegisterScreen({}: Props) {
   const { t } = useLanguage();
@@ -28,10 +29,14 @@ export default function RegisterScreen({}: Props) {
       setErr(t.registerNameRequired);
       return;
     }
+    if (email.trim() && !/^\S+@\S+\.\S+$/.test(email.trim())) {
+      setErr(t.registerEmailInvalid);
+      return;
+    }
     setErr('');
     setSaving(true);
     try {
-      await register(name.trim(), city);
+      await register(name.trim(), city, email.trim());
       // Root navigator swaps to the main app automatically once AuthContext's user updates.
     } catch (e) {
       setErr(e instanceof ApiError ? e.message : t.registerSaveError);

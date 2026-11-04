@@ -20,7 +20,7 @@ interface AuthContextValue {
   verifyOtp: (code: string) => Promise<AuthUser>;
   continueWithGoogle: () => Promise<AuthUser>;
   continueAsGuest: () => Promise<AuthUser>;
-  register: (name: string, city: string) => Promise<void>;
+  register: (name: string, city: string, email?: string) => Promise<void>;
   logout: () => Promise<void>;
   deleteAccount: () => Promise<void>;
 }
@@ -83,8 +83,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return res.user;
   }, []);
 
-  const register = useCallback(async (name: string, city: string) => {
-    const res = await api.post<{ user: AuthUser }>('/api/auth/register', { name, city });
+  const register = useCallback(async (name: string, city: string, email?: string) => {
+    const res = await api.post<{ user: AuthUser }>('/api/auth/register', { name, city, email: email || undefined });
     setUser(res.user);
   }, []);
 

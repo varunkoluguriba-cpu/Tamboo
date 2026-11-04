@@ -5,6 +5,8 @@ import { api, ApiError } from '../api/client';
 import { useEvent } from '../context/EventContext';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients } from '../theme';
+import { requireAccount } from '../utils/requireAccount';
+import { useAuth } from '../context/AuthContext';
 
 type Props = {
   visible: boolean;
@@ -16,12 +18,14 @@ type Props = {
 
 export default function RequestQuoteModal({ visible, onClose, vendorId, vendorName, productName }: Props) {
   const { t } = useLanguage();
+  const { user, logout } = useAuth();
   const { event } = useEvent();
   const [need, setNeed] = useState('');
   const [sending, setSending] = useState(false);
 
   const submit = async () => {
     if (!need.trim()) return;
+    if (!requireAccount(user, t, logout)) return;
     setSending(true);
     try {
       await api.post('/api/quotes', {

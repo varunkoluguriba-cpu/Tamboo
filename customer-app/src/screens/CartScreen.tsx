@@ -59,7 +59,7 @@ export default function CartScreen({ navigation }: Props) {
         ) : (
           <>
             <Text style={styles.forLine}>
-              {t.cartForPrefix} <Text style={styles.forBold}>{event.name}</Text> · {event.date || 'DD/MM/YYYY'} · {t.cartGuestsCount.replace('{count}', String(event.guests))}
+              {t.cartForPrefix} <Text style={styles.forBold}>{event.name}</Text> · {event.date || t.checkoutDateNotSet} · {t.cartGuestsCount.replace('{count}', String(event.guests))}
             </Text>
 
             {vendorCount > 1 && (

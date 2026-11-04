@@ -10,7 +10,9 @@ import { useCatalog } from '../context/CatalogContext';
 import { useLanguage } from '../context/LanguageContext';
 import { isoDate } from '../utils/date';
 import { colors, gradients, shadow } from '../theme';
-import { ratingText, metaLine } from '../utils/rating';
+import { ratingText, metaLine, kmText } from '../utils/rating';
+import { requireAccount } from '../utils/requireAccount';
+import { useAuth } from '../context/AuthContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Venue'>;
 type SlotState = 'free' | 'booked' | 'closed';
@@ -26,6 +28,7 @@ function fmtDate(d: Date): string {
 
 export default function VenueScreen({ navigation, route }: Props) {
   const { t } = useLanguage();
+  const { user, logout } = useAuth();
   const { getHall } = useCatalog();
   const hall = getHall(route.params.id);
   const today = useMemo(() => {
@@ -145,7 +148,7 @@ export default function VenueScreen({ navigation, route }: Props) {
               )}
             </View>
             <Text style={styles.name}>{hall.name}</Text>
-            <Text style={styles.ratingLine}>{metaLine(ratingText(hall.rating, hall.reviews, t, t.venueReviewsLabel), hall.km != null && `${hall.km} km`)}</Text>
+            <Text style={styles.ratingLine}>{metaLine(ratingText(hall.rating, hall.reviews, t, t.venueReviewsLabel), hall.km != null && kmText(hall.km))}</Text>
           </View>
 
           <Text style={styles.blurb}>{hall.blurb}</Text>
@@ -305,7 +308,7 @@ export default function VenueScreen({ navigation, route }: Props) {
               style={styles.payBtnWrap}
               activeOpacity={canPay ? 0.85 : 1}
               disabled={!canPay}
-              onPress={() => selectedDate && selectedSlot && navigation.navigate('TokenPay', { hallId: hall.id, date: isoDate(selectedDate), slot: selectedSlot })}
+              onPress={() => selectedDate && selectedSlot && requireAccount(user, t, logout) && navigation.navigate('TokenPay', { hallId: hall.id, date: isoDate(selectedDate), slot: selectedSlot })}
             >
               <LinearGradient
                 colors={gradients.primaryButton.colors}

@@ -16,4 +16,13 @@ async function requireAuth(req, res, next) {
   }
 }
 
-module.exports = { requireAuth };
+// Booking, paying and quote requests need a real account: vendors must be able to reach the
+// customer, and guests have no name or phone on record.
+function requireAccount(req, res, next) {
+  if (req.user && req.user.authMethod === 'guest') {
+    return res.status(403).json({ error: 'Please log in with your mobile number to continue.' });
+  }
+  next();
+}
+
+module.exports = { requireAuth, requireAccount };

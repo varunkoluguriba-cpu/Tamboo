@@ -10,7 +10,7 @@ import { useCatalog } from '../context/CatalogContext';
 import { useEvent } from '../context/EventContext';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, shadow } from '../theme';
-import { ratingText, metaLine } from '../utils/rating';
+import { ratingText, metaLine, kmText } from '../utils/rating';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Venues'>;
 type Sort = 'nearest' | 'rating' | 'priceLow' | 'priceHigh';
@@ -160,7 +160,7 @@ export default function VenuesScreen({ navigation, route }: Props) {
                   <View style={styles.hallTopRow}>
                     <View style={{ flex: 1, minWidth: 0 }}>
                       <Text style={styles.hallName}>{h.name}</Text>
-                      <Text style={styles.hallMeta}>{h.type} · {h.area}{h.km != null ? ` · ${h.km} km` : ''}</Text>
+                      <Text style={styles.hallMeta}>{metaLine(h.type, h.area, h.km != null && kmText(h.km))}</Text>
                     </View>
                     <Text style={styles.hallRating}>{ratingText(h.rating, 0, t)}</Text>
                   </View>
