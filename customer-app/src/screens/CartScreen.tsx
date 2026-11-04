@@ -16,7 +16,7 @@ const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 
 export default function CartScreen({ navigation }: Props) {
   const { t } = useLanguage();
-  const { groups, updateQty, removeLine, vendorCount, couponCode, applyCoupon, pricing } = useCart();
+  const { groups, updateQty, removeLine, vendorCount, couponCode, couponDiscountPct, applyCoupon, pricing } = useCart();
   const { event } = useEvent();
   const [coupon, setCoupon] = useState('');
   const [couponError, setCouponError] = useState(false);
@@ -116,7 +116,7 @@ export default function CartScreen({ navigation }: Props) {
               </TouchableOpacity>
             </View>
             <Text style={[styles.couponHint, couponError && styles.couponHintError]}>
-              {couponError ? t.cartInvalidCoupon : couponCode ? t.cartCouponAppliedSuffix.replace('{code}', couponCode) : t.cartTryPromoHint}
+              {couponError ? t.cartInvalidCoupon : couponCode ? t.cartCouponAppliedSuffix.replace('{code}', couponCode).replace('{pct}', String(couponDiscountPct)) : t.cartTryPromoHint}
             </Text>
 
             <View style={styles.breakdownCard}>

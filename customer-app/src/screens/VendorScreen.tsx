@@ -134,7 +134,7 @@ export default function VendorScreen({ navigation, route }: Props) {
             })}
           </View>
 
-          <Text style={styles.sectionTitle}>{t.vendorReviewsTitle}</Text>
+          {reviews.length > 0 && <Text style={styles.sectionTitle}>{t.vendorReviewsTitle}</Text>}
           <View style={{ gap: 8 }}>
             {reviews.map((r, i) => (
               <View key={i} style={styles.reviewCard}>

@@ -12,6 +12,7 @@ import { pickImageBase64 } from '../utils/pickImage';
 import type { LangStrings } from '../i18n';
 import { colors, gradients, shadow } from '../theme';
 import { ADDRESSES_KEY } from '../constants';
+import DateField, { parseDMY } from '../components/DateField';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Event'>;
 
@@ -132,7 +133,7 @@ export default function EventScreen({ navigation }: Props) {
           <View style={styles.grid2}>
             <View style={styles.gridItem}>
               <Field label={t.date}>
-                <TextInput value={date} onChangeText={setDate} style={styles.input} placeholder="DD/MM/YYYY" placeholderTextColor={colors.textMuted} />
+                <View style={[styles.input, styles.dateInput]}><DateField value={date} onChange={setDate} textStyle={styles.dateText} /></View>
               </Field>
             </View>
             <View style={styles.gridItem}>
@@ -147,7 +148,7 @@ export default function EventScreen({ navigation }: Props) {
             </View>
             <View style={styles.gridItem}>
               <Field label={t.eventFieldPickupDateLabel}>
-                <TextInput value={pickup} onChangeText={setPickup} style={styles.input} placeholder="DD/MM/YYYY" placeholderTextColor={colors.textMuted} />
+                <View style={[styles.input, styles.dateInput]}><DateField value={pickup} onChange={setPickup} textStyle={styles.dateText} minDate={parseDMY(date) || undefined} /></View>
               </Field>
             </View>
             <View style={styles.gridItem}>
@@ -253,6 +254,8 @@ export default function EventScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
+  dateInput: { justifyContent: 'center' },
+  dateText: { fontSize: 14.5, color: colors.text },
   savedRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },
   savedChip: { flexDirection: 'row', alignItems: 'center', gap: 5, maxWidth: '100%', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, backgroundColor: colors.pinkBg },
   savedChipOn: { backgroundColor: colors.maroon, borderColor: colors.maroon },

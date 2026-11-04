@@ -35,6 +35,7 @@ interface CartContextValue {
   subtotal: number;
   vendorCount: number;
   couponCode: string | null;
+  couponDiscountPct: number;
   applyCoupon: (code: string) => Promise<boolean>;
   pricing: Pricing;
   deliveryMode: DeliveryMode;
@@ -165,12 +166,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       subtotal,
       vendorCount: groups.length,
       couponCode,
+      couponDiscountPct,
       applyCoupon,
       pricing,
       deliveryMode,
       setDeliveryMode,
     }),
-    [lines, itemCount, addToCart, updateQty, removeLine, clearCart, groups, subtotal, couponCode, applyCoupon, pricing, deliveryMode],
+    [lines, itemCount, addToCart, updateQty, removeLine, clearCart, groups, subtotal, couponCode, couponDiscountPct, applyCoupon, pricing, deliveryMode],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

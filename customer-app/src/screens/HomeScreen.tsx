@@ -21,6 +21,7 @@ import { colors, gradients, shadow } from '../theme';
 import { HOME_MODE_KEY } from '../constants';
 import { ratingText, metaLine, kmText } from '../utils/rating';
 import { prettyDate } from '../utils/status';
+import DateField from '../components/DateField';
 
 type Mode = 'venues' | 'rentals';
 
@@ -271,12 +272,11 @@ export default function HomeScreen() {
               <View style={styles.heroInputs}>
                 <View style={styles.heroInput}>
                   <Text style={styles.heroInputLabel}>{t.date}</Text>
-                  <TextInput
+                  <DateField
                     value={ev.date}
-                    onChangeText={(v) => setEv((s) => ({ ...s, date: v }))}
-                    placeholder="DD/MM/YYYY"
-                    placeholderTextColor="rgba(255,255,255,0.65)"
-                    style={styles.heroInputField}
+                    onChange={(v) => setEv((st) => ({ ...st, date: v }))}
+                    placeholderColor="rgba(255,255,255,0.65)"
+                    textStyle={styles.heroInputField}
                   />
                 </View>
                 <View style={styles.heroInput}>
@@ -348,12 +348,11 @@ export default function HomeScreen() {
               <View style={styles.heroInputs}>
                 <View style={styles.heroInput}>
                   <Text style={styles.heroInputLabel}>{t.date}</Text>
-                  <TextInput
+                  <DateField
                     value={ev.date}
-                    onChangeText={(v) => setEv((s) => ({ ...s, date: v }))}
-                    placeholder="DD/MM/YYYY"
-                    placeholderTextColor="rgba(255,255,255,0.65)"
-                    style={styles.heroInputField}
+                    onChange={(v) => setEv((st) => ({ ...st, date: v }))}
+                    placeholderColor="rgba(255,255,255,0.65)"
+                    textStyle={styles.heroInputField}
                   />
                 </View>
                 <View style={styles.heroInput}>

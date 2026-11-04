@@ -254,6 +254,18 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
       expect(r2.status === 400, 'paused item: ' + r2.status);
     } finally { await Item.updateOne({ _id: p.id }, { $set: { paused: false } }); }
   });
+  await check('Stock counts the same day written differently (20/12/26 vs 20 Dec 2026)', async () => {
+    const it = await Item.findById(p.id).lean();
+    const mk = (d, q) => ({ groups: [{ vendorId: tent.id, lines: [{ itemId: p.id, qty: q }] }], deliveryMode: 'pickup', payMode: 'full', dateTxt: d });
+    // Fill the stock on one spelling of the date…
+    const r1 = await call('POST', '/api/payments/create-order', CT, { cart: mk('07/01/2028', it.stock) });
+    const pay = 'pay_E2EN' + Date.now();
+    const v = await call('POST', '/api/payments/verify', CT, { razorpay_order_id: r1.data.orderId, razorpay_payment_id: pay, razorpay_signature: sign(r1.data.orderId, pay), cart: mk('07/01/2028', it.stock) });
+    const oid = v.data.orders[0].id; created.orders.push(oid); created.payoutRefs.push(oid);
+    // …then another spelling of the same day must be refused.
+    const r2 = await call('POST', '/api/payments/create-order', CT, { cart: mk('7 Jan 2028', 1) });
+    expect(r2.status === 409, 'same day, other spelling: ' + r2.status);
+  });
   await check('Cart: tampered price ignored (server re-prices)', async () => {
     const cart = { groups: [{ vendorId: tent.id, lines: [{ itemId: p.id, name: p.name, qty: 1, unitPrice: 1 }] }], deliveryMode: 'pickup', payMode: 'full' };
     const r = await call('POST', '/api/payments/create-order', CT, { cart }); expect(r.data.amount / 100 > 1, 'charged ' + r.data.amount);

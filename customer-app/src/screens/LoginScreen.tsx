@@ -112,10 +112,10 @@ export default function LoginScreen({ navigation }: Props) {
 
         <View style={styles.altRow}>
           <TouchableOpacity style={styles.altButton} activeOpacity={0.85} onPress={google} disabled={altLoading !== null}>
-            <Text style={styles.altButtonText}>{altLoading === 'google' ? '…' : t.continueWithGoogle}</Text>
+            <Text style={styles.altButtonText} numberOfLines={1} adjustsFontSizeToFit>{altLoading === 'google' ? '…' : t.continueWithGoogle}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.altButton} activeOpacity={0.85} onPress={guest} disabled={altLoading !== null}>
-            <Text style={styles.altButtonText}>{altLoading === 'guest' ? '…' : t.browseAsGuest}</Text>
+            <Text style={styles.altButtonText} numberOfLines={1} adjustsFontSizeToFit>{altLoading === 'guest' ? '…' : t.browseAsGuest}</Text>
           </TouchableOpacity>
         </View>
 
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   dividerLine: { flex: 1, height: 1, backgroundColor: colors.divider },
   dividerText: { color: colors.textMuted, fontSize: 12 },
   altRow: { flexDirection: 'row', gap: 10 },
-  altButton: { flex: 1, height: 48, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center' },
-  altButtonText: { color: colors.text, fontWeight: '600', fontSize: 14 },
+  altButton: { flex: 1, minHeight: 48, paddingHorizontal: 8, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center' },
+  altButtonText: { color: colors.text, fontWeight: '600', fontSize: 14, textAlign: 'center' },
   terms: { marginTop: 'auto', fontSize: 11.5, color: colors.textMuted, textAlign: 'center', lineHeight: 17 },
 });

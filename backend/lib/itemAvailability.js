@@ -1,5 +1,12 @@
 const Item = require('../models/Item');
 const Order = require('../models/Order');
+const { normalizeDateTxt } = require('./dates');
+
+// Match orders stored before dates were normalised as well as normalised ones.
+const dateMatch = (dateTxt) => {
+  const norm = normalizeDateTxt(dateTxt);
+  return norm === dateTxt ? dateTxt : { $in: [norm, dateTxt] };
+};
 
 // Statuses that represent a real, still-active claim on stock.
 const ACTIVE_ORDER_STATUSES = ['PENDING', 'CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'COMPLETED'];
@@ -28,7 +35,7 @@ async function checkItemStock(itemId, qty, dateTxt) {
   if (dateTxt) {
     const orders = await Order.find({
       'lines.itemId': itemId,
-      dateTxt,
+      dateTxt: dateMatch(dateTxt),
       status: { $in: ACTIVE_ORDER_STATUSES },
     }).select('lines').lean();
 
@@ -56,7 +63,7 @@ async function getCommittedQtyByItem(itemIds, dateTxt) {
   if (!dateTxt || itemIds.length === 0) return map;
   const orders = await Order.find({
     'lines.itemId': { $in: itemIds },
-    dateTxt,
+    dateTxt: dateMatch(dateTxt),
     status: { $in: ACTIVE_ORDER_STATUSES },
   }).select('lines').lean();
   orders.forEach((o) => {

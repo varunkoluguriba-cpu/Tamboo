@@ -11,6 +11,7 @@ const { isSlotTaken } = require('../lib/hallAvailability');
 const { checkItemStock } = require('../lib/itemAvailability');
 const { priceCartGroups, getCouponDiscountPct, computeTotals } = require('../lib/cartPricing');
 const Config = require('../models/Config');
+const { normalizeDateTxt } = require('../lib/dates');
 
 function orderCode() {
   return 'TB-' + (250000 + Math.floor(Math.random() * 9999));
@@ -47,6 +48,7 @@ router.post('/create-order', requireAuth, requireAccount, async (req, res) => {
   }
 
   if (cart && Array.isArray(cart.groups)) {
+    cart.dateTxt = normalizeDateTxt(cart.dateTxt);
     const priced = await priceCartGroups(cart.groups);
     if (priced.error) return res.status(400).json({ error: priced.error });
 
@@ -207,6 +209,7 @@ router.post('/verify', requireAuth, requireAccount, async (req, res) => {
   // partner and the customer paid in full (advance/partial payments are reconciled manually).
   let orders;
   if (cart && Array.isArray(cart.groups)) {
+    cart.dateTxt = normalizeDateTxt(cart.dateTxt);
     // Prices re-derived from the real Item catalog here too — see lib/cartPricing.js —
     // so a vendor's recorded order value/commission/payout always reflects real prices,
     // never whatever the client's cart payload claimed.

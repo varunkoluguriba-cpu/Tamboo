@@ -11,6 +11,7 @@ import { useEvent } from '../context/EventContext';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, shadow } from '../theme';
 import { ratingText, metaLine, kmText } from '../utils/rating';
+import DateField from '../components/DateField';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Venues'>;
 type Sort = 'nearest' | 'rating' | 'priceLow' | 'priceHigh';
@@ -128,13 +129,7 @@ export default function VenuesScreen({ navigation, route }: Props) {
         <View style={styles.grid2}>
           <View style={styles.field}>
             <Text style={styles.fieldLabel}>{t.date}</Text>
-            <TextInput
-              value={event.date}
-              onChangeText={(v) => setEvent({ ...event, date: v })}
-              placeholder="DD/MM/YYYY"
-              placeholderTextColor={colors.textMuted}
-              style={styles.fieldInput}
-            />
+            <DateField value={event.date} onChange={(v) => setEvent({ ...event, date: v })} textStyle={styles.fieldInput} />
           </View>
           <View style={styles.field}>
             <Text style={styles.fieldLabel}>{t.guests}</Text>

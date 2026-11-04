@@ -11,7 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { LANGS, langName } from '../i18n';
 import { colors, shadow } from '../theme';
-import { ADDRESSES_KEY, NOTIF_PREFS_KEY } from '../constants';
+import { ADDRESSES_KEY } from '../constants';
 import { hallStatusText, orderStatusText } from '../utils/status';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -20,29 +20,15 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Profile'>;
 type PaymentEntry = { id: string; label: string; status: string; amount: number; dateMs: number };
 
 
-function Toggle({ on, onPress }: { on: boolean; onPress: () => void }) {
-  return (
-    <TouchableOpacity activeOpacity={0.85} onPress={onPress} style={[styles.toggleTrack, on && styles.toggleTrackOn]}>
-      <View style={[styles.toggleKnob, on && styles.toggleKnobOn]} />
-    </TouchableOpacity>
-  );
-}
-
 export default function ProfileScreen({ navigation }: Props) {
   const { user, logout } = useAuth();
   const { t, lang, setLang } = useLanguage();
   const [langModal, setLangModal] = useState(false);
   const [addrs, setAddrs] = useState<string[]>([]);
   const [newAddr, setNewAddr] = useState('');
-  const [toggles, setToggles] = useState({ booking: true, offers: true, whatsapp: false });
   const [payments, setPayments] = useState<PaymentEntry[]>([]);
 
   useEffect(() => {
-    AsyncStorage.getItem(NOTIF_PREFS_KEY).then((raw) => {
-      if (raw) {
-        try { setToggles(JSON.parse(raw)); } catch { /* ignore corrupt local prefs */ }
-      }
-    });
     AsyncStorage.getItem(ADDRESSES_KEY).then((raw) => {
       if (raw) {
         try { setAddrs(JSON.parse(raw)); } catch { /* ignore corrupt local addresses */ }
@@ -68,13 +54,6 @@ export default function ProfileScreen({ navigation }: Props) {
     });
   }, [t]));
 
-  const updateToggle = (key: keyof typeof toggles) => {
-    setToggles((prev) => {
-      const next = { ...prev, [key]: !prev[key] };
-      AsyncStorage.setItem(NOTIF_PREFS_KEY, JSON.stringify(next)).catch(() => {});
-      return next;
-    });
-  };
 
   const initials = (user?.name || '?')
     .split(' ')
@@ -151,22 +130,6 @@ export default function ProfileScreen({ navigation }: Props) {
             <TouchableOpacity style={styles.addBtn} activeOpacity={0.85} onPress={addAddress}>
               <Text style={styles.addBtnText}>{t.add}</Text>
             </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>{t.profileScreenNotifications}</Text>
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleLabel}>{t.profileScreenBookingUpdates}</Text>
-            <Toggle on={toggles.booking} onPress={() => updateToggle('booking')} />
-          </View>
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleLabel}>{t.profileScreenOffersPromotions}</Text>
-            <Toggle on={toggles.offers} onPress={() => updateToggle('offers')} />
-          </View>
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleLabel}>{t.profileScreenWhatsappReminders}</Text>
-            <Toggle on={toggles.whatsapp} onPress={() => updateToggle('whatsapp')} />
           </View>
         </View>
 
@@ -254,12 +217,6 @@ const styles = StyleSheet.create({
   addrInput: { flex: 1, height: 40, borderRadius: 12, borderWidth: 1.5, borderColor: colors.divider, paddingHorizontal: 12, fontSize: 13, color: colors.text },
   addBtn: { height: 40, paddingHorizontal: 14, borderRadius: 999, backgroundColor: colors.text, alignItems: 'center', justifyContent: 'center' },
   addBtnText: { color: '#fff', fontWeight: '700', fontSize: 12.5 },
-  toggleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  toggleLabel: { fontSize: 13.5, color: colors.text },
-  toggleTrack: { width: 44, height: 26, borderRadius: 999, backgroundColor: colors.divider, justifyContent: 'center' },
-  toggleTrackOn: { backgroundColor: colors.pink },
-  toggleKnob: { width: 20, height: 20, borderRadius: 10, backgroundColor: '#fff', marginLeft: 3, ...shadow.card },
-  toggleKnobOn: { marginLeft: 21 },
   payRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   payEvent: { fontSize: 13, fontWeight: '600', color: colors.text },
   paySub: { fontSize: 11.5, color: colors.textMuted, marginTop: 1 },

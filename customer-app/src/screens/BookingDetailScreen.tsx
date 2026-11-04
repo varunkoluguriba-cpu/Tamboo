@@ -6,7 +6,7 @@ import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, shadow } from '../theme';
-import { hallStatusText, orderStatusText, refundText } from '../utils/status';
+import { hallStatusText, orderStatusText, prettyDate, refundText } from '../utils/status';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BookingDetail'>;
 
@@ -28,6 +28,14 @@ export default function BookingDetailScreen({ navigation, route }: Props) {
           <OrderDetail order={params.order} />
         ) : (
           <HallDetail hall={params.hall} />
+        )}
+        {/* Customers can't cancel rental orders in-app yet; the refund policy is applied by support. */}
+        {((params.kind === 'order' && ['PENDING', 'CONFIRMED', 'PACKED'].includes(params.order.status)) ||
+          (params.kind === 'hall' && ['visited', 'awaiting_advance', 'confirmed'].includes(params.hall.status))) && (
+          <TouchableOpacity style={styles.helpBox} activeOpacity={0.85} onPress={() => navigation.navigate('Chat', { peerName: 'Tamboo Support' })}>
+            <Text style={styles.helpText}>{t.bookingDetailNeedChange}</Text>
+            <Text style={styles.helpLink}>{t.bookingDetailChatSupport}</Text>
+          </TouchableOpacity>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -66,6 +74,18 @@ function OrderDetail({ order }: { order: import('../navigation/types').RemoteOrd
             <Text style={styles.lineAmount}>₹{(l.qty * l.unitPrice).toLocaleString('en-IN')}</Text>
           </View>
         ))}
+        {(() => {
+          // Lines are item rent only; the total also includes delivery, platform fee, tax and
+          // any coupon — show the difference so the numbers add up.
+          const itemsSum = order.lines.reduce((s, l) => s + l.qty * l.unitPrice, 0);
+          const diff = order.value - itemsSum;
+          return diff !== 0 ? (
+            <View style={styles.lineRow}>
+              <Text style={styles.lineText}>{t.bookingDetailFeesLine}</Text>
+              <Text style={styles.lineAmount}>{diff > 0 ? '+' : '−'}₹{Math.abs(diff).toLocaleString('en-IN')}</Text>
+            </View>
+          ) : null;
+        })()}
         <View style={styles.divider} />
         <View style={styles.lineRow}>
           <Text style={styles.totalLabel}>{t.bookingDetailTotal}</Text>
@@ -97,7 +117,7 @@ function HallDetail({ hall }: { hall: import('../navigation/types').RemoteHallBo
   return (
     <View style={styles.card}>
       <Text style={styles.title}>{hall.hallName}</Text>
-      <Row label={t.bookingDetailDate} value={hall.date} />
+      <Row label={t.bookingDetailDate} value={prettyDate(hall.date)} />
       <Row label={t.tokenPaySummarySlot} value={hall.slot} />
       <Row label={t.guests} value={hall.guests} />
       <Row label={t.bookingDetailStatus} value={hallStatusText(hall, t)} />
@@ -115,6 +135,9 @@ function HallDetail({ hall }: { hall: import('../navigation/types').RemoteHallBo
 }
 
 const styles = StyleSheet.create({
+  helpBox: { backgroundColor: colors.surface, borderRadius: 18, padding: 16, gap: 4, ...shadow.card },
+  helpText: { fontSize: 13.5, color: colors.textSoft },
+  helpLink: { fontSize: 14, fontWeight: '800', color: colors.maroon },
   container: { flex: 1, backgroundColor: colors.bg },
   scroll: { padding: 18, paddingTop: 6, gap: 14 },
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
