@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -39,6 +39,12 @@ export default function OtpScreen({ navigation, route }: Props) {
       setVerifying(false);
     }
   };
+
+  // Verify as soon as all 6 digits are in — on small phones the keyboard hides the Verify button.
+  useEffect(() => {
+    if (otp.length === 6 && !verifying) submit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [otp]);
 
   const resend = async () => {
     setErr('');

@@ -142,8 +142,8 @@ export default function OrderScreen({ navigation, route }: Props) {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>{t.orderCustomer}</Text>
           <View style={styles.rowBetween}>
-            <Text style={styles.rowText}>{original.customer}</Text>
-            <Text style={styles.rowMuted}>{prettyPhone(original.phone)}</Text>
+            <Text style={styles.custName}>{original.customer}</Text>
+            <Text style={styles.custPhone}>{prettyPhone(original.phone)}</Text>
           </View>
           <View style={styles.addrRow}>
             <Icon name="pin" size={14} color={colors.pink} />
@@ -224,6 +224,8 @@ export default function OrderScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
+  custName: { fontSize: 13.5, color: colors.text, flex: 1 },
+  custPhone: { fontSize: 12.5, color: colors.textSoft, flexShrink: 0 },
   container: { flex: 1, backgroundColor: colors.bg },
   notFound: { padding: 24, color: colors.textSoft },
   scroll: { padding: 18, paddingTop: 6, gap: 14 },
@@ -247,8 +249,8 @@ const styles = StyleSheet.create({
   card: { backgroundColor: colors.surface, borderRadius: 18, padding: 16, gap: 8, ...shadow.card },
   cardTitle: { fontWeight: '700', fontSize: 14, color: colors.text },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
-  rowText: { fontSize: 13.5, color: colors.text },
-  rowMuted: { fontSize: 12.5, color: colors.textSoft },
+  rowText: { fontSize: 13.5, color: colors.text, maxWidth: '65%', textAlign: 'right' },
+  rowMuted: { fontSize: 12.5, color: colors.textSoft, flex: 1 },
   addrRow: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
   addrText: { flex: 1, fontSize: 13, color: '#4b4560', lineHeight: 19 },
   outlineBtnSm: { flex: 1, height: 42, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center' },

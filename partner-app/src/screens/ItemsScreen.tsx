@@ -151,7 +151,7 @@ export default function ItemsScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
   scroll: { padding: 18, paddingTop: 6, gap: 12 },
-  headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  headRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', rowGap: 10, columnGap: 8 },
   title: { fontFamily: 'Sora', fontSize: 22, fontWeight: '800', color: colors.text },
   addBtn: { height: 40, paddingHorizontal: 16, borderRadius: 999, flexDirection: 'row', alignItems: 'center', gap: 6, overflow: 'hidden' },
   addBtnText: { color: '#fff', fontWeight: '700', fontSize: 13.5, fontFamily: 'Sora' },

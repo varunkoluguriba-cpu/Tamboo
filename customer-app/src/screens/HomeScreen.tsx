@@ -162,9 +162,9 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.headerRow}>
-          <View style={{ minWidth: 0 }}>
+          <View style={{ flex: 1, minWidth: 0, marginRight: 8 }}>
             <Text style={styles.helloSmall}>{t.hello},</Text>
-            <Text style={styles.helloName}>{firstName}</Text>
+            <Text style={styles.helloName} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{firstName}</Text>
           </View>
           <View style={styles.headerActions}>
             <TouchableOpacity style={styles.langChip} activeOpacity={0.8} onPress={() => setLangSheet(true)}>
@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   helloSmall: { fontSize: 12.5, color: colors.textSoft },
   helloName: { fontFamily: 'Sora', fontSize: 21, fontWeight: '800', color: colors.text },
-  headerActions: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 0 },
   langChip: { height: 38, paddingHorizontal: 12, borderRadius: 999, backgroundColor: colors.surface, flexDirection: 'row', alignItems: 'center', gap: 6, ...shadow.card },
   langChipDevanagari: { color: colors.pink, fontWeight: '700' },
   langChipText: { fontWeight: '700', fontSize: 13, color: colors.text },

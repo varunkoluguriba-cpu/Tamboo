@@ -145,8 +145,14 @@ export default function HTokenScreen({ navigation, route }: Props) {
           <Text style={styles.event}>{original.hallName}</Text>
           <View style={styles.rowBetween}>
             <Text style={styles.rowMuted}>{t.htokenCustomer}</Text>
-            <Text style={styles.rowText}>{isOffline ? original.customer : `${original.customer} · ${prettyPhone(original.phone)}`}</Text>
+            <Text style={styles.rowText}>{original.customer}</Text>
           </View>
+          {!isOffline && !!original.phone && (
+            <View style={styles.rowBetween}>
+              <Text style={styles.rowMuted}>{t.htokenPhone}</Text>
+              <Text style={styles.rowText}>{prettyPhone(original.phone)}</Text>
+            </View>
+          )}
           {isActive && !isOffline && (
             <View style={styles.rowBetween}>
               <Text style={styles.rowMuted}>{t.htokenPlannedVisit}</Text>
@@ -262,8 +268,8 @@ const styles = StyleSheet.create({
   cardTitle: { fontWeight: '700', fontSize: 15, color: colors.text },
   event: { fontSize: 16, fontWeight: '700', color: colors.text },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
-  rowMuted: { fontSize: 13.5, color: colors.textSoft },
-  rowText: { fontSize: 13.5, fontWeight: '700', color: colors.text },
+  rowMuted: { fontSize: 13.5, color: colors.textSoft, flex: 1 },
+  rowText: { fontSize: 13.5, fontWeight: '700', color: colors.text, maxWidth: '65%', textAlign: 'right' },
   noteBox: { backgroundColor: colors.bg, borderRadius: 10, padding: 10 },
   noteText: { fontSize: 12.5, color: '#4b4560', lineHeight: 19 },
   primaryBtn: { height: 50, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },

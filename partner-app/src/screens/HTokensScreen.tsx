@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -41,6 +41,16 @@ export default function HTokensScreen({ navigation }: Props) {
     { key: 'ALL', label: t.htokensTabAll },
   ];
 
+  // Open on the first tab that actually has bookings (in the order of the tabs), once, so the
+  // owner isn't greeted by 'Nothing here' while a booking waits in another tab.
+  const [picked, setPicked] = useState(false);
+  useEffect(() => {
+    if (picked || loading || HALL_TOKENS.length === 0) return;
+    const first = TABS.find((tb) => tb.key !== 'ALL' && HALL_TOKENS.some((x) => x.status === tb.key));
+    if (first) setTab(first.key);
+    setPicked(true);
+  }, [picked, loading, HALL_TOKENS, TABS]);
+
   const filtered = HALL_TOKENS.filter((tok) => tab === 'ALL' || tok.status === tab);
 
   return (
@@ -52,7 +62,7 @@ export default function HTokensScreen({ navigation }: Props) {
           {TABS.map((tb) => {
             const count = tb.key === 'ALL' ? HALL_TOKENS.length : HALL_TOKENS.filter((x) => x.status === tb.key).length;
             return (
-              <TouchableOpacity key={tb.key} style={[styles.tabChip, tab === tb.key && styles.tabChipSel]} activeOpacity={0.85} onPress={() => setTab(tb.key)}>
+              <TouchableOpacity key={tb.key} style={[styles.tabChip, tab === tb.key && styles.tabChipSel]} activeOpacity={0.85} onPress={() => { setPicked(true); setTab(tb.key); }}>
                 <Text style={[styles.tabChipText, tab === tb.key && styles.tabChipTextSel]}>{tb.label} · {count}</Text>
               </TouchableOpacity>
             );

@@ -60,7 +60,7 @@ export default function HomeScreen() {
           </View>
           <View style={{ flex: 1, minWidth: 0 }}>
             <Text style={styles.hello}>{t.pHomeGreeting}</Text>
-            <Text style={styles.name}>{partner?.businessName}</Text>
+            <Text style={styles.name} numberOfLines={2}>{partner?.businessName}</Text>
           </View>
           <TouchableOpacity style={styles.langChip} activeOpacity={0.8} onPress={() => setLangSheet(true)}>
             <Text style={styles.langDevanagari}>अ</Text>

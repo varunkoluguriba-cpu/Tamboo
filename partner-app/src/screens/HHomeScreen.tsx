@@ -50,8 +50,10 @@ export default function HHomeScreen() {
   useFocusEffect(useCallback(() => {
     api.get<{ balance: number }>('/api/partner-auth/payouts').then((r) => setIncome(r.balance)).catch(() => {});
   }, []));
-  const needsAttention = [...active, ...visited];
-  const tokenStatusLabel = (s: string) => (s === 'ACTIVE' ? t.htokensTabPending : s === 'VISITED' ? t.htokensTabVisited : s);
+  // Awaiting-advance bookings wait on the customer, but the owner still needs to see them here.
+  const awaiting = HALL_TOKENS.filter((tok) => tok.status === 'AWAITING_ADVANCE');
+  const needsAttention = [...active, ...visited, ...awaiting];
+  const tokenStatusLabel = (s: string) => (s === 'ACTIVE' ? t.htokensTabPending : s === 'VISITED' ? t.htokensTabVisited : s === 'AWAITING_ADVANCE' ? t.htokensTabAwaitingAdvance : s);
 
   const initials = (partner?.businessName || '?')
     .split(' ')
@@ -70,7 +72,7 @@ export default function HHomeScreen() {
           </View>
           <View style={{ flex: 1, minWidth: 0 }}>
             <Text style={styles.hello}>{t.hhomeGreeting} · {partner?.venueType || t.hhomeDefaultVenueType}</Text>
-            <Text style={styles.name}>{partner?.businessName}</Text>
+            <Text style={styles.name} numberOfLines={2}>{partner?.businessName}</Text>
           </View>
           <TouchableOpacity style={styles.langChip} activeOpacity={0.8} onPress={() => setLangSheet(true)}>
             <Text style={styles.langDevanagari}>अ</Text>
