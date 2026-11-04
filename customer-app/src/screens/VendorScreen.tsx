@@ -82,8 +82,8 @@ export default function VendorScreen({ navigation, route }: Props) {
                 <Text style={styles.statValue}>{vendor.setup}</Text>
               </View>
               <View style={styles.statBox}>
-                <Text style={styles.statLabel}>{t.vendorMinOrderLabel}</Text>
-                <Text style={styles.statValue}>{vendor.minOrder}</Text>
+                <Text style={styles.statLabel}>{t.vendorPickupLabel}</Text>
+                <Text style={styles.statValue}>{vendor.pickupFee ? `₹${vendor.pickupFee.toLocaleString('en-IN')}` : t.priceFree}</Text>
               </View>
             </View>
 

@@ -28,10 +28,12 @@ async function priceCartGroups(rawGroups) {
       lines.push({ itemId: l.itemId, name: item.name, qty, unitPrice: item.price, total });
       subtotal += total;
     }
-    // Delivery + setup are each vendor's own fees from their shop settings (what the vendor
+    // Delivery + setup + pickup are each vendor's own fees from their shop settings (what the vendor
     // page shows the customer), read here so the client can never set them.
-    const shop = g.vendorId ? await Shop.findOne({ partner: g.vendorId }).select('deliveryFee setupFee').lean().catch(() => null) : null;
-    const deliveryFee = Math.max(0, Number(shop?.deliveryFee) || 0) + Math.max(0, Number(shop?.setupFee) || 0);
+    const shop = g.vendorId ? await Shop.findOne({ partner: g.vendorId }).select('deliveryFee setupFee pickupFee').lean().catch(() => null) : null;
+    // Delivery mode = vendor delivers, sets up, and collects the items afterwards.
+    const fee = (v) => Math.max(0, Number(v) || 0);
+    const deliveryFee = fee(shop?.deliveryFee) + fee(shop?.setupFee) + fee(shop?.pickupFee);
     groups.push({ vendorId: g.vendorId || null, vendorName: g.vendorName || '', lines, subtotal, deliveryFee });
   }
   return { groups, subtotal: groups.reduce((sum, g) => sum + g.subtotal, 0) };

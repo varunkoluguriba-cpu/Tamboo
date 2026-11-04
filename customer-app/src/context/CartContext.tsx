@@ -142,9 +142,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const subtotal = useMemo(() => groups.reduce((sum, g) => sum + g.subtotal, 0), [groups]);
 
   const pricing = useMemo<Pricing>(() => {
-    // Same rule as the server (lib/cartPricing.js): each vendor's own delivery + setup fee.
+    // Same rule as the server (lib/cartPricing.js): each vendor's own delivery + setup + pickup fee.
     const delivery = deliveryMode === 'delivery'
-      ? groups.reduce((sum, g) => { const v = getVendor(g.vendorId); return sum + (v?.deliveryFee || 0) + (v?.setupFee || 0); }, 0)
+      ? groups.reduce((sum, g) => { const v = getVendor(g.vendorId); return sum + (v?.deliveryFee || 0) + (v?.setupFee || 0) + (v?.pickupFee || 0); }, 0)
       : 0;
     const platformFee = Math.round(subtotal * 0.02);
     const discount = couponCode ? Math.round(subtotal * (couponDiscountPct / 100)) : 0;

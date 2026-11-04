@@ -104,6 +104,7 @@ function serializeVendorPublic(shop, partner) {
     minOrder: '—',
     deliveryFee: Math.max(0, Number(shop.deliveryFee) || 0),
     setupFee: Math.max(0, Number(shop.setupFee) || 0),
+    pickupFee: Math.max(0, Number(shop.pickupFee) || 0),
     areas: (shop.areas || '').split(',').map((s) => s.trim()).filter(Boolean),
     coverPhoto: shop.coverPhoto || '',
     logoPhoto: shop.logoPhoto || '',

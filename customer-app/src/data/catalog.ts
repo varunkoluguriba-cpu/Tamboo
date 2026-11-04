@@ -32,6 +32,7 @@ export type Vendor = {
   delivery: string;
   deliveryFee?: number; // numeric, charged per vendor at checkout (delivery mode)
   setupFee?: number;
+  pickupFee?: number;
   setup: string;
   minOrder: string;
   areas: string[];
