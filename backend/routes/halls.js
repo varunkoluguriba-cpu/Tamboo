@@ -472,6 +472,10 @@ router.patch('/me/tokens/:id', requirePartnerAuth, async (req, res) => {
     booking.status = 'visited';
   } else if (action === 'confirm') {
     if (!(finalRent > 0)) return res.status(400).json({ error: 'Enter the final rent' });
+    // The token is part of the rent, so the rent can't be smaller than what the customer already paid.
+    if (finalRent < booking.amount) {
+      return res.status(400).json({ error: `Final rent can't be less than the ₹${booking.amount.toLocaleString('en-IN')} token already paid` });
+    }
     const hall = mongoose.isValidObjectId(booking.hallId)
       ? await Hall.findOne({ _id: booking.hallId, partner: req.partner.id })
       : null;

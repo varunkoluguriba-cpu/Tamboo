@@ -115,6 +115,10 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
     expect(b && b.visitDate === tomorrowIST && b.visitTime === 'evening', JSON.stringify({ visitDate: b && b.visitDate, visitTime: b && b.visitTime, expected: tomorrowIST }));
   });
   await check('Partner marks visited', async () => { const r = await call('PATCH', '/api/halls/me/tokens/' + bookingId, hallOwnerTok, { action: 'visited' }); expect(r.status === 200 && r.data.status === 'visited', JSON.stringify(r.data)); });
+  await check('Final rent below the token is rejected', async () => {
+    const r = await call('PATCH', '/api/halls/me/tokens/' + bookingId, hallOwnerTok, { action: 'confirm', finalRent: 1000 });
+    expect(r.status === 400, 'got ' + r.status);
+  });
   await check('Partner confirms with final rent → advance requested', async () => { const r = await call('PATCH', '/api/halls/me/tokens/' + bookingId, hallOwnerTok, { action: 'confirm', finalRent: 100000 }); expect(r.status === 200 && r.data.status === 'awaiting_advance', JSON.stringify(r.data)); });
   await check('Customer pays advance → confirmed', async () => {
     const r = await call('POST', '/api/payments/create-advance-order', CT, { bookingId });

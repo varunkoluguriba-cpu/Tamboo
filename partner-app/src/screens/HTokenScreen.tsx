@@ -14,6 +14,9 @@ import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'HToken'>;
 
+// '+919999900001' → '+91 99999 00001' (Indian numbers); anything else shown as-is.
+const prettyPhone = (p: string) => (/^\+91\d{10}$/.test(p || '') ? `+91 ${p.slice(3, 8)} ${p.slice(8)}` : p);
+
 export default function HTokenScreen({ navigation, route }: Props) {
   const { t } = useLanguage();
   const { tokens, loading, reload } = useHallTokens();
@@ -44,7 +47,8 @@ export default function HTokenScreen({ navigation, route }: Props) {
   const sc = statusColors(status);
   const statusLabel = (s?: string) => {
     switch (s) {
-      case 'ACTIVE': return t.htokenStatusActive;
+      case 'ACTIVE': return t.htokensTabPending;
+      case 'EXPIRED': return t.htokensTabExpired;
       case 'VISITED': return t.htokenStatusVisited;
       case 'AWAITING_ADVANCE': return t.htokenStatusAwaitingAdvance;
       case 'CONFIRMED': return t.htokenStatusConfirmed;
@@ -80,6 +84,9 @@ export default function HTokenScreen({ navigation, route }: Props) {
 
   const requestAdvance = () => {
     if (!finalRent.trim()) return Alert.alert(t.htokenEnterRentTitle, t.htokenEnterRentMsg);
+    if (Number(finalRent) < original.amount) {
+      return Alert.alert(t.htokenEnterRentTitle, t.htokenRentBelowToken.replace('{token}', `₹${original.amount.toLocaleString('en-IN')}`));
+    }
     act('confirm', { finalRent: Number(finalRent) });
   };
 
@@ -141,8 +148,18 @@ export default function HTokenScreen({ navigation, route }: Props) {
           <Text style={styles.event}>{original.hallName}</Text>
           <View style={styles.rowBetween}>
             <Text style={styles.rowMuted}>{t.htokenCustomer}</Text>
-            <Text style={styles.rowText}>{isOffline ? original.customer : `${original.customer} · ${original.phone}`}</Text>
+            <Text style={styles.rowText}>{isOffline ? original.customer : `${original.customer} · ${prettyPhone(original.phone)}`}</Text>
           </View>
+          {isActive && !isOffline && (
+            <View style={styles.rowBetween}>
+              <Text style={styles.rowMuted}>{t.htokenPlannedVisit}</Text>
+              <Text style={styles.rowText}>
+                {original.visitDate
+                  ? `${formatBookingDate(original.visitDate)} · ${({ morning: t.visitMorning, afternoon: t.visitAfternoon, evening: t.visitEvening, night: t.visitNight } as Record<string, string>)[original.visitTime || ''] || ''}`
+                  : t.visitNotScheduled}
+              </Text>
+            </View>
+          )}
           <View style={styles.rowBetween}>
             <Text style={styles.rowMuted}>{t.htokenEventDate}</Text>
             <Text style={styles.rowText}>{formatBookingDate(original.date)}</Text>
