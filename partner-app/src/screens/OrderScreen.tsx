@@ -10,6 +10,7 @@ import { api, ApiError } from '../api/client';
 import { useOrders, type RemoteOrder } from '../hooks/useOrders';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
+import { prettyPhone } from '../utils/date';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Order'>;
 
@@ -87,7 +88,9 @@ export default function OrderScreen({ navigation, route }: Props) {
   const advance = () => {
     if (idx < 0) return;
     const next = ORDER_PROGRESSION[idx + 1];
-    setOrderStatus(next, NEXT_LABEL[status].replace(/^Mark /, '').replace(/^./, (c) => c.toUpperCase()));
+    // Timeline label for the status being entered (deriving it from the button text gave 'As packed').
+    const HISTORY_LABEL: Partial<Record<OrderStatus, string>> = { PACKED: 'Packed', OUT_FOR_DELIVERY: 'Out for delivery', DELIVERED: 'Delivered', COMPLETED: 'Completed' };
+    setOrderStatus(next, HISTORY_LABEL[next] || next);
   };
 
   return (
@@ -140,7 +143,7 @@ export default function OrderScreen({ navigation, route }: Props) {
           <Text style={styles.cardTitle}>{t.orderCustomer}</Text>
           <View style={styles.rowBetween}>
             <Text style={styles.rowText}>{original.customer}</Text>
-            <Text style={styles.rowMuted}>{original.phone}</Text>
+            <Text style={styles.rowMuted}>{prettyPhone(original.phone)}</Text>
           </View>
           <View style={styles.addrRow}>
             <Icon name="pin" size={14} color={colors.pink} />

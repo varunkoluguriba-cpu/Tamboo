@@ -97,7 +97,8 @@ export default function RootNavigator() {
         .then((orders) => setNewOrdersCount(orders.filter((o) => o.status === 'PENDING').length))
         .catch(() => {});
     }
-  }, [showHome, isVenue]);
+    // Re-counted on every screen change, so accepting an order or a pre-booking clears the badge.
+  }, [showHome, isVenue, routeName]);
 
   if (loading || seenOnboarding === null) {
     return (

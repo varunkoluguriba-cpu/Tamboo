@@ -9,13 +9,10 @@ import { useLanguage } from '../context/LanguageContext';
 import { api, ApiError } from '../api/client';
 import { statusColors } from '../data/catalog';
 import { useHallTokens, tokenUiStatus, type RemoteHallToken } from '../hooks/useHallTokens';
-import { formatBookingDate } from '../utils/date';
+import { formatBookingDate, prettyPhone } from '../utils/date';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'HToken'>;
-
-// '+919999900001' → '+91 99999 00001' (Indian numbers); anything else shown as-is.
-const prettyPhone = (p: string) => (/^\+91\d{10}$/.test(p || '') ? `+91 ${p.slice(3, 8)} ${p.slice(8)}` : p);
 
 export default function HTokenScreen({ navigation, route }: Props) {
   const { t } = useLanguage();

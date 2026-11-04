@@ -11,3 +11,6 @@ export function formatBookingDate(iso: string): string {
   if (monthIdx < 0 || monthIdx > 11) return iso;
   return `${Number(d)} ${MONTH_ABBR[monthIdx]} ${y}`;
 }
+
+// '+919999900001' → '+91 99999 00001' (Indian numbers); anything else shown as-is.
+export const prettyPhone = (p: string) => (/^\+91\d{10}$/.test(p || '') ? `+91 ${p.slice(3, 8)} ${p.slice(8)}` : p);
