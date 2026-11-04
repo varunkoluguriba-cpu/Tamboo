@@ -9,6 +9,9 @@ import {
 } from '../services/firebaseAuth';
 import { PENDING_ACK_KEY } from '../constants';
 import type { PartnerUser, RegisterPayload } from '../types';
+import { AppState } from 'react-native';
+
+const PROFILE_CACHE_KEY = 'tamboo-partner-profile';
 
 interface AuthContextValue {
   partner: PartnerUser | null;
@@ -35,15 +38,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [confirmation, setConfirmation] = useState<ConfirmationResult | null>(null);
   const [otpPhone, setOtpPhone] = useState('');
 
+  // The last profile we got from the server, kept on the phone so a dropped connection at
+  // startup doesn't look like a logout. Only a 401 (token really invalid) signs the user out.
   const loadMe = useCallback(async () => {
     try {
       const me = await api.get<PartnerUser>('/api/partner-auth/me');
       setPartner(me);
     } catch (err) {
-      if (err instanceof ApiError && err.status === 401) await setToken(null);
-      setPartner(null);
+      if (err instanceof ApiError && err.status === 401) {
+        await setToken(null);
+        await AsyncStorage.removeItem(PROFILE_CACHE_KEY).catch(() => {});
+        setPartner(null);
+        return;
+      }
+      const cached = await AsyncStorage.getItem(PROFILE_CACHE_KEY).catch(() => null);
+      setPartner(cached ? JSON.parse(cached) : null);
     }
   }, []);
+
+  const profile = partner;
+  useEffect(() => {
+    if (profile) AsyncStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(profile)).catch(() => {});
+  }, [profile]);
+  // Refresh from the server when the app comes back to the foreground (e.g. connection restored).
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (st) => {
+      if (st === 'active') getToken().then((tok) => { if (tok) loadMe(); });
+    });
+    return () => sub.remove();
+  }, [loadMe]);
 
   useEffect(() => {
     (async () => {
@@ -93,6 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
+    await AsyncStorage.removeItem(PROFILE_CACHE_KEY).catch(() => {});
     await setToken(null);
     setPartner(null);
   }, []);
@@ -100,6 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Server refuses (409) while a booking/order is in progress — the error message says why.
   const deleteAccount = useCallback(async () => {
     await api.delete('/api/partner-auth/me');
+    await AsyncStorage.removeItem(PROFILE_CACHE_KEY).catch(() => {});
     await setToken(null);
     setPartner(null);
   }, []);

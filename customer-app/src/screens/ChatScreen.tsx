@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -73,8 +73,14 @@ export default function ChatScreen({ navigation, route }: Props) {
     setDraft('');
 
     if (isLive) {
-      setMsgs((m) => [...m, { id: `tmp-${Date.now()}`, text, mine: true, at: timeNow() }]);
-      api.post(endpoint, { text }).catch(() => {});
+      const tmpId = `tmp-${Date.now()}`;
+      setMsgs((m) => [...m, { id: tmpId, text, mine: true, at: timeNow() }]);
+      api.post(endpoint, { text }).catch(() => {
+        // Don't let a failed send look delivered: take the bubble back and keep the text.
+        setMsgs((m) => m.filter((x) => x.id !== tmpId));
+        setDraft(text);
+        Alert.alert(t.chatNotSentTitle, t.loadFailedMsg);
+      });
       return;
     }
 

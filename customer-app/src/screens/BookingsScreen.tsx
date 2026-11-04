@@ -52,29 +52,32 @@ export default function BookingsScreen({ navigation, route }: Props) {
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [hallBookings, setHallBookings] = useState<RemoteHallBooking[]>([]);
   const [hallsLoading, setHallsLoading] = useState(true);
+  // Set when any list fails to load, so we never show "no bookings" just because the phone is offline.
+  const [loadFailed, setLoadFailed] = useState(false);
 
   const loadQuotes = useCallback(() => {
     api.get<RemoteQuote[]>('/api/quotes/me')
       .then(setQuotes)
-      .catch(() => {})
+      .catch(() => setLoadFailed(true))
       .finally(() => setQuotesLoading(false));
   }, []);
 
   const loadOrders = useCallback(() => {
     api.get<RemoteOrderSummary[]>('/api/orders/me')
       .then(setOrders)
-      .catch(() => {})
+      .catch(() => setLoadFailed(true))
       .finally(() => setOrdersLoading(false));
   }, []);
 
   const loadHallBookings = useCallback(() => {
     api.get<RemoteHallBooking[]>('/api/halls/my-tokens')
       .then(setHallBookings)
-      .catch(() => {})
+      .catch(() => setLoadFailed(true))
       .finally(() => setHallsLoading(false));
   }, []);
 
-  useFocusEffect(useCallback(() => { loadQuotes(); loadOrders(); loadHallBookings(); }, [loadQuotes, loadOrders, loadHallBookings]));
+  const loadAll = useCallback(() => { setLoadFailed(false); loadQuotes(); loadOrders(); loadHallBookings(); }, [loadQuotes, loadOrders, loadHallBookings]);
+  useFocusEffect(loadAll);
 
   const activeOrders = orders.filter((o) => ACTIVE_ORDER_STATUSES.includes(o.status));
   const pastOrders = orders.filter((o) => !ACTIVE_ORDER_STATUSES.includes(o.status));
@@ -115,11 +118,18 @@ export default function BookingsScreen({ navigation, route }: Props) {
           ))}
         </View>
 
+        {loadFailed && (
+          <TouchableOpacity style={styles.offlineBox} activeOpacity={0.85} onPress={loadAll}>
+            <Text style={styles.offlineText}>{t.loadFailedMsg}</Text>
+            <Text style={styles.offlineRetry}>{t.retry}</Text>
+          </TouchableOpacity>
+        )}
+
         {tab === 'active' && (
           ordersLoading ? (
             <ActivityIndicator color={colors.pink} style={{ marginTop: 10 }} />
           ) : activeOrders.length === 0 ? (
-            <Text style={styles.emptyText}>{t.bookingsEmptyActive}</Text>
+            loadFailed ? null : <Text style={styles.emptyText}>{t.bookingsEmptyActive}</Text>
           ) : (
             <View style={{ gap: 10 }}>
               {activeOrders.map((o) => (
@@ -143,7 +153,7 @@ export default function BookingsScreen({ navigation, route }: Props) {
           ordersLoading ? (
             <ActivityIndicator color={colors.pink} style={{ marginTop: 10 }} />
           ) : pastOrders.length === 0 ? (
-            <Text style={styles.emptyText}>{t.bookingsEmptyPast}</Text>
+            loadFailed ? null : <Text style={styles.emptyText}>{t.bookingsEmptyPast}</Text>
           ) : (
             <View style={{ gap: 10 }}>
               {pastOrders.map((o) => (
@@ -168,7 +178,7 @@ export default function BookingsScreen({ navigation, route }: Props) {
             {hallsLoading ? (
               <ActivityIndicator color={colors.pink} style={{ marginTop: 10 }} />
             ) : hallBookings.length === 0 ? (
-              <Text style={styles.emptyText}>{t.bookingsEmptyHalls}</Text>
+              loadFailed ? null : <Text style={styles.emptyText}>{t.bookingsEmptyHalls}</Text>
             ) : (
               hallBookings.map((b) => {
                 const left = b.status === 'token_paid' || b.status === 'visited'
@@ -206,7 +216,7 @@ export default function BookingsScreen({ navigation, route }: Props) {
             {quotesLoading ? (
               <ActivityIndicator color={colors.pink} style={{ marginTop: 10 }} />
             ) : quotes.length === 0 ? (
-              <Text style={styles.emptyText}>{t.bookingsEmptyQuotes}</Text>
+              loadFailed ? null : <Text style={styles.emptyText}>{t.bookingsEmptyQuotes}</Text>
             ) : (
               quotes.map((q) => {
                 const latest = q.versions[q.versions.length - 1];
@@ -293,6 +303,9 @@ export default function BookingsScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
+  offlineBox: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: 14, backgroundColor: colors.dangerBg },
+  offlineText: { flex: 1, fontSize: 13.5, fontWeight: '600', color: colors.dangerStrong },
+  offlineRetry: { fontSize: 13.5, fontWeight: '800', color: colors.maroon },
   reviseBox: { gap: 8, marginTop: 10 },
   reviseInput: { minHeight: 70, borderRadius: 12, borderWidth: 1.5, borderColor: colors.divider, padding: 10, fontSize: 14, color: colors.text, textAlignVertical: 'top', backgroundColor: colors.surface },
   container: { flex: 1, backgroundColor: colors.bg },
