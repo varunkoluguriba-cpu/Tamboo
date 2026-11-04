@@ -144,6 +144,11 @@ export default function PackageFormScreen({ navigation, route }: Props) {
               </View>
             )}
 
+            {(() => {
+              // What customers will pay for this package (before delivery/fees) — shown live.
+              const total = items.reduce((sum, i) => sum + (qtys[i.id] || 0) * (i.price || 0), 0);
+              return total > 0 ? <Text style={styles.totalText}>{t.pkgFormTotal.replace('{amount}', `₹${total.toLocaleString('en-IN')}`)}</Text> : null;
+            })()}
             {!!err && <Text style={styles.error}>{err}</Text>}
 
             <TouchableOpacity activeOpacity={0.85} onPress={save} disabled={saving}>
@@ -166,6 +171,7 @@ export default function PackageFormScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
+  totalText: { fontSize: 15, fontWeight: '800', color: colors.maroon, textAlign: 'right' },
   container: { flex: 1, backgroundColor: colors.bg },
   scroll: { padding: 18, paddingTop: 6, gap: 14, paddingBottom: 24 },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
