@@ -14,6 +14,7 @@ function quoteCode() {
 function serializeForVendor(q) {
   return {
     id: q.id,
+    code: q.code,
     event: q.productName || q.vendorName,
     customer: q.customerName,
     customerId: String(q.customer),

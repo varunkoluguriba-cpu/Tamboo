@@ -11,7 +11,8 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import DeleteAccountButton from '../components/DeleteAccountButton';
 import { statusColors } from '../data/catalog';
-import { useHallTokens, tokenUiStatus } from '../hooks/useHallTokens';
+import { useHallTokens, tokenUiStatus, bookingRef } from '../hooks/useHallTokens';
+import { formatBookingDate } from '../utils/date';
 import { scheduleRegisterPhotoReminder } from '../utils/registerReminder';
 import { colors, shadow } from '../theme';
 
@@ -36,7 +37,9 @@ export default function HHomeScreen() {
     slot: tok.slot,
     guests: tok.guests,
     amount: tok.amount,
-    visitTxt: tok.status === 'token_paid' ? t.htokensTabPending : t.htokensTabVisited,
+    visitTxt: tok.status !== 'token_paid' ? t.htokensTabVisited : tok.visitDate
+      ? `${formatBookingDate(tok.visitDate)} · ${({ morning: t.visitMorning, afternoon: t.visitAfternoon, evening: t.visitEvening, night: t.visitNight } as Record<string, string>)[tok.visitTime || ''] || ''}`
+      : t.visitNotScheduled,
   }));
 
   const active = HALL_TOKENS.filter((tok) => tok.status === 'ACTIVE');
@@ -49,7 +52,7 @@ export default function HHomeScreen() {
     api.get<{ balance: number }>('/api/partner-auth/payouts').then((r) => setIncome(r.balance)).catch(() => {});
   }, []));
   const needsAttention = [...active, ...visited];
-  const tokenStatusLabel = (s: string) => (s === 'ACTIVE' ? t.hhomeStatusActive : s === 'VISITED' ? t.hhomeStatusVisited : s);
+  const tokenStatusLabel = (s: string) => (s === 'ACTIVE' ? t.htokensTabPending : s === 'VISITED' ? t.htokensTabVisited : s);
 
   const initials = (partner?.businessName || '?')
     .split(' ')
@@ -122,13 +125,13 @@ export default function HHomeScreen() {
                 return (
                   <TouchableOpacity key={tok.id} style={styles.tokenCard} activeOpacity={0.85} onPress={() => navigation.navigate('HToken', { id: tok.id })}>
                     <View style={styles.rowBetween}>
-                      <Text style={styles.tokenId}>{tok.id}</Text>
+                      <Text style={styles.tokenId}>{bookingRef(tok.id)}</Text>
                       <View style={[styles.pill, { backgroundColor: sc.bg }]}>
                         <Text style={[styles.pillText, { color: sc.color }]}>{tokenStatusLabel(tok.status)}</Text>
                       </View>
                     </View>
                     <Text style={styles.tokenEvent}>{tok.event}</Text>
-                    <Text style={styles.tokenMeta}>{tok.customer} · {tok.date} · {tok.slot} · {tok.guests} {t.hhomeGuestsSuffix}</Text>
+                    <Text style={styles.tokenMeta}>{tok.customer} · {formatBookingDate(tok.date)} · {tok.slot} · {tok.guests} {t.hhomeGuestsSuffix}</Text>
                     <Text style={styles.tokenVisit}>{t.hhomeVisitLabel}: {tok.visitTxt}</Text>
                   </TouchableOpacity>
                 );

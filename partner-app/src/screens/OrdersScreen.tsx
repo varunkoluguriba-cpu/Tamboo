@@ -8,6 +8,7 @@ import { useOrders } from '../hooks/useOrders';
 import { useQuotes } from '../hooks/useQuotes';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, shadow } from '../theme';
+import { formatBookingDate } from '../utils/date';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Orders'>;
 type Tab = 'new' | 'active' | 'quotes' | 'done';
@@ -81,13 +82,13 @@ export default function OrdersScreen({ navigation }: Props) {
               {allQuotes.map((q) => (
                 <TouchableOpacity key={q.id} style={styles.card} activeOpacity={0.85} onPress={() => navigation.navigate('Quote', { id: q.id })}>
                   <View style={styles.cardTop}>
-                    <Text style={styles.cardId}>{q.id}</Text>
+                    <Text style={styles.cardId}>{q.code || q.id}</Text>
                     <View style={[styles.pill, { backgroundColor: statusColors(q.status).bg }]}>
                       <Text style={[styles.pillText, { color: statusColors(q.status).color }]}>{QUOTE_STATUS_LABELS[q.status] || q.status}</Text>
                     </View>
                   </View>
                   <Text style={styles.cardTitle}>{q.event}</Text>
-                  <Text style={styles.cardMeta}>{q.customer} · {q.date} · {q.guests} {t.orderGuestsSuffix}</Text>
+                  <Text style={styles.cardMeta}>{q.customer} · {formatBookingDate(q.date)} · {q.guests} {t.orderGuestsSuffix}</Text>
                   <View style={styles.needBox}>
                     <Text style={styles.needText}>{q.need}</Text>
                   </View>

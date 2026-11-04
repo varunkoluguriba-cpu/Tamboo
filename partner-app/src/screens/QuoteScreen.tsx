@@ -75,7 +75,7 @@ export default function QuoteScreen({ navigation, route }: Props) {
           <TouchableOpacity style={styles.backBtn} activeOpacity={0.8} onPress={() => navigation.goBack()}>
             <Icon name="left" size={18} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t.quoteHeaderTitle.replace('{id}', quote.id)}</Text>
+          <Text style={styles.headerTitle}>{t.quoteHeaderTitle.replace('{id}', quote.code || quote.id)}</Text>
         </View>
 
         <View style={styles.card}>

@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { statusColors, type TokenStatus } from '../data/catalog';
-import { useHallTokens, tokenUiStatus } from '../hooks/useHallTokens';
+import { useHallTokens, tokenUiStatus, bookingRef } from '../hooks/useHallTokens';
 import { useLanguage } from '../context/LanguageContext';
 import { formatBookingDate } from '../utils/date';
 import { colors, shadow } from '../theme';
@@ -28,6 +28,10 @@ export default function HTokensScreen({ navigation }: Props) {
     visitTxt: tok.status === 'token_paid' ? t.htokensTabPending : t.htokensTabVisited,
   }));
 
+  const STATUS_LABEL: Record<string, string> = {
+    ACTIVE: t.htokensTabPending, VISITED: t.htokensTabVisited, AWAITING_ADVANCE: t.htokensTabAwaitingAdvance,
+    CONFIRMED: t.htokensTabConfirmed, EXPIRED: t.htokensTabExpired, NOT_BOOKED: t.visitNotBooked, CANCELLED: t.visitCancelled,
+  };
   const TABS: Array<{ key: Tab; label: string }> = [
     { key: 'ACTIVE', label: t.htokensTabPending },
     { key: 'VISITED', label: t.htokensTabVisited },
@@ -68,7 +72,7 @@ export default function HTokensScreen({ navigation }: Props) {
               return (
                 <TouchableOpacity key={tok.id} style={styles.card} activeOpacity={0.85} onPress={() => navigation.navigate('HToken', { id: tok.id })}>
                   <View style={styles.rowBetween}>
-                    <Text style={styles.cardId}>{tok.id}</Text>
+                    <Text style={styles.cardId}>{bookingRef(tok.id)}</Text>
                     <View style={{ flexDirection: 'row', gap: 6 }}>
                       {tok.isOffline && (
                         <View style={[styles.pill, { backgroundColor: colors.dividerStrong }]}>
@@ -76,7 +80,7 @@ export default function HTokensScreen({ navigation }: Props) {
                         </View>
                       )}
                       <View style={[styles.pill, { backgroundColor: sc.bg }]}>
-                        <Text style={[styles.pillText, { color: sc.color }]}>{tok.status}</Text>
+                        <Text style={[styles.pillText, { color: sc.color }]}>{STATUS_LABEL[tok.status] || tok.status}</Text>
                       </View>
                     </View>
                   </View>

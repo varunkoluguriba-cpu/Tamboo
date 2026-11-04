@@ -13,6 +13,7 @@ export type Quote = {
   date: string;
   guests: number;
   need: string;
+  code?: string;
   isRevision: boolean;
   revisionNote?: string;
   status: QuoteStatus;

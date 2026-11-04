@@ -18,6 +18,8 @@ const FREE_CANCEL_HOURS = 2;
 function serializeTokenOwn(b) {
   return {
     id: b.id,
+    visitDate: b.visitDate || null,
+    visitTime: b.visitTime || null,
     hallId: b.hallId,
     hallName: b.hallName,
     customer: b.customerName,
@@ -544,6 +546,10 @@ router.patch('/my-token/:id', requireAuth, async (req, res) => {
     }
     booking.visitDay = visitDay;
     booking.visitTime = visitTime;
+    // 'today'/'tomorrow' only mean something relative to when they were chosen — store the
+    // real calendar date (India time) so the hall owner sees the correct day later.
+    const offsetDays = { today: 0, tomorrow: 1, dayAfter: 2 }[visitDay];
+    booking.visitDate = new Date(Date.now() + 5.5 * 3600 * 1000 + offsetDays * 86400 * 1000).toISOString().slice(0, 10);
   } else if (action === 'cancel') {
     if (booking.status !== 'token_paid') return res.status(400).json({ error: 'This pre-booking can no longer be cancelled' });
     if (Date.now() - new Date(booking.createdAt).getTime() > FREE_CANCEL_HOURS * 3600 * 1000) {

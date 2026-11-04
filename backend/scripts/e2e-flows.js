@@ -109,6 +109,11 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
     expect(b, 'booking not in partner list'); expect(b.customer && b.phone, 'blank name/phone: ' + JSON.stringify(b));
     return b.customer + ' / ' + b.phone;
   });
+  await check('Hall owner sees the date the customer plans to visit', async () => {
+    const b = (await call('GET', '/api/halls/me/tokens', hallOwnerTok)).data.find((x) => x.id === bookingId);
+    const tomorrowIST = new Date(Date.now() + 5.5 * 3600 * 1000 + 86400 * 1000).toISOString().slice(0, 10);
+    expect(b && b.visitDate === tomorrowIST && b.visitTime === 'evening', JSON.stringify({ visitDate: b && b.visitDate, visitTime: b && b.visitTime, expected: tomorrowIST }));
+  });
   await check('Partner marks visited', async () => { const r = await call('PATCH', '/api/halls/me/tokens/' + bookingId, hallOwnerTok, { action: 'visited' }); expect(r.status === 200 && r.data.status === 'visited', JSON.stringify(r.data)); });
   await check('Partner confirms with final rent → advance requested', async () => { const r = await call('PATCH', '/api/halls/me/tokens/' + bookingId, hallOwnerTok, { action: 'confirm', finalRent: 100000 }); expect(r.status === 200 && r.data.status === 'awaiting_advance', JSON.stringify(r.data)); });
   await check('Customer pays advance → confirmed', async () => {

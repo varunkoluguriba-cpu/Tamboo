@@ -18,6 +18,7 @@ const bookingSchema = new mongoose.Schema({
   // instead of just flashing a confirmation and vanishing.
   visitDay: { type: String, default: '' },
   visitTime: { type: String, default: '' },
+  visitDate: { type: String, default: '' }, // YYYY-MM-DD (India time) the customer plans to visit
   amount: { type: Number, required: true }, // token amount paid, in rupees — 0 for 'offline' bookings
   finalRent: { type: Number, default: 0 }, // agreed by partner once the customer visits in person
   commissionPct: { type: Number, default: 10 },

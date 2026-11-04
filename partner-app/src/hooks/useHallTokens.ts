@@ -24,7 +24,12 @@ export type RemoteHallToken = {
   source: 'online' | 'offline';
   heldAtMs: number;
   visitHours: number;
+  visitDate?: string | null;
+  visitTime?: string | null;
 };
+
+// Short reference shown to people, same as the customer app (last 6 of the id).
+export const bookingRef = (id: string) => id.slice(-6).toUpperCase();
 
 // Server statuses map to the UI's TokenStatus tabs — 'token_paid' splits into ACTIVE vs
 // EXPIRED depending on whether the 48h visit window has passed.
