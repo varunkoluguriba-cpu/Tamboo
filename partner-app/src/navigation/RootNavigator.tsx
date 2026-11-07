@@ -59,7 +59,7 @@ const VENUE_ROUTE_TAB: Partial<Record<keyof RootStackParamList, VenueTab>> = {
   Calendar: 'calendar',
   Halls: 'hall',
   Hall: 'hall',
-  RegisterPhoto: 'hall',
+  RegisterPhoto: 'calendar', // only reached from the Calendar screen
 };
 
 export default function RootNavigator() {

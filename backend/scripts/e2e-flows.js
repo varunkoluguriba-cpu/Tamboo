@@ -159,6 +159,14 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
     await Booking.collection.updateOne({ _id: new mongoose.Types.ObjectId(id) }, { $set: { createdAt: new Date(Date.now() - 3 * 3600 * 1000) } });
     const r = await call('PATCH', '/api/halls/my-token/' + id, CT, { action: 'cancel' }); expect(r.status === 400, 'got ' + r.status + ' ' + JSON.stringify(r.data));
   });
+  await check('Missed advance deadline debits the partner exactly once (parallel reads)', async () => {
+    const id = await payToken('2027-05-12', 'Morning');
+    await Booking.collection.updateOne({ _id: new mongoose.Types.ObjectId(id) }, { $set: { status: 'awaiting_advance', finalRent: 100000, advanceAmount: 25000, advanceDeadlineAt: new Date(Date.now() - 60 * 1000) } });
+    await Promise.all([1, 2, 3].map(() => call('GET', '/api/halls/me/tokens', hallOwnerTok)));
+    const debits = await PayoutEntry.countDocuments({ reference: id, type: 'debit' });
+    const b = await Booking.findById(id).lean();
+    expect(debits === 1 && b.status === 'not_booked', `${debits} debits, status ${b.status}`);
+  });
 
   // ---------- REFUNDS ----------
   const admin = await AdminUser.findOne({ role: { $in: ['owner', 'admin', 'superadmin'] } }) || await AdminUser.findOne();

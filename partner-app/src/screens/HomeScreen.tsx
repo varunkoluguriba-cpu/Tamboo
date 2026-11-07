@@ -14,6 +14,7 @@ import { api } from '../api/client';
 import { statusColors } from '../data/catalog';
 import { colors, gradients, shadow } from '../theme';
 import VerificationBanner from '../components/VerificationBanner';
+import { dateTileParts } from '../utils/date';
 
 const ACTIVE_STATUSES = ['CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED'];
 
@@ -42,6 +43,12 @@ export default function HomeScreen() {
   const liveItems = itemCounts.live;
   const reviewItems = itemCounts.review;
   const upcoming = ORDERS.filter((o) => ACTIVE_STATUSES.includes(o.status));
+  const STATUS_LABELS: Record<string, string> = {
+    CONFIRMED: t.orderStatusConfirmed,
+    PACKED: t.orderStatusPacked,
+    OUT_FOR_DELIVERY: t.orderStatusOutForDelivery,
+    DELIVERED: t.orderStatusDelivered,
+  };
 
   const initials = (partner?.businessName || '?')
     .split(' ')
@@ -115,7 +122,7 @@ export default function HomeScreen() {
             <View style={{ gap: 8 }}>
               {upcoming.map((o) => {
                 const sc = statusColors(o.status);
-                const [day, mon] = o.dateTxt.split(' ');
+                const { day, mon } = dateTileParts(o.dateTxt);
                 return (
                   <TouchableOpacity key={o.id} style={styles.jobRow} activeOpacity={0.85} onPress={() => navigation.navigate('Order', { id: o.id })}>
                     <View style={styles.dateBox}>
@@ -127,7 +134,7 @@ export default function HomeScreen() {
                       <Text style={styles.jobMeta}>{o.customer} · {t.pHomeGuestsCount.replace('{count}', String(o.guests))}</Text>
                     </View>
                     <View style={[styles.pill, { backgroundColor: sc.bg }]}>
-                      <Text style={[styles.pillText, { color: sc.color }]}>{o.status.replace(/_/g, ' ')}</Text>
+                      <Text style={[styles.pillText, { color: sc.color }]}>{STATUS_LABELS[o.status] ?? o.status.replace(/_/g, ' ')}</Text>
                     </View>
                   </TouchableOpacity>
                 );

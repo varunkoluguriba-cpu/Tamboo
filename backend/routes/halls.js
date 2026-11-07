@@ -75,7 +75,14 @@ async function sweepExpiredAdvance(booking) {
   if (booking.status !== 'awaiting_advance') return booking;
   if (!booking.advanceDeadlineAt || booking.advanceDeadlineAt > new Date()) return booking;
 
+  // Several screens read bookings at once, so claim the flip atomically — only the request
+  // that actually moves it out of awaiting_advance writes the debit (no duplicate debits).
+  const claimed = await Booking.updateOne(
+    { _id: booking._id, status: 'awaiting_advance' },
+    { $set: { status: 'not_booked' } },
+  );
   booking.status = 'not_booked';
+  if (claimed.modifiedCount === 0) return booking;
   if (booking.partner) {
     const originalNet = Math.round(booking.amount * (1 - booking.commissionPct / 100));
     const keep = Math.round(booking.amount * 0.2);

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { api } from '../api/client';
@@ -14,7 +15,7 @@ import { statusColors } from '../data/catalog';
 import { useHallTokens, tokenUiStatus, bookingRef, visitText } from '../hooks/useHallTokens';
 import { formatBookingDate } from '../utils/date';
 import { scheduleRegisterPhotoReminder } from '../utils/registerReminder';
-import { colors, shadow } from '../theme';
+import { colors, gradients, shadow } from '../theme';
 import VerificationBanner from '../components/VerificationBanner';
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
@@ -85,6 +86,7 @@ export default function HHomeScreen() {
         <View style={styles.statGrid}>
           <TouchableOpacity style={styles.statGrad} activeOpacity={0.85} onPress={() => navigation.navigate('HTokens')}>
             <View style={styles.statGradInner}>
+              <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
               <Text style={styles.statGradLabel}>{t.hhomeStatPrebooked}</Text>
               <Text style={styles.statGradValue}>{active.length}</Text>
             </View>
@@ -174,8 +176,8 @@ const styles = StyleSheet.create({
   langDevanagari: { color: colors.pink, fontWeight: '700' },
   langText: { fontWeight: '700', fontSize: 12.5, color: colors.text },
   statGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  statGrad: { width: '47%', borderRadius: 18, backgroundColor: colors.maroon },
-  statGradInner: { borderRadius: 18, padding: 14, gap: 4 },
+  statGrad: { width: '47%' },
+  statGradInner: { borderRadius: 18, padding: 14, gap: 4, overflow: 'hidden' },
   statGradLabel: { color: '#fff', fontSize: 12 },
   statGradValue: { color: '#fff', fontFamily: 'Sora', fontSize: 28, fontWeight: '800' },
   statCard: { width: '47%', backgroundColor: colors.surface, borderRadius: 18, padding: 14, gap: 4, ...shadow.card },
