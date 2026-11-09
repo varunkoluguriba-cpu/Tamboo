@@ -25,7 +25,10 @@ import HallsScreen from '../screens/HallsScreen';
 import EarningsScreen from '../screens/EarningsScreen';
 import ChatScreen from '../screens/ChatScreen';
 import ConversationsScreen from '../screens/ConversationsScreen';
-import { TentTabBar, VenueTabBar, type TentTab, type VenueTab } from '../components/TabBar';
+import { ServiceTabBar, TentTabBar, VenueTabBar, type ServiceTab, type TentTab, type VenueTab } from '../components/TabBar';
+import SHomeScreen from '../screens/SHomeScreen';
+import SPackagesScreen from '../screens/SPackagesScreen';
+import SProfileScreen from '../screens/SProfileScreen';
 import { tokenUiStatus, type RemoteHallToken } from '../hooks/useHallTokens';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
@@ -62,6 +65,12 @@ const VENUE_ROUTE_TAB: Partial<Record<keyof RootStackParamList, VenueTab>> = {
   RegisterPhoto: 'calendar', // only reached from the Calendar screen
 };
 
+const SERVICE_ROUTE_TAB: Partial<Record<keyof RootStackParamList, ServiceTab>> = {
+  SHome: 'srequests',
+  SPackages: 'spackages',
+  SProfile: 'sprofile',
+};
+
 export default function RootNavigator() {
   const [keyboardUp, setKeyboardUp] = useState(false);
   useEffect(() => {
@@ -83,11 +92,12 @@ export default function RootNavigator() {
   const stillOnPendingReview = !!partner?.registered && partner.verificationStatus === 'pending' && !pendingAck;
   const showHome = !!partner?.registered && !stillOnPendingReview;
   const isVenue = partner?.role === 'venue';
+  const isService = partner?.role === 'service';
 
   // Feeds the footer's notification badges (new order requests / active hall tokens) — fetched
   // once here instead of per-screen, since the footer is now shared across every screen.
   useEffect(() => {
-    if (!showHome) return;
+    if (!showHome || isService) return;
     if (isVenue) {
       api.get<RemoteHallToken[]>('/api/halls/me/tokens')
         .then((tokens) => setActiveTokensCount(tokens.filter((t) => tokenUiStatus(t) === 'ACTIVE').length))
@@ -114,6 +124,7 @@ export default function RootNavigator() {
 
   const tentActive: TentTab = (routeName ? TENT_ROUTE_TAB[routeName] : 'home') ?? ('' as TentTab);
   const venueActive: VenueTab = (routeName ? VENUE_ROUTE_TAB[routeName] : 'hhome') ?? ('' as VenueTab);
+  const serviceActive: ServiceTab = (routeName ? SERVICE_ROUTE_TAB[routeName] : 'srequests') ?? ('' as ServiceTab);
 
   return (
     <NavigationContainer
@@ -127,8 +138,15 @@ export default function RootNavigator() {
         // how screens pushed on top, like AddItemChoice or Calendar, used to lose it).
         <View style={{ flex: 1 }}>
           <View style={{ flex: 1 }}>
-            <Stack.Navigator initialRouteName={isVenue ? 'HHome' : 'Home'} screenOptions={{ headerShown: false }}>
-              {isVenue ? (
+            <Stack.Navigator initialRouteName={isService ? 'SHome' : isVenue ? 'HHome' : 'Home'} screenOptions={{ headerShown: false }}>
+              {isService ? (
+                <>
+                  <Stack.Screen name="SHome" component={SHomeScreen} />
+                  <Stack.Screen name="SPackages" component={SPackagesScreen} />
+                  <Stack.Screen name="SProfile" component={SProfileScreen} />
+                  <Stack.Screen name="Chat" component={ChatScreen} />
+                </>
+              ) : isVenue ? (
                 <>
                   <Stack.Screen name="HHome" component={HHomeScreen} />
                   <Stack.Screen name="HTokens" component={HTokensScreen} />
@@ -163,7 +181,9 @@ export default function RootNavigator() {
           </View>
           {/* Hidden while typing so the keyboard doesn't push the tab bar over the text field. */}
           {!keyboardUp && <SafeAreaView edges={['bottom']} style={{ backgroundColor: colors.surface }}>
-            {isVenue ? (
+            {isService ? (
+              <ServiceTabBar active={serviceActive} navigation={navigationRef} />
+            ) : isVenue ? (
               <VenueTabBar active={venueActive} navigation={navigationRef} badge={{ htokens: activeTokensCount || undefined }} />
             ) : (
               <TentTabBar active={tentActive} navigation={navigationRef} badge={{ orders: newOrdersCount || undefined }} />

@@ -69,4 +69,8 @@ export type RootStackParamList = {
   Chat: { peerName: string; vendorId?: string };
   Notifications: undefined;
   Profile: undefined;
+  ServiceList: { category: string };
+  ServiceVendor: { id: string };
+  ServiceRequest: { vendorId: string; vendorName: string; category: string; offerId?: string; offerTitle?: string };
+  ServiceRequests: undefined;
 };

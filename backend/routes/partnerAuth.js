@@ -6,6 +6,7 @@ const Config = require('../models/Config');
 const PayoutEntry = require('../models/PayoutEntry');
 const { requirePartnerAuth } = require('../middleware/partnerAuth');
 const { partnerBlocker, deletePartner } = require('../lib/accountDeletion');
+const { servicesAllowedFor, SERVICE_CATEGORIES } = require('../lib/servicesGate');
 
 const router = express.Router();
 
@@ -29,7 +30,18 @@ function serialize(p) {
     bankAccount: p.bankAccount,
     verificationStatus: p.verificationStatus,
     registered: p.registered,
+    serviceCategory: p.serviceCategory,
+    traditions: p.traditions,
+    languages: p.languages,
   };
+}
+
+// Everything the app gets about the signed-in partner, plus live platform settings: the
+// commission % (so the app's text always matches payouts) and whether event services are on
+// for this partner (the 'Event service' sign-up option and screens depend on it).
+async function withPlatform(p) {
+  const config = await Config.get();
+  return { ...serialize(p), commissionPct: config.commissionPct, servicesEnabled: servicesAllowedFor(config, p.phone) };
 }
 
 router.post('/verify', async (req, res) => {
@@ -49,7 +61,7 @@ router.post('/verify', async (req, res) => {
     if (!partner) {
       partner = await Partner.create({ phone: decoded.phone_number, firebaseUid: decoded.uid, authMethod: 'phone' });
     }
-    res.json({ token: issueToken(partner), partner: { ...serialize(partner), commissionPct: (await Config.get()).commissionPct } });
+    res.json({ token: issueToken(partner), partner: await withPlatform(partner) });
   } catch (err) {
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -78,14 +90,19 @@ router.post('/google', async (req, res) => {
         ownerName: decoded.name || '',
       });
     }
-    res.json({ token: issueToken(partner), partner: { ...serialize(partner), commissionPct: (await Config.get()).commissionPct } });
+    res.json({ token: issueToken(partner), partner: await withPlatform(partner) });
   } catch (err) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 router.post('/register', requirePartnerAuth, async (req, res) => {
-  const { role, businessName, ownerName, city, area, venueType, categories, taxId, bankAccount, photos } = req.body || {};
+  const { role, businessName, ownerName, city, area, venueType, categories, taxId, bankAccount, photos, serviceCategory, traditions, languages } = req.body || {};
+  if (role && !['tent', 'venue', 'service'].includes(role)) return res.status(400).json({ error: 'Pick your business type' });
+  if (role === 'service') {
+    if (!servicesAllowedFor(await Config.get(), req.partner.phone)) return res.status(400).json({ error: 'Event services are not open yet' });
+    if (!SERVICE_CATEGORIES.includes(serviceCategory)) return res.status(400).json({ error: 'Pick the service you offer' });
+  }
   if (!businessName || businessName.trim().length < 3) return res.status(400).json({ error: 'Enter your business name' });
   if (!ownerName || !ownerName.trim()) return res.status(400).json({ error: 'Enter the owner name' });
 
@@ -97,18 +114,21 @@ router.post('/register', requirePartnerAuth, async (req, res) => {
   if (area) p.area = area;
   if (venueType) p.venueType = venueType;
   if (Array.isArray(categories)) p.categories = categories;
+  if (role === 'service') {
+    p.serviceCategory = serviceCategory;
+    if (Array.isArray(traditions)) p.traditions = traditions.map(String).slice(0, 10);
+    if (Array.isArray(languages)) p.languages = languages.map(String).slice(0, 10);
+  }
   if (taxId) p.taxId = taxId.trim().toUpperCase();
   if (bankAccount) p.bankAccount = bankAccount.trim();
   if (Array.isArray(photos)) p.registrationPhotos = photos.slice(0, 3);
   p.registered = true;
   await p.save();
-  res.json({ partner: { ...serialize(p), commissionPct: (await Config.get()).commissionPct } });
+  res.json({ partner: await withPlatform(p) });
 });
 
 router.get('/me', requirePartnerAuth, async (req, res) => {
-  // commissionPct is the live admin setting, so the app's commission text always matches payouts.
-  const { commissionPct } = await Config.get();
-  res.json({ ...serialize(req.partner), commissionPct });
+  res.json(await withPlatform(req.partner));
 });
 
 router.get('/payouts', requirePartnerAuth, async (req, res) => {

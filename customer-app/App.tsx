@@ -12,6 +12,7 @@ import { EventProvider } from './src/context/EventContext';
 import { CatalogProvider } from './src/context/CatalogContext';
 import { CartProvider } from './src/context/CartContext';
 import { TokenProvider } from './src/context/TokenContext';
+import { ServicesProvider } from './src/context/ServicesContext';
 import RootNavigator from './src/navigation/RootNavigator';
 
 function App() {
@@ -24,7 +25,9 @@ function App() {
             <CatalogProvider>
               <CartProvider>
                 <TokenProvider>
-                  <RootNavigator />
+                  <ServicesProvider>
+                    <RootNavigator />
+                  </ServicesProvider>
                 </TokenProvider>
               </CartProvider>
             </CatalogProvider>

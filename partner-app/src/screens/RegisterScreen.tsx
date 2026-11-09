@@ -11,7 +11,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { ApiError } from '../api/client';
 import { pickImageBase64 } from '../utils/pickImage';
 import { ROLE_KEY } from '../constants';
-import type { PartnerRole } from '../types';
+import type { PartnerRole, ServiceCategory } from '../types';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Register'>;
@@ -49,8 +49,19 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
+const SERVICE_CATS: ServiceCategory[] = ['priest', 'catering', 'decor', 'music'];
+// Stored in English (shown to customers as-is); the chips show the local word.
+const TRADITIONS = [
+  { id: 'Hindu', key: 'psTradHindu' }, { id: 'Muslim', key: 'psTradMuslim' }, { id: 'Christian', key: 'psTradChristian' },
+  { id: 'Sikh', key: 'psTradSikh' }, { id: 'Jain', key: 'psTradJain' },
+] as const;
+const SERVICE_LANGS = [
+  { id: 'Telugu', label: 'తెలుగు' }, { id: 'Hindi', label: 'हिन्दी' }, { id: 'Urdu', label: 'اردو' }, { id: 'English', label: 'English' },
+  { id: 'Sanskrit', label: 'संस्कृतम्' }, { id: 'Tamil', label: 'தமிழ்' }, { id: 'Kannada', label: 'ಕನ್ನಡ' },
+];
+
 export default function RegisterScreen({ navigation }: Props) {
-  const { register } = useAuth();
+  const { register, partner } = useAuth();
   const { t } = useLanguage();
 
   const [role, setRole] = useState<PartnerRole>('tent');
@@ -63,6 +74,12 @@ export default function RegisterScreen({ navigation }: Props) {
   const [tax, setTax] = useState('');
   const [bank, setBank] = useState('');
   const [photos, setPhotos] = useState<string[]>([]);
+  const [svcCat, setSvcCat] = useState<ServiceCategory | ''>('');
+  const [traditions, setTraditions] = useState<string[]>([]);
+  const [langs, setLangs] = useState<string[]>([]);
+  // The 'Event service' business type is only offered while the server has services on for
+  // this partner (testers during beta, everyone once launched).
+  const servicesOn = !!partner?.servicesEnabled;
   const [err, setErr] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -73,11 +90,14 @@ export default function RegisterScreen({ navigation }: Props) {
 
   useEffect(() => {
     AsyncStorage.getItem(ROLE_KEY).then((v) => {
-      if (v === 'tent' || v === 'venue') setRole(v);
+      if (v === 'tent' || v === 'venue' || (v === 'service' && servicesOn)) setRole(v);
     }).catch(() => {});
-  }, []);
+  }, [servicesOn]);
 
-  const roleNoun = role === 'venue' ? t.pRegisterRoleHall : t.pRegisterRoleTentHouse;
+  const roleNoun = role === 'venue' ? t.pRegisterRoleHall : role === 'service' ? t.psRoleNoun : t.pRegisterRoleTentHouse;
+  const toggle = (list: string[], x: string) => (list.includes(x) ? list.filter((y) => y !== x) : [...list, x]);
+
+  const serviceCatLabel = (c: ServiceCategory) => ({ priest: t.psCatPriest, catering: t.psCatCatering, decor: t.psCatDecor, music: t.psCatMusic })[c];
 
   const toggleCat = (id: string) => {
     setCats((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
@@ -87,8 +107,10 @@ export default function RegisterScreen({ navigation }: Props) {
     if (biz.trim().length < 3) return setErr(t.pRegisterErrBizName);
     if (!owner.trim()) return setErr(t.pRegisterErrOwnerName);
     if (role === 'venue' && !venueType) return setErr(t.pRegisterErrVenueType);
+    if (role === 'service' && !svcCat) return setErr(t.psErrCategory);
     if (!tax.trim()) return setErr(t.pRegisterErrTaxId);
-    if (!bank.trim()) return setErr(t.pRegisterErrBank);
+    // Event-service vendors are paid by the customer directly — Tamboo never pays them out.
+    if (role !== 'service' && !bank.trim()) return setErr(t.pRegisterErrBank);
     setErr('');
     setSubmitting(true);
     try {
@@ -101,8 +123,9 @@ export default function RegisterScreen({ navigation }: Props) {
         venueType: role === 'venue' ? venueType : undefined,
         categories: role === 'tent' ? cats : undefined,
         taxId: tax.trim().toUpperCase(),
-        bankAccount: bank.trim(),
+        bankAccount: role === 'service' ? '' : bank.trim(),
         photos,
+        ...(role === 'service' ? { serviceCategory: svcCat as ServiceCategory, traditions, languages: langs } : {}),
       });
       navigation.replace('PendingReview');
     } catch (e) {
@@ -125,6 +148,16 @@ export default function RegisterScreen({ navigation }: Props) {
           <Text style={styles.subtitle}>{t.pRegisterSubtitle}</Text>
         </View>
 
+        {servicesOn && (
+          <Field label={t.psBusinessType}>
+            <View style={styles.chipRow}>
+              {(['tent', 'venue', 'service'] as PartnerRole[]).map((r) => (
+                <Chip key={r} label={r === 'tent' ? t.psRoleTent : r === 'venue' ? t.psRoleVenue : t.psRoleService} selected={role === r} onPress={() => setRole(r)} />
+              ))}
+            </View>
+          </Field>
+        )}
+
         <Field label={t.pRegisterBusinessName}>
           <TextInput value={biz} onChangeText={setBiz} style={styles.input} placeholder={t.pRegisterBizNamePlaceholder} placeholderTextColor={colors.textMuted} />
         </Field>
@@ -145,7 +178,32 @@ export default function RegisterScreen({ navigation }: Props) {
           <TextInput value={area} onChangeText={setArea} style={styles.input} placeholder={t.pRegisterAreaPlaceholder} placeholderTextColor={colors.textMuted} />
         </Field>
 
-        {role === 'venue' ? (
+
+        {role === 'service' ? (
+          <>
+            <Field label={t.psServiceLabel}>
+              <View style={styles.chipRow}>
+                {SERVICE_CATS.map((c) => (
+                  <Chip key={c} label={serviceCatLabel(c)} selected={svcCat === c} onPress={() => setSvcCat(c)} />
+                ))}
+              </View>
+            </Field>
+            <Field label={t.psTraditionsLabel}>
+              <View style={styles.chipRow}>
+                {TRADITIONS.map((x) => (
+                  <Chip key={x.id} label={t[x.key]} selected={traditions.includes(x.id)} onPress={() => setTraditions((l) => toggle(l, x.id))} />
+                ))}
+              </View>
+            </Field>
+            <Field label={t.psLanguagesLabel}>
+              <View style={styles.chipRow}>
+                {SERVICE_LANGS.map((x) => (
+                  <Chip key={x.id} label={x.label} selected={langs.includes(x.id)} onPress={() => setLangs((l) => toggle(l, x.id))} />
+                ))}
+              </View>
+            </Field>
+          </>
+        ) : role === 'venue' ? (
           <Field label={t.pRegisterVenueType}>
             <View style={styles.chipRow}>
               {VENUE_TYPES.map((v) => (
@@ -178,14 +236,16 @@ export default function RegisterScreen({ navigation }: Props) {
           {photos.length < 2 && (
             <TouchableOpacity style={styles.photoBtn} activeOpacity={0.85} onPress={addPhoto}>
               <Icon name="camera" size={16} color={colors.textSoft} />
-              <Text style={styles.photoBtnText}>{role === 'venue' ? t.pRegisterPhotosHallOptional : t.pRegisterPhotoSetupOptional}</Text>
+              <Text style={styles.photoBtnText}>{role === 'venue' ? t.pRegisterPhotosHallOptional : role === 'service' ? t.psPhotoWork : t.pRegisterPhotoSetupOptional}</Text>
             </TouchableOpacity>
           )}
         </View>
 
-        <Field label={t.pRegisterBankAccount}>
-          <TextInput value={bank} onChangeText={setBank} style={styles.input} placeholder={t.pRegisterBankPlaceholder} placeholderTextColor={colors.textMuted} />
-        </Field>
+        {role !== 'service' && (
+          <Field label={t.pRegisterBankAccount}>
+            <TextInput value={bank} onChangeText={setBank} style={styles.input} placeholder={t.pRegisterBankPlaceholder} placeholderTextColor={colors.textMuted} />
+          </Field>
+        )}
 
         {!!err && <Text style={styles.error}>{err}</Text>}
 

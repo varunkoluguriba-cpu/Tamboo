@@ -16,6 +16,8 @@ const Package = require('../models/Package');
 const Config = require('../models/Config');
 const Coupon = require('../models/Coupon');
 const AuditLog = require('../models/AuditLog');
+const ServiceRequest = require('../models/ServiceRequest');
+const { SERVICE_CATEGORIES } = require('../lib/servicesGate');
 
 const router = express.Router();
 router.use(requireAdminAuth);
@@ -41,6 +43,7 @@ router.use('/users', requireSection('customers'));
 router.use('/halls', requireSection('halls'));
 router.use('/items', requireSection('items'));
 router.use('/quotes', requireSection('quotes'));
+router.use('/service-requests', requireSection('quotes'));
 router.use('/packages', requireSection('packages'));
 router.use('/bookings', requireSection('bookings'));
 router.use('/orders', requireSection('bookings'));
@@ -64,6 +67,9 @@ function serializePartner(p) {
     area: p.area,
     venueType: p.venueType,
     categories: p.categories,
+    serviceCategory: p.serviceCategory,
+    traditions: p.traditions,
+    languages: p.languages,
     verificationStatus: p.verificationStatus,
     registered: p.registered,
     createdAt: p.createdAt,
@@ -281,24 +287,25 @@ router.get('/disputes', async (req, res) => {
 // --- Refunds owed to customers (paid manually from the Razorpay dashboard for now). ---
 router.get('/refunds', async (req, res) => {
   const status = req.query.status === 'refunded' ? 'refunded' : 'pending';
-  const [orders, bookings] = await Promise.all([
+  const [orders, bookings, serviceRequests] = await Promise.all([
     Order.find({ refundStatus: status }).sort({ refundRequestedAt: -1 }).limit(200),
     Booking.find({ refundStatus: status }).sort({ refundRequestedAt: -1 }).limit(200),
+    ServiceRequest.find({ refundStatus: status }).sort({ refundRequestedAt: -1 }).limit(200),
   ]);
   const row = (d, kind) => ({
     id: d.id, kind,
-    title: kind === 'order' ? `${d.code} · ${d.vendorName}` : d.hallName,
+    title: kind === 'order' ? `${d.code} · ${d.vendorName}` : kind === 'service' ? `${d.code} · quote fee · ${d.vendorName}` : d.hallName,
     customerName: d.customerName, customerPhone: d.customerPhone,
     amount: d.refundAmount, reason: d.refundReason,
     paymentId: kind === 'order' ? d.razorpayPaymentId : d.razorpayPaymentId,
     requestedAt: d.refundRequestedAt, refundedAt: d.refundedAt, refundRef: d.refundRef,
   });
-  res.json([...orders.map((o) => row(o, 'order')), ...bookings.map((b) => row(b, 'booking'))]
+  res.json([...orders.map((o) => row(o, 'order')), ...bookings.map((b) => row(b, 'booking')), ...serviceRequests.map((r) => row(r, 'service'))]
     .sort((a, b) => new Date(b.requestedAt) - new Date(a.requestedAt)));
 });
 
 router.post('/refunds/:kind/:id/mark-refunded', async (req, res) => {
-  const Model = req.params.kind === 'order' ? Order : req.params.kind === 'booking' ? Booking : null;
+  const Model = { order: Order, booking: Booking, service: ServiceRequest }[req.params.kind] || null;
   if (!Model) return res.status(400).json({ error: 'Invalid kind' });
   const doc = await Model.findById(req.params.id);
   if (!doc) return res.status(404).json({ error: 'Not found' });
@@ -493,6 +500,38 @@ router.put('/config', async (req, res) => {
   );
   audit(req, 'Updated platform fees', 'Config', `commission ${before.commissionPct}%, advance ${before.defaultAdvancePct}%`, `commission ${commissionPct}%, advance ${defaultAdvancePct}%`);
   res.json(updated);
+});
+
+// --- Event services: switch, tester numbers, free quotes, fees ---
+router.put('/config/services', async (req, res) => {
+  const { servicesMode, serviceTesterPhones, serviceFreeQuotes, serviceQuoteFees } = req.body || {};
+  if (!['off', 'beta', 'on'].includes(servicesMode)) return res.status(400).json({ error: 'Mode must be off, beta or on' });
+  const phones = (Array.isArray(serviceTesterPhones) ? serviceTesterPhones : [])
+    .map((x) => String(x).replace(/[\s-]/g, ''))
+    .map((x) => (/^\d{10}$/.test(x) ? `+91${x}` : x));
+  if (phones.some((x) => !/^\+91\d{10}$/.test(x))) return res.status(400).json({ error: 'Tester numbers must be 10-digit Indian mobiles' });
+  const free = Math.round(Number(serviceFreeQuotes));
+  if (!Number.isFinite(free) || free < 0 || free > 20) return res.status(400).json({ error: 'Free quotes must be 0-20' });
+  const fees = {};
+  for (const c of SERVICE_CATEGORIES) {
+    const v = Math.round(Number((serviceQuoteFees || {})[c]));
+    if (!Number.isFinite(v) || v < 0 || v > 999) return res.status(400).json({ error: `Fee for ${c} must be ₹0-999` });
+    fees[c] = v;
+  }
+  const before = await Config.get();
+  const updated = await Config.findByIdAndUpdate(Config.SINGLETON_ID,
+    { servicesMode, serviceTesterPhones: phones, serviceFreeQuotes: free, serviceQuoteFees: fees }, { new: true, upsert: true });
+  audit(req, 'Updated event services settings', 'Config', `mode ${before.servicesMode}`, `mode ${servicesMode}, ${free} free, fees ${JSON.stringify(fees)}`);
+  res.json(updated);
+});
+
+router.get('/service-requests', async (req, res) => {
+  const list = await ServiceRequest.find({ status: { $ne: 'PENDING_PAYMENT' } }).sort({ createdAt: -1 }).limit(300);
+  res.json(list.map((r) => ({
+    id: r.id, code: r.code, category: r.category, vendorName: r.vendorName, vendorId: String(r.partner),
+    customerName: r.customerName, customerPhone: r.customerPhone, eventDate: r.eventDate, fee: r.fee,
+    status: r.status, smsSent: r.smsSent, createdAt: r.createdAt, contactedAt: r.contactedAt, refundStatus: r.refundStatus,
+  })));
 });
 
 // --- Coupons ---

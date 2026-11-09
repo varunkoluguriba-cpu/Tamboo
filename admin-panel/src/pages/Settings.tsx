@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react';
 import { api, ApiError } from '../api';
 import { useAuth } from '../context/AuthContext';
 
-type ConfigT = { commissionPct: number; defaultAdvancePct: number };
+type Fees = { priest: number; catering: number; decor: number; music: number };
+type ConfigT = {
+  commissionPct: number; defaultAdvancePct: number;
+  servicesMode: 'off' | 'beta' | 'on'; serviceTesterPhones: string[]; serviceFreeQuotes: number; serviceQuoteFees: Fees;
+};
 type Coupon = { _id: string; code: string; description: string; discountPct: number; active: boolean };
 
 export default function Settings() {
@@ -18,11 +22,14 @@ export default function Settings() {
   const [newDesc, setNewDesc] = useState('');
   const [newPct, setNewPct] = useState('');
   const [couponErr, setCouponErr] = useState('');
+  const [testers, setTesters] = useState('');
+  const [svcSaving, setSvcSaving] = useState(false);
+  const [svcSaved, setSvcSaved] = useState(false);
 
   const load = () => {
     setLoading(true);
     Promise.all([api.get<ConfigT>('/api/admin/config'), api.get<Coupon[]>('/api/admin/coupons')])
-      .then(([c, cp]) => { setConfig(c); setCoupons(cp); })
+      .then(([c, cp]) => { setConfig(c); setCoupons(cp); setTesters((c.serviceTesterPhones || []).join('\n')); })
       .catch((err) => {
         if (err instanceof ApiError && err.status === 401) return logout();
         setError(err instanceof ApiError ? err.message : 'Could not load settings.');
@@ -45,6 +52,29 @@ export default function Settings() {
       alert(err instanceof ApiError ? err.message : 'Could not save.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const saveServices = async () => {
+    if (!config) return;
+    if (config.servicesMode === 'on' && !window.confirm('Switch event services ON for every customer and vendor?')) return;
+    setSvcSaving(true);
+    setSvcSaved(false);
+    try {
+      const res = await api.put<ConfigT>('/api/admin/config/services', {
+        servicesMode: config.servicesMode,
+        serviceTesterPhones: testers.split(/[\s,]+/).filter(Boolean),
+        serviceFreeQuotes: config.serviceFreeQuotes,
+        serviceQuoteFees: config.serviceQuoteFees,
+      });
+      setConfig(res);
+      setTesters((res.serviceTesterPhones || []).join('\n'));
+      setSvcSaved(true);
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) return logout();
+      alert(err instanceof ApiError ? err.message : 'Could not save.');
+    } finally {
+      setSvcSaving(false);
     }
   };
 
@@ -110,6 +140,46 @@ export default function Settings() {
         </button>
         <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8 }}>
           Applies to new bookings. Existing bookings keep the rate they were booked at.
+        </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: 16 }}>
+        <h3 style={{ marginTop: 0 }}>Event services (priest, catering, decor, music)</h3>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+          {(['off', 'beta', 'on'] as const).map((m) => (
+            <button key={m} className={config.servicesMode === m ? 'btn-primary' : 'btn-secondary'} style={{ width: 'auto', padding: '0 18px' }}
+              onClick={() => { setConfig({ ...config, servicesMode: m }); setSvcSaved(false); }}>
+              {m === 'off' ? 'Off' : m === 'beta' ? 'Testers only' : 'On for everyone'}
+            </button>
+          ))}
+        </div>
+        <div style={{ fontSize: 12.5, color: 'var(--text-muted)', marginBottom: 12 }}>
+          Off: nobody sees Services. Testers only: just the mobile numbers below see it (customers and vendors). On: everyone.
+        </div>
+        <label style={{ fontSize: 13.5, color: 'var(--text-soft)' }}>Tester mobile numbers (one per line)</label>
+        <textarea className="text-input" style={{ width: '100%', minHeight: 70, marginBottom: 12 }} value={testers}
+          onChange={(e) => { setTesters(e.target.value); setSvcSaved(false); }} placeholder="9999900000" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+          <label style={{ flex: 1, fontSize: 13.5, color: 'var(--text-soft)' }}>Free quote requests per customer</label>
+          <input className="text-input" style={{ width: 90, textAlign: 'right' }} type="number" value={config.serviceFreeQuotes}
+            onChange={(e) => { setConfig({ ...config, serviceFreeQuotes: Number(e.target.value) }); setSvcSaved(false); }} />
+          <span style={{ width: 24 }} />
+        </div>
+        {(['priest', 'music', 'decor', 'catering'] as const).map((c) => (
+          <div key={c} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            <label style={{ flex: 1, fontSize: 13.5, color: 'var(--text-soft)' }}>
+              Fee per request after the free ones — {{ priest: 'Priest', music: 'Music', decor: 'Decoration', catering: 'Catering' }[c]}
+            </label>
+            <span style={{ fontSize: 12.5, color: 'var(--text-muted)' }}>₹</span>
+            <input className="text-input" style={{ width: 90, textAlign: 'right' }} type="number" value={config.serviceQuoteFees?.[c] ?? 0}
+              onChange={(e) => { setConfig({ ...config, serviceQuoteFees: { ...config.serviceQuoteFees, [c]: Number(e.target.value) } }); setSvcSaved(false); }} />
+          </div>
+        ))}
+        <button className="btn-primary" style={{ width: 'auto', padding: '0 28px' }} onClick={saveServices} disabled={svcSaving}>
+          {svcSaving ? 'Saving…' : svcSaved ? 'Saved ✓' : 'Save services settings'}
+        </button>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8 }}>
+          If a vendor doesn't respond within 24 hours, a free request is given back and a paid fee shows up under Refunds.
         </div>
       </div>
 

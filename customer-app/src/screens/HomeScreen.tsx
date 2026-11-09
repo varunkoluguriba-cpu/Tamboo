@@ -23,8 +23,10 @@ import { ratingText, metaLine, kmText } from '../utils/rating';
 import { prettyDate } from '../utils/status';
 import DateField from '../components/DateField';
 import { hallTypeText, paxText } from '../utils/units';
+import ServicesHome from '../components/ServicesHome';
+import { useServices } from '../context/ServicesContext';
 
-type Mode = 'venues' | 'rentals';
+type Mode = 'venues' | 'rentals' | 'services';
 
 type Option = { value: string; label: string };
 
@@ -142,9 +144,16 @@ export default function HomeScreen() {
 
   useEffect(() => {
     AsyncStorage.getItem(HOME_MODE_KEY)
-      .then((v) => { if (v === 'venues' || v === 'rentals') setMode(v); })
+      .then((v) => { if (v === 'venues' || v === 'rentals' || v === 'services') setMode(v); })
       .catch(() => {});
   }, []);
+
+  // 'services' is only offered while the server has event services switched on for this user;
+  // if it gets switched off, fall back to Rentals rather than showing an empty mode.
+  const { config: servicesConfig, refresh: refreshServices } = useServices();
+  const servicesOn = servicesConfig.enabled;
+  const shownMode: Mode = mode === 'services' && !servicesOn ? 'rentals' : mode;
+  useFocusEffect(React.useCallback(() => { refreshServices(); }, [refreshServices]));
 
   const selectMode = (m: Mode) => {
     setMode(m);
@@ -173,7 +182,7 @@ export default function HomeScreen() {
               <Text style={styles.langChipDevanagari}>अ</Text>
               <Text style={styles.langChipText}>{lang.toUpperCase()}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => (mode === 'venues' ? navigation.navigate('Venues') : navigation.navigate('Browse', {}))} accessibilityLabel={t.homeScreenSearchA11y} accessibilityRole="button">
+            <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => (shownMode === 'venues' ? navigation.navigate('Venues') : navigation.navigate('Browse', {}))} accessibilityLabel={t.homeScreenSearchA11y} accessibilityRole="button">
               <Icon name="search" size={19} color={colors.text} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => navigation.navigate('Notifications')} accessibilityLabel={t.homeScreenNotificationsA11y} accessibilityRole="button">
@@ -193,33 +202,49 @@ export default function HomeScreen() {
 
         <View style={styles.modeToggle}>
           <TouchableOpacity style={styles.modeBtnWrap} activeOpacity={0.85} onPress={() => selectMode('venues')}>
-            {mode === 'venues' ? (
+            {shownMode === 'venues' ? (
               <View style={styles.modeBtn}>
                 <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
                 <Icon name="home" size={15} color="#fff" />
-                <Text style={styles.modeBtnTextSel}>{t.homeScreenHallsVenues}</Text>
+                <Text style={styles.modeBtnTextSel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{t.homeScreenHallsVenues}</Text>
               </View>
             ) : (
               <View style={styles.modeBtn}>
                 <Icon name="home" size={15} color={colors.textSoft} />
-                <Text style={styles.modeBtnText}>{t.homeScreenHallsVenues}</Text>
+                <Text style={styles.modeBtnText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{t.homeScreenHallsVenues}</Text>
               </View>
             )}
           </TouchableOpacity>
           <TouchableOpacity style={styles.modeBtnWrap} activeOpacity={0.85} onPress={() => selectMode('rentals')}>
-            {mode === 'rentals' ? (
+            {shownMode === 'rentals' ? (
               <View style={styles.modeBtn}>
                 <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
                 <Icon name="tent" size={15} color="#fff" />
-                <Text style={styles.modeBtnTextSel}>{t.homeScreenRentals}</Text>
+                <Text style={styles.modeBtnTextSel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{t.homeScreenRentals}</Text>
               </View>
             ) : (
               <View style={styles.modeBtn}>
                 <Icon name="tent" size={15} color={colors.textSoft} />
-                <Text style={styles.modeBtnText}>{t.homeScreenRentals}</Text>
+                <Text style={styles.modeBtnText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{t.homeScreenRentals}</Text>
               </View>
             )}
           </TouchableOpacity>
+          {servicesOn && (
+            <TouchableOpacity style={styles.modeBtnWrap} activeOpacity={0.85} onPress={() => selectMode('services')}>
+              {shownMode === 'services' ? (
+                <View style={styles.modeBtn}>
+                  <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
+                  <Icon name="flower" size={15} color="#fff" />
+                  <Text style={styles.modeBtnTextSel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{t.svTab}</Text>
+                </View>
+              ) : (
+                <View style={styles.modeBtn}>
+                  <Icon name="flower" size={15} color={colors.textSoft} />
+                  <Text style={styles.modeBtnText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{t.svTab}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* A hall booking needing action shows in both Halls and Rentals mode. */}
@@ -257,7 +282,9 @@ export default function HomeScreen() {
           );
         })()}
 
-        {mode === 'venues' ? (
+        {shownMode === 'services' ? (
+          <ServicesHome />
+        ) : shownMode === 'venues' ? (
           <>
 
             <View style={styles.hero}>

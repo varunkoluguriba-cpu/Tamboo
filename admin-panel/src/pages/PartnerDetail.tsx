@@ -6,7 +6,8 @@ import { useAuth } from '../context/AuthContext';
 type Partner = {
   id: string;
   phone: string;
-  role: 'tent' | 'venue';
+  role: 'tent' | 'venue' | 'service';
+  serviceCategory?: string;
   businessName: string;
   ownerName: string;
   city: string;
@@ -28,6 +29,10 @@ type PayoutEntry = {
 
 const inr = (n: number) => `₹${Math.abs(Math.round(n)).toLocaleString('en-IN')}`;
 
+
+const SERVICE_LABEL: Record<string, string> = { priest: 'Priest', catering: 'Catering', decor: 'Decoration', music: 'Music' };
+const roleLabel = (p: { role: string; venueType: string; serviceCategory?: string }) =>
+  p.role === 'venue' ? p.venueType || 'Venue' : p.role === 'service' ? `Event service — ${SERVICE_LABEL[p.serviceCategory || ''] || 'not set'}` : 'Tent house';
 export default function PartnerDetail() {
   const { id } = useParams<{ id: string }>();
   const { logout } = useAuth();
@@ -116,7 +121,7 @@ export default function PartnerDetail() {
       <div className="detail-grid">
         <div className="detail-field"><label>Owner</label><div className="val">{partner.ownerName}</div></div>
         <div className="detail-field"><label>Phone</label><div className="val">{partner.phone}</div></div>
-        <div className="detail-field"><label>Role</label><div className="val">{partner.role === 'venue' ? partner.venueType || 'Venue' : 'Tent house'}</div></div>
+        <div className="detail-field"><label>Role</label><div className="val">{roleLabel(partner)}</div></div>
         <div className="detail-field"><label>Location</label><div className="val">{partner.area ? `${partner.area}, ` : ''}{partner.city}</div></div>
         {partner.role === 'tent' && (
           <div className="detail-field"><label>Categories</label><div className="val">{partner.categories.join(', ') || '—'}</div></div>

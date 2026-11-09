@@ -15,6 +15,7 @@ import HallDetail from './pages/HallDetail';
 import Items from './pages/Items';
 import ItemDetail from './pages/ItemDetail';
 import Quotes from './pages/Quotes';
+import ServiceRequests from './pages/ServiceRequests';
 import Packages from './pages/Packages';
 import Bookings from './pages/Bookings';
 import OrderDetail from './pages/OrderDetail';
@@ -60,6 +61,7 @@ function AppRoutes() {
         <Route path="items" element={<SectionGate section="items"><Items /></SectionGate>} />
         <Route path="items/:id" element={<SectionGate section="items"><ItemDetail /></SectionGate>} />
         <Route path="quotes" element={<SectionGate section="quotes"><Quotes /></SectionGate>} />
+        <Route path="service-requests" element={<SectionGate section="quotes"><ServiceRequests /></SectionGate>} />
         <Route path="packages" element={<SectionGate section="packages"><Packages /></SectionGate>} />
         <Route path="bookings" element={<SectionGate section="bookings"><Bookings /></SectionGate>} />
         <Route path="orders/:id" element={<SectionGate section="bookings"><OrderDetail /></SectionGate>} />
