@@ -143,7 +143,7 @@ export default function ServiceRequestScreen({ navigation, route }: Props) {
             </View>
 
             <Text style={styles.label}>{t.svReqMsg}</Text>
-            <TextInput style={[styles.input, styles.inputText, styles.multi]} value={message} onChangeText={setMessage} placeholder={t.svReqMsgPh} placeholderTextColor={colors.textMuted} multiline maxLength={1000} />
+            <TextInput style={[styles.input, styles.inputText, styles.multi]} value={message} onChangeText={setMessage} placeholder={({ catering: t.svReqMsgPhCatering, decor: t.svReqMsgPhDecor, music: t.svReqMsgPhMusic } as Record<string, string>)[category] || t.svReqMsgPh} placeholderTextColor={colors.textMuted} multiline maxLength={1000} />
           </View>
 
           <TouchableOpacity style={styles.consentRow} activeOpacity={0.85} onPress={() => setConsent((c) => !c)}>

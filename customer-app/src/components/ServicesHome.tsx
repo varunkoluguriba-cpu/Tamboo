@@ -27,7 +27,7 @@ export default function ServicesHome() {
         <Text style={styles.heroBody}>{t.svHeroBody}</Text>
         <View style={styles.freePill}>
           <Text style={styles.freePillText}>
-            {freeLeft > 0 ? t.svFreeLeft.replace('{n}', String(freeLeft)) : t.svFreeNone.replace('{hours}', String(config.noResponseHours ?? 24))}
+            {freeLeft === 1 ? t.svFreeLeftOne : freeLeft > 0 ? t.svFreeLeft.replace('{n}', String(freeLeft)) : t.svFreeNone.replace('{hours}', String(config.noResponseHours ?? 24))}
           </Text>
         </View>
       </View>

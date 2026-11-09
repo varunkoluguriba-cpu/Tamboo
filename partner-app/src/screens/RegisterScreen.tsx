@@ -109,7 +109,8 @@ export default function RegisterScreen({ navigation }: Props) {
     if (role === 'venue' && !venueType) return setErr(t.pRegisterErrVenueType);
     if (role === 'service' && !svcCat) return setErr(t.psErrCategory);
     if (!tax.trim()) return setErr(t.pRegisterErrTaxId);
-    if (!bank.trim()) return setErr(t.pRegisterErrBank);
+    // Event-service vendors are paid by the customer directly — Tamboo never pays them out.
+    if (role !== 'service' && !bank.trim()) return setErr(t.pRegisterErrBank);
     setErr('');
     setSubmitting(true);
     try {
@@ -122,7 +123,7 @@ export default function RegisterScreen({ navigation }: Props) {
         venueType: role === 'venue' ? venueType : undefined,
         categories: role === 'tent' ? cats : undefined,
         taxId: tax.trim().toUpperCase(),
-        bankAccount: bank.trim(),
+        bankAccount: role === 'service' ? '' : bank.trim(),
         photos,
         ...(role === 'service' ? { serviceCategory: svcCat as ServiceCategory, traditions, languages: langs } : {}),
       });
@@ -147,6 +148,16 @@ export default function RegisterScreen({ navigation }: Props) {
           <Text style={styles.subtitle}>{t.pRegisterSubtitle}</Text>
         </View>
 
+        {servicesOn && (
+          <Field label={t.psBusinessType}>
+            <View style={styles.chipRow}>
+              {(['tent', 'venue', 'service'] as PartnerRole[]).map((r) => (
+                <Chip key={r} label={r === 'tent' ? t.psRoleTent : r === 'venue' ? t.psRoleVenue : t.psRoleService} selected={role === r} onPress={() => setRole(r)} />
+              ))}
+            </View>
+          </Field>
+        )}
+
         <Field label={t.pRegisterBusinessName}>
           <TextInput value={biz} onChangeText={setBiz} style={styles.input} placeholder={t.pRegisterBizNamePlaceholder} placeholderTextColor={colors.textMuted} />
         </Field>
@@ -167,15 +178,6 @@ export default function RegisterScreen({ navigation }: Props) {
           <TextInput value={area} onChangeText={setArea} style={styles.input} placeholder={t.pRegisterAreaPlaceholder} placeholderTextColor={colors.textMuted} />
         </Field>
 
-        {servicesOn && (
-          <Field label={t.psBusinessType}>
-            <View style={styles.chipRow}>
-              {(['tent', 'venue', 'service'] as PartnerRole[]).map((r) => (
-                <Chip key={r} label={r === 'tent' ? t.psRoleTent : r === 'venue' ? t.psRoleVenue : t.psRoleService} selected={role === r} onPress={() => setRole(r)} />
-              ))}
-            </View>
-          </Field>
-        )}
 
         {role === 'service' ? (
           <>
@@ -239,9 +241,11 @@ export default function RegisterScreen({ navigation }: Props) {
           )}
         </View>
 
-        <Field label={t.pRegisterBankAccount}>
-          <TextInput value={bank} onChangeText={setBank} style={styles.input} placeholder={t.pRegisterBankPlaceholder} placeholderTextColor={colors.textMuted} />
-        </Field>
+        {role !== 'service' && (
+          <Field label={t.pRegisterBankAccount}>
+            <TextInput value={bank} onChangeText={setBank} style={styles.input} placeholder={t.pRegisterBankPlaceholder} placeholderTextColor={colors.textMuted} />
+          </Field>
+        )}
 
         {!!err && <Text style={styles.error}>{err}</Text>}
 

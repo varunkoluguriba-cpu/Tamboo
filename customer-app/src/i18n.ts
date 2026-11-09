@@ -12,6 +12,7 @@
 // name specifically so a missing translation can never silently shift and corrupt another key.
 
 const EN = {
+  svFreeLeftOne: '1 free quote request left', svReqMsgPhCatering: 'e.g. Veg lunch for 200 guests, buffet', svReqMsgPhDecor: 'e.g. Stage and entrance decoration with fresh flowers', svReqMsgPhMusic: 'e.g. Sannayi for the muhurtham, about 2 hours', 
   svTab: 'Services',
   svHeroLabel: 'EVENT SERVICES',
   svHeroTitle: 'Priests, caterers, decorators and music',
@@ -580,6 +581,7 @@ export type Key = keyof typeof EN;
 export type LangStrings = Record<Key, string>;
 
 const TE: Partial<Record<Key, string>> = {
+  svFreeLeftOne: 'ఇంకా 1 ఉచిత కొటేషన్ రిక్వెస్ట్ ఉంది', svReqMsgPhCatering: 'ఉదా. 200 మందికి వెజ్ భోజనం, బఫే', svReqMsgPhDecor: 'ఉదా. తాజా పూలతో స్టేజ్, ఎంట్రన్స్ డెకరేషన్', svReqMsgPhMusic: 'ఉదా. ముహూర్తానికి సన్నాయి, సుమారు 2 గంటలు', 
   svTab: 'సేవలు',
   svHeroLabel: 'ఈవెంట్ సేవలు',
   svHeroTitle: 'పూజారులు, క్యాటరింగ్, డెకరేషన్, సంగీతం',
@@ -864,6 +866,7 @@ const TE: Partial<Record<Key, string>> = {
 };
 
 const HI: Partial<Record<Key, string>> = {
+  svFreeLeftOne: '1 फ्री कोटेशन रिक्वेस्ट बाकी', svReqMsgPhCatering: 'जैसे 200 मेहमानों के लिए वेज लंच, बुफ़े', svReqMsgPhDecor: 'जैसे ताज़े फूलों से स्टेज और एंट्रेंस डेकोरेशन', svReqMsgPhMusic: 'जैसे मुहूर्त के लिए शहनाई, लगभग 2 घंटे', 
   svTab: 'सेवाएँ',
   svHeroLabel: 'इवेंट सेवाएँ',
   svHeroTitle: 'पंडित, कैटरिंग, डेकोरेशन और संगीत',
@@ -1144,6 +1147,7 @@ const HI: Partial<Record<Key, string>> = {
 };
 
 const UR: Partial<Record<Key, string>> = {
+  svFreeLeftOne: '1 مفت کوٹیشن درخواست باقی', svReqMsgPhCatering: 'جیسے 200 مہمانوں کے لیے ویج لنچ، بوفے', svReqMsgPhDecor: 'جیسے تازہ پھولوں سے اسٹیج اور داخلے کی سجاوٹ', svReqMsgPhMusic: 'جیسے مہورت کے لیے شہنائی، تقریباً 2 گھنٹے', 
   svTab: 'سروسز',
   svHeroLabel: 'ایونٹ سروسز',
   svHeroTitle: 'پنڈت، کیٹرنگ، ڈیکوریشن اور موسیقی',
