@@ -356,6 +356,103 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
   await check('Vendor: delete item', async () => { const r = await call('DELETE', '/api/vendors/me/items/' + newItem.id, TT); expect(r.status < 300, JSON.stringify(r.data)); });
   await check('AI: classify item name', async () => { const r = await call('POST', '/api/vendors/me/items/classify-text', TT, { name: 'Desert Cooler' }); expect(r.status === 200, JSON.stringify(r.data)); return JSON.stringify(r.data).slice(0, 80); });
 
+  // ---------- EVENT SERVICES (feature-switched) ----------
+  const Config = M('Config'), ServiceOffer = M('ServiceOffer'), ServiceRequest = M('ServiceRequest');
+  const cfg0 = (await Config.get()).toObject();
+  const svc = [];
+  try {
+    const mkSvc = async (cat, name, phone) => {
+      const p = await Partner.create({ phone, firebaseUid: 'e2e-svc-' + Date.now() + cat, role: 'service', serviceCategory: cat, businessName: name, ownerName: 'E2E', registered: true, verificationStatus: 'verified', area: 'Ameerpet' });
+      svc.push(p.id); return { p, tok: tok(p.id, 'partner') };
+    };
+    await Config.updateOne({ _id: Config.SINGLETON_ID }, { $set: { servicesMode: 'off' } });
+    const A = await mkSvc('priest', 'E2E Pandit', '+919999911101');
+    const Bv = await mkSvc('music', 'E2E Sannayi', '+919999911102');
+    await ServiceRequest.deleteMany({ customer: cust._id });
+
+    await check('Services OFF: hidden from customers', async () => {
+      const c = await call('GET', '/api/services/config', CT); const l = await call('GET', '/api/services', CT);
+      expect(c.data.enabled === false && l.status === 404, `config ${JSON.stringify(c.data)}, list ${l.status}`);
+    });
+    await check('Services OFF: cannot sign up as event service', async () => {
+      const r = await call('POST', '/api/partner-auth/register', A.tok, { role: 'service', serviceCategory: 'priest', businessName: 'E2E Pandit', ownerName: 'E2E' });
+      expect(r.status === 400, 'got ' + r.status);
+    });
+
+    await Config.updateOne({ _id: Config.SINGLETON_ID }, { $set: { servicesMode: 'beta', serviceTesterPhones: ['+919999900000', '+919999911101', '+919999911102'], serviceFreeQuotes: 1, 'serviceQuoteFees.music': 69 } });
+    await check('Services BETA: tester sees it, others do not', async () => {
+      const c = await call('GET', '/api/services/config', CT); const g = await call('GET', '/api/services/config', guestTok);
+      expect(c.data.enabled === true && c.data.freeLeft === 1 && g.data.enabled === false, `tester ${JSON.stringify(c.data)}, guest ${JSON.stringify(g.data)}`);
+    });
+    let offer;
+    await check('Service vendor adds a package', async () => {
+      const bad = await call('POST', '/api/services/vendor/me/offers', A.tok, { title: 'E2E pooja', price: 0 });
+      const r = await call('POST', '/api/services/vendor/me/offers', A.tok, { title: 'E2E Satyanarayana pooja', priceType: 'from', price: 2100, description: 'E2E' });
+      expect(bad.status === 400 && r.status === 200 && r.data.price === 2100, `bad ${bad.status}, ok ${JSON.stringify(r.data)}`); offer = r.data;
+    });
+    await check('Customer sees service vendors by category', async () => {
+      const r = await call('GET', '/api/services?category=priest', CT); const v = (r.data || []).find((x) => x.id === A.p.id);
+      expect(v && v.fromPrice === 2100, JSON.stringify(r.data).slice(0, 200));
+    });
+    await check('Tent partner cannot use the service-vendor API', async () => { const r = await call('GET', '/api/services/vendor/me/requests', TT); expect(r.status === 404 || r.status === 403, 'got ' + r.status); });
+
+    let reqA, reqB;
+    await check('Quote request needs consent to share number', async () => {
+      const r = await call('POST', '/api/services/requests', CT, { partnerId: A.p.id, eventDate: '20/03/2027', consent: false }); expect(r.status === 400, 'got ' + r.status);
+    });
+    await check('1st quote request is free and reaches the vendor', async () => {
+      const r = await call('POST', '/api/services/requests', CT, { partnerId: A.p.id, eventDate: '20/03/2027', eventType: 'Wedding', guests: 200, message: 'E2E need a pandit', offerId: offer.id, consent: true });
+      expect(r.status === 200 && r.data.payment === null && r.data.request.fee === 0 && r.data.request.status === 'NEW', JSON.stringify(r.data)); reqA = r.data.request;
+      const v = await call('GET', '/api/services/vendor/me/requests', A.tok);
+      expect(v.data.some((x) => x.id === reqA.id && x.customerPhone === '+919999900000' && x.offerTitle === 'E2E Satyanarayana pooja'), JSON.stringify(v.data).slice(0, 200));
+    });
+    await check('Asking the same vendor again is blocked', async () => {
+      const r = await call('POST', '/api/services/requests', CT, { partnerId: A.p.id, eventDate: '20/03/2027', consent: true }); expect(r.status === 409, 'got ' + r.status);
+    });
+    await check('After the free quota, a request needs the fee', async () => {
+      const r = await call('POST', '/api/services/requests', CT, { partnerId: Bv.p.id, eventDate: '21/03/2027', message: 'E2E sannayi', consent: true });
+      expect(r.status === 200 && r.data.payment && r.data.payment.amount === 6900 && r.data.request.status === 'PENDING_PAYMENT', JSON.stringify(r.data)); reqB = r.data;
+      const v = await call('GET', '/api/services/vendor/me/requests', Bv.tok);
+      expect(v.data.length === 0, 'vendor saw an unpaid request');
+    });
+    await check('Paying the fee sends the request to the vendor', async () => {
+      const pay = 'pay_E2ES' + Date.now();
+      const bad = await call('POST', `/api/services/requests/${reqB.request.id}/verify`, CT, { razorpay_order_id: reqB.payment.orderId, razorpay_payment_id: pay, razorpay_signature: 'nope' });
+      const r = await call('POST', `/api/services/requests/${reqB.request.id}/verify`, CT, { razorpay_order_id: reqB.payment.orderId, razorpay_payment_id: pay, razorpay_signature: sign(reqB.payment.orderId, pay) });
+      const v = await call('GET', '/api/services/vendor/me/requests', Bv.tok);
+      expect(bad.data.verified === false && r.data.verified === true && v.data.length === 1, `bad ${JSON.stringify(bad.data)}, ok ${JSON.stringify(r.data)}, vendor ${v.data.length}`);
+    });
+    await check('Vendor marks contacted, then done', async () => {
+      const early = await call('PATCH', '/api/services/vendor/me/requests/' + reqA.id, A.tok, { action: 'closed' });
+      const c = await call('PATCH', '/api/services/vendor/me/requests/' + reqA.id, A.tok, { action: 'contacted' });
+      const d = await call('PATCH', '/api/services/vendor/me/requests/' + reqA.id, A.tok, { action: 'closed' });
+      expect(early.status === 400 && c.data.status === 'CONTACTED' && d.data.status === 'CLOSED', `early ${early.status}, ${c.data.status}, ${d.data.status}`);
+    });
+    await check('No response in 24h: paid fee refunded once (parallel reads)', async () => {
+      await ServiceRequest.collection.updateOne({ _id: new mongoose.Types.ObjectId(reqB.request.id) }, { $set: { createdAt: new Date(Date.now() - 25 * 3600 * 1000) } });
+      await Promise.all([1, 2, 3].map(() => call('GET', '/api/services/requests/me', CT)));
+      const r = await ServiceRequest.findById(reqB.request.id).lean();
+      expect(r.status === 'NO_RESPONSE' && r.refundStatus === 'pending' && r.refundAmount === 69, `${r.status} ${r.refundStatus} ${r.refundAmount}`);
+    });
+    await check('Refund shows in admin Refunds list', async () => {
+      const admin = await AdminUser.findOne({ role: 'super_admin' }) || await AdminUser.findOne();
+      const r = await call('GET', '/api/admin/refunds', jwt.sign({ sub: admin.id, kind: 'admin' }, process.env.JWT_SECRET, { expiresIn: '1h' }));
+      expect(r.status === 200 && r.data.some((x) => x.kind === 'service' && x.id === reqB.request.id), `status ${r.status} ${JSON.stringify(r.data).slice(0, 120)}`);
+    });
+    await check('Unanswered free request is given back', async () => {
+      await ServiceRequest.deleteMany({ _id: reqA.id });
+      const r1 = await call('POST', '/api/services/requests', CT, { partnerId: A.p.id, eventDate: '22/03/2027', message: 'E2E again', consent: true });
+      await ServiceRequest.collection.updateOne({ _id: new mongoose.Types.ObjectId(r1.data.request.id) }, { $set: { createdAt: new Date(Date.now() - 25 * 3600 * 1000) } });
+      const c = await call('GET', '/api/services/config', CT);
+      expect(r1.data.request.fee === 0 && c.data.freeLeft === 1, `fee ${r1.data.request.fee}, freeLeft ${c.data.freeLeft}`);
+    });
+  } finally {
+    await ServiceRequest.deleteMany({ $or: [{ partner: { $in: svc } }, { customer: cust._id, message: /^E2E/ }] });
+    await ServiceOffer.deleteMany({ partner: { $in: svc } });
+    await Partner.deleteMany({ _id: { $in: svc } });
+    await Config.updateOne({ _id: Config.SINGLETON_ID }, { $set: { servicesMode: cfg0.servicesMode || 'off', serviceTesterPhones: cfg0.serviceTesterPhones || [], serviceFreeQuotes: cfg0.serviceFreeQuotes ?? 2, serviceQuoteFees: cfg0.serviceQuoteFees || { priest: 49, music: 69, decor: 79, catering: 89 } } });
+  }
+
   // ---------- DELETE ACCOUNT ----------
   await check('Guest deletes account', async () => { const r = await call('DELETE', '/api/auth/me', guestTok); expect(r.status === 200, JSON.stringify(r.data)); const m = await call('GET', '/api/auth/me', guestTok); expect(m.status === 401, 'still valid'); });
 

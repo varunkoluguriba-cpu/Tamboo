@@ -10,6 +10,18 @@ const configSchema = new mongoose.Schema({
   _id: { type: String, default: SINGLETON_ID },
   commissionPct: { type: Number, default: 10 }, // Tamboo's cut — new rental orders and hall tokens default to this
   defaultAdvancePct: { type: Number, default: 25 }, // new halls default to this; each hall owner can still override their own
+  // Event services (priest / catering / decor / music). 'off' = hidden everywhere; 'beta' = only
+  // the phone numbers in serviceTesterPhones see it (so it can be tested on the live server
+  // without real users seeing it); 'on' = everyone.
+  servicesMode: { type: String, enum: ['off', 'beta', 'on'], default: 'off' },
+  serviceTesterPhones: { type: [String], default: [] }, // E.164
+  serviceFreeQuotes: { type: Number, default: 2 }, // quote requests a customer gets free before paying
+  serviceQuoteFees: { // ₹ per paid quote request, by category
+    priest: { type: Number, default: 49 },
+    music: { type: Number, default: 69 },
+    decor: { type: Number, default: 79 },
+    catering: { type: Number, default: 89 },
+  },
 }, { timestamps: true });
 
 configSchema.statics.SINGLETON_ID = SINGLETON_ID;
