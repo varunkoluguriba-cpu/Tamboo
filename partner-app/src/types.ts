@@ -1,4 +1,5 @@
-export type PartnerRole = 'tent' | 'venue';
+export type PartnerRole = 'tent' | 'venue' | 'service';
+export type ServiceCategory = 'priest' | 'catering' | 'decor' | 'music';
 export type VerificationStatus = 'pending' | 'verified' | 'rejected';
 
 export interface PartnerUser {
@@ -17,6 +18,10 @@ export interface PartnerUser {
   verificationStatus: VerificationStatus;
   registered: boolean;
   commissionPct?: number; // live Tamboo commission, from /me
+  servicesEnabled?: boolean; // event services switched on for this partner (server decides)
+  serviceCategory?: ServiceCategory | '';
+  traditions?: string[];
+  languages?: string[];
 }
 
 export interface RegisterPayload {
@@ -30,4 +35,7 @@ export interface RegisterPayload {
   taxId: string;
   bankAccount: string;
   photos?: string[];
+  serviceCategory?: ServiceCategory;
+  traditions?: string[];
+  languages?: string[];
 }

@@ -30,6 +30,10 @@ import ProfileScreen from '../screens/ProfileScreen';
 import TabBar, { type TabKey } from '../components/TabBar';
 import { useAuth } from '../context/AuthContext';
 import { colors } from '../theme';
+import ServiceListScreen from '../screens/ServiceListScreen';
+import ServiceVendorScreen from '../screens/ServiceVendorScreen';
+import ServiceRequestScreen from '../screens/ServiceRequestScreen';
+import ServiceRequestsScreen from '../screens/ServiceRequestsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
@@ -55,6 +59,10 @@ const ROUTE_TAB: Partial<Record<keyof RootStackParamList, TabKey>> = {
   Token: 'bookings',
   AdvancePay: 'bookings',
   Profile: 'profile',
+  ServiceList: 'home',
+  ServiceVendor: 'home',
+  ServiceRequest: 'home',
+  ServiceRequests: 'home',
 };
 
 export default function RootNavigator() {
@@ -110,6 +118,10 @@ export default function RootNavigator() {
               <Stack.Screen name="Chat" component={ChatScreen} />
               <Stack.Screen name="Notifications" component={NotificationsScreen} />
               <Stack.Screen name="Profile" component={ProfileScreen} />
+              <Stack.Screen name="ServiceList" component={ServiceListScreen} />
+              <Stack.Screen name="ServiceVendor" component={ServiceVendorScreen} />
+              <Stack.Screen name="ServiceRequest" component={ServiceRequestScreen} />
+              <Stack.Screen name="ServiceRequests" component={ServiceRequestsScreen} />
             </Stack.Navigator>
           </View>
           <SafeAreaView edges={['bottom']} style={{ backgroundColor: colors.surface }}>

@@ -18,14 +18,14 @@ export type TabBarNavigation = {
 export type TentTab = 'home' | 'orders' | 'items' | 'shop';
 export type VenueTab = 'hhome' | 'htokens' | 'calendar' | 'hall';
 
-const TENT_TABS: Array<{ key: TentTab; icon: IconName; label: 'tabHome' | 'tabOrders' | 'tabItems' | 'tabShop' | 'tabPreBookings' | 'tabCalendar' | 'tabMyHalls'; route: keyof RootStackParamList }> = [
+const TENT_TABS: Array<{ key: TentTab; icon: IconName; label: 'tabHome' | 'tabOrders' | 'tabItems' | 'tabShop' | 'tabPreBookings' | 'tabCalendar' | 'tabMyHalls' | 'tabRequests' | 'tabPackages' | 'tabMyPage'; route: keyof RootStackParamList }> = [
   { key: 'home', icon: 'home', label: 'tabHome', route: 'Home' },
   { key: 'orders', icon: 'list', label: 'tabOrders', route: 'Orders' },
   { key: 'items', icon: 'package', label: 'tabItems', route: 'Items' },
   { key: 'shop', icon: 'tent', label: 'tabShop', route: 'Shop' },
 ];
 
-const VENUE_TABS: Array<{ key: VenueTab; icon: IconName; label: 'tabHome' | 'tabOrders' | 'tabItems' | 'tabShop' | 'tabPreBookings' | 'tabCalendar' | 'tabMyHalls'; route: keyof RootStackParamList }> = [
+const VENUE_TABS: Array<{ key: VenueTab; icon: IconName; label: 'tabHome' | 'tabOrders' | 'tabItems' | 'tabShop' | 'tabPreBookings' | 'tabCalendar' | 'tabMyHalls' | 'tabRequests' | 'tabPackages' | 'tabMyPage'; route: keyof RootStackParamList }> = [
   { key: 'hhome', icon: 'home', label: 'tabHome', route: 'HHome' },
   { key: 'htokens', icon: 'list', label: 'tabPreBookings', route: 'HTokens' },
   { key: 'calendar', icon: 'calendar', label: 'tabCalendar', route: 'Calendar' },
@@ -33,6 +33,30 @@ const VENUE_TABS: Array<{ key: VenueTab; icon: IconName; label: 'tabHome' | 'tab
 ];
 
 type Navigation = TabBarNavigation;
+
+export type ServiceTab = 'srequests' | 'spackages' | 'sprofile';
+const SERVICE_TABS: Array<{ key: ServiceTab; icon: IconName; label: 'tabRequests' | 'tabPackages' | 'tabMyPage'; route: keyof RootStackParamList }> = [
+  { key: 'srequests', icon: 'list', label: 'tabRequests', route: 'SHome' },
+  { key: 'spackages', icon: 'package', label: 'tabPackages', route: 'SPackages' },
+  { key: 'sprofile', icon: 'user', label: 'tabMyPage', route: 'SProfile' },
+];
+
+export function ServiceTabBar({ active, navigation }: { active: ServiceTab; navigation: Navigation }) {
+  const { t } = useLanguage();
+  return (
+    <View style={styles.tabBar}>
+      {SERVICE_TABS.map((tb) => {
+        const isActive = tb.key === active;
+        return (
+          <TouchableOpacity key={tb.key} style={styles.tabItem} activeOpacity={0.7} onPress={() => !isActive && navigation.navigate(tb.route as any)}>
+            <Icon name={tb.icon} size={21} color={isActive ? colors.pinkStrong : colors.textMuted} strokeWidth={isActive ? 2.2 : 1.8} />
+            <Text style={[styles.tabLabel, { color: isActive ? colors.pinkStrong : colors.textMuted }]}>{t[tb.label]}</Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
 
 export function TentTabBar({ active, navigation, badge }: { active: TentTab; navigation: Navigation; badge?: Partial<Record<TentTab, number>> }) {
   const { t } = useLanguage();

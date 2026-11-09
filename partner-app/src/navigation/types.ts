@@ -28,4 +28,7 @@ export type RootStackParamList = {
   Earnings: undefined;
   Chat: { customerId?: string; customerName: string };
   Conversations: undefined;
+  SHome: undefined;
+  SPackages: undefined;
+  SProfile: undefined;
 };

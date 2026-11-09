@@ -12,6 +12,7 @@ const NAV_ITEMS: Array<{ to: string; label: string; end?: boolean; section?: Sec
   { to: '/halls', label: 'Halls', section: 'halls' },
   { to: '/items', label: 'Items', section: 'items' },
   { to: '/quotes', label: 'Quotes', section: 'quotes' },
+  { to: '/service-requests', label: 'Service requests', section: 'quotes' },
   { to: '/packages', label: 'Packages', section: 'packages' },
   { to: '/bookings', label: 'Bookings & revenue', section: 'bookings' },
   { to: '/disputes', label: 'Disputes', section: 'disputes', badgeKey: 'disputedCount' },

@@ -6,7 +6,8 @@ import { useAuth } from '../context/AuthContext';
 type Partner = {
   id: string;
   phone: string;
-  role: 'tent' | 'venue';
+  role: 'tent' | 'venue' | 'service';
+  serviceCategory?: string;
   businessName: string;
   ownerName: string;
   city: string;
@@ -23,6 +24,10 @@ const TABS: Array<{ key: string; label: string }> = [
   { key: '', label: 'All' },
 ];
 
+
+const SERVICE_LABEL: Record<string, string> = { priest: 'Priest', catering: 'Catering', decor: 'Decoration', music: 'Music' };
+const roleLabel = (p: { role: string; venueType: string; serviceCategory?: string }) =>
+  p.role === 'venue' ? p.venueType || 'Venue' : p.role === 'service' ? `Event service — ${SERVICE_LABEL[p.serviceCategory || ''] || 'not set'}` : 'Tent house';
 export default function Partners() {
   const { logout } = useAuth();
   const [tab, setTab] = useState('pending');
@@ -73,7 +78,7 @@ export default function Partners() {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div className="partner-name">{p.businessName || '(no business name)'}</div>
               <div className="partner-meta">
-                {p.role === 'venue' ? p.venueType || 'Venue' : 'Tent house'} · {p.area ? `${p.area}, ` : ''}{p.city} · {p.phone}
+                {roleLabel(p)} · {p.area ? `${p.area}, ` : ''}{p.city} · {p.phone}
               </div>
             </div>
             <span className={`badge ${p.verificationStatus}`}>{p.verificationStatus}</span>
