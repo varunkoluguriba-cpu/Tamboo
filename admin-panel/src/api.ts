@@ -1,4 +1,5 @@
-export const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4001';
+// Production build is served by the API server itself (at /admin), so it calls the same origin ('').
+export const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4001';
 
 const TOKEN_KEY = 'tamboo-admin-token';
 

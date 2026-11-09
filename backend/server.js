@@ -1,5 +1,6 @@
 require('dotenv').config();
 require('express-async-errors');
+const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -21,6 +22,9 @@ const whatsappRoutes = require('./routes/whatsapp');
 const servicesRoutes = require('./routes/services');
 
 const app = express();
+// Render sits behind a proxy: trust its X-Forwarded-For so req.ip is the real client IP
+// (used by the admin login throttle).
+app.set('trust proxy', 1);
 app.use(cors());
 // Raised from the 100kb default — photo uploads are sent as base64 data URIs in JSON bodies
 // (no separate file-storage service yet, see Hall/Item/Shop/Partner `photos` fields).
@@ -41,6 +45,12 @@ app.use('/api/site-content', siteContentRoutes);
 app.use('/api/coupons', couponsRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
 app.use('/api/services', servicesRoutes);
+
+// Admin panel (built single-page app, see admin-panel/) served from this same server at /admin,
+// so it needs no separate hosting. Every API call it makes still requires an admin login.
+const ADMIN_DIST = path.join(__dirname, 'admin-dist');
+app.use('/admin', express.static(ADMIN_DIST, { index: false, maxAge: '1h' }));
+app.get(['/admin', '/admin/*'], (req, res) => res.sendFile(path.join(ADMIN_DIST, 'index.html')));
 
 app.use((req, res) => res.status(404).json({ error: 'Not found' }));
 

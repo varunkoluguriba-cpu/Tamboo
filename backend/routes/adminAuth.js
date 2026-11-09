@@ -40,12 +40,37 @@ async function ensureAdminUser() {
   console.log('Created initial admin account "admin"');
 }
 
+// The admin panel is public on the internet, so wrong-password guessing is throttled: after
+// 5 failed attempts for the same IP or the same username within 15 minutes, logins from it
+// are refused for 15 minutes. In-memory (single server instance), reset on restart.
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const LOGIN_MAX_FAILS = 5;
+const loginFails = new Map(); // key -> { count, first }
+function tooManyFails(key) {
+  const f = loginFails.get(key);
+  if (!f) return false;
+  if (Date.now() - f.first > LOGIN_WINDOW_MS) { loginFails.delete(key); return false; }
+  return f.count >= LOGIN_MAX_FAILS;
+}
+function recordFail(key) {
+  const f = loginFails.get(key);
+  if (!f || Date.now() - f.first > LOGIN_WINDOW_MS) loginFails.set(key, { count: 1, first: Date.now() });
+  else f.count += 1;
+}
+
 router.post('/login', async (req, res) => {
   const { username, password } = req.body || {};
   if (!username || !password) return res.status(400).json({ error: 'Enter your username and password' });
-  const admin = await AdminUser.findOne({ username: String(username).trim().toLowerCase() });
+  const name = String(username).trim().toLowerCase();
+  const keys = [`ip:${req.ip}`, `user:${name}`];
+  if (keys.some(tooManyFails)) return res.status(429).json({ error: 'Too many wrong attempts. Please wait 15 minutes and try again.' });
+  const admin = await AdminUser.findOne({ username: name });
   const ok = admin && await bcrypt.compare(String(password), admin.passwordHash);
-  if (!ok) return res.status(401).json({ error: 'Incorrect username or password' });
+  if (!ok) {
+    keys.forEach(recordFail);
+    return res.status(401).json({ error: 'Incorrect username or password' });
+  }
+  keys.forEach((k) => loginFails.delete(k));
   const token = jwt.sign({ kind: 'admin', sub: admin.id }, process.env.JWT_SECRET, { expiresIn: '30d' });
   res.json({ token });
 });
