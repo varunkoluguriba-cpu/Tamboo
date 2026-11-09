@@ -35,6 +35,7 @@ export type PublicServiceVendor = {
   photos: string[];
   verified: boolean;
   fromPrice: number | null;
+  fromPriceType: 'fixed' | 'perPlate' | 'from' | null;
   offers?: Array<{ id: string; title: string; priceType: 'fixed' | 'perPlate' | 'from'; price: number; description: string }>;
 };
 
@@ -56,3 +57,19 @@ export type MyServiceRequest = {
   refundStatus: 'none' | 'pending' | 'refunded';
   refundAmount: number;
 };
+
+// Vendors' traditions and languages are stored in English. Traditions are translated; languages
+// are shown in their own script (తెలుగు, हिन्दी, اردو …), which every reader recognises.
+const LANG_NATIVE: Record<string, string> = {
+  Telugu: 'తెలుగు', Hindi: 'हिन्दी', Urdu: 'اردو', English: 'English', Sanskrit: 'संस्कृतम्', Tamil: 'தமிழ்', Kannada: 'ಕನ್ನಡ',
+};
+export function traditionText(x: string, t: LangStrings): string {
+  return ({ Hindu: t.svTradHindu, Muslim: t.svTradMuslim, Christian: t.svTradChristian, Sikh: t.svTradSikh, Jain: t.svTradJain } as Record<string, string>)[x] || x;
+}
+export const languageText = (x: string) => LANG_NATIVE[x] || x;
+
+export function fromPriceText(v: { fromPrice: number | null; fromPriceType: string | null }, t: LangStrings): string {
+  if (v.fromPrice == null) return '';
+  const p = v.fromPrice.toLocaleString('en-IN');
+  return v.fromPriceType === 'perPlate' ? t.svFromPerPlate.replace('{price}', p) : t.svFrom.replace('{price}', p);
+}

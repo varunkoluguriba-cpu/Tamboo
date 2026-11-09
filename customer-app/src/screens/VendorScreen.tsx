@@ -117,7 +117,7 @@ export default function VendorScreen({ navigation, route }: Props) {
           <Text style={styles.sectionTitle}>{t.vendorRentalItemsTitle}</Text>
           <View style={{ gap: 8 }}>
             {items.map((p) => {
-              const badge = availBadge(p);
+              const badge = availBadge(p, t);
               return (
                 <TouchableOpacity key={p.id} style={styles.itemRow} activeOpacity={0.85} onPress={() => navigation.push('Product', { id: p.id })}>
                   {p.photos?.[0] ? (

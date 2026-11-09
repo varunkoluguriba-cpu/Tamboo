@@ -7,7 +7,7 @@ import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { api } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
-import { offerPriceText, serviceCategoryInfo, type PublicServiceVendor } from '../utils/services';
+import { languageText, offerPriceText, serviceCategoryInfo, traditionText, type PublicServiceVendor } from '../utils/services';
 import { metaLine } from '../utils/rating';
 import { colors, gradients, shadow } from '../theme';
 
@@ -71,8 +71,8 @@ export default function ServiceVendorScreen({ navigation, route }: Props) {
 
           {(v.traditions.length > 0 || v.languages.length > 0 || v.areas.length > 0) && (
             <View style={styles.card}>
-              {v.traditions.length > 0 && <Fact label={t.svTraditions} value={v.traditions.join(', ')} />}
-              {v.languages.length > 0 && <Fact label={t.svLanguages} value={v.languages.join(', ')} />}
+              {v.traditions.length > 0 && <Fact label={t.svTraditions} value={v.traditions.map((x) => traditionText(x, t)).join(', ')} />}
+              {v.languages.length > 0 && <Fact label={t.svLanguages} value={v.languages.map(languageText).join(', ')} />}
               {v.areas.length > 0 && <Fact label={t.svServes} value={v.areas.join(', ')} />}
             </View>
           )}

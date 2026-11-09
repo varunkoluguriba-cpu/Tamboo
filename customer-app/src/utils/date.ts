@@ -20,3 +20,10 @@ export function formatBookingDate(iso: string): string {
   if (monthIdx < 0 || monthIdx > 11) return iso;
   return `${Number(d)} ${MONTH_ABBR[monthIdx]} ${y}`;
 }
+
+// '+919999900000' → '+91 99999 00000' (Indian numbers); anything else shown as-is. Wrapped in
+// left-to-right isolate marks so it never displays reversed inside Urdu (right-to-left) text.
+export const prettyPhone = (p: string) => {
+  const s = /^\+91\d{10}$/.test(p || '') ? `+91 ${p.slice(3, 8)} ${p.slice(8)}` : p || '';
+  return s ? `\u2066${s}\u2069` : s;
+};

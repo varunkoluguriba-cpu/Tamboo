@@ -12,6 +12,9 @@
 // name specifically so a missing translation can never silently shift and corrupt another key.
 
 const EN = {
+  venueCatInHouse: 'In-house catering only', venueCatOutside: 'Outside caterers allowed', venueCatBoth: 'Both allowed', 
+  availInStock: 'In stock', availSoldOut: 'Sold out', availOnlyLeft: 'Only {n} left', availQuoteOnly: 'Quote only', 
+  svTradHindu: 'Hindu', svTradMuslim: 'Muslim', svTradChristian: 'Christian', svTradSikh: 'Sikh', svTradJain: 'Jain', svFromPerPlate: 'from ₹{price} per plate', 
   svFreeLeftOne: '1 free quote request left', svReqMsgPhCatering: 'e.g. Veg lunch for 200 guests, buffet', svReqMsgPhDecor: 'e.g. Stage and entrance decoration with fresh flowers', svReqMsgPhMusic: 'e.g. Sannayi for the muhurtham, about 2 hours', 
   svTab: 'Services',
   svHeroLabel: 'EVENT SERVICES',
@@ -581,6 +584,9 @@ export type Key = keyof typeof EN;
 export type LangStrings = Record<Key, string>;
 
 const TE: Partial<Record<Key, string>> = {
+  venueCatInHouse: 'హాల్ క్యాటరింగ్ మాత్రమే', venueCatOutside: 'బయటి క్యాటరర్లకు అనుమతి', venueCatBoth: 'రెండూ అనుమతి', 
+  availInStock: 'స్టాక్‌లో ఉంది', availSoldOut: 'అయిపోయింది', availOnlyLeft: '{n} మాత్రమే ఉన్నాయి', availQuoteOnly: 'కొటేషన్ మాత్రమే', 
+  svTradHindu: 'హిందూ', svTradMuslim: 'ముస్లిం', svTradChristian: 'క్రైస్తవ', svTradSikh: 'సిక్కు', svTradJain: 'జైన', svFromPerPlate: 'ప్లేట్‌కు ₹{price} నుండి', 
   svFreeLeftOne: 'ఇంకా 1 ఉచిత కొటేషన్ రిక్వెస్ట్ ఉంది', svReqMsgPhCatering: 'ఉదా. 200 మందికి వెజ్ భోజనం, బఫే', svReqMsgPhDecor: 'ఉదా. తాజా పూలతో స్టేజ్, ఎంట్రన్స్ డెకరేషన్', svReqMsgPhMusic: 'ఉదా. ముహూర్తానికి సన్నాయి, సుమారు 2 గంటలు', 
   svTab: 'సేవలు',
   svHeroLabel: 'ఈవెంట్ సేవలు',
@@ -866,6 +872,9 @@ const TE: Partial<Record<Key, string>> = {
 };
 
 const HI: Partial<Record<Key, string>> = {
+  venueCatInHouse: 'सिर्फ़ हॉल की कैटरिंग', venueCatOutside: 'बाहर के कैटरर की अनुमति', venueCatBoth: 'दोनों की अनुमति', 
+  availInStock: 'स्टॉक में है', availSoldOut: 'खत्म हो गया', availOnlyLeft: 'सिर्फ़ {n} बचे', availQuoteOnly: 'सिर्फ़ कोटेशन', 
+  svTradHindu: 'हिंदू', svTradMuslim: 'मुस्लिम', svTradChristian: 'ईसाई', svTradSikh: 'सिख', svTradJain: 'जैन', svFromPerPlate: '₹{price} प्रति प्लेट से', 
   svFreeLeftOne: '1 फ्री कोटेशन रिक्वेस्ट बाकी', svReqMsgPhCatering: 'जैसे 200 मेहमानों के लिए वेज लंच, बुफ़े', svReqMsgPhDecor: 'जैसे ताज़े फूलों से स्टेज और एंट्रेंस डेकोरेशन', svReqMsgPhMusic: 'जैसे मुहूर्त के लिए शहनाई, लगभग 2 घंटे', 
   svTab: 'सेवाएँ',
   svHeroLabel: 'इवेंट सेवाएँ',
@@ -1147,6 +1156,9 @@ const HI: Partial<Record<Key, string>> = {
 };
 
 const UR: Partial<Record<Key, string>> = {
+  venueCatInHouse: 'صرف ہال کی کیٹرنگ', venueCatOutside: 'باہر کے کیٹرر کی اجازت', venueCatBoth: 'دونوں کی اجازت', 
+  availInStock: 'اسٹاک میں ہے', availSoldOut: 'ختم ہو گیا', availOnlyLeft: 'صرف {n} باقی', availQuoteOnly: 'صرف کوٹیشن', 
+  svTradHindu: 'ہندو', svTradMuslim: 'مسلم', svTradChristian: 'عیسائی', svTradSikh: 'سکھ', svTradJain: 'جین', svFromPerPlate: '₹{price} فی پلیٹ سے', 
   svFreeLeftOne: '1 مفت کوٹیشن درخواست باقی', svReqMsgPhCatering: 'جیسے 200 مہمانوں کے لیے ویج لنچ، بوفے', svReqMsgPhDecor: 'جیسے تازہ پھولوں سے اسٹیج اور داخلے کی سجاوٹ', svReqMsgPhMusic: 'جیسے مہورت کے لیے شہنائی، تقریباً 2 گھنٹے', 
   svTab: 'سروسز',
   svHeroLabel: 'ایونٹ سروسز',

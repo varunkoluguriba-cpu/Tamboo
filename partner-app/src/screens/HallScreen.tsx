@@ -13,6 +13,7 @@ import { useLanguage } from '../context/LanguageContext';
 import DeleteAccountButton from '../components/DeleteAccountButton';
 import { pickImageBase64 } from '../utils/pickImage';
 import { colors, gradients, shadow } from '../theme';
+import { cateringText, venueTypeText } from '../utils/labels';
 
 type PricingMode = 'rent' | 'perPlate';
 
@@ -307,7 +308,7 @@ export default function HallScreen({ navigation, route }: Props) {
           <View style={styles.chipRow}>
             {VENUE_TYPES.map((vt) => (
               <TouchableOpacity key={vt} style={[styles.chip, type === vt ? styles.chipSel : styles.chipUnsel]} activeOpacity={0.85} onPress={() => setType(vt)}>
-                <Text style={[styles.chipText, type === vt && styles.chipTextSel]}>{vt}</Text>
+                <Text style={[styles.chipText, type === vt && styles.chipTextSel]}>{venueTypeText(vt, t)}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -405,7 +406,7 @@ export default function HallScreen({ navigation, route }: Props) {
           <View style={styles.chipRow}>
             {CATERING_OPTIONS.map((c) => (
               <TouchableOpacity key={c} style={[styles.chip, catering === c ? styles.chipSel : styles.chipUnsel]} activeOpacity={0.85} onPress={() => setCatering(c)}>
-                <Text style={[styles.chipText, catering === c && styles.chipTextSel]}>{c}</Text>
+                <Text style={[styles.chipText, catering === c && styles.chipTextSel]}>{cateringText(c, t)}</Text>
               </TouchableOpacity>
             ))}
           </View>

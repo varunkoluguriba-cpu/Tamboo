@@ -329,9 +329,10 @@ export function reviewsByVendor(vendorId: string): Review[] {
   return REVIEWS.filter((r) => r.vendorId === vendorId);
 }
 
-export function availBadge(p: Product): { label: string; ok: boolean } {
-  if (!p.isInstant) return { label: 'Quote only', ok: true };
-  if (p.avail.free <= 0) return { label: 'Sold out', ok: false };
-  if (p.avail.free <= 2) return { label: `Only ${p.avail.free} left`, ok: false };
-  return { label: 'In stock', ok: true };
+// Labels come from the translations (t) — these used to be hardcoded English.
+export function availBadge(p: Product, t?: { availQuoteOnly: string; availSoldOut: string; availOnlyLeft: string; availInStock: string }): { label: string; ok: boolean } {
+  if (!p.isInstant) return { label: t ? t.availQuoteOnly : 'Quote only', ok: true };
+  if (p.avail.free <= 0) return { label: t ? t.availSoldOut : 'Sold out', ok: false };
+  if (p.avail.free <= 2) return { label: t ? t.availOnlyLeft.replace('{n}', String(p.avail.free)) : `Only ${p.avail.free} left`, ok: false };
+  return { label: t ? t.availInStock : 'In stock', ok: true };
 }

@@ -63,7 +63,11 @@ function publicVendor(p, offers) {
     experienceYears: p.experienceYears,
     photos: p.servicePhotos,
     verified: p.verificationStatus === 'verified',
-    fromPrice: live.length ? Math.min(...live.map((o) => o.price)) : null,
+    // Cheapest live package, with its price type — a caterer's '₹299' is per plate, not total.
+    ...(() => {
+      const cheapest = live.slice().sort((a, b) => a.price - b.price)[0];
+      return { fromPrice: cheapest ? cheapest.price : null, fromPriceType: cheapest ? cheapest.priceType : null };
+    })(),
     offers: live.map(serializeOffer),
   };
 }

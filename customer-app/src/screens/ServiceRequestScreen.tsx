@@ -15,6 +15,7 @@ import { useServices } from '../context/ServicesContext';
 import { requireAccount } from '../utils/requireAccount';
 import { serviceCategoryInfo, type MyServiceRequest } from '../utils/services';
 import { colors, gradients, shadow } from '../theme';
+import { prettyPhone } from '../utils/date';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ServiceRequest'>;
 type CreateResult = {
@@ -24,8 +25,6 @@ type CreateResult = {
 
 const OCCASIONS = ['Wedding', 'Reception', 'Birthday', 'House party', 'Corporate'] as const;
 
-// '+919999900000' → '+91 99999 00000' (Indian numbers); anything else shown as-is.
-const prettyPhone = (p: string) => (/^\+91\d{10}$/.test(p) ? `+91 ${p.slice(3, 8)} ${p.slice(8)}` : p);
 
 export default function ServiceRequestScreen({ navigation, route }: Props) {
   const { vendorId, vendorName, category, offerId, offerTitle } = route.params;

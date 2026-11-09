@@ -38,6 +38,9 @@ export default function VenueScreen({ navigation, route }: Props) {
   const factValue = (v: string) =>
     v === 'Available' ? t.venueFactAvailable
       : v === 'Not available' ? t.venueFactNotAvailable
+        : v === 'In-house catering only' ? t.venueCatInHouse
+          : v === 'Outside caterers allowed' ? t.venueCatOutside
+            : v === 'Both allowed' ? t.venueCatBoth
         : paxText(v.replace(/ cars$/, ` ${t.venueFactCars}`), t);
   const { user, logout } = useAuth();
   const { getHall } = useCatalog();

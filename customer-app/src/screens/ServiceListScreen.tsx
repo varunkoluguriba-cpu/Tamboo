@@ -6,7 +6,7 @@ import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { api } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
-import { serviceCategoryInfo, type PublicServiceVendor } from '../utils/services';
+import { fromPriceText, languageText, serviceCategoryInfo, traditionText, type PublicServiceVendor } from '../utils/services';
 import { metaLine } from '../utils/rating';
 import { colors, shadow } from '../theme';
 
@@ -68,9 +68,11 @@ export default function ServiceListScreen({ navigation, route }: Props) {
                   {metaLine(v.area, v.experienceYears > 0 && t.svExperience.replace('{n}', String(v.experienceYears)))}
                 </Text>
                 {(v.traditions.length > 0 || v.languages.length > 0) && (
-                  <Text style={styles.meta} numberOfLines={1}>{[...v.traditions, ...v.languages].join(' · ')}</Text>
+                  <Text style={styles.meta} numberOfLines={1}>
+                    {metaLine(v.traditions.map((x) => traditionText(x, t)).join(', '), v.languages.length > 0 && `${t.svLanguages}: ${v.languages.map(languageText).join(', ')}`)}
+                  </Text>
                 )}
-                {v.fromPrice != null && <Text style={styles.price}>{t.svFrom.replace('{price}', v.fromPrice.toLocaleString('en-IN'))}</Text>}
+                {v.fromPrice != null && <Text style={styles.price}>{fromPriceText(v, t)}</Text>}
               </View>
               <Icon name="right" size={16} color={colors.dividerStrong} />
             </TouchableOpacity>

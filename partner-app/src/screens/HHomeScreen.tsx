@@ -28,8 +28,9 @@ export default function HHomeScreen() {
   const { tokens: remoteTokens } = useHallTokens();
 
   useEffect(() => {
-    scheduleRegisterPhotoReminder();
-  }, []);
+    // Scheduled in the current language (same id, so re-scheduling replaces the old one).
+    scheduleRegisterPhotoReminder({ channel: t.remChannel, title: t.remTitle, body: t.remBody });
+  }, [t]); // and again when the language changes, so the 8 PM reminder speaks the same language
   const HALL_TOKENS = remoteTokens.map((tok) => ({
     id: tok.id,
     status: tokenUiStatus(tok),

@@ -26,3 +26,14 @@ export function hallTypeText(type: string, t: LangStrings): string {
 export function paxText(s: string, t: LangStrings): string {
   return (s || '').replace(/ pax$/, ` ${t.paxUnit}`);
 }
+
+// Item category codes (tent / seat / table / …) as the customer sees them — same labels as the
+// Search category chips.
+export function itemCategoryText(cat: string, t: LangStrings): string {
+  const map: Record<string, string> = {
+    tent: t.browseCatTents, seat: t.browseCatChairs, table: t.browseCatChairs, crockery: t.browseCatCrockery,
+    light: t.browseCatLighting, av: t.browseCatSound, decor: t.browseCatDecor, kitchen: t.browseCatKitchen,
+    floor: t.browseCatFlooring, stage: t.browseCatStage, staff: t.browseCatStaff,
+  };
+  return map[cat] || cat;
+}

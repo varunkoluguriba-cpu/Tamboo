@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { ApiError } from '../api/client';
 import { colors, gradients } from '../theme';
+import { prettyPhone } from '../utils/date';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Otp'>;
 
@@ -55,7 +56,7 @@ export default function OtpScreen({ navigation, route }: Props) {
     }
   };
 
-  const maskedPhone = `+91 ${phone.slice(0, 5)} ${phone.slice(5)}`;
+  const maskedPhone = prettyPhone(`+91${phone}`);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>

@@ -13,6 +13,7 @@ import { pickImageBase64 } from '../utils/pickImage';
 import { ROLE_KEY } from '../constants';
 import type { PartnerRole, ServiceCategory } from '../types';
 import { colors, gradients, shadow } from '../theme';
+import { venueTypeText } from '../utils/labels';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Register'>;
 
@@ -207,7 +208,7 @@ export default function RegisterScreen({ navigation }: Props) {
           <Field label={t.pRegisterVenueType}>
             <View style={styles.chipRow}>
               {VENUE_TYPES.map((v) => (
-                <Chip key={v} label={v} selected={venueType === v} onPress={() => setVenueType(v)} />
+                <Chip key={v} label={venueTypeText(v, t)} selected={venueType === v} onPress={() => setVenueType(v)} />
               ))}
             </View>
           </Field>

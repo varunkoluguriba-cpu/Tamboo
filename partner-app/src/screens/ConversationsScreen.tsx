@@ -8,6 +8,7 @@ import Icon from '../components/Icon';
 import { api } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, shadow } from '../theme';
+import { prettyPhone } from '../utils/date';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Conversations'>;
 
@@ -56,7 +57,7 @@ export default function ConversationsScreen({ navigation }: Props) {
             {convos.map((c) => (
               <View key={c.id} style={styles.card}>
                 <View style={styles.cardTop}>
-                  <Text style={styles.cardPhone}>{c.phone}</Text>
+                  <Text style={styles.cardPhone}>{prettyPhone(c.phone)}</Text>
                   <Text style={styles.cardCount}>{c.messageCount}</Text>
                 </View>
                 {!!c.summary && <Text style={styles.cardSummary}>{c.summary}</Text>}

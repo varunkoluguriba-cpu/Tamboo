@@ -11,6 +11,8 @@
 // own). Then add the same key to TE, HI and UR.
 
 const EN = {
+  pVtFunction: 'Function Hall', pVtBanquet: 'Banquet Hall', pVtMarriage: 'Marriage Hall', pVtHotel: 'Hotel', pCatInHouse: 'In-house catering only', pCatOutside: 'Outside caterers allowed', pCatBoth: 'Both allowed', remChannel: 'Booking register reminders', remTitle: 'Update your booking register', remBody: 'Got any new bookings today? Snap a photo of your register so your Tamboo calendar stays accurate.', 
+  psOccWedding: 'Wedding', psOccReception: 'Reception', psOccBirthday: 'Birthday', psOccHouseParty: 'House party', psOccCorporate: 'Corporate', 
   psBusinessType: 'Your business',
   psRoleTent: 'Tent house',
   psRoleVenue: 'Function hall',
@@ -263,6 +265,8 @@ export type Key = keyof typeof EN;
 export type LangStrings = Record<Key, string>;
 
 const TE: Partial<Record<Key, string>> = {
+  pVtFunction: 'ఫంక్షన్ హాల్', pVtBanquet: 'బాంకెట్ హాల్', pVtMarriage: 'మ్యారేజ్ హాల్', pVtHotel: 'హోటల్', pCatInHouse: 'హాల్ క్యాటరింగ్ మాత్రమే', pCatOutside: 'బయటి క్యాటరర్లకు అనుమతి', pCatBoth: 'రెండూ అనుమతి', remChannel: 'బుకింగ్ రిజిస్టర్ రిమైండర్లు', remTitle: 'మీ బుకింగ్ రిజిస్టర్ అప్‌డేట్ చేయండి', remBody: 'ఈరోజు కొత్త బుకింగ్స్ వచ్చాయా? మీ టాంబూ క్యాలెండర్ సరిగ్గా ఉండేలా మీ రిజిస్టర్ ఫోటో తీయండి.', 
+  psOccWedding: 'పెళ్లి', psOccReception: 'రిసెప్షన్', psOccBirthday: 'పుట్టినరోజు', psOccHouseParty: 'హౌస్ పార్టీ', psOccCorporate: 'కార్పొరేట్', 
   psBusinessType: 'మీ బిజినెస్',
   psRoleTent: 'టెంట్ హౌస్',
   psRoleVenue: 'ఫంక్షన్ హాల్',
@@ -474,6 +478,8 @@ const TE: Partial<Record<Key, string>> = {
 };
 
 const HI: Partial<Record<Key, string>> = {
+  pVtFunction: 'फंक्शन हॉल', pVtBanquet: 'बैंक्वेट हॉल', pVtMarriage: 'मैरिज हॉल', pVtHotel: 'होटल', pCatInHouse: 'सिर्फ़ हॉल की कैटरिंग', pCatOutside: 'बाहर के कैटरर की अनुमति', pCatBoth: 'दोनों की अनुमति', remChannel: 'बुकिंग रजिस्टर रिमाइंडर', remTitle: 'अपना बुकिंग रजिस्टर अपडेट करें', remBody: 'आज कोई नई बुकिंग आई? अपने रजिस्टर की फोटो लें ताकि आपका टैम्बू कैलेंडर सही रहे।', 
+  psOccWedding: 'शादी', psOccReception: 'रिसेप्शन', psOccBirthday: 'जन्मदिन', psOccHouseParty: 'हाउस पार्टी', psOccCorporate: 'कॉर्पोरेट', 
   psBusinessType: 'आपका बिज़नेस',
   psRoleTent: 'टेंट हाउस',
   psRoleVenue: 'फंक्शन हॉल',
@@ -685,6 +691,8 @@ const HI: Partial<Record<Key, string>> = {
 };
 
 const UR: Partial<Record<Key, string>> = {
+  pVtFunction: 'فنکشن ہال', pVtBanquet: 'بینکوئٹ ہال', pVtMarriage: 'میرج ہال', pVtHotel: 'ہوٹل', pCatInHouse: 'صرف ہال کی کیٹرنگ', pCatOutside: 'باہر کے کیٹرر کی اجازت', pCatBoth: 'دونوں کی اجازت', remChannel: 'بکنگ رجسٹر یاد دہانیاں', remTitle: 'اپنا بکنگ رجسٹر اپڈیٹ کریں', remBody: 'آج کوئی نئی بکنگ آئی؟ اپنے رجسٹر کی تصویر لیں تاکہ آپ کا ٹیمبو کیلنڈر درست رہے۔', 
+  psOccWedding: 'شادی', psOccReception: 'ریسیپشن', psOccBirthday: 'سالگرہ', psOccHouseParty: 'ہاؤس پارٹی', psOccCorporate: 'کارپوریٹ', 
   psBusinessType: 'آپ کا بزنس',
   psRoleTent: 'ٹینٹ ہاؤس',
   psRoleVenue: 'فنکشن ہال',

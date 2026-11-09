@@ -14,7 +14,7 @@ function nextTriggerTimestamp(): number {
   return next.getTime();
 }
 
-export async function scheduleRegisterPhotoReminder(): Promise<void> {
+export async function scheduleRegisterPhotoReminder(text: { channel: string; title: string; body: string }): Promise<void> {
   try {
     const settings = await notifee.requestPermission();
     const granted = Platform.OS === 'android'
@@ -25,7 +25,7 @@ export async function scheduleRegisterPhotoReminder(): Promise<void> {
     if (Platform.OS === 'android') {
       await notifee.createChannel({
         id: 'register-reminders',
-        name: 'Booking register reminders',
+        name: text.channel,
         importance: AndroidImportance.DEFAULT,
       });
     }
@@ -33,8 +33,8 @@ export async function scheduleRegisterPhotoReminder(): Promise<void> {
     await notifee.createTriggerNotification(
       {
         id: NOTIFICATION_ID,
-        title: 'Update your booking register',
-        body: "Got any new bookings today? Snap a photo of your register so your Tamboo calendar stays accurate.",
+        title: text.title,
+        body: text.body,
         android: { channelId: 'register-reminders', smallIcon: 'ic_notification', color: '#e75480', pressAction: { id: 'default' } },
       },
       {

@@ -145,7 +145,7 @@ export default function BrowseScreen({ navigation, route }: Props) {
         ) : resTab === 'items' ? (
           <View style={{ gap: 10 }}>
             {items.map((p) => {
-              const badge = availBadge(p);
+              const badge = availBadge(p, t);
               return (
                 <TouchableOpacity key={p.id} style={styles.itemCard} activeOpacity={0.85} onPress={() => navigation.navigate('Product', { id: p.id })}>
                   <Photo icon="package" uri={p.photos?.[0]} />

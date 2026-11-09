@@ -58,6 +58,9 @@ export default function SHomeScreen() {
   const initials = (partner?.businessName || '?').split(' ').map((p) => p[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
   const newCount = (list || []).filter((r) => r.status === 'NEW').length;
   const contactedCount = (list || []).filter((r) => r.status === 'CONTACTED' || r.status === 'CLOSED').length;
+  const occasionText = (o: string) => ({
+    Wedding: t.psOccWedding, Reception: t.psOccReception, Birthday: t.psOccBirthday, 'House party': t.psOccHouseParty, Corporate: t.psOccCorporate,
+  } as Record<string, string>)[o] || o;
   const statusLabel = (s: ServiceRequest['status']) => ({ NEW: t.psStatusNew, CONTACTED: t.psStatusContacted, CLOSED: t.psStatusClosed, NO_RESPONSE: t.psStatusNoResponse }[s]);
 
   return (
@@ -109,7 +112,7 @@ export default function SHomeScreen() {
                 </View>
                 <Text style={styles.customer}>{r.customerName}</Text>
                 <Text style={styles.meta}>
-                  {[r.eventDate, r.eventType, r.guests > 0 ? t.psGuests.replace('{n}', String(r.guests)) : '', r.area].filter(Boolean).join(' · ')}
+                  {[r.eventDate, occasionText(r.eventType), r.guests > 0 ? t.psGuests.replace('{n}', String(r.guests)) : '', r.area].filter(Boolean).join(' · ')}
                 </Text>
                 {!!r.offerTitle && <Text style={styles.asked}>{t.psAskedAbout.replace('{title}', r.offerTitle)}</Text>}
                 {!!r.message && <Text style={styles.msg}>{r.message}</Text>}
