@@ -12,6 +12,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { colors, shadow } from '../theme';
 import { ratingText, metaLine, kmText } from '../utils/rating';
 import DateField from '../components/DateField';
+import { hallTypeText, paxText } from '../utils/units';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Venues'>;
 type Sort = 'nearest' | 'rating' | 'priceLow' | 'priceHigh';
@@ -155,12 +156,12 @@ export default function VenuesScreen({ navigation, route }: Props) {
                   <View style={styles.hallTopRow}>
                     <View style={{ flex: 1, minWidth: 0 }}>
                       <Text style={styles.hallName}>{h.name}</Text>
-                      <Text style={styles.hallMeta}>{metaLine(h.type, h.area, h.km != null && kmText(h.km))}</Text>
+                      <Text style={styles.hallMeta}>{metaLine(hallTypeText(h.type || '', t), h.area, h.km != null && kmText(h.km))}</Text>
                     </View>
                     <Text style={styles.hallRating}>{ratingText(h.rating, 0, t)}</Text>
                   </View>
                   <View style={styles.chipRow}>
-                    <Text style={styles.miniChip}>{h.cap}</Text>
+                    <Text style={styles.miniChip}>{paxText(h.cap, t)}</Text>
                     <Text style={styles.miniChip}>{h.ac ? t.venuesAC : t.venuesNonAC}</Text>
                     <Text style={[styles.miniChip, h.hasCrockery ? styles.chipOk : styles.chipWarn]}>
                       {h.hasCrockery ? t.venuesHasCrockery : t.venuesNoCrockery}

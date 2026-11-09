@@ -11,6 +11,7 @@
 // own). Then add the same key to TE, HI and UR.
 
 const EN = {
+  unitPerUnitDay: 'per unit / day', unitPerUnitEvent: 'per unit / event', unitPerEvent: 'per event', unitPerSetEvent: 'per set / event', itemsStockCount: 'stock {n}', tabHome: 'Home', tabOrders: 'Orders', tabItems: 'Items', tabShop: 'Shop', tabPreBookings: 'Pre-bookings', tabCalendar: 'Calendar', tabMyHalls: 'My halls', 
   skip: 'Skip',
   next: 'Next',
   cont: 'Continue',
@@ -138,14 +139,14 @@ const EN = {
   pLangScreenBizTitle: 'What is your business?', pLangScreenBizSubtitle: 'We’ll show the tools you need.',
   pLangScreenRoleTentLabel: 'Tent house & rentals', pLangScreenRoleTentDesc: 'Shamiana, chairs, vessels, lights, decor',
   pLangScreenRoleVenueLabel: 'Function hall, banquet or hotel', pLangScreenRoleVenueDesc: 'Get token pre-bookings for your hall',
-  pLangScreenLangSubtitle: 'English + 22 Indian languages. You can change this anytime with the अ button on Home.',
+  pLangScreenLangSubtitle: 'English, Telugu, Hindi and Urdu. You can change this anytime with the अ button on Home.',
   pLangScreenNotice: '{lang} translation is coming soon. English is shown until then.',
   pLoginInvalidPhone: 'Enter a valid 10-digit mobile number', pLoginOtpError: 'Could not send OTP. Check your connection.', pLoginBrandBadge: 'PARTNER',
-  pLoginTitle: 'Partner login', pLoginSubtitle: 'Enter your registered mobile number. We’ll send a one-time password.', pLoginSendOtp: 'Send OTP',
+  pLoginTitle: 'Partner login', pLoginSubtitle: 'New or existing partner — enter your mobile number. We’ll send a one-time password.', pLoginSendOtp: 'Send OTP',
   pLoginTerms: 'By continuing you agree to the Partner Terms, Commission Policy and Privacy Policy.',
   pLoginOr: 'or', pLoginGoogle: 'Continue with Google', pLoginGoogleError: 'Could not sign in with Google. Please try again.',
   pOnboardSlide1Title: 'Grow your tent house or hall', pOnboardSlide1Body: 'Get bookings from customers across Hyderabad. No more missed calls or lost diaries.',
-  pOnboardSlide2Title: 'Your calendar, always right', pOnboardSlide2Body: 'Live availability for every date, so you never double-book a hall, chairs or a shamiana.',
+  pOnboardSlide2Title: 'All your bookings in one calendar', pOnboardSlide2Body: 'Tamboo bookings and your own walk-in bookings in one place, so customers can’t book a date you’ve marked as taken.',
   pOnboardSlide3Title: 'Get paid on time', pOnboardSlide3Body: 'Customers pay through Tamboo. Your earnings are paid out every week.',
   pOnboardBrandBadge: 'PARTNER', pOnboardGetStarted: 'Get started',
 
@@ -194,6 +195,7 @@ export type Key = keyof typeof EN;
 export type LangStrings = Record<Key, string>;
 
 const TE: Partial<Record<Key, string>> = {
+  unitPerUnitDay: 'ఒక్కోదానికి / రోజుకు', unitPerUnitEvent: 'ఒక్కోదానికి / ఈవెంట్‌కు', unitPerEvent: 'ఒక్కో ఈవెంట్‌కు', unitPerSetEvent: 'ఒక్కో సెట్‌కు / ఈవెంట్‌కు', itemsStockCount: 'స్టాక్ {n}', tabHome: 'హోమ్', tabOrders: 'ఆర్డర్లు', tabItems: 'ఐటమ్స్', tabShop: 'షాప్', tabPreBookings: 'ప్రీ-బుకింగ్స్', tabCalendar: 'క్యాలెండర్', tabMyHalls: 'నా హాల్స్', 
   skip: 'దాటవేయి', next: 'తర్వాత', cont: 'కొనసాగించండి', chooseLang: 'మీ భాషను ఎంచుకోండి',
   cancel: 'రద్దు చేయండి', save: 'సేవ్ చేయండి', edit: 'సవరించండి', delete: 'తొలగించండి',
   confirm: 'నిర్ధారించండి', retry: 'మళ్లీ ప్రయత్నించండి', loading: 'లోడ్ అవుతోంది…', call: 'కాల్ చేయండి',
@@ -286,13 +288,13 @@ const TE: Partial<Record<Key, string>> = {
   pLangScreenBizTitle: 'మీ వ్యాపారం ఏమిటి?', pLangScreenBizSubtitle: 'మీకు కావాల్సిన టూల్స్ చూపిస్తాం.',
   pLangScreenRoleTentLabel: 'టెంట్ హౌస్ & అద్దె సామాగ్రి', pLangScreenRoleTentDesc: 'షామియానా, కుర్చీలు, పాత్రలు, లైట్లు, డెకర్',
   pLangScreenRoleVenueLabel: 'ఫంక్షన్ హాల్, బ్యాంక్వెట్ లేదా హోటల్', pLangScreenRoleVenueDesc: 'మీ హాల్ కోసం టోకెన్ ప్రీ-బుకింగ్‌లు పొందండి',
-  pLangScreenLangSubtitle: 'ఇంగ్లీష్ + 22 భారతీయ భాషలు. హోమ్‌లోని अ బటన్‌తో ఎప్పుడైనా మార్చవచ్చు.', pLangScreenNotice: '{lang} అనువాదం త్వరలో అందుబాటులోకి వస్తుంది. అప్పటి వరకు ఇంగ్లీష్ చూపబడుతుంది.',
+  pLangScreenLangSubtitle: 'ఇంగ్లీష్, తెలుగు, హిందీ, ఉర్దూ. హోమ్‌లోని अ బటన్‌తో ఎప్పుడైనా మార్చవచ్చు.', pLangScreenNotice: '{lang} అనువాదం త్వరలో అందుబాటులోకి వస్తుంది. అప్పటి వరకు ఇంగ్లీష్ చూపబడుతుంది.',
   pLoginInvalidPhone: 'సరైన 10-అంకెల మొబైల్ నంబర్ నమోదు చేయండి', pLoginOtpError: 'OTP పంపలేకపోయాం. మీ ఇంటర్నెట్ కనెక్షన్ చూసుకోండి.', pLoginBrandBadge: 'పార్ట్‌నర్',
-  pLoginTitle: 'పార్ట్‌నర్ లాగిన్', pLoginSubtitle: 'మీ రిజిస్టర్డ్ మొబైల్ నంబర్ నమోదు చేయండి. మేము ఒక వన్-టైమ్ పాస్‌వర్డ్ పంపుతాం.', pLoginSendOtp: 'OTP పంపండి',
+  pLoginTitle: 'పార్ట్‌నర్ లాగిన్', pLoginSubtitle: 'కొత్తవారైనా, ఇప్పటికే ఉన్నవారైనా — మీ మొబైల్ నంబర్ నమోదు చేయండి. మేము ఒక వన్-టైమ్ పాస్‌వర్డ్ పంపుతాం.', pLoginSendOtp: 'OTP పంపండి',
   pLoginTerms: 'కొనసాగించడం ద్వారా మీరు పార్ట్‌నర్ నిబంధనలు, కమిషన్ పాలసీ మరియు ప్రైవసీ పాలసీకి అంగీకరిస్తున్నారు.',
   pLoginOr: 'లేదా', pLoginGoogle: 'Google తో కొనసాగించండి', pLoginGoogleError: 'Google తో సైన్ ఇన్ చేయలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.',
   pOnboardSlide1Title: 'మీ టెంట్ హౌస్ లేదా హాల్‌ను పెంచుకోండి', pOnboardSlide1Body: 'హైదరాబాద్ అంతటా కస్టమర్ల నుండి బుకింగ్‌లు పొందండి. మిస్డ్ కాల్స్ లేదా పోయిన డైరీలు ఇక ఉండవు.',
-  pOnboardSlide2Title: 'మీ క్యాలెండర్, ఎప్పుడూ సరిగ్గా', pOnboardSlide2Body: 'ప్రతి తేదీకి లైవ్ లభ్యత, కాబట్టి హాల్, కుర్చీలు లేదా షామియానా ఎప్పుడూ డబుల్ బుక్ కావు.',
+  pOnboardSlide2Title: 'మీ బుకింగ్స్ అన్నీ ఒకే క్యాలెండర్‌లో', pOnboardSlide2Body: 'టాంబూ బుకింగ్స్, మీ వాక్-ఇన్ బుకింగ్స్ ఒకే చోట. మీరు బుక్ అయినట్టు గుర్తించిన తేదీని కస్టమర్లు బుక్ చేయలేరు.',
   pOnboardSlide3Title: 'సమయానికి పేమెంట్ పొందండి', pOnboardSlide3Body: 'కస్టమర్లు టాంబూ ద్వారా చెల్లిస్తారు. మీ ఆదాయం ప్రతి వారం చెల్లించబడుతుంది.',
   pOnboardBrandBadge: 'పార్ట్‌నర్', pOnboardGetStarted: 'ప్రారంభించండి',
 
@@ -336,6 +338,7 @@ const TE: Partial<Record<Key, string>> = {
 };
 
 const HI: Partial<Record<Key, string>> = {
+  unitPerUnitDay: 'प्रति यूनिट / दिन', unitPerUnitEvent: 'प्रति यूनिट / इवेंट', unitPerEvent: 'प्रति इवेंट', unitPerSetEvent: 'प्रति सेट / इवेंट', itemsStockCount: 'स्टॉक {n}', tabHome: 'होम', tabOrders: 'ऑर्डर', tabItems: 'आइटम', tabShop: 'दुकान', tabPreBookings: 'प्री-बुकिंग', tabCalendar: 'कैलेंडर', tabMyHalls: 'मेरे हॉल', 
   skip: 'छोड़ें', next: 'आगे', cont: 'जारी रखें', chooseLang: 'अपनी भाषा चुनें',
   cancel: 'रद्द करें', save: 'सेव करें', edit: 'संपादित करें', delete: 'हटाएं',
   confirm: 'पुष्टि करें', retry: 'फिर से कोशिश करें', loading: 'लोड हो रहा है…', call: 'कॉल करें',
@@ -428,13 +431,13 @@ const HI: Partial<Record<Key, string>> = {
   pLangScreenBizTitle: 'आपका बिज़नेस क्या है?', pLangScreenBizSubtitle: 'हम आपको ज़रूरी टूल्स दिखाएंगे।',
   pLangScreenRoleTentLabel: 'टेंट हाउस और रेंटल्स', pLangScreenRoleTentDesc: 'शामियाना, कुर्सियां, बर्तन, लाइट्स, डेकोर',
   pLangScreenRoleVenueLabel: 'फंक्शन हॉल, बैंक्वेट या होटल', pLangScreenRoleVenueDesc: 'अपने हॉल के लिए टोकन प्री-बुकिंग पाएं',
-  pLangScreenLangSubtitle: 'अंग्रेज़ी + 22 भारतीय भाषाएँ। होम पर अ बटन से कभी भी बदलें।', pLangScreenNotice: '{lang} अनुवाद जल्द आ रहा है। तब तक अंग्रेज़ी दिखाई जाएगी।',
+  pLangScreenLangSubtitle: 'अंग्रेज़ी, तेलुगु, हिंदी और उर्दू। होम पर अ बटन से कभी भी बदलें।', pLangScreenNotice: '{lang} अनुवाद जल्द आ रहा है। तब तक अंग्रेज़ी दिखाई जाएगी।',
   pLoginInvalidPhone: 'सही 10-अंकों का मोबाइल नंबर डालें', pLoginOtpError: 'OTP नहीं भेजा जा सका। अपना इंटरनेट कनेक्शन देखें।', pLoginBrandBadge: 'पार्टनर',
-  pLoginTitle: 'पार्टनर लॉगिन', pLoginSubtitle: 'अपना रजिस्टर्ड मोबाइल नंबर डालें। हम आपको एक वन-टाइम पासवर्ड भेजेंगे।', pLoginSendOtp: 'OTP भेजें',
+  pLoginTitle: 'पार्टनर लॉगिन', pLoginSubtitle: 'नए या पुराने पार्टनर — अपना मोबाइल नंबर डालें। हम आपको एक वन-टाइम पासवर्ड भेजेंगे।', pLoginSendOtp: 'OTP भेजें',
   pLoginTerms: 'जारी रखने पर आप पार्टनर नियम, कमीशन पॉलिसी और प्राइवेसी पॉलिसी से सहमत होते हैं।',
   pLoginOr: 'या', pLoginGoogle: 'Google से जारी रखें', pLoginGoogleError: 'Google से साइन इन नहीं हो सका। कृपया फिर से कोशिश करें।',
   pOnboardSlide1Title: 'अपना टेंट हाउस या हॉल बढ़ाएँ', pOnboardSlide1Body: 'हैदराबाद भर के ग्राहकों से बुकिंग पाएं। अब मिस्ड कॉल या खोई हुई डायरी की चिंता नहीं।',
-  pOnboardSlide2Title: 'आपका कैलेंडर, हमेशा सही', pOnboardSlide2Body: 'हर तारीख की लाइव उपलब्धता, ताकि हॉल, कुर्सियाँ या शामियाना कभी डबल-बुक न हों।',
+  pOnboardSlide2Title: 'आपकी सारी बुकिंग एक कैलेंडर में', pOnboardSlide2Body: 'टैम्बू की बुकिंग और आपकी अपनी वॉक-इन बुकिंग एक जगह, ताकि जिस तारीख को आपने बुक मार्क किया है, उसे ग्राहक बुक न कर सकें।',
   pOnboardSlide3Title: 'समय पर पैसा पाएं', pOnboardSlide3Body: 'ग्राहक टैम्बू के ज़रिए भुगतान करते हैं। आपकी कमाई हर हफ़्ते दी जाती है।',
   pOnboardBrandBadge: 'पार्टनर', pOnboardGetStarted: 'शुरू करें',
 
@@ -478,6 +481,8 @@ const HI: Partial<Record<Key, string>> = {
 };
 
 const UR: Partial<Record<Key, string>> = {
+  unitPerUnitDay: 'فی یونٹ / دن', unitPerUnitEvent: 'فی یونٹ / ایونٹ', unitPerEvent: 'فی ایونٹ', unitPerSetEvent: 'فی سیٹ / ایونٹ', itemsStockCount: 'اسٹاک {n}', tabHome: 'ہوم', tabOrders: 'آرڈرز', tabItems: 'آئٹمز', tabShop: 'دکان', tabPreBookings: 'پری بکنگ', tabCalendar: 'کیلنڈر', tabMyHalls: 'میرے ہال', 
+  hallUseLocationBtn: 'میری موجودہ لوکیشن استعمال کریں', hallLocationSetText: 'لوکیشن سیٹ ہو گئی ✓', hallLocatingText: 'لوکیشن حاصل کی جا رہی ہے…', hallLocationErrTitle: 'لوکیشن حاصل نہیں ہو سکی', hallLocationErr: 'براہ کرم لوکیشن کی اجازت دیں اور دوبارہ کوشش کریں۔',
   skip: 'چھوڑیں', next: 'آگے', cont: 'جاری رکھیں', chooseLang: 'اپنی زبان منتخب کریں',
   cancel: 'منسوخ کریں', save: 'محفوظ کریں', edit: 'ترمیم کریں', delete: 'حذف کریں',
   confirm: 'تصدیق کریں', retry: 'دوبارہ کوشش کریں', loading: 'لوڈ ہو رہا ہے…', call: 'کال کریں',
@@ -569,13 +574,13 @@ const UR: Partial<Record<Key, string>> = {
   pLangScreenBizTitle: 'آپ کا کاروبار کیا ہے؟', pLangScreenBizSubtitle: 'ہم آپ کو ضروری ٹولز دکھائیں گے۔',
   pLangScreenRoleTentLabel: 'ٹینٹ ہاؤس اور رینٹلز', pLangScreenRoleTentDesc: 'شامیانہ، کرسیاں، برتن، لائٹس، ڈیکور',
   pLangScreenRoleVenueLabel: 'فنکشن ہال، بینکوئٹ یا ہوٹل', pLangScreenRoleVenueDesc: 'اپنے ہال کے لیے ٹوکن پری-بکنگز حاصل کریں',
-  pLangScreenLangSubtitle: 'انگریزی + 22 ہندوستانی زبانیں۔ ہوم پر अ بٹن سے کبھی بھی بدلیں۔', pLangScreenNotice: '{lang} ترجمہ جلد آ رہا ہے۔ تب تک انگریزی دکھائی جائے گی۔',
+  pLangScreenLangSubtitle: 'انگریزی، تیلگو، ہندی اور اردو۔ ہوم پر अ بٹن سے کبھی بھی بدلیں۔', pLangScreenNotice: '{lang} ترجمہ جلد آ رہا ہے۔ تب تک انگریزی دکھائی جائے گی۔',
   pLoginInvalidPhone: 'درست 10 ہندسوں کا موبائل نمبر درج کریں', pLoginOtpError: 'OTP نہیں بھیجا جا سکا۔ اپنا انٹرنیٹ کنکشن چیک کریں۔', pLoginBrandBadge: 'پارٹنر',
-  pLoginTitle: 'پارٹنر لاگ ان', pLoginSubtitle: 'اپنا رجسٹرڈ موبائل نمبر درج کریں۔ ہم آپ کو ایک ون ٹائم پاس ورڈ بھیجیں گے۔', pLoginSendOtp: 'OTP بھیجیں',
+  pLoginTitle: 'پارٹنر لاگ ان', pLoginSubtitle: 'نئے یا پرانے پارٹنر — اپنا موبائل نمبر درج کریں۔ ہم آپ کو ایک ون ٹائم پاس ورڈ بھیجیں گے۔', pLoginSendOtp: 'OTP بھیجیں',
   pLoginTerms: 'جاری رکھنے سے آپ پارٹنر شرائط، کمیشن پالیسی اور پرائیویسی پالیسی سے اتفاق کرتے ہیں۔',
   pLoginOr: 'یا', pLoginGoogle: 'Google کے ساتھ جاری رکھیں', pLoginGoogleError: 'Google کے ساتھ سائن ان نہیں ہو سکا۔ براہ کرم دوبارہ کوشش کریں۔',
   pOnboardSlide1Title: 'اپنا ٹینٹ ہاؤس یا ہال بڑھائیں', pOnboardSlide1Body: 'حیدرآباد بھر کے گاہکوں سے بکنگز حاصل کریں۔ اب مسڈ کالز یا کھوئی ہوئی ڈائری کی فکر نہیں۔',
-  pOnboardSlide2Title: 'آپ کا کیلنڈر، ہمیشہ درست', pOnboardSlide2Body: 'ہر تاریخ کی لائیو دستیابی، تاکہ ہال، کرسیاں یا شامیانہ کبھی ڈبل بک نہ ہوں۔',
+  pOnboardSlide2Title: 'آپ کی ساری بکنگ ایک کیلنڈر میں', pOnboardSlide2Body: 'ٹیمبو کی بکنگ اور آپ کی اپنی واک اِن بکنگ ایک جگہ، تاکہ جس تاریخ کو آپ نے بک مارک کیا ہے اسے کسٹمر بک نہ کر سکیں۔',
   pOnboardSlide3Title: 'وقت پر ادائیگی حاصل کریں', pOnboardSlide3Body: 'گاہک ٹیمبو کے ذریعے ادائیگی کرتے ہیں۔ آپ کی کمائی ہر ہفتے ادا کی جاتی ہے۔',
   pOnboardBrandBadge: 'پارٹنر', pOnboardGetStarted: 'شروع کریں',
 
@@ -631,12 +636,18 @@ const AS: Partial<Record<Key, string>> = { skip: 'এৰি দিয়ক', ne
 // Full list of 23 target languages. en/te/hi/ur have complete, screen-by-screen coverage;
 // the rest keep their original onboarding-only translations and fall back to English for
 // everything added since — selectable today, upgraded to full coverage at multi-state launch.
-export const LANGS: Array<[string, string, string]> = [
+// Every language we have (partly) translated. Only ENABLED_LANGS are offered in the picker:
+// the rest have just a handful of strings and would show mostly English. Enable a language here
+// only once it is fully translated (planned when Tamboo expands beyond the Telugu states).
+export const ENABLED_LANGS = ['en', 'te', 'hi', 'ur'];
+export const ALL_LANGS: Array<[string, string, string]> = [
   ['en', 'English', 'English'], ['hi', 'हिन्दी', 'Hindi'], ['te', 'తెలుగు', 'Telugu'], ['ta', 'தமிழ்', 'Tamil'], ['kn', 'ಕನ್ನಡ', 'Kannada'], ['ml', 'മലയാളം', 'Malayalam'],
   ['mr', 'मराठी', 'Marathi'], ['bn', 'বাংলা', 'Bengali'], ['gu', 'ગુજરાતી', 'Gujarati'], ['pa', 'ਪੰਜਾਬੀ', 'Punjabi'], ['or', 'ଓଡ଼ିଆ', 'Odia'], ['ur', 'اردو', 'Urdu'],
   ['as', 'অসমীয়া', 'Assamese'], ['mai', 'मैथिली', 'Maithili'], ['sat', 'ᱥᱟᱱᱛᱟᱲᱤ', 'Santali'], ['ks', 'کٲشُر', 'Kashmiri'], ['ne', 'नेपाली', 'Nepali'], ['sd', 'سنڌي', 'Sindhi'],
   ['kok', 'कोंकणी', 'Konkani'], ['doi', 'डोगरी', 'Dogri'], ['mni', 'ꯃꯩꯇꯩꯂꯣꯟ', 'Manipuri'], ['brx', 'बड़ो', 'Bodo'], ['sa', 'संस्कृतम्', 'Sanskrit'],
 ];
+
+export const LANGS = ALL_LANGS.filter(([code]) => ENABLED_LANGS.includes(code));
 
 export const RTL = ['ur', 'ks', 'sd'];
 

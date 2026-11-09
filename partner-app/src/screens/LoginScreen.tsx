@@ -73,7 +73,7 @@ export default function LoginScreen({ navigation }: Props) {
           </View>
           <TextInput
             style={styles.input}
-            placeholder="98490 12345"
+            placeholder="98XXX XXXXX"
             placeholderTextColor={colors.textMuted}
             keyboardType="number-pad"
             maxLength={10}

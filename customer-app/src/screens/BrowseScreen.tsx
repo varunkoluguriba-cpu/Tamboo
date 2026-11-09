@@ -13,6 +13,7 @@ import { useEvent } from '../context/EventContext';
 import { availBadge } from '../data/catalog';
 import { colors, shadow } from '../theme';
 import { ratingText, metaLine } from '../utils/rating';
+import { unitText } from '../utils/units';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Browse'>;
 type ResTab = 'items' | 'vendors';
@@ -124,7 +125,9 @@ export default function BrowseScreen({ navigation, route }: Props) {
         <View style={styles.availRow}>
           <Icon name="calendar" size={14} color={colors.textSoft} />
           <Text style={styles.availText}>
-            {t.browseAvailabilityPrefix} <Text style={styles.availBold}>{event.date || t.checkoutDateNotSet}</Text> · {t.browseGuestsCount.replace('{count}', String(event.guests))}
+            {event.date
+              ? <>{t.browseAvailabilityPrefix} <Text style={styles.availBold}>{event.date}</Text></>
+              : t.productAvailabilityPickDate} · {t.browseGuestsCount.replace('{count}', String(event.guests))}
           </Text>
         </View>
 
@@ -151,7 +154,7 @@ export default function BrowseScreen({ navigation, route }: Props) {
                     <Text style={styles.itemMeta}>{metaLine(p.vendorName, ratingText(p.rating, 0, t))}</Text>
                     <View style={styles.itemFooter}>
                       <Text style={styles.itemPrice}>
-                        ₹{p.price.toLocaleString('en-IN')} <Text style={styles.itemUnit}>{p.unit}</Text>
+                        ₹{p.price.toLocaleString('en-IN')} <Text style={styles.itemUnit}>{unitText(p.unit, t)}</Text>
                       </Text>
                     </View>
                     <Text style={[styles.availBadge, badge.ok ? styles.chipOk : styles.chipWarn]}>{badge.label}</Text>

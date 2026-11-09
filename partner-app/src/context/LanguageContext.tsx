@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { t as translate, isRTL, type LangStrings } from '../i18n';
+import { t as translate, isRTL, ENABLED_LANGS, type LangStrings } from '../i18n';
 
 const LANG_KEY = 'tamboo-partner-lang';
 
@@ -21,7 +21,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     (async () => {
       const saved = await AsyncStorage.getItem(LANG_KEY);
-      if (saved) setLangState(saved);
+      if (saved && ENABLED_LANGS.includes(saved)) setLangState(saved);
       setReady(true);
     })();
   }, []);

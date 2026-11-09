@@ -4,6 +4,7 @@ import Icon from './Icon';
 import type { IconName } from './icons';
 import { colors } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
+import { useLanguage } from '../context/LanguageContext';
 
 // A minimal structural type instead of NativeStackNavigationProp<RootStackParamList>:
 // that generic ties setParams to the *current* route's param type, which breaks
@@ -17,23 +18,24 @@ export type TabBarNavigation = {
 export type TentTab = 'home' | 'orders' | 'items' | 'shop';
 export type VenueTab = 'hhome' | 'htokens' | 'calendar' | 'hall';
 
-const TENT_TABS: Array<{ key: TentTab; icon: IconName; label: string; route: keyof RootStackParamList }> = [
-  { key: 'home', icon: 'home', label: 'Home', route: 'Home' },
-  { key: 'orders', icon: 'list', label: 'Orders', route: 'Orders' },
-  { key: 'items', icon: 'package', label: 'Items', route: 'Items' },
-  { key: 'shop', icon: 'tent', label: 'Shop', route: 'Shop' },
+const TENT_TABS: Array<{ key: TentTab; icon: IconName; label: 'tabHome' | 'tabOrders' | 'tabItems' | 'tabShop' | 'tabPreBookings' | 'tabCalendar' | 'tabMyHalls'; route: keyof RootStackParamList }> = [
+  { key: 'home', icon: 'home', label: 'tabHome', route: 'Home' },
+  { key: 'orders', icon: 'list', label: 'tabOrders', route: 'Orders' },
+  { key: 'items', icon: 'package', label: 'tabItems', route: 'Items' },
+  { key: 'shop', icon: 'tent', label: 'tabShop', route: 'Shop' },
 ];
 
-const VENUE_TABS: Array<{ key: VenueTab; icon: IconName; label: string; route: keyof RootStackParamList }> = [
-  { key: 'hhome', icon: 'home', label: 'Home', route: 'HHome' },
-  { key: 'htokens', icon: 'list', label: 'Pre-bookings', route: 'HTokens' },
-  { key: 'calendar', icon: 'calendar', label: 'Calendar', route: 'Calendar' },
-  { key: 'hall', icon: 'camera', label: 'My halls', route: 'Halls' },
+const VENUE_TABS: Array<{ key: VenueTab; icon: IconName; label: 'tabHome' | 'tabOrders' | 'tabItems' | 'tabShop' | 'tabPreBookings' | 'tabCalendar' | 'tabMyHalls'; route: keyof RootStackParamList }> = [
+  { key: 'hhome', icon: 'home', label: 'tabHome', route: 'HHome' },
+  { key: 'htokens', icon: 'list', label: 'tabPreBookings', route: 'HTokens' },
+  { key: 'calendar', icon: 'calendar', label: 'tabCalendar', route: 'Calendar' },
+  { key: 'hall', icon: 'camera', label: 'tabMyHalls', route: 'Halls' },
 ];
 
 type Navigation = TabBarNavigation;
 
 export function TentTabBar({ active, navigation, badge }: { active: TentTab; navigation: Navigation; badge?: Partial<Record<TentTab, number>> }) {
+  const { t } = useLanguage();
   return (
     <View style={styles.tabBar}>
       {TENT_TABS.map((tb) => {
@@ -49,7 +51,7 @@ export function TentTabBar({ active, navigation, badge }: { active: TentTab; nav
                 </View>
               )}
             </View>
-            <Text style={[styles.tabLabel, { color: isActive ? colors.pinkStrong : colors.textMuted }]}>{tb.label}</Text>
+            <Text style={[styles.tabLabel, { color: isActive ? colors.pinkStrong : colors.textMuted }]}>{t[tb.label]}</Text>
           </TouchableOpacity>
         );
       })}
@@ -58,6 +60,7 @@ export function TentTabBar({ active, navigation, badge }: { active: TentTab; nav
 }
 
 export function VenueTabBar({ active, navigation, badge }: { active: VenueTab; navigation: Navigation; badge?: Partial<Record<VenueTab, number>> }) {
+  const { t } = useLanguage();
   return (
     <View style={styles.tabBar}>
       {VENUE_TABS.map((tb) => {
@@ -73,7 +76,7 @@ export function VenueTabBar({ active, navigation, badge }: { active: VenueTab; n
                 </View>
               )}
             </View>
-            <Text style={[styles.tabLabel, { color: isActive ? colors.pinkStrong : colors.textMuted }]}>{tb.label}</Text>
+            <Text style={[styles.tabLabel, { color: isActive ? colors.pinkStrong : colors.textMuted }]}>{t[tb.label]}</Text>
           </TouchableOpacity>
         );
       })}

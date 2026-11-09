@@ -22,6 +22,7 @@ import { HOME_MODE_KEY } from '../constants';
 import { ratingText, metaLine, kmText } from '../utils/rating';
 import { prettyDate } from '../utils/status';
 import DateField from '../components/DateField';
+import { hallTypeText, paxText } from '../utils/units';
 
 type Mode = 'venues' | 'rentals';
 
@@ -315,12 +316,12 @@ export default function HomeScreen() {
                       <View style={styles.hallTopRow}>
                         <View style={{ flex: 1, minWidth: 0 }}>
                           <Text style={styles.hallName}>{v.name}</Text>
-                          <Text style={styles.hallMeta}>{metaLine(v.type, v.area, v.km != null && kmText(v.km))}</Text>
+                          <Text style={styles.hallMeta}>{metaLine(hallTypeText(v.type || '', t), v.area, v.km != null && kmText(v.km))}</Text>
                         </View>
                         <Text style={styles.hallRating}>{ratingText(v.rating, 0, t)}</Text>
                       </View>
                       <View style={styles.chipRow}>
-                        <Text style={styles.chip}>{v.cap}</Text>
+                        <Text style={styles.chip}>{paxText(v.cap, t)}</Text>
                         <Text style={styles.chip}>{v.ac ? t.homeScreenAC : t.homeScreenNonAC}</Text>
                         {v.verified && <Text style={[styles.chip, styles.chipOk]}>{t.homeScreenVerified}</Text>}
                       </View>
@@ -428,7 +429,7 @@ export default function HomeScreen() {
               <ScrollView keyboardShouldPersistTaps="handled" horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
                 {packages.map((k) => (
                   <View key={k.id} style={styles.pkgCard}>
-                    <Photo icon="package" height={130} radius={14} />
+                    <Photo icon="package" height={130} radius={14} uri={k.lines.map((l) => getProduct(l.productId)?.photos?.[0]).find(Boolean)} />
                     <Text style={styles.pkgName}>{k.name}</Text>
                     <Text style={styles.pkgItems}>{k.lines.map((l) => (l.qty > 1 ? `${l.qty} × ${l.name}` : l.name)).join(', ')}</Text>
                     <Text style={styles.pkgVendor}>{k.vendorName}</Text>

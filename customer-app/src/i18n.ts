@@ -12,9 +12,11 @@
 // name specifically so a missing translation can never silently shift and corrupt another key.
 
 const EN = {
+  hallTypeFunction: 'Function Hall', hallTypeBanquet: 'Banquet Hall', hallTypeMarriage: 'Marriage Hall', hallTypeHotel: 'Hotel', paxUnit: 'pax', 
+  unitPerUnitDay: 'per unit / day', unitPerUnitEvent: 'per unit / event', unitPerEvent: 'per event', unitPerSetEvent: 'per set / event', 
   // ---- onboarding ----
   w1T: 'Everything for your event',
-  w1B: 'Tents, chairs, vessels, lights and decor from verified local vendors.',
+  w1B: 'Function halls, tents, chairs, vessels, lights and decor — from verified local vendors.',
   w2T: 'See real availability',
   w2B: 'Live stock for your exact date. No more calling ten vendors.',
   w3T: 'Book. Setup. Celebrate.',
@@ -268,7 +270,7 @@ const EN = {
   langScreenVenuesDesc: 'Banquet, marriage hall, hotel',
   langScreenBothLabel: 'Both',
   langScreenBothDesc: 'Hall plus everything for it',
-  langScreenSubtitle: 'English + 22 Indian languages. You can change this anytime from Profile.',
+  langScreenSubtitle: 'English, Telugu, Hindi and Urdu. You can change this anytime from Profile.',
   langScreenComingSoon: 'translation is coming soon. English is shown until then.',
   loginScreenTagline: 'Everything for your event',
   loginScreenInvalidPhone: 'Enter a valid 10-digit mobile number',
@@ -521,8 +523,10 @@ export type Key = keyof typeof EN;
 export type LangStrings = Record<Key, string>;
 
 const TE: Partial<Record<Key, string>> = {
+  hallTypeFunction: 'ఫంక్షన్ హాల్', hallTypeBanquet: 'బాంకెట్ హాల్', hallTypeMarriage: 'మ్యారేజ్ హాల్', hallTypeHotel: 'హోటల్', paxUnit: 'మంది', 
+  unitPerUnitDay: 'ఒక్కోదానికి / రోజుకు', unitPerUnitEvent: 'ఒక్కోదానికి / ఈవెంట్‌కు', unitPerEvent: 'ఒక్కో ఈవెంట్‌కు', unitPerSetEvent: 'ఒక్కో సెట్‌కు / ఈవెంట్‌కు', 
   w1T: 'మీ వేడుకకు కావాల్సినవన్నీ',
-  w1B: 'ధృవీకరించిన స్థానిక వెండర్ల నుండి టెంట్లు, కుర్చీలు, పాత్రలు, లైట్లు, అలంకరణ.',
+  w1B: 'ధృవీకరించిన స్థానిక వెండర్ల నుండి ఫంక్షన్ హాల్స్, టెంట్లు, కుర్చీలు, పాత్రలు, లైట్లు, అలంకరణ.',
   w2T: 'నిజమైన లభ్యత చూడండి',
   w2B: 'మీ తేదీకి లైవ్ స్టాక్. పది మంది వెండర్లకు ఫోన్ చేయనక్కర్లేదు.',
   w3T: 'బుక్ చేయండి. సెటప్. సంబరం.',
@@ -644,7 +648,7 @@ const TE: Partial<Record<Key, string>> = {
   langScreenIntentTitle: 'మీరు ఏమి కోరుకుంటున్నారు?', langScreenIntentSubtitle: 'దాని కోసం మేము మీ హోమ్ స్క్రీన్‌ను సెట్ చేస్తాము. మీరు ఎప్పుడైనా మార్చుకోవచ్చు.',
   langScreenRentalsLabel: 'టెంట్ హౌస్ & అద్దె సామాగ్రి', langScreenRentalsDesc: 'షామియానా, కుర్చీలు, పాత్రలు, అలంకరణ', langScreenVenuesLabel: 'ఫంక్షన్ హాళ్లు & వేదికలు',
   langScreenVenuesDesc: 'బ్యాంక్వెట్, కల్యాణ మండపం, హోటల్', langScreenBothLabel: 'రెండూ', langScreenBothDesc: 'హాల్‌తో పాటు దానికి అవసరమైనవన్నీ',
-  langScreenSubtitle: 'ఇంగ్లీష్ + 22 భారతీయ భాషలు. మీరు దీన్ని ఎప్పుడైనా ప్రొఫైల్ నుండి మార్చుకోవచ్చు.', langScreenComingSoon: 'అనువాదం త్వరలో అందుబాటులోకి వస్తుంది. అప్పటి వరకు ఇంగ్లీష్ చూపబడుతుంది.',
+  langScreenSubtitle: 'ఇంగ్లీష్, తెలుగు, హిందీ, ఉర్దూ. మీరు దీన్ని ఎప్పుడైనా ప్రొఫైల్ నుండి మార్చుకోవచ్చు.', langScreenComingSoon: 'అనువాదం త్వరలో అందుబాటులోకి వస్తుంది. అప్పటి వరకు ఇంగ్లీష్ చూపబడుతుంది.',
   loginScreenTagline: 'మీ వేడుకకు కావాల్సినవన్నీ', loginScreenInvalidPhone: 'సరైన 10 అంకెల మొబైల్ నంబర్ నమోదు చేయండి',
   loginScreenOtpError: 'OTP పంపలేకపోయాము. మీ కనెక్షన్‌ని చెక్ చేయండి.', loginScreenGoogleError: 'Google తో సైన్ ఇన్ చేయలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.',
   loginScreenGuestError: 'గెస్ట్‌గా కొనసాగలేకపోయాము. మీ కనెక్షన్‌ని చెక్ చేయండి.', loginScreenTerms: 'కొనసాగించడం ద్వారా మీరు కస్టమర్ నిబంధనలు మరియు గోప్యతా విధానానికి అంగీకరిస్తున్నారు.',
@@ -746,8 +750,10 @@ const TE: Partial<Record<Key, string>> = {
 };
 
 const HI: Partial<Record<Key, string>> = {
+  hallTypeFunction: 'फंक्शन हॉल', hallTypeBanquet: 'बैंक्वेट हॉल', hallTypeMarriage: 'मैरिज हॉल', hallTypeHotel: 'होटल', paxUnit: 'लोग', 
+  unitPerUnitDay: 'प्रति यूनिट / दिन', unitPerUnitEvent: 'प्रति यूनिट / इवेंट', unitPerEvent: 'प्रति इवेंट', unitPerSetEvent: 'प्रति सेट / इवेंट', 
   w1T: 'आपके इवेंट का सब कुछ',
-  w1B: 'वेरिफ़ाइड लोकल वेंडर से टेंट, कुर्सियाँ, बर्तन, लाइट और सजावट।',
+  w1B: 'वेरिफ़ाइड लोकल वेंडर से फंक्शन हॉल, टेंट, कुर्सियाँ, बर्तन, लाइट और सजावट।',
   w2T: 'असली उपलब्धता देखें',
   w2B: 'आपकी तारीख़ पर लाइव स्टॉक। दस वेंडरों को फ़ोन करने की ज़रूरत नहीं।',
   w3T: 'बुक करें। सेटअप। जश्न मनाएँ।',
@@ -867,7 +873,7 @@ const HI: Partial<Record<Key, string>> = {
   langScreenIntentTitle: 'आप क्या ढूंढ रहे हैं?', langScreenIntentSubtitle: 'हम उसके लिए आपकी होम स्क्रीन सेट कर देंगे। आप इसे कभी भी बदल सकते हैं।',
   langScreenRentalsLabel: 'टेंट हाउस और किराये का सामान', langScreenRentalsDesc: 'शामियाना, कुर्सियाँ, बर्तन, सजावट', langScreenVenuesLabel: 'फंक्शन हॉल और वेन्यू',
   langScreenVenuesDesc: 'बैंक्वेट, मैरिज हॉल, होटल', langScreenBothLabel: 'दोनों', langScreenBothDesc: 'हॉल के साथ उसके लिए ज़रूरी सब कुछ',
-  langScreenSubtitle: 'अंग्रेज़ी + 22 भारतीय भाषाएँ। आप इसे कभी भी प्रोफ़ाइल से बदल सकते हैं।', langScreenComingSoon: 'अनुवाद जल्द आ रहा है। तब तक अंग्रेज़ी दिखाई जाएगी।',
+  langScreenSubtitle: 'अंग्रेज़ी, तेलुगु, हिंदी और उर्दू। आप इसे कभी भी प्रोफ़ाइल से बदल सकते हैं।', langScreenComingSoon: 'अनुवाद जल्द आ रहा है। तब तक अंग्रेज़ी दिखाई जाएगी।',
   loginScreenTagline: 'आपके इवेंट का सब कुछ', loginScreenInvalidPhone: 'सही 10 अंकों का मोबाइल नंबर दर्ज करें',
   loginScreenOtpError: 'OTP नहीं भेजा जा सका। अपना कनेक्शन जांचें।', loginScreenGoogleError: 'Google से साइन इन नहीं हो सका। कृपया फिर से कोशिश करें।',
   loginScreenGuestError: 'गेस्ट के रूप में जारी नहीं रह सके। अपना कनेक्शन जांचें।', loginScreenTerms: 'जारी रखकर आप कस्टमर शर्तों और प्राइवेसी पॉलिसी से सहमत होते हैं।',
@@ -967,8 +973,10 @@ const HI: Partial<Record<Key, string>> = {
 };
 
 const UR: Partial<Record<Key, string>> = {
+  hallTypeFunction: 'فنکشن ہال', hallTypeBanquet: 'بینکوئٹ ہال', hallTypeMarriage: 'میرج ہال', hallTypeHotel: 'ہوٹل', paxUnit: 'افراد', 
+  unitPerUnitDay: 'فی یونٹ / دن', unitPerUnitEvent: 'فی یونٹ / ایونٹ', unitPerEvent: 'فی ایونٹ', unitPerSetEvent: 'فی سیٹ / ایونٹ', 
   w1T: 'آپ کی تقریب کے لیے سب کچھ',
-  w1B: 'تصدیق شدہ مقامی وینڈرز سے ٹینٹ، کرسیاں، برتن، لائٹس اور سجاوٹ۔',
+  w1B: 'تصدیق شدہ مقامی وینڈرز سے فنکشن ہال، ٹینٹ، کرسیاں، برتن، لائٹس اور سجاوٹ۔',
   w2T: 'اصل دستیابی دیکھیں',
   w2B: 'آپ کی تاریخ کے لیے لائیو اسٹاک۔ دس وینڈرز کو فون کرنے کی ضرورت نہیں۔',
   w3T: 'بک کریں۔ سیٹ اپ۔ جشن منائیں۔',
@@ -1088,7 +1096,7 @@ const UR: Partial<Record<Key, string>> = {
   langScreenIntentTitle: 'آپ کیا تلاش کر رہے ہیں؟', langScreenIntentSubtitle: 'ہم اس کے لیے آپ کی ہوم اسکرین سیٹ کر دیں گے۔ آپ اسے کسی بھی وقت بدل سکتے ہیں۔',
   langScreenRentalsLabel: 'ٹینٹ ہاؤس اور کرائے کا سامان', langScreenRentalsDesc: 'شامیانہ، کرسیاں، برتن، سجاوٹ', langScreenVenuesLabel: 'فنکشن ہالز اور وینیوز',
   langScreenVenuesDesc: 'بینکویٹ، میرج ہال، ہوٹل', langScreenBothLabel: 'دونوں', langScreenBothDesc: 'ہال کے ساتھ اس کے لیے ضروری سب کچھ',
-  langScreenSubtitle: 'انگریزی + 22 ہندوستانی زبانیں۔ آپ اسے کسی بھی وقت پروفائل سے بدل سکتے ہیں۔', langScreenComingSoon: 'ترجمہ جلد آ رہا ہے۔ تب تک انگریزی دکھائی جائے گی۔',
+  langScreenSubtitle: 'انگریزی، تیلگو، ہندی اور اردو۔ آپ اسے کسی بھی وقت پروفائل سے بدل سکتے ہیں۔', langScreenComingSoon: 'ترجمہ جلد آ رہا ہے۔ تب تک انگریزی دکھائی جائے گی۔',
   loginScreenTagline: 'آپ کی تقریب کے لیے سب کچھ', loginScreenInvalidPhone: 'درست 10 ہندسوں کا موبائل نمبر درج کریں',
   loginScreenOtpError: 'OTP نہیں بھیجا جا سکا۔ اپنا کنکشن چیک کریں۔', loginScreenGoogleError: 'Google کے ساتھ سائن ان نہیں ہو سکا۔ براہ کرم دوبارہ کوشش کریں۔',
   loginScreenGuestError: 'مہمان کی حیثیت سے جاری نہیں رہ سکے۔ اپنا کنکشن چیک کریں۔', loginScreenTerms: 'جاری رکھ کر آپ کسٹمر شرائط اور پرائیویسی پالیسی سے اتفاق کرتے ہیں۔',
@@ -1309,12 +1317,18 @@ const AS: Partial<Record<Key, string>> = {
 // Full list of 23 target languages. en/te/hi/ur have complete, screen-by-screen coverage;
 // the rest keep their original onboarding-only translations and fall back to English for
 // everything added since — selectable today, upgraded to full coverage at multi-state launch.
-export const LANGS: Array<[string, string, string]> = [
+// Every language we have (partly) translated. Only ENABLED_LANGS are offered in the picker:
+// the rest have just a handful of strings and would show mostly English. Enable a language here
+// only once it is fully translated (planned when Tamboo expands beyond the Telugu states).
+export const ENABLED_LANGS = ['en', 'te', 'hi', 'ur'];
+export const ALL_LANGS: Array<[string, string, string]> = [
   ['en', 'English', 'English'], ['hi', 'हिन्दी', 'Hindi'], ['te', 'తెలుగు', 'Telugu'], ['ta', 'தமிழ்', 'Tamil'], ['kn', 'ಕನ್ನಡ', 'Kannada'], ['ml', 'മലയാളം', 'Malayalam'],
   ['mr', 'मराठी', 'Marathi'], ['bn', 'বাংলা', 'Bengali'], ['gu', 'ગુજરાતી', 'Gujarati'], ['pa', 'ਪੰਜਾਬੀ', 'Punjabi'], ['or', 'ଓଡ଼ିଆ', 'Odia'], ['ur', 'اردو', 'Urdu'],
   ['as', 'অসমীয়া', 'Assamese'], ['mai', 'मैथिली', 'Maithili'], ['sat', 'ᱥᱟᱱᱛᱟᱲᱤ', 'Santali'], ['ks', 'کٲشُر', 'Kashmiri'], ['ne', 'नेपाली', 'Nepali'], ['sd', 'سنڌي', 'Sindhi'],
   ['kok', 'कोंकणी', 'Konkani'], ['doi', 'डोगरी', 'Dogri'], ['mni', 'ꯃꯩꯇꯩꯂꯣꯟ', 'Manipuri'], ['brx', 'बड़ो', 'Bodo'], ['sa', 'संस्कृतम्', 'Sanskrit'],
 ];
+
+export const LANGS = ALL_LANGS.filter(([code]) => ENABLED_LANGS.includes(code));
 
 export const RTL = ['ur', 'ks', 'sd'];
 

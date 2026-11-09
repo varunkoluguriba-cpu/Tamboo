@@ -9,6 +9,7 @@ import { api, ApiError } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
 import type { PartnerPackage } from './PackagesScreen';
+import { unitText } from '../utils/units';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PackageForm'>;
 
@@ -125,7 +126,7 @@ export default function PackageFormScreen({ navigation, route }: Props) {
                     <View key={i.id} style={[styles.itemRow, on && styles.itemRowOn]}>
                       <TouchableOpacity style={{ flex: 1 }} activeOpacity={0.85} onPress={() => toggle(i.id)}>
                         <Text style={styles.itemName}>{i.name}</Text>
-                        <Text style={styles.itemPrice}>₹{i.price.toLocaleString('en-IN')} {i.unit}</Text>
+                        <Text style={styles.itemPrice}>₹{i.price.toLocaleString('en-IN')} {unitText(i.unit, t)}</Text>
                       </TouchableOpacity>
                       {on && (
                         <View style={styles.qtyRow}>

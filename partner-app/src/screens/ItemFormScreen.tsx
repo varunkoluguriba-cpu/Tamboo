@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { pickImageBase64 } from '../utils/pickImage';
 import { colors, gradients, shadow } from '../theme';
+import { unitText } from '../utils/units';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ItemForm'>;
 
@@ -278,7 +279,7 @@ export default function ItemFormScreen({ navigation, route }: Props) {
           <View style={styles.chipRow}>
             {UNIT_OPTIONS.map((u) => (
               <TouchableOpacity key={u} style={[styles.chip, unit === u ? styles.chipSel : styles.chipUnsel]} activeOpacity={0.85} onPress={() => setUnit(u)}>
-                <Text style={[styles.chipText, unit === u && styles.chipTextSel]}>{u}</Text>
+                <Text style={[styles.chipText, unit === u && styles.chipTextSel]}>{unitText(u, t)}</Text>
               </TouchableOpacity>
             ))}
           </View>

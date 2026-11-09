@@ -10,6 +10,7 @@ import { api, ApiError } from '../api/client';
 import { colors, gradients, shadow } from '../theme';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { unitText } from '../utils/units';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Items'>;
 
@@ -123,7 +124,7 @@ export default function ItemsScreen({ navigation }: Props) {
                       </View>
                       <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
                         <Text style={styles.name}>{p.name}</Text>
-                        <Text style={styles.meta}>{p.instant ? `₹${p.price.toLocaleString('en-IN')} ${p.unit} · stock ${p.stock}` : t.itemsPriceOnRequest}</Text>
+                        <Text style={styles.meta}>{p.instant ? `₹${p.price.toLocaleString('en-IN')} ${unitText(p.unit, t)} · ${t.itemsStockCount.replace('{n}', String(p.stock))}` : t.itemsPriceOnRequest}</Text>
                         <View style={[styles.pill, { backgroundColor: st.bg }]}>
                           <Text style={[styles.pillText, { color: st.color }]}>{STATE_LABEL_TEXT[p.state]}</Text>
                         </View>

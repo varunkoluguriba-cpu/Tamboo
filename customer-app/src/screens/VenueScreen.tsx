@@ -13,6 +13,7 @@ import { colors, gradients, shadow } from '../theme';
 import { ratingText, metaLine, kmText } from '../utils/rating';
 import { requireAccount } from '../utils/requireAccount';
 import { useAuth } from '../context/AuthContext';
+import { hallTypeText, paxText } from '../utils/units';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Venue'>;
 type SlotState = 'free' | 'booked' | 'closed';
@@ -37,7 +38,7 @@ export default function VenueScreen({ navigation, route }: Props) {
   const factValue = (v: string) =>
     v === 'Available' ? t.venueFactAvailable
       : v === 'Not available' ? t.venueFactNotAvailable
-        : v.replace(/ cars$/, ` ${t.venueFactCars}`);
+        : paxText(v.replace(/ cars$/, ` ${t.venueFactCars}`), t);
   const { user, logout } = useAuth();
   const { getHall } = useCatalog();
   const hall = getHall(route.params.id);
@@ -149,7 +150,7 @@ export default function VenueScreen({ navigation, route }: Props) {
         <View style={styles.body}>
           <View>
             <View style={styles.typeRow}>
-              <Text style={styles.typeText}>{hall.type}</Text>
+              <Text style={styles.typeText}>{hallTypeText(hall.type || '', t)}</Text>
               {hall.verified && (
                 <View style={styles.verifiedRow}>
                   <Icon name="shield" size={13} color={colors.green} />
@@ -222,6 +223,15 @@ export default function VenueScreen({ navigation, route }: Props) {
             <View style={styles.dayGrid}>
               {cells.map((c, i) => {
                 if (!c.date) return <View key={i} style={styles.dayCell} />;
+                // Past days: just a faded number. Showing them as black "Closed" read as "this hall
+                // is unavailable" rather than "this date has passed".
+                if (c.date < today) {
+                  return (
+                    <View key={i} style={[styles.dayCell, styles.dayCellPast]}>
+                      <Text style={[styles.dayNum, styles.dayNumPast]}>{c.date.getDate()}</Text>
+                    </View>
+                  );
+                }
                 const avail = getDayAvail(c.date);
                 const isSel = selectedDate && c.date.getTime() === selectedDate.getTime();
                 const isClosed = avail.morning === 'closed';
@@ -384,6 +394,8 @@ const styles = StyleSheet.create({
   dayCell: { width: `${100 / 7}%`, aspectRatio: 0.85, padding: 2 },
   dayCellBtn: { borderRadius: 10, borderWidth: 1.5, borderColor: colors.divider, backgroundColor: '#fff', overflow: 'hidden' },
   dayCellSel: { borderColor: colors.pink, borderWidth: 2 },
+  dayCellPast: { opacity: 0.35, justifyContent: 'center' },
+  dayNumPast: { color: colors.textMuted },
   dayNum: { flex: 1, textAlign: 'center', textAlignVertical: 'center', fontSize: 13, fontWeight: '800', color: colors.text },
   dayBars: { flexDirection: 'row', height: 14 },
   dayBar: { flex: 1, alignItems: 'center', justifyContent: 'center' },

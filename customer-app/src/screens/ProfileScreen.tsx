@@ -20,6 +20,9 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Profile'>;
 type PaymentEntry = { id: string; label: string; status: string; amount: number; dateMs: number };
 
 
+
+// '+919999900000' → '+91 99999 00000' (Indian numbers); anything else shown as-is.
+const prettyPhone = (p: string) => (/^\+91\d{10}$/.test(p) ? `+91 ${p.slice(3, 8)} ${p.slice(8)}` : p);
 export default function ProfileScreen({ navigation }: Props) {
   const { user, logout } = useAuth();
   const { t, lang, setLang } = useLanguage();
@@ -95,7 +98,7 @@ export default function ProfileScreen({ navigation }: Props) {
           </View>
           <View>
             <Text style={styles.userName}>{user?.name || t.profileScreenThere}</Text>
-            <Text style={styles.userPhone}>{user?.phone || ''}</Text>
+            <Text style={styles.userPhone}>{prettyPhone(user?.phone || '')}</Text>
           </View>
         </View>
 

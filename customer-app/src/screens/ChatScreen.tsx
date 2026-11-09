@@ -33,23 +33,13 @@ export default function ChatScreen({ navigation, route }: Props) {
   const { t } = useLanguage();
   const { peerName, vendorId } = route.params;
   const isSupport = peerName.toLowerCase().includes('support');
-  // Real backend thread for: a real (Mongo-backed) vendor, or Tamboo Support.
-  // Mock-catalog vendors fall back to the simulated local-only experience below.
+  // Every chat is a real backend thread: a registered vendor, or Tamboo Support. (There used
+  // to be a simulated local-only chat with an automatic vendor reply — removed: a fake reply
+  // tells the customer a vendor answered when nobody did.)
   const isLive = !!vendorId || isSupport;
   const endpoint = isSupport ? '/api/messages/support/me' : `/api/messages/${vendorId}`;
 
-  const [msgs, setMsgs] = useState<Msg[]>(
-    isLive
-      ? []
-      : [
-          {
-            id: 'seed',
-            text: t.chatVendorGreeting.replace('{name}', peerName),
-            mine: false,
-            at: timeNow(),
-          },
-        ],
-  );
+  const [msgs, setMsgs] = useState<Msg[]>([]);
   const [draft, setDraft] = useState('');
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -72,7 +62,8 @@ export default function ChatScreen({ navigation, route }: Props) {
     if (!text) return;
     setDraft('');
 
-    if (isLive) {
+    if (!isLive) return;
+    {
       const tmpId = `tmp-${Date.now()}`;
       setMsgs((m) => [...m, { id: tmpId, text, mine: true, at: timeNow() }]);
       api.post(endpoint, { text }).catch(() => {
@@ -81,13 +72,7 @@ export default function ChatScreen({ navigation, route }: Props) {
         setDraft(text);
         Alert.alert(t.chatNotSentTitle, t.loadFailedMsg);
       });
-      return;
     }
-
-    setMsgs((m) => [...m, { id: String(Date.now()), text, mine: true, at: timeNow() }]);
-    setTimeout(() => {
-      setMsgs((m) => [...m, { id: String(Date.now() + 1), text: t.chatVendorReply, mine: false, at: timeNow() }]);
-    }, 900);
   };
 
   return (
@@ -99,7 +84,6 @@ export default function ChatScreen({ navigation, route }: Props) {
           </TouchableOpacity>
           <View>
             <Text style={styles.peerName}>{peerName}</Text>
-            <Text style={styles.peerSub}>{t.chatPrivacyNote}</Text>
           </View>
         </View>
 

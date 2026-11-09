@@ -3,6 +3,7 @@ import { PermissionsAndroid, Platform, AppState } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import { api } from '../api/client';
 import { useEvent } from './EventContext';
+import { useAuth } from './AuthContext';
 import type { Hall, Vendor, Product } from '../data/catalog';
 
 interface CatalogContextValue {
@@ -36,7 +37,12 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
 
   // Best-effort — if permission is denied or location fails, halls load without distance.
+  // Asked only once the person is signed in (or browsing as guest) and on the home screen with
+  // "Halls near you" — not as the very first thing on a fresh install, before they know why.
+  const { user } = useAuth();
+  const signedIn = !!user;
   useEffect(() => {
+    if (!signedIn) return;
     const getLocation = async () => {
       if (Platform.OS === 'android') {
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
@@ -49,7 +55,7 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
       );
     };
     getLocation();
-  }, []);
+  }, [signedIn]);
 
   // Mobile networks drop requests often, so retry a few times, and reload whenever the app
   // comes back to the foreground — otherwise one failed request leaves the lists empty.

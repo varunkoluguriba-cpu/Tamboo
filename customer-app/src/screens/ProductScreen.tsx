@@ -12,6 +12,7 @@ import { useLanguage } from '../context/LanguageContext';
 import RequestQuoteModal from '../components/RequestQuoteModal';
 import { colors, gradients, shadow } from '../theme';
 import { ratingText, metaLine } from '../utils/rating';
+import { unitText } from '../utils/units';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Product'>;
 
@@ -87,7 +88,7 @@ export default function ProductScreen({ navigation, route }: Props) {
           {product.isInstant && (
             <View style={styles.priceRow}>
               <Text style={styles.price}>₹{product.price.toLocaleString('en-IN')}</Text>
-              <Text style={styles.unit}>{product.unit}</Text>
+              <Text style={styles.unit}>{unitText(product.unit, t)}</Text>
             </View>
           )}
 

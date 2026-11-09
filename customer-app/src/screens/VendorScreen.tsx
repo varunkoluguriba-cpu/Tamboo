@@ -11,6 +11,7 @@ import { useLanguage } from '../context/LanguageContext';
 import RequestQuoteModal from '../components/RequestQuoteModal';
 import { colors, gradients, shadow } from '../theme';
 import { ratingText, metaLine } from '../utils/rating';
+import { unitText } from '../utils/units';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Vendor'>;
 
@@ -128,7 +129,7 @@ export default function VendorScreen({ navigation, route }: Props) {
                   )}
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <Text style={styles.itemName}>{p.name}</Text>
-                    <Text style={styles.itemPrice}>{p.isInstant ? `₹${p.price.toLocaleString('en-IN')} ${p.unit}` : t.vendorPriceOnRequest}</Text>
+                    <Text style={styles.itemPrice}>{p.isInstant ? `₹${p.price.toLocaleString('en-IN')} ${unitText(p.unit, t)}` : t.vendorPriceOnRequest}</Text>
                   </View>
                   <View style={[styles.itemBadge, badge.ok ? styles.chipOk : styles.chipWarn]}>
                     <Text style={[styles.itemBadgeText, badge.ok ? styles.chipOkText : styles.chipWarnText]}>{badge.label}</Text>
