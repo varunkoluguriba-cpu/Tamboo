@@ -141,7 +141,7 @@ function serializePublic(hall, partner, fromLat, fromLng) {
       { k: 'Size', v: `${hall.sqft} sq ft` },
       { k: 'Catering', v: hall.catering || '—' },
       { k: 'Kitchen', v: hall.kitchen ? 'Available' : 'Not available' },
-    ],
+    ].filter((f) => !(f.k === 'Rooms' && !hall.rooms)), // no "Rooms: 0" tile for halls without rooms
     hasCrockery: hall.crockery,
     amenities: hall.amenities,
     pricingMode: hall.pricingMode,

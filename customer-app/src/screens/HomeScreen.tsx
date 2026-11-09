@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -67,7 +67,8 @@ type RemotePackage = {
   total: number;
 };
 
-function Photo({ icon, height = 150, radius = 0, width }: { icon: IconName; height?: number; radius?: number; width?: number }) {
+function Photo({ icon, height = 150, radius = 0, width, uri }: { icon: IconName; height?: number; radius?: number; width?: number; uri?: string }) {
+  if (uri) return <Image source={{ uri }} style={[styles.photo, { height, borderRadius: radius }, width !== undefined && { width }]} resizeMode="cover" />;
   return (
     <View style={[styles.photo, { height, borderRadius: radius }, width !== undefined && { width }]}>
       <Icon name={icon} size={26} color={colors.pinkStrong} strokeWidth={1.5} />
@@ -309,12 +310,12 @@ export default function HomeScreen() {
               <View style={{ gap: 12 }}>
                 {nearHalls.map((v) => (
                   <TouchableOpacity key={v.id} style={styles.hallCard} activeOpacity={0.85} onPress={() => navigation.navigate('Venue', { id: v.id })}>
-                    <Photo icon="home" height={150} />
+                    <Photo icon="home" height={150} uri={v.photos?.[0]} />
                     <View style={styles.hallBody}>
                       <View style={styles.hallTopRow}>
                         <View style={{ flex: 1, minWidth: 0 }}>
                           <Text style={styles.hallName}>{v.name}</Text>
-                          <Text style={styles.hallMeta}>{v.type} · {v.area}{v.km != null ? ` · ${v.km} km` : ''}</Text>
+                          <Text style={styles.hallMeta}>{metaLine(v.type, v.area, v.km != null && kmText(v.km))}</Text>
                         </View>
                         <Text style={styles.hallRating}>{ratingText(v.rating, 0, t)}</Text>
                       </View>

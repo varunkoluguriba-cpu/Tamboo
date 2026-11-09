@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -119,9 +119,13 @@ export default function VendorScreen({ navigation, route }: Props) {
               const badge = availBadge(p);
               return (
                 <TouchableOpacity key={p.id} style={styles.itemRow} activeOpacity={0.85} onPress={() => navigation.push('Product', { id: p.id })}>
-                  <View style={styles.itemPhoto}>
-                    <Icon name="package" size={20} color={colors.pinkStrong} strokeWidth={1.5} />
-                  </View>
+                  {p.photos?.[0] ? (
+                    <Image source={{ uri: p.photos[0] }} style={styles.itemPhoto} />
+                  ) : (
+                    <View style={styles.itemPhoto}>
+                      <Icon name="package" size={20} color={colors.pinkStrong} strokeWidth={1.5} />
+                    </View>
+                  )}
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <Text style={styles.itemName}>{p.name}</Text>
                     <Text style={styles.itemPrice}>{p.isInstant ? `₹${p.price.toLocaleString('en-IN')} ${p.unit}` : t.vendorPriceOnRequest}</Text>

@@ -126,7 +126,7 @@ function serializeItemPublic(item, vendorId, reserved = 0) {
     price: item.price,
     unit: item.unit,
     specs: item.specs,
-    deposit: item.deposit ? `₹${item.deposit}` : '₹0',
+    deposit: item.deposit ? `₹${Number(item.deposit).toLocaleString('en-IN')}` : '₹0',
     min: String(item.min),
     isInstant: item.instant,
     avail: { total: item.stock, reserved, maint: 0, free },

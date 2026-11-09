@@ -28,6 +28,16 @@ function fmtDate(d: Date): string {
 
 export default function VenueScreen({ navigation, route }: Props) {
   const { t } = useLanguage();
+  // The server sends hall facts with English labels — show them in the user's language.
+  const FACT_LABELS: Record<string, string> = {
+    Capacity: t.venueFactCapacity, Parking: t.venueFactParking, Rooms: t.venueFactRooms,
+    Size: t.venueFactSize, Catering: t.venueFactCatering, Kitchen: t.venueFactKitchen,
+  };
+  const factLabel = (k: string) => FACT_LABELS[k] ?? k;
+  const factValue = (v: string) =>
+    v === 'Available' ? t.venueFactAvailable
+      : v === 'Not available' ? t.venueFactNotAvailable
+        : v.replace(/ cars$/, ` ${t.venueFactCars}`);
   const { user, logout } = useAuth();
   const { getHall } = useCatalog();
   const hall = getHall(route.params.id);
@@ -162,8 +172,8 @@ export default function VenueScreen({ navigation, route }: Props) {
           <View style={styles.factsGrid}>
             {hall.facts.map((f) => (
               <View key={f.k} style={styles.factBox}>
-                <Text style={styles.factLabel}>{f.k}</Text>
-                <Text style={styles.factValue}>{f.v}</Text>
+                <Text style={styles.factLabel}>{factLabel(f.k)}</Text>
+                <Text style={styles.factValue}>{factValue(f.v)}</Text>
               </View>
             ))}
           </View>

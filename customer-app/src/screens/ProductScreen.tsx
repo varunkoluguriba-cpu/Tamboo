@@ -7,6 +7,7 @@ import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { useCatalog } from '../context/CatalogContext';
 import { useCart } from '../context/CartContext';
+import { useEvent } from '../context/EventContext';
 import { useLanguage } from '../context/LanguageContext';
 import RequestQuoteModal from '../components/RequestQuoteModal';
 import { colors, gradients, shadow } from '../theme';
@@ -26,6 +27,7 @@ export default function ProductScreen({ navigation, route }: Props) {
   const [qty, setQty] = useState(() => (product ? parseMin(product.min) : 1));
   const [quoteModal, setQuoteModal] = useState(false);
   const { addToCart } = useCart();
+  const { event } = useEvent();
   const { t } = useLanguage();
 
   const pct = useMemo(() => {
@@ -94,7 +96,7 @@ export default function ProductScreen({ navigation, route }: Props) {
           {product.isInstant && (
             <View style={styles.availCard}>
               <View style={styles.availHead}>
-                <Text style={styles.availTitle}>{t.productAvailabilityOn}</Text>
+                <Text style={styles.availTitle}>{event.date ? t.productAvailabilityOn.replace('{date}', event.date) : t.productAvailabilityPickDate}</Text>
                 <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('Event')}>
                   <Text style={styles.changeLink}>{t.productChange}</Text>
                 </TouchableOpacity>
