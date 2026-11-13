@@ -4,6 +4,7 @@ import { useAuth } from '../lib/auth';
 import { LANGS, useLang } from '../lib/lang';
 import { useServicesConfig } from '../lib/services';
 import LoginModal from './LoginModal';
+import { Skyline } from './Scenes';
 
 export default function Layout() {
   const { t, lang, setLang } = useLang();
@@ -50,6 +51,7 @@ export default function Layout() {
         <Outlet />
       </main>
 
+      <Skyline className="skyline" />
       <footer className="footer">
         <div className="wrap footer-in">
           <div className="stack" style={{ gap: 4 }}>

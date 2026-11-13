@@ -6,6 +6,7 @@ import { useLang } from '../lib/lang';
 import { useServicesConfig } from '../lib/services';
 import { Photo, inr } from '../components/ui';
 import SearchBox from '../components/SearchBox';
+import { BadgeCalendar, BadgeLanguage, BadgeSecure, BadgeVerified, BirthdayArt, CorporateArt, PartyArt, PoojaArt, WeddingArt } from '../components/Scenes';
 import { FarmArt, HallArt, HeroScene, PhoneArt, RentalArt, ServiceArt, StepCalendar, StepPay, StepSearch } from '../components/Illustrations';
 import { hallTypeText } from '../../../customer-app/src/utils/units';
 import type { Farm } from '../../../customer-app/src/utils/farm';
@@ -34,6 +35,14 @@ export default function Home() {
     ...(services?.enabled ? [{ to: '/services', Art: ServiceArt, name: t.webNavServices, sub: t.webCatServicesSub }] : []),
   ];
 
+  const occasions = [
+    { Art: WeddingArt, label: t.homeScreenOccasionWedding, sub: t.webOccWeddingSub, to: '/halls' },
+    { Art: BirthdayArt, label: t.homeScreenOccasionBirthday, sub: t.webOccBirthdaySub, to: '/farm-houses' },
+    { Art: PartyArt, label: t.homeScreenOccasionHouseParty, sub: t.webOccPartySub, to: '/farm-houses' },
+    { Art: PoojaArt, label: t.webOccPooja, sub: t.webOccPoojaSub, to: services?.enabled ? '/services?c=priest' : '/rentals' },
+    { Art: CorporateArt, label: t.homeScreenOccasionCorporate, sub: t.webOccCorporateSub, to: '/halls?type=Banquet%20Hall' },
+  ];
+
   return (
     <div className="stack" style={{ gap: 30 }}>
       <section className="hero hero-home">
@@ -53,6 +62,26 @@ export default function Home() {
             <span className="small">{c.sub}</span>
           </Link>
         ))}
+      </section>
+
+      <section className="stack">
+        <h2 className="section-title">{t.webOccTitle}</h2>
+        <div className="occ-grid">
+          {occasions.map((o) => (
+            <Link key={o.label} to={o.to} className="occ">
+              <o.Art />
+              <b>{o.label}</b>
+              <span className="small">{o.sub}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="trust">
+        {[
+          [<BadgeVerified key="v" />, t.webTrust1, t.webTrust1Sub], [<BadgeSecure key="s" />, t.webTrust2, t.webTrust2Sub],
+          [<BadgeCalendar key="c" />, t.webTrust3, t.webTrust3Sub], [<BadgeLanguage key="l" />, t.webTrust4, t.webTrust4Sub],
+        ].map(([icon, title, sub], i) => <div key={i}>{icon}<span><b>{title}</b><span className="small">{sub}</span></span></div>)}
       </section>
 
       <section className="stack">

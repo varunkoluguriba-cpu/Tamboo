@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../lib/api';
-import { useAuth } from '../lib/auth';
+import PageBanner from '../components/PageBanner';
+import { SERVICE_ART } from '../components/ui';
+import { ServicesBanner } from '../components/Scenes';
 import { useLang } from '../lib/lang';
 import { usePageMeta } from '../lib/seo';
 import { useServicesConfig } from '../lib/services';
@@ -10,7 +12,6 @@ import { LoadError, Photo, Spinner } from '../components/ui';
 
 export default function Services() {
   const { t } = useLang();
-  const { user, openLogin } = useAuth();
   const cfg = useServicesConfig();
   const [params, setParams] = useSearchParams();
   const cat = params.get('c') || 'priest';
@@ -24,20 +25,18 @@ export default function Services() {
     api.get<PublicServiceVendor[]>(`/api/services?category=${cat}`).then(setList).catch(() => setError(true));
   }, [cat, cfg?.enabled]);
 
-  if (!user) return <div className="card stack" style={{ alignItems: 'center' }}><span className="muted">{t.webLoginSub}</span><button className="btn btn-primary" onClick={openLogin}>{t.webLogin}</button></div>;
   if (cfg === null) return <Spinner />;
   if (!cfg.enabled) return <div className="card muted">{t.webServicesSoon}</div>;
 
   return (
     <div className="stack">
-      <section className="hero" style={{ padding: '26px 22px' }}>
-        <span className="small" style={{ color: '#fff', opacity: 0.8, fontWeight: 700 }}>{t.svHeroLabel}</span>
-        <h1 style={{ fontSize: 'clamp(24px, 4vw, 34px)' }}>{t.svHeroTitle}</h1>
-        <p style={{ marginBottom: 0 }}>{t.svHeroBody}</p>
-      </section>
+      <PageBanner title={t.svHeroTitle} sub={t.svHeroBody} art={<ServicesBanner />} />
       <span className="small">{cfg.freeLeft && cfg.freeLeft > 0 ? (cfg.freeLeft === 1 ? t.svFreeLeftOne : t.svFreeLeft.replace('{n}', String(cfg.freeLeft))) : t.svFreeNone.replace('{hours}', String(cfg.noResponseHours || 24))}</span>
-      <div className="wrap-row">
-        {SERVICE_CATEGORIES.map((c) => { const i = serviceCategoryInfo(c, t); return <button key={c} className={`pick ${cat === c ? 'sel' : ''}`} onClick={() => setParams({ c }, { replace: true })}>{i.icon} {i.label}</button>; })}
+      <div className="svc-cats">
+        {SERVICE_CATEGORIES.map((c) => {
+          const Art = SERVICE_ART[c];
+          return <button key={c} className={`svc-cat ${cat === c ? 'sel' : ''}`} onClick={() => setParams({ c }, { replace: true })}><Art size={72} />{serviceCategoryInfo(c, t).label}</button>;
+        })}
       </div>
       <span className="muted">{serviceCategoryInfo(cat, t).ex}</span>
       {error ? <LoadError onRetry={() => setParams({ c: cat })} /> : list === null ? <Spinner /> : list.length === 0 ? <div className="card muted">{t.svListEmpty}</div> : (

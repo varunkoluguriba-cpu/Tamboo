@@ -16,6 +16,20 @@ async function requireAuth(req, res, next) {
   }
 }
 
+// Like requireAuth, but signed-out visitors (e.g. the public website) pass through with no
+// req.user. A bad or expired token is treated as signed out rather than rejected.
+async function optionalAuth(req, res, next) {
+  const header = req.headers.authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+  if (!token) return next();
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(payload.sub);
+    if (user && !user.deletedAt) req.user = user;
+  } catch { /* signed out */ }
+  next();
+}
+
 // Booking, paying and quote requests need a real account: vendors must be able to reach the
 // customer, and guests have no name or phone on record.
 function requireAccount(req, res, next) {
@@ -25,4 +39,4 @@ function requireAccount(req, res, next) {
   next();
 }
 
-module.exports = { requireAuth, requireAccount };
+module.exports = { requireAuth, optionalAuth, requireAccount };

@@ -1,13 +1,17 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { useLang } from '../lib/lang';
 import { FarmArt, HallArt, RentalArt, ServiceArt } from './Illustrations';
+import { CateringArt, DecorArt, MusicArt, PriestArt } from './Scenes';
+
+export const SERVICE_ART: Record<string, (p: { size?: number }) => ReactElement> = { priest: PriestArt, catering: CateringArt, decor: DecorArt, music: MusicArt };
 
 export function Spinner() { return <div className="spinner" role="status" aria-label="Loading" />; }
 
 // Listing photo, or (until the owner uploads one) Tamboo's own drawing for that kind of listing.
 export function Photo({ src, alt, icon = '🏛️' }: { src?: string; alt: string; icon?: string }) {
   if (src) return <img className="tile-photo" src={src} alt={alt} loading="lazy" />;
-  const Art = icon === '🌴' ? FarmArt : icon === '⛺' || icon === '📦' ? RentalArt : icon === '🏛️' ? HallArt : ServiceArt;
+  const Art = icon === '🌴' ? FarmArt : icon === '⛺' || icon === '📦' ? RentalArt : icon === '🏛️' ? HallArt
+    : icon === '🪔' ? PriestArt : icon === '🍛' ? CateringArt : icon === '💐' ? DecorArt : icon === '🎺' ? MusicArt : ServiceArt;
   return <div className="tile-photo" aria-hidden><Art size={110} /></div>;
 }
 

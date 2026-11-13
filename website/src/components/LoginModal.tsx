@@ -4,6 +4,7 @@ import { useAuth } from '../lib/auth';
 import { useLang } from '../lib/lang';
 import { sendOtp } from '../lib/firebase';
 import { ApiError } from '../lib/api';
+import { OtpArt } from './Scenes';
 
 // Phone → OTP → (first time) name. Same Firebase OTP the apps use; the server issues the session.
 export default function LoginModal() {
@@ -56,6 +57,7 @@ export default function LoginModal() {
         </div>
         {step === 'phone' && (
           <>
+            <div className="modal-art"><OtpArt /></div>
             <p className="muted" style={{ margin: 0 }}>{t.webLoginSub}</p>
             <div className="field">
               <label htmlFor="phone">{t.webPhoneLabel}</label>

@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const express = require('express');
 const mongoose = require('mongoose');
-const { requireAuth, requireAccount } = require('../middleware/auth');
+const { requireAuth, optionalAuth, requireAccount } = require('../middleware/auth');
 const { requirePartnerAuth } = require('../middleware/partnerAuth');
 const { requireServices, servicesAllowedFor, SERVICE_CATEGORIES } = require('../lib/servicesGate');
 const { getClient } = require('../config/razorpay');
@@ -105,21 +105,23 @@ async function notifyVendor(request, partner) {
 // ================= customer side =================
 
 // What the customer app needs to decide whether to show Services at all, and the fee to show.
-router.get('/config', requireAuth, async (req, res) => {
+// Signed-out visitors (the public website) see services too once they're switched on for everyone.
+router.get('/config', optionalAuth, async (req, res) => {
   const config = await Config.get();
-  if (!servicesAllowedFor(config, req.user.phone)) return res.json({ enabled: false });
-  if (req.user.authMethod !== 'guest') await sweepNoResponse({ customer: req.user._id });
+  if (!servicesAllowedFor(config, req.user ? req.user.phone : '')) return res.json({ enabled: false });
+  const member = req.user && req.user.authMethod !== 'guest';
+  if (member) await sweepNoResponse({ customer: req.user._id });
   res.json({
     enabled: true,
     categories: SERVICE_CATEGORIES,
     freeQuotes: config.serviceFreeQuotes,
-    freeLeft: req.user.authMethod === 'guest' ? config.serviceFreeQuotes : await freeLeftFor(req.user._id, config),
+    freeLeft: member ? await freeLeftFor(req.user._id, config) : config.serviceFreeQuotes,
     fees: Object.fromEntries(SERVICE_CATEGORIES.map((c) => [c, feeFor(c, config)])),
     noResponseHours: NO_RESPONSE_HOURS,
   });
 });
 
-router.get('/', requireAuth, requireServices, async (req, res) => {
+router.get('/', optionalAuth, requireServices, async (req, res) => {
   const category = String(req.query.category || '');
   if (category && !SERVICE_CATEGORIES.includes(category)) return res.status(400).json({ error: 'Unknown category' });
   const vendors = await Partner.find({
@@ -316,7 +318,7 @@ router.get('/vendor/me/profile', ...vendorAuth, async (req, res) => {
 });
 
 // Public vendor page — last, so the routes above win.
-router.get('/:id', requireAuth, requireServices, async (req, res) => {
+router.get('/:id', optionalAuth, requireServices, async (req, res) => {
   if (!isId(req.params.id)) return res.status(404).json({ error: 'Vendor not found' });
   const p = await Partner.findOne({ _id: req.params.id, role: 'service', verificationStatus: 'verified', deletedAt: null });
   if (!p) return res.status(404).json({ error: 'Vendor not found' });

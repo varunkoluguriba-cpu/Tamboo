@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../lib/api';
+import PageBanner from '../components/PageBanner';
+import { FarmBanner } from '../components/Scenes';
 import { useLang } from '../lib/lang';
 import { usePageMeta } from '../lib/seo';
 import { LoadError, Photo, Spinner, inr } from '../components/ui';
@@ -25,8 +27,7 @@ export default function Farms() {
 
   return (
     <div className="stack">
-      <h1 className="title">{t.cfListTitle}</h1>
-      <p className="muted" style={{ margin: 0 }}>{t.cfListHint}</p>
+      <PageBanner title={t.cfListTitle} sub={t.cfListHint} art={<FarmBanner />} />
       <div className="card row" style={{ flexWrap: 'wrap' }}>
         <input className="input" style={{ flex: '1 1 240px' }} placeholder={t.cfSearchPh} value={q} onChange={(e) => setQ(e.target.value)} />
         <button className={`pick ${poolOnly ? 'sel' : ''}`} onClick={() => setPoolOnly((p) => !p)}>{t.cfAmPool}</button>

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
+import PageBanner from '../components/PageBanner';
+import { RentalsBanner } from '../components/Scenes';
 import { useLang } from '../lib/lang';
 import { usePageMeta } from '../lib/seo';
 import { useCart, toDMY, toYMD } from '../lib/cart';
@@ -50,10 +52,9 @@ export default function Rentals() {
 
   return (
     <div className="stack">
-      <div className="between">
-        <h1 className="title">{t.webNavRentals}</h1>
-        {count > 0 && <Link to="/cart" className="btn btn-primary btn-sm">{t.cart} · {count}</Link>}
-      </div>
+      <PageBanner title={t.webNavRentals} sub={t.webCatRentalsSub} art={<RentalsBanner />}>
+        {count > 0 && <Link to="/cart" className="btn btn-primary btn-sm" style={{ marginTop: 12 }}>{t.cart} · {count}</Link>}
+      </PageBanner>
       <div className="card stack" style={{ gap: 12 }}>
         <div className="row" style={{ flexWrap: 'wrap' }}>
           <div className="field" style={{ flex: '1 1 180px' }}>

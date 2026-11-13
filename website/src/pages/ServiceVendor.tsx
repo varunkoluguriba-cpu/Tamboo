@@ -31,9 +31,8 @@ export default function ServiceVendor() {
   const [toast, showToast] = useToast();
 
   const load = useCallback(() => { setError(false); api.get<PublicServiceVendor>(`/api/services/${id}`).then(setV).catch(() => setError(true)); }, [id]);
-  useEffect(() => { if (user && cfg?.enabled) load(); }, [load, user, cfg?.enabled]);
+  useEffect(() => { if (cfg?.enabled) load(); }, [load, cfg?.enabled]);
 
-  if (!user) return <div className="card stack" style={{ alignItems: 'center' }}><span className="muted">{t.webLoginSub}</span><button className="btn btn-primary" onClick={openLogin}>{t.webLogin}</button></div>;
   if (cfg && !cfg.enabled) return <div className="card muted">{t.webServicesSoon}</div>;
   if (error) return <LoadError onRetry={load} />;
   if (!v || !cfg) return <Spinner />;
@@ -45,6 +44,7 @@ export default function ServiceVendor() {
   const offer = v.offers?.find((o) => o.id === offerId);
 
   const send = async () => {
+    if (!user) return openLogin();
     if (!date) return setErr(t.svReqNeedDate);
     if (!consent) return setErr(t.svReqNeedConsent);
     setErr(''); setBusy(true);
@@ -111,10 +111,11 @@ export default function ServiceVendor() {
             <div className="field" style={{ flex: 2 }}><label htmlFor="sa">{t.svReqArea}</label><input id="sa" className="input" value={area} placeholder={t.svReqAreaPh} onChange={(e) => setArea(e.target.value)} /></div>
           </div>
           <div className="field"><label htmlFor="sm">{t.svReqMsg}</label><textarea id="sm" className="input" style={{ height: 80, paddingTop: 10 }} value={message} placeholder={t.svReqMsgPh} onChange={(e) => setMessage(e.target.value)} /></div>
-          <label className="check"><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />{t.svReqConsent.replace('{phone}', `⁦${user.phone}⁩`).replace('{vendor}', v.name)}</label>
+          {user ? <label className="check"><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />{t.svReqConsent.replace('{phone}', `⁦${user.phone}⁩`).replace('{vendor}', v.name)}</label>
+            : <span className="small">{t.webLoginToRequest}</span>}
           <span className="small">{free ? t.svReqFeeFree.replace('{n}', String(cfg.freeLeft)).replace('{total}', String(cfg.freeQuotes)) : t.svReqFeePaid.replace('{fee}', String(fee)).replace('{vendor}', v.name).replace('{hours}', String(hours))}</span>
           {!!err && <span className="err">{err}</span>}
-          <button className="btn btn-primary btn-block" disabled={busy} onClick={send}>{busy ? '…' : fee > 0 ? t.svReqPay.replace('{fee}', String(fee)) : t.svReqSend}</button>
+          <button className="btn btn-primary btn-block" disabled={busy} onClick={send}>{busy ? '…' : !user ? t.webLogin : fee > 0 ? t.svReqPay.replace('{fee}', String(fee)) : t.svReqSend}</button>
         </aside>
       </div>
       {toast}

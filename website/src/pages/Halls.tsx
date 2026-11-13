@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../lib/api';
+import PageBanner from '../components/PageBanner';
+import { HallsBanner } from '../components/Scenes';
 import { useLang } from '../lib/lang';
 import { usePageMeta } from '../lib/seo';
 import { LoadError, Photo, Spinner, inr } from '../components/ui';
@@ -42,7 +44,7 @@ export default function Halls() {
 
   return (
     <div className="stack">
-      <h1 className="title">{t.venuesHeaderTitle}</h1>
+      <PageBanner title={t.venuesHeaderTitle} sub={t.webCatHallsSub} art={<HallsBanner />} />
       <div className="card stack" style={{ gap: 12 }}>
         <input className="input" placeholder={t.venuesSearchPlaceholder} value={q} onChange={(e) => setQ(e.target.value)} />
         <div className="wrap-row">
