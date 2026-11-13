@@ -1,6 +1,10 @@
 require('dotenv').config();
 require('express-async-errors');
 const path = require('path');
+const Shop = require('./models/Shop');
+const FarmHouse = require('./models/FarmHouse');
+const Hall = require('./models/Hall');
+const fs = require('fs');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -51,8 +55,41 @@ app.use('/api/farms', farmsRoutes);
 // Admin panel (built single-page app, see admin-panel/) served from this same server at /admin,
 // so it needs no separate hosting. Every API call it makes still requires an admin login.
 const ADMIN_DIST = path.join(__dirname, 'admin-dist');
+app.use('/admin', (req, res, next) => { res.set('X-Robots-Tag', 'noindex, nofollow'); next(); });
 app.use('/admin', express.static(ADMIN_DIST, { index: false, maxAge: '1h' }));
 app.get(['/admin', '/admin/*'], (req, res) => res.sendFile(path.join(ADMIN_DIST, 'index.html')));
+
+// Search engines: index the customer website only — never the admin panel, the API or anyone's
+// own bookings/account/cart. The sitemap lists every live hall, farm house and rental vendor.
+app.get('/robots.txt', (req, res) => {
+  const base = `${req.protocol}://${req.get('host')}`;
+  res.type('text/plain').send(['User-agent: *', 'Disallow: /admin', 'Disallow: /api/', 'Disallow: /bookings', 'Disallow: /account', 'Disallow: /cart', '', `Sitemap: ${base}/sitemap.xml`, ''].join('\n'));
+});
+app.get('/sitemap.xml', async (req, res) => {
+  const base = `${req.protocol}://${req.get('host')}`;
+  const [halls, farms, shops] = await Promise.all([
+    Hall.find().populate({ path: 'partner', match: { role: 'venue', verificationStatus: 'verified' }, select: '_id' }).select('_id updatedAt partner').lean(),
+    FarmHouse.find({ published: true }).populate({ path: 'partner', match: { role: 'farm', verificationStatus: 'verified', deletedAt: null }, select: '_id' }).select('_id updatedAt partner').lean(),
+    Shop.find().populate({ path: 'partner', match: { role: 'tent', verificationStatus: 'verified' }, select: '_id' }).select('partner updatedAt').lean(),
+  ]);
+  const urls = ['/', '/halls', '/farm-houses', '/rentals'].map((u) => ({ loc: u }))
+    .concat(halls.filter((h) => h.partner).map((h) => ({ loc: `/halls/${h._id}`, mod: h.updatedAt })))
+    .concat(farms.filter((f) => f.partner).map((f) => ({ loc: `/farm-houses/${f._id}`, mod: f.updatedAt })))
+    .concat(shops.filter((s) => s.partner).map((s) => ({ loc: `/rentals/${s.partner._id}`, mod: s.updatedAt })));
+  const xml = urls.map((u) => `  <url><loc>${base}${u.loc}</loc>${u.mod ? `<lastmod>${new Date(u.mod).toISOString().slice(0, 10)}</lastmod>` : ''}</url>`).join('\n');
+  res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${xml}\n</urlset>\n`);
+});
+
+// Customer website (built single-page app, see website/) at the root of the same server, so the
+// site and its API share one origin. Any non-API path falls back to the site's index.html so
+// links like /halls/:id open directly.
+const WEB_DIST = path.join(__dirname, 'web-dist');
+app.use(express.static(WEB_DIST, { index: false, maxAge: '1h' }));
+app.get(/^\/(?!api\/|admin\/?|health$).*/, (req, res, next) => {
+  if (!fs.existsSync(path.join(WEB_DIST, 'index.html'))) return next();
+  res.set('Cache-Control', 'no-cache');
+  res.sendFile(path.join(WEB_DIST, 'index.html'));
+});
 
 app.use((req, res) => res.status(404).json({ error: 'Not found' }));
 

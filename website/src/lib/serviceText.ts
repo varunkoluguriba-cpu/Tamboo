@@ -1,0 +1,77 @@
+// Ported from customer-app/src/utils/services.ts (which pulls in app-only types); icons are emoji here.
+import type { LangStrings } from '../../../customer-app/src/i18n';
+
+export type ServiceCategory = 'priest' | 'catering' | 'decor' | 'music';
+type IconName = string;
+
+export const SERVICE_CATEGORIES: ServiceCategory[] = ['priest', 'catering', 'decor', 'music'];
+
+export function serviceCategoryInfo(c: string, t: LangStrings): { label: string; ex: string; icon: IconName } {
+  switch (c) {
+    case 'priest': return { label: t.svCatPriest, ex: t.svCatPriestEx, icon: '🪔' };
+    case 'catering': return { label: t.svCatCatering, ex: t.svCatCateringEx, icon: '🍛' };
+    case 'decor': return { label: t.svCatDecor, ex: t.svCatDecorEx, icon: '💐' };
+    case 'music': return { label: t.svCatMusic, ex: t.svCatMusicEx, icon: '🎺' };
+    default: return { label: c, ex: '', icon: '🎉' };
+  }
+}
+
+export function offerPriceText(o: { priceType: string; price: number }, t: LangStrings): string {
+  const p = o.price.toLocaleString('en-IN');
+  if (o.priceType === 'perPlate') return t.svPricePerPlate.replace('{price}', p);
+  if (o.priceType === 'from') return t.svFrom.replace('{price}', p);
+  return `₹${p}`;
+}
+
+export type PublicServiceVendor = {
+  id: string;
+  name: string;
+  category: ServiceCategory;
+  area: string;
+  city: string;
+  traditions: string[];
+  languages: string[];
+  about: string;
+  areas: string[];
+  experienceYears: number;
+  photos: string[];
+  verified: boolean;
+  fromPrice: number | null;
+  fromPriceType: 'fixed' | 'perPlate' | 'from' | null;
+  offers?: Array<{ id: string; title: string; priceType: 'fixed' | 'perPlate' | 'from'; price: number; description: string }>;
+};
+
+export type MyServiceRequest = {
+  id: string;
+  code: string;
+  category: ServiceCategory;
+  vendorId: string;
+  vendorName: string;
+  eventDate: string;
+  eventType: string;
+  guests: number;
+  area: string;
+  message: string;
+  offerTitle: string;
+  fee: number;
+  status: 'NEW' | 'CONTACTED' | 'CLOSED' | 'NO_RESPONSE';
+  createdAt: string;
+  refundStatus: 'none' | 'pending' | 'refunded';
+  refundAmount: number;
+};
+
+// Vendors' traditions and languages are stored in English. Traditions are translated; languages
+// are shown in their own script (తెలుగు, हिन्दी, اردو …), which every reader recognises.
+const LANG_NATIVE: Record<string, string> = {
+  Telugu: 'తెలుగు', Hindi: 'हिन्दी', Urdu: 'اردو', English: 'English', Sanskrit: 'संस्कृतम्', Tamil: 'தமிழ்', Kannada: 'ಕನ್ನಡ',
+};
+export function traditionText(x: string, t: LangStrings): string {
+  return ({ Hindu: t.svTradHindu, Muslim: t.svTradMuslim, Christian: t.svTradChristian, Sikh: t.svTradSikh, Jain: t.svTradJain } as Record<string, string>)[x] || x;
+}
+export const languageText = (x: string) => LANG_NATIVE[x] || x;
+
+export function fromPriceText(v: { fromPrice: number | null; fromPriceType: string | null }, t: LangStrings): string {
+  if (v.fromPrice == null) return '';
+  const p = v.fromPrice.toLocaleString('en-IN');
+  return v.fromPriceType === 'perPlate' ? t.svFromPerPlate.replace('{price}', p) : t.svFrom.replace('{price}', p);
+}
