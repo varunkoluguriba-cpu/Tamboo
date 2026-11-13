@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 
 type Fees = { priest: number; catering: number; decor: number; music: number };
 type ConfigT = {
-  commissionPct: number; defaultAdvancePct: number;
+  commissionPct: number; defaultAdvancePct: number; customersLive?: boolean;
   servicesMode: 'off' | 'beta' | 'on'; serviceTesterPhones: string[]; serviceFreeQuotes: number; serviceQuoteFees: Fees;
 };
 type Coupon = { _id: string; code: string; description: string; discountPct: number; active: boolean };
@@ -52,6 +52,19 @@ export default function Settings() {
       alert(err instanceof ApiError ? err.message : 'Could not save.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const setLaunch = async (customersLive: boolean) => {
+    if (!config) return;
+    if (!window.confirm(customersLive
+      ? 'Mark the customer app/website as LIVE? Partner apps stop showing “customers launching soon”.'
+      : 'Mark customers as NOT live yet? Partner apps will show “customers launching soon”.')) return;
+    try {
+      setConfig(await api.put<ConfigT>('/api/admin/config/launch', { customersLive }));
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) return logout();
+      alert(err instanceof ApiError ? err.message : 'Could not save.');
     }
   };
 
@@ -140,6 +153,17 @@ export default function Settings() {
         </button>
         <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8 }}>
           Applies to new bookings. Existing bookings keep the rate they were booked at.
+        </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: 16 }}>
+        <h3 style={{ marginTop: 0 }}>Customer launch</h3>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+          <button className={!config.customersLive ? 'btn-primary' : 'btn-secondary'} style={{ width: 'auto', padding: '0 18px' }} onClick={() => config.customersLive && setLaunch(false)}>Launching soon</button>
+          <button className={config.customersLive ? 'btn-primary' : 'btn-secondary'} style={{ width: 'auto', padding: '0 18px' }} onClick={() => !config.customersLive && setLaunch(true)}>Customers are live</button>
+        </div>
+        <div style={{ fontSize: 12.5, color: 'var(--text-muted)' }}>
+          While “Launching soon” is on, every partner app shows a banner saying the customer app is coming soon, so partners who list now know why no bookings have arrived yet. Switch to “Customers are live” on launch day.
         </div>
       </div>
 

@@ -34,6 +34,39 @@ const VENUE_TABS: Array<{ key: VenueTab; icon: IconName; label: 'tabHome' | 'tab
 
 type Navigation = TabBarNavigation;
 
+export type FarmTab = 'fhome' | 'fbookings' | 'fcalendar' | 'ffarms';
+const FARM_TABS: Array<{ key: FarmTab; icon: IconName; label: 'tabHome' | 'tabBookings' | 'tabCalendar' | 'tabFarms'; route: keyof RootStackParamList }> = [
+  { key: 'fhome', icon: 'home', label: 'tabHome', route: 'FHome' },
+  { key: 'fbookings', icon: 'list', label: 'tabBookings', route: 'FBookings' },
+  { key: 'fcalendar', icon: 'calendar', label: 'tabCalendar', route: 'FCalendar' },
+  { key: 'ffarms', icon: 'camera', label: 'tabFarms', route: 'FFarms' },
+];
+
+export function FarmTabBar({ active, navigation, badge }: { active: FarmTab; navigation: Navigation; badge?: Partial<Record<FarmTab, number>> }) {
+  const { t } = useLanguage();
+  return (
+    <View style={styles.tabBar}>
+      {FARM_TABS.map((tb) => {
+        const isActive = tb.key === active;
+        const count = badge?.[tb.key];
+        return (
+          <TouchableOpacity key={tb.key} style={styles.tabItem} activeOpacity={0.7} onPress={() => !isActive && navigation.navigate(tb.route as any)}>
+            <View>
+              <Icon name={tb.icon} size={21} color={isActive ? colors.pinkStrong : colors.textMuted} strokeWidth={isActive ? 2.2 : 1.8} />
+              {!!count && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{count > 9 ? '9+' : count}</Text>
+                </View>
+              )}
+            </View>
+            <Text style={[styles.tabLabel, { color: isActive ? colors.pinkStrong : colors.textMuted }]}>{t[tb.label]}</Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
+
 export type ServiceTab = 'srequests' | 'spackages' | 'sprofile';
 const SERVICE_TABS: Array<{ key: ServiceTab; icon: IconName; label: 'tabRequests' | 'tabPackages' | 'tabMyPage'; route: keyof RootStackParamList }> = [
   { key: 'srequests', icon: 'list', label: 'tabRequests', route: 'SHome' },

@@ -23,6 +23,7 @@ export default function LanguageScreen({ navigation }: Props) {
   const ROLES: Array<{ key: PartnerRole; label: string; desc: string; icon: IconName }> = [
     { key: 'tent', label: t.pLangScreenRoleTentLabel, desc: t.pLangScreenRoleTentDesc, icon: 'tent' },
     { key: 'venue', label: t.pLangScreenRoleVenueLabel, desc: t.pLangScreenRoleVenueDesc, icon: 'home' },
+    { key: 'farm', label: t.pLangScreenRoleFarmLabel, desc: t.pLangScreenRoleFarmDesc, icon: 'pin' },
   ];
 
   const continueNext = async () => {

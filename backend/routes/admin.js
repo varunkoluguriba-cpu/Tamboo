@@ -509,6 +509,16 @@ router.put('/config', async (req, res) => {
   res.json(updated);
 });
 
+// --- Customer launch switch (partner apps show "customers launching soon" while off) ---
+router.put('/config/launch', async (req, res) => {
+  const { customersLive } = req.body || {};
+  if (typeof customersLive !== 'boolean') return res.status(400).json({ error: 'customersLive must be true or false' });
+  const before = await Config.get();
+  const updated = await Config.findByIdAndUpdate(Config.SINGLETON_ID, { customersLive }, { new: true, upsert: true });
+  audit(req, 'Updated customer launch switch', 'Config', `customersLive ${!!before.customersLive}`, `customersLive ${customersLive}`);
+  res.json(updated);
+});
+
 // --- Event services: switch, tester numbers, free quotes, fees ---
 router.put('/config/services', async (req, res) => {
   const { servicesMode, serviceTesterPhones, serviceFreeQuotes, serviceQuoteFees } = req.body || {};

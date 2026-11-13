@@ -5,6 +5,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import Icon from '../components/Icon';
 import LanguageSheet from '../components/LanguageSheet';
 import VerificationBanner from '../components/VerificationBanner';
+import LaunchBanner from '../components/LaunchBanner';
 import { api, ApiError } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -83,6 +84,7 @@ export default function SHomeScreen() {
         </View>
 
         <VerificationBanner />
+        <LaunchBanner />
 
         {!servicesOn ? (
           <View style={styles.notice}><Text style={styles.noticeText}>{t.psNotOpen}</Text></View>

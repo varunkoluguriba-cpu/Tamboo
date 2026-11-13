@@ -91,11 +91,11 @@ export default function RegisterScreen({ navigation }: Props) {
 
   useEffect(() => {
     AsyncStorage.getItem(ROLE_KEY).then((v) => {
-      if (v === 'tent' || v === 'venue' || (v === 'service' && servicesOn)) setRole(v);
+      if (v === 'tent' || v === 'venue' || v === 'farm' || (v === 'service' && servicesOn)) setRole(v);
     }).catch(() => {});
   }, [servicesOn]);
 
-  const roleNoun = role === 'venue' ? t.pRegisterRoleHall : role === 'service' ? t.psRoleNoun : t.pRegisterRoleTentHouse;
+  const roleNoun = role === 'venue' ? t.pRegisterRoleHall : role === 'farm' ? t.pfRoleNoun : role === 'service' ? t.psRoleNoun : t.pRegisterRoleTentHouse;
   const toggle = (list: string[], x: string) => (list.includes(x) ? list.filter((y) => y !== x) : [...list, x]);
 
   const serviceCatLabel = (c: ServiceCategory) => ({ priest: t.psCatPriest, catering: t.psCatCatering, decor: t.psCatDecor, music: t.psCatMusic })[c];
@@ -149,18 +149,16 @@ export default function RegisterScreen({ navigation }: Props) {
           <Text style={styles.subtitle}>{t.pRegisterSubtitle}</Text>
         </View>
 
-        {servicesOn && (
-          <Field label={t.psBusinessType}>
-            <View style={styles.chipRow}>
-              {(['tent', 'venue', 'service'] as PartnerRole[]).map((r) => (
-                <Chip key={r} label={r === 'tent' ? t.psRoleTent : r === 'venue' ? t.psRoleVenue : t.psRoleService} selected={role === r} onPress={() => setRole(r)} />
-              ))}
-            </View>
-          </Field>
-        )}
+        <Field label={t.psBusinessType}>
+          <View style={styles.chipRow}>
+            {(servicesOn ? ['tent', 'venue', 'farm', 'service'] : ['tent', 'venue', 'farm'] as PartnerRole[]).map((r) => (
+              <Chip key={r} label={r === 'tent' ? t.psRoleTent : r === 'venue' ? t.psRoleVenue : r === 'farm' ? t.pfRoleFarm : t.psRoleService} selected={role === r} onPress={() => setRole(r as PartnerRole)} />
+            ))}
+          </View>
+        </Field>
 
         <Field label={t.pRegisterBusinessName}>
-          <TextInput value={biz} onChangeText={setBiz} style={styles.input} placeholder={t.pRegisterBizNamePlaceholder} placeholderTextColor={colors.textMuted} />
+          <TextInput value={biz} onChangeText={setBiz} style={styles.input} placeholder={role === 'farm' ? t.pfNamePh : t.pRegisterBizNamePlaceholder} placeholderTextColor={colors.textMuted} />
         </Field>
 
         <Field label={t.pRegisterOwnerName}>
@@ -204,7 +202,7 @@ export default function RegisterScreen({ navigation }: Props) {
               </View>
             </Field>
           </>
-        ) : role === 'venue' ? (
+        ) : role === 'farm' ? null : role === 'venue' ? (
           <Field label={t.pRegisterVenueType}>
             <View style={styles.chipRow}>
               {VENUE_TYPES.map((v) => (
@@ -237,7 +235,7 @@ export default function RegisterScreen({ navigation }: Props) {
           {photos.length < 2 && (
             <TouchableOpacity style={styles.photoBtn} activeOpacity={0.85} onPress={addPhoto}>
               <Icon name="camera" size={16} color={colors.textSoft} />
-              <Text style={styles.photoBtnText}>{role === 'venue' ? t.pRegisterPhotosHallOptional : role === 'service' ? t.psPhotoWork : t.pRegisterPhotoSetupOptional}</Text>
+              <Text style={styles.photoBtnText}>{role === 'venue' ? t.pRegisterPhotosHallOptional : role === 'farm' ? t.pfPhotoOptional : role === 'service' ? t.psPhotoWork : t.pRegisterPhotoSetupOptional}</Text>
             </TouchableOpacity>
           )}
         </View>

@@ -197,7 +197,7 @@ router.post('/me/farms', ...owner, async (req, res) => {
   if (f.error) return res.status(400).json({ error: f.error });
   if (!f.name) return res.status(400).json({ error: 'Enter the farm house name' });
   if ((await FarmHouse.countDocuments({ partner: req.partner._id })) >= 10) return res.status(400).json({ error: 'You can list up to 10 farm houses' });
-  const farm = await FarmHouse.create({ partner: req.partner._id, area: req.partner.area, ...f });
+  const farm = await FarmHouse.create({ partner: req.partner._id, area: req.partner.area, ...f, ...(typeof req.body.published === 'boolean' ? { published: req.body.published } : {}) });
   res.json({ ...publicFarm(farm), address: farm.address, lat: farm.lat, lng: farm.lng, blockedDates: farm.blockedDates, published: farm.published });
 });
 

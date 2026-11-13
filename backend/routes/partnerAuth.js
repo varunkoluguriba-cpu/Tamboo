@@ -41,7 +41,7 @@ function serialize(p) {
 // for this partner (the 'Event service' sign-up option and screens depend on it).
 async function withPlatform(p) {
   const config = await Config.get();
-  return { ...serialize(p), commissionPct: config.commissionPct, servicesEnabled: servicesAllowedFor(config, p.phone) };
+  return { ...serialize(p), commissionPct: config.commissionPct, customersLive: !!config.customersLive, servicesEnabled: servicesAllowedFor(config, p.phone) };
 }
 
 router.post('/verify', async (req, res) => {

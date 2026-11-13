@@ -13,6 +13,9 @@ const configSchema = new mongoose.Schema({
   // Event services (priest / catering / decor / music). 'off' = hidden everywhere; 'beta' = only
   // the phone numbers in serviceTesterPhones see it (so it can be tested on the live server
   // without real users seeing it); 'on' = everyone.
+  // false until the customer app/website is public: partner apps say "customers launching soon"
+  // instead of letting partners wait for bookings that can't come yet.
+  customersLive: { type: Boolean, default: false },
   servicesMode: { type: String, enum: ['off', 'beta', 'on'], default: 'off' },
   serviceTesterPhones: { type: [String], default: [] }, // E.164
   serviceFreeQuotes: { type: Number, default: 2 }, // quote requests a customer gets free before paying

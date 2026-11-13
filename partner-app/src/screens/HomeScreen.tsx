@@ -14,6 +14,7 @@ import { api } from '../api/client';
 import { statusColors } from '../data/catalog';
 import { colors, gradients, shadow } from '../theme';
 import VerificationBanner from '../components/VerificationBanner';
+import LaunchBanner from '../components/LaunchBanner';
 import { dateTileParts } from '../utils/date';
 
 const ACTIVE_STATUSES = ['CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED'];
@@ -76,6 +77,7 @@ export default function HomeScreen() {
         </View>
 
         <VerificationBanner />
+        <LaunchBanner />
 
         <View style={styles.statGrid}>
           <TouchableOpacity style={styles.statGrad} activeOpacity={0.85} onPress={() => navigation.navigate('Orders')}>

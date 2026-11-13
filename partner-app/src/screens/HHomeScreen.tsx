@@ -17,6 +17,7 @@ import { formatBookingDate } from '../utils/date';
 import { scheduleRegisterPhotoReminder } from '../utils/registerReminder';
 import { colors, gradients, shadow } from '../theme';
 import VerificationBanner from '../components/VerificationBanner';
+import LaunchBanner from '../components/LaunchBanner';
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 
@@ -83,6 +84,7 @@ export default function HHomeScreen() {
         </View>
 
         <VerificationBanner />
+        <LaunchBanner />
 
         <View style={styles.statGrid}>
           <TouchableOpacity style={styles.statGrad} activeOpacity={0.85} onPress={() => navigation.navigate('HTokens')}>

@@ -1,4 +1,4 @@
-export type PartnerRole = 'tent' | 'venue' | 'service';
+export type PartnerRole = 'tent' | 'venue' | 'service' | 'farm';
 export type ServiceCategory = 'priest' | 'catering' | 'decor' | 'music';
 export type VerificationStatus = 'pending' | 'verified' | 'rejected';
 
@@ -18,6 +18,7 @@ export interface PartnerUser {
   verificationStatus: VerificationStatus;
   registered: boolean;
   commissionPct?: number; // live Tamboo commission, from /me
+  customersLive?: boolean; // false until the customer app/website is public (server decides)
   servicesEnabled?: boolean; // event services switched on for this partner (server decides)
   serviceCategory?: ServiceCategory | '';
   traditions?: string[];

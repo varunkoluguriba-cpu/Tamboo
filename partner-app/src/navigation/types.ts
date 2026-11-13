@@ -31,4 +31,10 @@ export type RootStackParamList = {
   SHome: undefined;
   SPackages: undefined;
   SProfile: undefined;
+  FHome: undefined;
+  FBookings: undefined;
+  FBooking: { id: string };
+  FCalendar: undefined;
+  FFarms: undefined;
+  FFarm: { farmId?: string };
 };

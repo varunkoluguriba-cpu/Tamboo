@@ -25,7 +25,14 @@ import HallsScreen from '../screens/HallsScreen';
 import EarningsScreen from '../screens/EarningsScreen';
 import ChatScreen from '../screens/ChatScreen';
 import ConversationsScreen from '../screens/ConversationsScreen';
-import { ServiceTabBar, TentTabBar, VenueTabBar, type ServiceTab, type TentTab, type VenueTab } from '../components/TabBar';
+import { FarmTabBar, ServiceTabBar, TentTabBar, VenueTabBar, type FarmTab, type ServiceTab, type TentTab, type VenueTab } from '../components/TabBar';
+import FHomeScreen from '../screens/FHomeScreen';
+import FBookingsScreen from '../screens/FBookingsScreen';
+import FBookingScreen from '../screens/FBookingScreen';
+import FCalendarScreen from '../screens/FCalendarScreen';
+import FFarmsScreen from '../screens/FFarmsScreen';
+import FFarmScreen from '../screens/FFarmScreen';
+import type { OwnerFarmBooking } from '../utils/farm';
 import SHomeScreen from '../screens/SHomeScreen';
 import SPackagesScreen from '../screens/SPackagesScreen';
 import SProfileScreen from '../screens/SProfileScreen';
@@ -71,6 +78,15 @@ const SERVICE_ROUTE_TAB: Partial<Record<keyof RootStackParamList, ServiceTab>> =
   SProfile: 'sprofile',
 };
 
+const FARM_ROUTE_TAB: Partial<Record<keyof RootStackParamList, FarmTab>> = {
+  FHome: 'fhome',
+  FBookings: 'fbookings',
+  FBooking: 'fbookings',
+  FCalendar: 'fcalendar',
+  FFarms: 'ffarms',
+  FFarm: 'ffarms',
+};
+
 export default function RootNavigator() {
   const [keyboardUp, setKeyboardUp] = useState(false);
   useEffect(() => {
@@ -93,12 +109,18 @@ export default function RootNavigator() {
   const showHome = !!partner?.registered && !stillOnPendingReview;
   const isVenue = partner?.role === 'venue';
   const isService = partner?.role === 'service';
+  const isFarm = partner?.role === 'farm';
+  const [farmUpcoming, setFarmUpcoming] = useState(0);
 
   // Feeds the footer's notification badges (new order requests / active hall tokens) — fetched
   // once here instead of per-screen, since the footer is now shared across every screen.
   useEffect(() => {
     if (!showHome || isService) return;
-    if (isVenue) {
+    if (isFarm) {
+      api.get<OwnerFarmBooking[]>('/api/farms/me/bookings')
+        .then((list) => setFarmUpcoming(list.filter((b) => b.status === 'confirmed').length))
+        .catch(() => {});
+    } else if (isVenue) {
       api.get<RemoteHallToken[]>('/api/halls/me/tokens')
         .then((tokens) => setActiveTokensCount(tokens.filter((t) => tokenUiStatus(t) === 'ACTIVE').length))
         .catch(() => {});
@@ -108,7 +130,7 @@ export default function RootNavigator() {
         .catch(() => {});
     }
     // Re-counted on every screen change, so accepting an order or a pre-booking clears the badge.
-  }, [showHome, isVenue, routeName]);
+  }, [showHome, isVenue, isFarm, routeName]);
 
   if (loading || seenOnboarding === null) {
     return (
@@ -124,6 +146,7 @@ export default function RootNavigator() {
 
   const tentActive: TentTab = (routeName ? TENT_ROUTE_TAB[routeName] : 'home') ?? ('' as TentTab);
   const venueActive: VenueTab = (routeName ? VENUE_ROUTE_TAB[routeName] : 'hhome') ?? ('' as VenueTab);
+  const farmActive: FarmTab = (routeName ? FARM_ROUTE_TAB[routeName] : 'fhome') ?? ('' as FarmTab);
   const serviceActive: ServiceTab = (routeName ? SERVICE_ROUTE_TAB[routeName] : 'srequests') ?? ('' as ServiceTab);
 
   return (
@@ -138,8 +161,19 @@ export default function RootNavigator() {
         // how screens pushed on top, like AddItemChoice or Calendar, used to lose it).
         <View style={{ flex: 1 }}>
           <View style={{ flex: 1 }}>
-            <Stack.Navigator initialRouteName={isService ? 'SHome' : isVenue ? 'HHome' : 'Home'} screenOptions={{ headerShown: false }}>
-              {isService ? (
+            <Stack.Navigator initialRouteName={isFarm ? 'FHome' : isService ? 'SHome' : isVenue ? 'HHome' : 'Home'} screenOptions={{ headerShown: false }}>
+              {isFarm ? (
+                <>
+                  <Stack.Screen name="FHome" component={FHomeScreen} />
+                  <Stack.Screen name="FBookings" component={FBookingsScreen} />
+                  <Stack.Screen name="FBooking" component={FBookingScreen} />
+                  <Stack.Screen name="FCalendar" component={FCalendarScreen} />
+                  <Stack.Screen name="FFarms" component={FFarmsScreen} />
+                  <Stack.Screen name="FFarm" component={FFarmScreen} />
+                  <Stack.Screen name="Earnings" component={EarningsScreen} />
+                  <Stack.Screen name="Chat" component={ChatScreen} />
+                </>
+              ) : isService ? (
                 <>
                   <Stack.Screen name="SHome" component={SHomeScreen} />
                   <Stack.Screen name="SPackages" component={SPackagesScreen} />
@@ -181,7 +215,9 @@ export default function RootNavigator() {
           </View>
           {/* Hidden while typing so the keyboard doesn't push the tab bar over the text field. */}
           {!keyboardUp && <SafeAreaView edges={['bottom']} style={{ backgroundColor: colors.surface }}>
-            {isService ? (
+            {isFarm ? (
+              <FarmTabBar active={farmActive} navigation={navigationRef} badge={{ fbookings: farmUpcoming || undefined }} />
+            ) : isService ? (
               <ServiceTabBar active={serviceActive} navigation={navigationRef} />
             ) : isVenue ? (
               <VenueTabBar active={venueActive} navigation={navigationRef} badge={{ htokens: activeTokensCount || undefined }} />
