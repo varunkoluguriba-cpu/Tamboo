@@ -33,6 +33,9 @@ import { colors } from '../theme';
 import ServiceListScreen from '../screens/ServiceListScreen';
 import ServiceVendorScreen from '../screens/ServiceVendorScreen';
 import ServiceRequestScreen from '../screens/ServiceRequestScreen';
+import FarmsScreen from '../screens/FarmsScreen';
+import FarmScreen from '../screens/FarmScreen';
+import FarmBookingScreen from '../screens/FarmBookingScreen';
 import ServiceRequestsScreen from '../screens/ServiceRequestsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -48,6 +51,9 @@ const ROUTE_TAB: Partial<Record<keyof RootStackParamList, TabKey>> = {
   Product: 'search',
   Venues: 'search',
   Venue: 'search',
+  Farms: 'search',
+  Farm: 'search',
+  FarmBooking: 'bookings',
   Cart: 'cart',
   Checkout: 'cart',
   Pay: 'cart',
@@ -122,6 +128,9 @@ export default function RootNavigator() {
               <Stack.Screen name="ServiceVendor" component={ServiceVendorScreen} />
               <Stack.Screen name="ServiceRequest" component={ServiceRequestScreen} />
               <Stack.Screen name="ServiceRequests" component={ServiceRequestsScreen} />
+              <Stack.Screen name="Farms" component={FarmsScreen} />
+              <Stack.Screen name="Farm" component={FarmScreen} />
+              <Stack.Screen name="FarmBooking" component={FarmBookingScreen} />
             </Stack.Navigator>
           </View>
           <SafeAreaView edges={['bottom']} style={{ backgroundColor: colors.surface }}>

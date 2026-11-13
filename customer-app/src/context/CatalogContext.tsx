@@ -15,6 +15,7 @@ interface CatalogContextValue {
   products: Product[];
   getProduct: (id: string) => Product | undefined;
   productsByVendor: (vendorId: string) => Product[];
+  coords: { lat: number; lng: number } | null; // device location, when the customer allowed it
 }
 
 const CatalogContext = createContext<CatalogContextValue | undefined>(undefined);
@@ -119,7 +120,8 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     products,
     getProduct: (id) => products.find((p) => p.id === id),
     productsByVendor: (vendorId) => products.filter((p) => p.vendorId === vendorId),
-  }), [halls, vendors, products]);
+    coords,
+  }), [halls, vendors, products, coords]);
 
   return <CatalogContext.Provider value={value}>{children}</CatalogContext.Provider>;
 }

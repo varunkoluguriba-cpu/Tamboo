@@ -50,6 +50,8 @@ export function time12(hhmm: string): string {
 export function occasionText(o: string, t: LangStrings): string {
   return ({ Wedding: t.psOccWedding, Reception: t.psOccReception, Birthday: t.psOccBirthday, 'House party': t.psOccHouseParty, Corporate: t.psOccCorporate } as Record<string, string>)[o] || o;
 }
+// '9:00 AM – 6:00 PM' as one left-to-right unit, so Urdu never swaps the two ends.
+export const timeRange = (start: string, end: string) => `\u2066${time12(start).replace(/[\u2066\u2069]/g, '')} – ${time12(end).replace(/[\u2066\u2069]/g, '')}\u2069`;
 export const toMin = (hhmm: string) => {
   const m = /^(\d{1,2}):(\d{2})$/.exec(hhmm || '');
   return m ? Number(m[1]) * 60 + Number(m[2]) : 0;

@@ -58,7 +58,7 @@ export type RootStackParamList = {
   Checkout: undefined;
   Pay: undefined;
   Confirm: { orders: Array<{ id: string; vendor: string; total: number }> };
-  Bookings: { tab?: 'active' | 'past' | 'halls' | 'quotes' } | undefined;
+  Bookings: { tab?: 'active' | 'past' | 'halls' | 'farms' | 'quotes' } | undefined;
   BookingDetail: BookingDetailParams;
   Venues: { venueType?: string } | undefined;
   Venue: { id: string };
@@ -73,4 +73,7 @@ export type RootStackParamList = {
   ServiceVendor: { id: string };
   ServiceRequest: { vendorId: string; vendorName: string; category: string; offerId?: string; offerTitle?: string };
   ServiceRequests: undefined;
+  Farms: undefined;
+  Farm: { id: string };
+  FarmBooking: { id: string };
 };

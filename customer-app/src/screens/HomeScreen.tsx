@@ -331,6 +331,13 @@ export default function HomeScreen() {
                   <Text style={styles.tileCount}>{x.count}</Text>
                 </TouchableOpacity>
               ))}
+              <TouchableOpacity style={[styles.tile, styles.farmTile]} activeOpacity={0.85} onPress={() => navigation.navigate('Farms')}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.tileLabel}>{t.cfTile}</Text>
+                  <Text style={styles.tileCount}>{t.cfTileSub}</Text>
+                </View>
+                <Icon name="right" size={16} color={colors.pinkStrong} />
+              </TouchableOpacity>
             </View>
 
             <View style={styles.section}>
@@ -541,6 +548,7 @@ const styles = StyleSheet.create({
   tile: { width: '47%', backgroundColor: colors.surface, borderRadius: 18, padding: 14, gap: 2, ...shadow.card },
   tileLabel: { fontSize: 14.5, fontWeight: '700', color: colors.text },
   tileCount: { fontSize: 12, color: colors.textMuted },
+  farmTile: { width: '100%', flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1.5, borderColor: colors.pink },
   section: { gap: 10 },
   sectionTitle: { fontFamily: 'Sora', fontSize: 16, fontWeight: '700', color: colors.text },
   photo: { width: '100%', backgroundColor: colors.pinkBg, alignItems: 'center', justifyContent: 'center' },

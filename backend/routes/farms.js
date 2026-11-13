@@ -47,6 +47,8 @@ function customerBooking(b, farm) {
     guests: b.guests, occasion: b.occasion, basePrice: b.basePrice, extraGuests: b.extraGuests, extraGuestCharge: b.extraGuestCharge,
     total: b.total, advanceAmount: b.advanceAmount, balanceAmount: b.balanceAmount, securityDeposit: b.securityDeposit, status: b.status,
     cancelledBy: b.cancelledBy, refundStatus: b.refundStatus || 'none', refundAmount: b.refundAmount || 0, createdAt: b.createdAt,
+    // What cancelling right now would refund (the app shows it before the customer confirms).
+    refundPctNow: b.status === 'confirmed' && b.startMin > nowMinIST() ? customerRefundPct(b) : 0,
     address: showAddress && farm ? farm.address : '', lat: showAddress && farm ? farm.lat : null, lng: showAddress && farm ? farm.lng : null,
     ownerPhone: showAddress && farm && farm.partner && farm.partner.phone ? farm.partner.phone : '',
   };
@@ -261,7 +263,8 @@ router.get('/:id', async (req, res) => {
   if (!isId(req.params.id)) return res.status(404).json({ error: 'Farm house not found' });
   const f = await FarmHouse.findOne({ _id: req.params.id, published: true }).populate({ path: 'partner', match: { role: 'farm', verificationStatus: 'verified', deletedAt: null }, select: '_id' });
   if (!f || !f.partner) return res.status(404).json({ error: 'Farm house not found' });
-  res.json(publicFarm(f));
+  const from = req.query.lat !== undefined && req.query.lng !== undefined ? { lat: Number(req.query.lat), lng: Number(req.query.lng) } : null;
+  res.json(publicFarm(f, from && Number.isFinite(from.lat) && Number.isFinite(from.lng) ? from : null));
 });
 
 router.get('/:id/availability', async (req, res) => {

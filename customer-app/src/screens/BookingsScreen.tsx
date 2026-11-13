@@ -10,6 +10,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
 import { metaLine } from '../utils/rating';
 import { hallStatusText, orderStatusText, prettyDate, quoteStatusText, refundText } from '../utils/status';
+import { farmDate, inr, slotLabel, type MyFarmBooking } from '../utils/farm';
+import { farmRefundText, farmStatus } from './FarmBookingScreen';
 
 type RemoteQuote = {
   id: string;
@@ -25,7 +27,7 @@ type RemoteQuote = {
 };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Bookings'>;
-type Tab = 'active' | 'past' | 'halls' | 'quotes';
+type Tab = 'active' | 'past' | 'halls' | 'farms' | 'quotes';
 
 const ACTIVE_ORDER_STATUSES = ['PENDING', 'CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED'];
 const OK_ORDER_STATUSES = ['CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'COMPLETED'];
@@ -52,6 +54,8 @@ export default function BookingsScreen({ navigation, route }: Props) {
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [hallBookings, setHallBookings] = useState<RemoteHallBooking[]>([]);
   const [hallsLoading, setHallsLoading] = useState(true);
+  const [farmBookings, setFarmBookings] = useState<MyFarmBooking[]>([]);
+  const [farmsLoading, setFarmsLoading] = useState(true);
   // Set when any list fails to load, so we never show "no bookings" just because the phone is offline.
   const [loadFailed, setLoadFailed] = useState(false);
 
@@ -76,7 +80,14 @@ export default function BookingsScreen({ navigation, route }: Props) {
       .finally(() => setHallsLoading(false));
   }, []);
 
-  const loadAll = useCallback(() => { setLoadFailed(false); loadQuotes(); loadOrders(); loadHallBookings(); }, [loadQuotes, loadOrders, loadHallBookings]);
+  const loadFarmBookings = useCallback(() => {
+    api.get<MyFarmBooking[]>('/api/farms/bookings/me')
+      .then(setFarmBookings)
+      .catch(() => setLoadFailed(true))
+      .finally(() => setFarmsLoading(false));
+  }, []);
+
+  const loadAll = useCallback(() => { setLoadFailed(false); loadQuotes(); loadOrders(); loadHallBookings(); loadFarmBookings(); }, [loadQuotes, loadOrders, loadHallBookings, loadFarmBookings]);
   useFocusEffect(loadAll);
 
   const activeOrders = orders.filter((o) => ACTIVE_ORDER_STATUSES.includes(o.status));
@@ -102,6 +113,7 @@ export default function BookingsScreen({ navigation, route }: Props) {
     { key: 'active', label: t.bookingsTabActive },
     { key: 'past', label: t.bookingsTabPast },
     { key: 'halls', label: t.bookingsTabHalls },
+    { key: 'farms', label: t.cfTabFarms },
     { key: 'quotes', label: t.bookingsTabQuotes },
   ];
 
@@ -113,7 +125,7 @@ export default function BookingsScreen({ navigation, route }: Props) {
         <View style={styles.tabRow}>
           {TABS.map((tb) => (
             <TouchableOpacity key={tb.key} style={[styles.tabBtn, tab === tb.key && styles.tabBtnSel]} activeOpacity={0.85} onPress={() => setTab(tb.key)}>
-              <Text style={[styles.tabBtnText, tab === tb.key && styles.tabBtnTextSel]}>{tb.label}</Text>
+              <Text style={[styles.tabBtnText, tab === tb.key && styles.tabBtnTextSel]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{tb.label}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -207,6 +219,38 @@ export default function BookingsScreen({ navigation, route }: Props) {
             )}
             <TouchableOpacity style={styles.dashedBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Venues')}>
               <Text style={styles.dashedBtnText}>{t.bookingsFindHall}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {tab === 'farms' && (
+          <View style={{ gap: 10 }}>
+            {farmsLoading ? (
+              <ActivityIndicator color={colors.pink} style={{ marginTop: 10 }} />
+            ) : farmBookings.length === 0 ? (
+              loadFailed ? null : <Text style={styles.emptyText}>{t.cfNoBookings}</Text>
+            ) : (
+              farmBookings.map((b) => {
+                const st = farmStatus(b, t as unknown as Record<string, string>);
+                const rf = farmRefundText(b, t as unknown as Record<string, string>);
+                return (
+                  <TouchableOpacity key={b.id} style={styles.card} activeOpacity={0.85} onPress={() => navigation.navigate('FarmBooking', { id: b.id })}>
+                    <View style={styles.cardTop}>
+                      <Text style={styles.cardId}>{b.code}</Text>
+                      <StatusPill label={st.label} ok={st.ok} />
+                    </View>
+                    <Text style={styles.cardTitle}>{b.farmName}</Text>
+                    <View style={styles.cardBottom}>
+                      <Text style={styles.cardMeta}>{farmDate(b.date, t)} · {slotLabel(b.slot, t)}</Text>
+                      <Text style={styles.cardAmount}>{inr(b.total)}</Text>
+                    </View>
+                    {!!rf && <Text style={[styles.refundText, b.refundStatus === 'refunded' && styles.refundDone]}>{rf}</Text>}
+                  </TouchableOpacity>
+                );
+              })
+            )}
+            <TouchableOpacity style={styles.dashedBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Farms')}>
+              <Text style={styles.dashedBtnText}>{t.cfFind}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -317,7 +361,7 @@ const styles = StyleSheet.create({
   scroll: { padding: 18, paddingTop: 6, gap: 14 },
   title: { fontFamily: 'Sora', fontSize: 22, fontWeight: '800', color: colors.text },
   tabRow: { flexDirection: 'row', gap: 6, backgroundColor: colors.surface, borderRadius: 999, padding: 4, ...shadow.card },
-  tabBtn: { flex: 1, height: 36, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  tabBtn: { flex: 1, height: 36, borderRadius: 999, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
   tabBtnSel: { backgroundColor: colors.maroon },
   tabBtnText: { fontSize: 13, fontWeight: '700', color: colors.textSoft },
   tabBtnTextSel: { color: '#fff' },

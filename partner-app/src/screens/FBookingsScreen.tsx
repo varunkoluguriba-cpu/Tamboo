@@ -6,7 +6,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { api } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
-import { farmDate, slotLabel, time12, type OwnerFarmBooking } from '../utils/farm';
+import { farmDate, slotLabel, timeRange, type OwnerFarmBooking } from '../utils/farm';
 import { colors, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'FBookings'>;
@@ -65,7 +65,7 @@ export default function FBookingsScreen({ navigation }: Props) {
                     <View style={[styles.pill, { backgroundColor: sc.bg }]}><Text style={[styles.pillText, { color: sc.color }]}>{statusText(b.status)}</Text></View>
                   </View>
                   <Text style={styles.cardTitle}>{farmDate(b.date, t)} · {slotLabel(b.slot, t)}</Text>
-                  <Text style={styles.cardMeta}>{time12(b.checkIn)} – {time12(b.checkOut)} · {t.pfGuestsN.replace('{n}', String(b.guests))}</Text>
+                  <Text style={styles.cardMeta}>{timeRange(b.checkIn, b.checkOut)} · {t.pfGuestsN.replace('{n}', String(b.guests))}</Text>
                   <Text style={styles.cardMeta}>{b.customerName || t.pfCustomer} · {b.farmName}</Text>
                 </TouchableOpacity>
               );
