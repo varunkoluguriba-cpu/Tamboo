@@ -14,6 +14,7 @@ import { CartProvider } from './src/context/CartContext';
 import { TokenProvider } from './src/context/TokenContext';
 import { ServicesProvider } from './src/context/ServicesContext';
 import RootNavigator from './src/navigation/RootNavigator';
+import PhoneSheet from './src/components/PhoneSheet';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
                 <TokenProvider>
                   <ServicesProvider>
                     <RootNavigator />
+                    <PhoneSheet />
                   </ServicesProvider>
                 </TokenProvider>
               </CartProvider>
