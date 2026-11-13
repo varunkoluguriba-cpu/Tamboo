@@ -62,6 +62,7 @@ async function partnerBlocker(partnerId) {
 async function deleteCustomer(user) {
   await removeFirebaseUser(user.firebaseUid);
   user.phone = undefined;
+  user.contactPhone = '';
   user.firebaseUid = undefined;
   user.guestId = undefined;
   user.name = 'Deleted user';

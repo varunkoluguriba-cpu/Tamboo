@@ -36,11 +36,11 @@ export default function Home() {
   ];
 
   const occasions = [
-    { Art: WeddingArt, label: t.homeScreenOccasionWedding, sub: t.webOccWeddingSub, to: '/halls' },
-    { Art: BirthdayArt, label: t.homeScreenOccasionBirthday, sub: t.webOccBirthdaySub, to: '/farm-houses' },
-    { Art: PartyArt, label: t.homeScreenOccasionHouseParty, sub: t.webOccPartySub, to: '/farm-houses' },
-    { Art: PoojaArt, label: t.webOccPooja, sub: t.webOccPoojaSub, to: services?.enabled ? '/services?c=priest' : '/rentals' },
-    { Art: CorporateArt, label: t.homeScreenOccasionCorporate, sub: t.webOccCorporateSub, to: '/halls?type=Banquet%20Hall' },
+    { Art: WeddingArt, label: t.homeScreenOccasionWedding, sub: t.webOccWeddingSub, to: '/occasions/wedding' },
+    { Art: BirthdayArt, label: t.homeScreenOccasionBirthday, sub: t.webOccBirthdaySub, to: '/occasions/birthday' },
+    { Art: PartyArt, label: t.homeScreenOccasionHouseParty, sub: t.webOccPartySub, to: '/occasions/house-party' },
+    { Art: PoojaArt, label: t.webOccPooja, sub: t.webOccPoojaSub, to: '/occasions/pooja' },
+    { Art: CorporateArt, label: t.homeScreenOccasionCorporate, sub: t.webOccCorporateSub, to: '/occasions/corporate' },
   ];
 
   return (

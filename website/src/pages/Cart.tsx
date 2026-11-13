@@ -14,7 +14,7 @@ const EVENT_TYPES = ['Wedding', 'Reception', 'Birthday', 'House party', 'Corpora
 
 export default function Cart() {
   const { t } = useLang();
-  const { user, openLogin } = useAuth();
+  const { user, openLogin, needPhone } = useAuth();
   const cart = useCart();
   const navigate = useNavigate();
   const [mode, setMode] = useState<'delivery' | 'pickup'>('delivery');
@@ -56,6 +56,7 @@ export default function Cart() {
 
   const pay = async () => {
     if (!user) return openLogin();
+    if (needPhone()) return;
     if (!ev.date) return setErr(t.checkoutNeedDate);
     if (mode === 'delivery' && !ev.address.trim()) return setErr(t.checkoutNeedAddress);
     setErr('');

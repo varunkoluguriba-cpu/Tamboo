@@ -14,7 +14,7 @@ const EVENT_TYPES = ['Wedding', 'Reception', 'Birthday', 'House party', 'Corpora
 export default function ServiceVendor() {
   const { id = '' } = useParams();
   const { t } = useLang();
-  const { user, openLogin } = useAuth();
+  const { user, openLogin, needPhone } = useAuth();
   const cfg = useServicesConfig();
   const navigate = useNavigate();
   const [v, setV] = useState<PublicServiceVendor | null>(null);
@@ -45,6 +45,7 @@ export default function ServiceVendor() {
 
   const send = async () => {
     if (!user) return openLogin();
+    if (needPhone()) return;
     if (!date) return setErr(t.svReqNeedDate);
     if (!consent) return setErr(t.svReqNeedConsent);
     setErr(''); setBusy(true);

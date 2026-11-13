@@ -225,3 +225,7 @@ html[dir='rtl'] input[inputmode='numeric'], html[dir='rtl'] input[type='date'] {
   .occ-grid::-webkit-scrollbar { display: none; }
   .occ { flex: 0 0 142px; scroll-snap-align: start; }
 }
+.or-line { display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 12.5px; }
+.or-line::before, .or-line::after { content: ''; flex: 1; height: 1px; background: var(--divider); }
+.page-banner-art .occ-banner-art { max-width: 140px; margin: 6px auto 10px; }
+@media (min-width: 760px) { .page-banner-art .occ-banner-art { max-width: 170px; } }

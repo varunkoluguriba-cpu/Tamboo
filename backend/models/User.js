@@ -9,6 +9,9 @@ const userSchema = new mongoose.Schema({
   authMethod: { type: String, enum: ['phone', 'google', 'guest'], default: 'phone' },
   name: { type: String, default: '' },
   email: { type: String, default: '' },
+  // Google sign-ins have no verified phone. They type one number (no OTP) before their first
+  // booking so owners/vendors can call them. Not unique and not used for login.
+  contactPhone: { type: String, default: '' },
   city: { type: String, default: 'Hyderabad' },
   // Area-wise analytics (admin dashboard). `area` is what the customer picked themselves;
   // `locArea` is the locality nearest their approximate location (only if they allowed
@@ -21,5 +24,8 @@ const userSchema = new mongoose.Schema({
   registered: { type: Boolean, default: false }, // false until name is set (post-OTP registration screen)
   deletedAt: { type: Date, default: null }, // set by account deletion — see lib/accountDeletion.js
 }, { timestamps: true });
+
+// The number owners and vendors should call: the verified login number, else the typed one.
+userSchema.methods.contactNumber = function contactNumber() { return this.phone || this.contactPhone || ''; };
 
 module.exports = mongoose.model('User', userSchema);

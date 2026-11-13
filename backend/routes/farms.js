@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const express = require('express');
 const mongoose = require('mongoose');
-const { requireAuth, requireAccount } = require('../middleware/auth');
+const { requireAuth, requireAccount, requirePhone } = require('../middleware/auth');
 const { requirePartnerAuth } = require('../middleware/partnerAuth');
 const { getClient } = require('../config/razorpay');
 const { markRefundDue } = require('../lib/refunds');
@@ -283,7 +283,7 @@ router.post('/:id/quote', async (req, res) => {
   res.json({ ...c.price, checkIn: c.farm.slots[slot].start, checkOut: c.farm.slots[slot].end, securityDeposit: c.farm.securityDeposit, advancePct: c.farm.advancePct });
 });
 
-router.post('/:id/book', requireAuth, requireAccount, async (req, res) => {
+router.post('/:id/book', requireAuth, requireAccount, requirePhone, async (req, res) => {
   if (!isId(req.params.id)) return res.status(404).json({ error: 'Farm house not found' });
   const { date, slot, guests, occasion } = req.body || {};
   const farm = await FarmHouse.findOne({ _id: req.params.id, published: true }).populate('partner', 'role verificationStatus deletedAt');
@@ -297,7 +297,7 @@ router.post('/:id/book', requireAuth, requireAccount, async (req, res) => {
   const { commissionPct } = await Config.get();
   const b = await FarmBooking.create({
     code: bookingCode(), customer: req.user._id, partner: farm.partner._id, farm: farm._id, farmName: farm.name,
-    customerName: req.user.name || '', customerPhone: req.user.phone || '', date, slot,
+    customerName: req.user.name || '', customerPhone: req.user.contactNumber(), date, slot,
     checkIn: farm.slots[slot].start, checkOut: farm.slots[slot].end, startMin: c.interval.startMin, endMin: c.interval.endMin,
     guests: c.guests, occasion: String(occasion || '').slice(0, 40), ...c.price, advancePct: farm.advancePct,
     securityDeposit: farm.securityDeposit, commissionPct, status: 'pending',

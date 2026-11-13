@@ -39,4 +39,13 @@ function requireAccount(req, res, next) {
   next();
 }
 
-module.exports = { requireAuth, optionalAuth, requireAccount };
+// Bookings and quote requests need a number the owner/vendor can call. Google sign-ins add one
+// once (PUT /api/auth/me/contact-phone); the apps open that prompt on code PHONE_REQUIRED.
+function requirePhone(req, res, next) {
+  if (req.user && !req.user.contactNumber()) {
+    return res.status(400).json({ error: 'Add your mobile number so the owner can reach you about this booking.', code: 'PHONE_REQUIRED' });
+  }
+  next();
+}
+
+module.exports = { requireAuth, optionalAuth, requireAccount, requirePhone };

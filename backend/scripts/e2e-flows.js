@@ -572,6 +572,28 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
     }
   }
 
+  // ---------- GOOGLE SIGN-IN: CONTACT NUMBER BEFORE BOOKING ----------
+  {
+    const g = await User.create({ firebaseUid: 'e2e-google-' + Date.now(), authMethod: 'google', name: 'E2E Google', email: 'e2e@example.com', registered: true });
+    created.users.push(g.id);
+    const GT = tok(g.id);
+    await check('Google user without a number is asked for one before booking', async () => {
+      const r = await call('POST', '/api/payments/create-order', GT, { hallId: hall.id });
+      expect(r.status === 400 && r.data.code === 'PHONE_REQUIRED', `${r.status} ${JSON.stringify(r.data)}`);
+    });
+    await check('Contact number: invalid rejected, valid saved (no OTP)', async () => {
+      const bad = await call('PUT', '/api/auth/me/contact-phone', GT, { phone: '12345' });
+      const ok = await call('PUT', '/api/auth/me/contact-phone', GT, { phone: '98765 43210' });
+      expect(bad.status === 400 && ok.status === 200 && ok.data.user.phone === '+919876543210' && ok.data.user.phoneVerified === false, JSON.stringify(ok.data));
+    });
+    await check('Phone-login users cannot overwrite their verified number', async () => {
+      const r = await call('PUT', '/api/auth/me/contact-phone', CT, { phone: '9876543210' }); expect(r.status === 400, 'got ' + r.status);
+    });
+    await check('Google user with a contact number can book', async () => {
+      const r = await call('POST', '/api/payments/create-order', GT, { hallId: hall.id }); expect(r.status === 200 && r.data.orderId, JSON.stringify(r.data));
+    });
+  }
+
   // ---------- AREA ANALYTICS ----------
   const custBefore = await User.findById(cust._id).lean();
   try {

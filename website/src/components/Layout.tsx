@@ -4,11 +4,12 @@ import { useAuth } from '../lib/auth';
 import { LANGS, useLang } from '../lib/lang';
 import { useServicesConfig } from '../lib/services';
 import LoginModal from './LoginModal';
+import PhoneModal from './PhoneModal';
 import { Skyline } from './Scenes';
 
 export default function Layout() {
   const { t, lang, setLang } = useLang();
-  const { user, openLogin, loginOpen } = useAuth();
+  const { user, openLogin, loginOpen, phoneOpen } = useAuth();
   const services = useServicesConfig();
   const [menu, setMenu] = useState(false);
   const loc = useLocation();
@@ -68,6 +69,7 @@ export default function Layout() {
         </div>
       </footer>
       {loginOpen && <LoginModal />}
+      {phoneOpen && <PhoneModal />}
     </>
   );
 }

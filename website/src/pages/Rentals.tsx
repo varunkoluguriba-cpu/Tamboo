@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../lib/api';
 import PageBanner from '../components/PageBanner';
 import { RentalsBanner } from '../components/Scenes';
@@ -24,7 +24,8 @@ export default function Rentals() {
   const [items, setItems] = useState<PublicItem[] | null>(null);
   const [error, setError] = useState(false);
   const [tab, setTab] = useState<'items' | 'vendors'>('items');
-  const [cat, setCat] = useState('');
+  const [params] = useSearchParams();
+  const [cat, setCat] = useState(() => params.get('cat') || '');
   const [q, setQ] = useState('');
 
   usePageMeta(t.webNavRentals, t.webCatRentalsSub);

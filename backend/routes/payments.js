@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const express = require('express');
-const { requireAuth, requireAccount } = require('../middleware/auth');
+const { requireAuth, requireAccount, requirePhone } = require('../middleware/auth');
 const { getClient } = require('../config/razorpay');
 const Booking = require('../models/Booking');
 const Hall = require('../models/Hall');
@@ -27,7 +27,7 @@ const router = express.Router();
 // or by re-pricing the cart against the real Item catalog — never trusted from the client.
 // A tampered request (modified app, intercepted call) can no longer pay less than the real
 // price; see lib/cartPricing.js for the cart-side recompute.
-router.post('/create-order', requireAuth, requireAccount, async (req, res) => {
+router.post('/create-order', requireAuth, requireAccount, requirePhone, async (req, res) => {
   const { hallId, date, slot, cart } = req.body;
 
   if (hallId) {
@@ -179,7 +179,7 @@ router.post('/verify', requireAuth, requireAccount, async (req, res) => {
       partner: partner ? partner.id : null,
       hallId, hallName, date, slot,
       customerName: customerName || req.user.name || '',
-      customerPhone: customerPhone || req.user.phone || '',
+      customerPhone: req.user.contactNumber() || customerPhone || '',
       guests: guests || 0,
       amount,
       commissionPct: DEFAULT_COMMISSION_PCT,
@@ -243,7 +243,7 @@ router.post('/verify', requireAuth, requireAccount, async (req, res) => {
         partner: partner ? partner.id : null,
         vendorName: g.vendorName || '',
         customerName: cart.customerName || '',
-        customerPhone: cart.customerPhone || '',
+        customerPhone: req.user.contactNumber() || cart.customerPhone || '',
         eventType: cart.eventType || '',
         eventName: cart.eventName || '',
         dateTxt: cart.dateTxt || '',

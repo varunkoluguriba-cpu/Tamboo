@@ -25,6 +25,7 @@ interface AuthContextValue {
   continueAsGuest: () => Promise<AuthUser>;
   register: (name: string, city: string, email?: string, area?: string) => Promise<void>;
   setArea: (area: string) => Promise<void>;
+  saveContactPhone: (phone: string) => Promise<void>;
   logout: () => Promise<void>;
   deleteAccount: () => Promise<void>;
 }
@@ -107,6 +108,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return res.user;
   }, []);
 
+  // Google sign-ins: the number owners/vendors call (no OTP), asked once before the first booking.
+  const saveContactPhone = useCallback(async (phone: string) => {
+    const res = await api.put<{ user: AuthUser }>('/api/auth/me/contact-phone', { phone });
+    setUser(res.user);
+  }, []);
+
   const register = useCallback(async (name: string, city: string, email?: string, area?: string) => {
     const res = await api.post<{ user: AuthUser }>('/api/auth/register', { name, city, email: email || undefined, area: area || undefined });
     setUser(res.user);
@@ -134,8 +141,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, sendOtp, verifyOtp, continueWithGoogle, continueAsGuest, register, setArea, logout, deleteAccount }),
-    [user, loading, sendOtp, verifyOtp, continueWithGoogle, continueAsGuest, register, setArea, logout, deleteAccount],
+    () => ({ user, loading, sendOtp, verifyOtp, continueWithGoogle, continueAsGuest, register, setArea, saveContactPhone, logout, deleteAccount }),
+    [user, loading, sendOtp, verifyOtp, continueWithGoogle, continueAsGuest, register, setArea, saveContactPhone, logout, deleteAccount],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -16,7 +16,8 @@ function issueToken(user) {
 function serialize(user) {
   return {
     id: user.id,
-    phone: user.phone,
+    phone: user.contactNumber(), // verified login number, else the one typed for bookings
+    phoneVerified: !!user.phone,
     name: user.name,
     email: user.email,
     city: user.city,
@@ -120,6 +121,18 @@ router.put('/me/location', requireAuth, async (req, res) => {
   req.user.locatedAt = new Date();
   await req.user.save();
   res.json({ ok: true });
+});
+
+// Google sign-ins: the mobile number owners/vendors should call (no OTP). Accounts that logged in
+// with their phone already have a verified number and can't replace it here.
+router.put('/me/contact-phone', requireAuth, async (req, res) => {
+  if (req.user.authMethod === 'guest') return res.status(403).json({ error: 'Please log in first.' });
+  if (req.user.phone) return res.status(400).json({ error: 'Your mobile number is already verified.' });
+  const digits = String((req.body || {}).phone || '').replace(/\D/g, '').replace(/^91(?=\d{10}$)/, '');
+  if (!/^[6-9]\d{9}$/.test(digits)) return res.status(400).json({ error: 'Enter a valid 10-digit mobile number' });
+  req.user.contactPhone = `+91${digits}`;
+  await req.user.save();
+  res.json({ user: serialize(req.user) });
 });
 
 router.get('/me', requireAuth, async (req, res) => {

@@ -72,7 +72,7 @@ app.get('/sitemap.xml', async (req, res) => {
     FarmHouse.find({ published: true }).populate({ path: 'partner', match: { role: 'farm', verificationStatus: 'verified', deletedAt: null }, select: '_id' }).select('_id updatedAt partner').lean(),
     Shop.find().populate({ path: 'partner', match: { role: 'tent', verificationStatus: 'verified' }, select: '_id' }).select('partner updatedAt').lean(),
   ]);
-  const urls = ['/', '/halls', '/farm-houses', '/rentals'].map((u) => ({ loc: u }))
+  const urls = ['/', '/halls', '/farm-houses', '/rentals', '/services', ...['wedding', 'birthday', 'house-party', 'pooja', 'corporate'].map((o) => `/occasions/${o}`)].map((u) => ({ loc: u }))
     .concat(halls.filter((h) => h.partner).map((h) => ({ loc: `/halls/${h._id}`, mod: h.updatedAt })))
     .concat(farms.filter((f) => f.partner).map((f) => ({ loc: `/farm-houses/${f._id}`, mod: f.updatedAt })))
     .concat(shops.filter((s) => s.partner).map((s) => ({ loc: `/rentals/${s.partner._id}`, mod: s.updatedAt })));

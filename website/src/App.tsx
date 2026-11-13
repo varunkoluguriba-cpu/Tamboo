@@ -16,6 +16,7 @@ import Vendor from './pages/Vendor';
 import Cart from './pages/Cart';
 import OrderDetail from './pages/OrderDetail';
 import Services from './pages/Services';
+import Occasion from './pages/Occasion';
 import ServiceVendor from './pages/ServiceVendor';
 import { CartProvider } from './lib/cart';
 
@@ -46,6 +47,7 @@ export default function App() {
                 <Route path="rentals/:id" element={<Vendor />} />
                 <Route path="cart" element={<Cart />} />
                 <Route path="services" element={<Services />} />
+                <Route path="occasions/:key" element={<Occasion />} />
                 <Route path="services/:id" element={<ServiceVendor />} />
                 <Route path="bookings" element={<Bookings />} />
                 <Route path="bookings/hall/:id" element={<HallBooking />} />

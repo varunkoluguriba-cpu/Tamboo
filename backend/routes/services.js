@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const express = require('express');
 const mongoose = require('mongoose');
-const { requireAuth, optionalAuth, requireAccount } = require('../middleware/auth');
+const { requireAuth, optionalAuth, requireAccount, requirePhone } = require('../middleware/auth');
 const { requirePartnerAuth } = require('../middleware/partnerAuth');
 const { requireServices, servicesAllowedFor, SERVICE_CATEGORIES } = require('../lib/servicesGate');
 const { getClient } = require('../config/razorpay');
@@ -141,7 +141,7 @@ router.get('/requests/me', requireAuth, requireServices, async (req, res) => {
   res.json(list.map(customerRequest));
 });
 
-router.post('/requests', requireAuth, requireAccount, requireServices, async (req, res) => {
+router.post('/requests', requireAuth, requireAccount, requirePhone, requireServices, async (req, res) => {
   const { partnerId, eventDate, eventType, guests, area, message, offerId, consent } = req.body || {};
   if (consent !== true) return res.status(400).json({ error: 'Please agree to share your number with the vendor' });
   if (!isId(partnerId)) return res.status(400).json({ error: 'Vendor not found' });
@@ -151,7 +151,7 @@ router.post('/requests', requireAuth, requireAccount, requireServices, async (re
   if (!partner || partner.role !== 'service' || partner.verificationStatus !== 'verified' || partner.deletedAt) {
     return res.status(404).json({ error: 'Vendor not found' });
   }
-  const phone = req.user.phone || '';
+  const phone = req.user.contactNumber();
   if (!phone) return res.status(400).json({ error: 'Add your mobile number to your account first, so the vendor can call you' });
 
   // One open request per vendor: asking the same vendor twice shouldn't use up another quote.

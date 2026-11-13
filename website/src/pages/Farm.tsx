@@ -16,7 +16,7 @@ const OCCASIONS = ['Birthday', 'House party', 'Wedding', 'Reception', 'Corporate
 export default function Farm() {
   const { id = '' } = useParams();
   const { t } = useLang();
-  const { user, openLogin } = useAuth();
+  const { user, openLogin, needPhone } = useAuth();
   const navigate = useNavigate();
   const [farm, setFarm] = useState<FarmT | null>(null);
   const [error, setError] = useState<'' | 'load' | 'missing'>('');
@@ -82,6 +82,7 @@ export default function Farm() {
 
   const pay = async () => {
     if (!user) return openLogin();
+    if (needPhone()) return;
     if (!quote || !slot) return;
     setPaying(true);
     try {

@@ -19,7 +19,7 @@ const VISIT_HOURS = 48;
 export default function Hall() {
   const { id = '' } = useParams();
   const { t } = useLang();
-  const { user, openLogin } = useAuth();
+  const { user, openLogin, needPhone } = useAuth();
   const navigate = useNavigate();
   const [hall, setHall] = useState<PublicHall | null>(null);
   const [error, setError] = useState<'' | 'load' | 'missing'>('');
@@ -77,6 +77,7 @@ export default function Hall() {
 
   const pay = async () => {
     if (!user) return openLogin();
+    if (needPhone()) return;
     if (!date || !slot) return;
     setPaying(true);
     try {

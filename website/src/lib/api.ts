@@ -3,7 +3,8 @@ export const TOKEN_KEY = 'tamboo-web-token';
 
 export class ApiError extends Error {
   status: number;
-  constructor(status: number, message: string) { super(message); this.status = status; }
+  code?: string;
+  constructor(status: number, message: string, code?: string) { super(message); this.status = status; this.code = code; }
 }
 
 export function getToken(): string | null {
@@ -26,7 +27,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   const text = await res.text();
   let data: unknown;
   try { data = text ? JSON.parse(text) : undefined; } catch { data = undefined; }
-  if (!res.ok) throw new ApiError(res.status, (data as { error?: string })?.error || `Request failed (${res.status})`);
+  if (!res.ok) throw new ApiError(res.status, (data as { error?: string })?.error || `Request failed (${res.status})`, (data as { code?: string })?.code);
   return data as T;
 }
 
