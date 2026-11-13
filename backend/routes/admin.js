@@ -18,6 +18,7 @@ const Coupon = require('../models/Coupon');
 const AuditLog = require('../models/AuditLog');
 const ServiceRequest = require('../models/ServiceRequest');
 const { SERVICE_CATEGORIES } = require('../lib/servicesGate');
+const { localityFromText, localityFromPoint, OTHER } = require('../lib/localities');
 
 const router = express.Router();
 router.use(requireAdminAuth);
@@ -54,6 +55,7 @@ router.use('/support', requireSection('support'));
 router.use('/config', requireSection('settings'));
 router.use('/coupons', requireSection('settings'));
 router.use('/audit', requireSection('audit'));
+router.use('/analytics', requireSection('analytics'));
 router.use('/team', requireSection('team'));
 
 function serializePartner(p) {
@@ -532,6 +534,68 @@ router.get('/service-requests', async (req, res) => {
     customerName: r.customerName, customerPhone: r.customerPhone, eventDate: r.eventDate, fee: r.fee,
     status: r.status, smsSent: r.smsSent, createdAt: r.createdAt, contactedAt: r.contactedAt, refundStatus: r.refundStatus,
   })));
+});
+
+// --- Area-wise analytics: supply (partners) vs demand (customers, orders) per Hyderabad locality.
+// Partners' typed area and orders' addresses are matched to the standard locality list; halls use
+// their map pin; customers use the area they picked, else the area from their approximate location.
+router.get('/analytics/areas', async (req, res) => {
+  const now = Date.now(), DAY = 86400000;
+  const rows = new Map();
+  const row = (name) => {
+    const key = name || 'Unknown';
+    if (!rows.has(key)) rows.set(key, { area: key, tent: 0, halls: 0, priest: 0, catering: 0, decor: 0, music: 0, pendingPartners: 0,
+      customers: 0, customersAreaPicked: 0, customers7d: 0, customers30d: 0, orders: 0, hallBookings: 0, serviceRequests: 0 });
+    return rows.get(key);
+  };
+  const [partners, halls, users, orders, bookings, requests] = await Promise.all([
+    Partner.find({ registered: true, deletedAt: null }).select('role area serviceCategory verificationStatus').lean(),
+    Hall.find().populate({ path: 'partner', select: 'verificationStatus deletedAt' }).select('lat lng address partner').lean(),
+    User.find({ registered: true, deletedAt: null, authMethod: { $ne: 'guest' } }).select('area locArea createdAt').lean(),
+    Order.find({ status: { $ne: 'CANCELLED' } }).select('address').lean(),
+    Booking.find({ status: { $nin: ['cancelled'] } }).select('hallId').lean(),
+    ServiceRequest.find({ status: { $ne: 'PENDING_PAYMENT' } }).select('area').lean(),
+  ]);
+  for (const p of partners) {
+    if (p.role === 'venue') continue; // halls are counted by their own location below
+    const r = row(localityFromText(p.area));
+    if (p.verificationStatus !== 'verified') { r.pendingPartners += 1; continue; }
+    if (p.role === 'tent') r.tent += 1;
+    else if (p.role === 'service' && r[p.serviceCategory] !== undefined) r[p.serviceCategory] += 1;
+  }
+  const hallArea = new Map();
+  for (const h of halls) {
+    if (!h.partner || h.partner.deletedAt) continue;
+    const a = localityFromPoint(h.lat, h.lng) || localityFromText(h.address) || null;
+    hallArea.set(String(h._id), a);
+    const r = row(a);
+    if (h.partner.verificationStatus === 'verified') r.halls += 1; else r.pendingPartners += 1;
+  }
+  for (const u of users) {
+    const r = row(u.area || u.locArea || null);
+    r.customers += 1;
+    if (u.area) r.customersAreaPicked += 1;
+    const age = now - new Date(u.createdAt).getTime();
+    if (age <= 7 * DAY) r.customers7d += 1;
+    if (age <= 30 * DAY) r.customers30d += 1;
+  }
+  for (const o of orders) row(localityFromText(o.address)).orders += 1;
+  for (const b of bookings) row(hallArea.get(String(b.hallId)) || null).hallBookings += 1;
+  for (const q of requests) row(localityFromText(q.area)).serviceRequests += 1;
+
+  // Simple, explainable push suggestion per area (thresholds shown on the page).
+  const list = [...rows.values()].map((r) => {
+    const partnersTotal = r.tent + r.halls + r.priest + r.catering + r.decor + r.music;
+    let suggestion = 'none';
+    if (r.area !== 'Unknown' && r.area !== OTHER) {
+      if (partnersTotal >= 3 && r.customers < partnersTotal * 5) suggestion = 'pushCustomers';
+      else if (r.customers >= 20 && partnersTotal <= 1) suggestion = 'recruitPartners';
+      else if (partnersTotal + r.customers < 3) suggestion = 'tooLittleData';
+      else suggestion = 'balanced';
+    }
+    return { ...r, partnersTotal, demand: r.orders + r.hallBookings + r.serviceRequests, suggestion };
+  }).sort((a, b) => (b.partnersTotal + b.customers) - (a.partnersTotal + a.customers));
+  res.json({ generatedAt: new Date(), rows: list });
 });
 
 // --- Coupons ---

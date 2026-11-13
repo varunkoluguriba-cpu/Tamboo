@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { PermissionsAndroid, Platform, AppState } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '../api/client';
 import { useEvent } from './EventContext';
 import { useAuth } from './AuthContext';
@@ -64,6 +65,18 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     const sub = AppState.addEventListener('change', (st) => { if (st === 'active') setReloadKey((k) => k + 1); });
     return () => sub.remove();
   }, []);
+
+  // Approximate area for the admin's area-wise analytics: at most once a day, only for real
+  // accounts, and only when location was allowed (the server rounds it to ~1 km and keeps
+  // just the locality).
+  useEffect(() => {
+    if (!coords || !user || user.isGuest) return;
+    const KEY = 'tamboo-area-sent-at';
+    AsyncStorage.getItem(KEY).then((v) => {
+      if (v && Date.now() - Number(v) < 24 * 3600 * 1000) return;
+      return api.put('/api/auth/me/location', coords).then(() => AsyncStorage.setItem(KEY, String(Date.now())));
+    }).catch(() => {});
+  }, [coords, user]);
 
   useEffect(() => {
     const qs = coords ? `?lat=${coords.lat}&lng=${coords.lng}` : '';

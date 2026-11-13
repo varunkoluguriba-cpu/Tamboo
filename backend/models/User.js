@@ -10,6 +10,14 @@ const userSchema = new mongoose.Schema({
   name: { type: String, default: '' },
   email: { type: String, default: '' },
   city: { type: String, default: 'Hyderabad' },
+  // Area-wise analytics (admin dashboard). `area` is what the customer picked themselves;
+  // `locArea` is the locality nearest their approximate location (only if they allowed
+  // location — we keep the locality and a ~1 km rounded point, never the exact spot).
+  area: { type: String, default: '' },
+  locArea: { type: String, default: '' },
+  approxLat: { type: Number, default: null },
+  approxLng: { type: Number, default: null },
+  locatedAt: { type: Date, default: null },
   registered: { type: Boolean, default: false }, // false until name is set (post-OTP registration screen)
   deletedAt: { type: Date, default: null }, // set by account deletion — see lib/accountDeletion.js
 }, { timestamps: true });

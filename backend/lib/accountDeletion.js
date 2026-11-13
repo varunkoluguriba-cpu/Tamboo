@@ -59,6 +59,11 @@ async function deleteCustomer(user) {
   user.guestId = undefined;
   user.name = 'Deleted user';
   user.email = '';
+  user.area = '';
+  user.locArea = '';
+  user.approxLat = null;
+  user.approxLng = null;
+  user.locatedAt = null;
   user.registered = false;
   user.deletedAt = new Date();
   await user.save();

@@ -9,6 +9,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { ApiError } from '../api/client';
 import { colors, gradients } from '../theme';
+import AreaPicker from '../components/AreaPicker';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Register'>;
 
@@ -21,6 +22,8 @@ export default function RegisterScreen({}: Props) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [city, setCity] = useState('Hyderabad');
+  const [area, setAreaChoice] = useState('');
+  const [areaOpen, setAreaOpen] = useState(false);
   const [err, setErr] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -36,7 +39,7 @@ export default function RegisterScreen({}: Props) {
     setErr('');
     setSaving(true);
     try {
-      await register(name.trim(), city, email.trim());
+      await register(name.trim(), city, email.trim(), area);
       // Root navigator swaps to the main app automatically once AuthContext's user updates.
     } catch (e) {
       setErr(e instanceof ApiError ? e.message : t.registerSaveError);
@@ -83,6 +86,15 @@ export default function RegisterScreen({}: Props) {
           </View>
         </View>
 
+        <View>
+          <Text style={styles.label}>{t.areaOptional}</Text>
+          <TouchableOpacity style={styles.input} activeOpacity={0.85} onPress={() => setAreaOpen(true)}>
+            <Text style={{ fontSize: 15, color: area ? colors.text : colors.textMuted, lineHeight: 50 }}>{area || t.areaPlaceholder}</Text>
+          </TouchableOpacity>
+          <Text style={styles.areaHint}>{t.areaHint}</Text>
+        </View>
+        <AreaPicker visible={areaOpen} value={area} onClose={() => setAreaOpen(false)} onPick={(a) => { setAreaChoice(a); setAreaOpen(false); }} />
+
         {!!err && <Text style={styles.error}>{err}</Text>}
 
         <TouchableOpacity activeOpacity={0.85} onPress={submit} disabled={saving} style={styles.buttonWrap}>
@@ -107,6 +119,7 @@ const styles = StyleSheet.create({
   label: { fontSize: 12.5, fontWeight: '600', color: colors.textSoft, marginBottom: 6 },
   input: { height: 50, borderRadius: 14, borderWidth: 1.5, borderColor: colors.divider, paddingHorizontal: 14, fontSize: 15, color: colors.text },
   cityRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  areaHint: { fontSize: 12, color: colors.textMuted, marginTop: 6 },
   cityChip: { height: 40, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1.5, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center' },
   cityChipSel: { backgroundColor: colors.pinkBg, borderColor: colors.pink },
   cityChipText: { fontSize: 13, fontWeight: '600', color: colors.text },

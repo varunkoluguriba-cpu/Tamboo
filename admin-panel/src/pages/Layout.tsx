@@ -7,6 +7,7 @@ type Stats = { pendingVerification: number; disputedCount: number; refundsPendin
 
 const NAV_ITEMS: Array<{ to: string; label: string; end?: boolean; section?: Section; badgeKey?: keyof Stats }> = [
   { to: '/', label: 'Dashboard', end: true },
+  { to: '/analytics', label: 'Area analytics', section: 'analytics' },
   { to: '/partners', label: 'Partners', section: 'partners', badgeKey: 'pendingVerification' },
   { to: '/customers', label: 'Customers', section: 'customers' },
   { to: '/halls', label: 'Halls', section: 'halls' },

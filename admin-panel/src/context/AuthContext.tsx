@@ -2,7 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { api, ApiError, getToken, setToken } from '../api';
 
 export type AdminRole = 'super_admin' | 'support' | 'operations' | 'finance' | 'marketing';
-export type Section = 'partners' | 'customers' | 'halls' | 'items' | 'quotes' | 'packages' | 'bookings' | 'disputes' | 'support' | 'site-content' | 'settings' | 'audit' | 'team';
+export type Section = 'partners' | 'customers' | 'halls' | 'items' | 'quotes' | 'packages' | 'bookings' | 'disputes' | 'support' | 'site-content' | 'settings' | 'audit' | 'team' | 'analytics';
 
 interface Me {
   username: string;

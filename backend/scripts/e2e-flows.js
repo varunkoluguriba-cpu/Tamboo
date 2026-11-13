@@ -453,6 +453,32 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
     await Config.updateOne({ _id: Config.SINGLETON_ID }, { $set: { servicesMode: cfg0.servicesMode || 'off', serviceTesterPhones: cfg0.serviceTesterPhones || [], serviceFreeQuotes: cfg0.serviceFreeQuotes ?? 2, serviceQuoteFees: cfg0.serviceQuoteFees || { priest: 49, music: 69, decor: 79, catering: 89 } } });
   }
 
+  // ---------- AREA ANALYTICS ----------
+  const custBefore = await User.findById(cust._id).lean();
+  try {
+    await check('Localities list for the area picker', async () => {
+      const r = await call('GET', '/api/auth/localities'); expect(r.status === 200 && r.data.includes('Dilsukhnagar') && r.data.includes('HITEC City'), String(r.data).slice(0, 80));
+    });
+    await check('Customer area: only listed areas accepted', async () => {
+      const bad = await call('PUT', '/api/auth/me/area', CT, { area: 'Mars' });
+      const ok = await call('PUT', '/api/auth/me/area', CT, { area: 'Dilsukhnagar' });
+      expect(bad.status === 400 && ok.status === 200 && ok.data.area === 'Dilsukhnagar', `bad ${bad.status}, ok ${JSON.stringify(ok.data)}`);
+    });
+    await check('Location is rounded (~1 km) and mapped to a locality', async () => {
+      const r = await call('PUT', '/api/auth/me/location', CT, { lat: 17.448312, lng: 78.391487 });
+      const u = await User.findById(cust._id).lean();
+      expect(r.status === 200 && u.approxLat === 17.45 && u.approxLng === 78.39 && u.locArea === 'Madhapur', JSON.stringify({ lat: u.approxLat, lng: u.approxLng, area: u.locArea }));
+    });
+    await check('Admin area analytics counts the customer in their area', async () => {
+      const admin = await AdminUser.findOne({ role: 'super_admin' }) || await AdminUser.findOne();
+      const r = await call('GET', '/api/admin/analytics/areas', jwt.sign({ sub: admin.id, kind: 'admin' }, process.env.JWT_SECRET, { expiresIn: '1h' }));
+      const row = (r.data.rows || []).find((x) => x.area === 'Dilsukhnagar');
+      expect(r.status === 200 && row && row.customers >= 1 && row.customersAreaPicked >= 1, `status ${r.status} row ${JSON.stringify(row)}`);
+    });
+  } finally {
+    await User.updateOne({ _id: cust._id }, { $set: { area: custBefore.area || '', locArea: custBefore.locArea || '', approxLat: custBefore.approxLat ?? null, approxLng: custBefore.approxLng ?? null, locatedAt: custBefore.locatedAt ?? null } });
+  }
+
   // ---------- DELETE ACCOUNT ----------
   await check('Guest deletes account', async () => { const r = await call('DELETE', '/api/auth/me', guestTok); expect(r.status === 200, JSON.stringify(r.data)); const m = await call('GET', '/api/auth/me', guestTok); expect(m.status === 401, 'still valid'); });
 

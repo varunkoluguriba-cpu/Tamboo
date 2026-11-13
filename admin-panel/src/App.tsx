@@ -16,6 +16,7 @@ import Items from './pages/Items';
 import ItemDetail from './pages/ItemDetail';
 import Quotes from './pages/Quotes';
 import ServiceRequests from './pages/ServiceRequests';
+import Analytics from './pages/Analytics';
 import Packages from './pages/Packages';
 import Bookings from './pages/Bookings';
 import OrderDetail from './pages/OrderDetail';
@@ -62,6 +63,7 @@ function AppRoutes() {
         <Route path="items/:id" element={<SectionGate section="items"><ItemDetail /></SectionGate>} />
         <Route path="quotes" element={<SectionGate section="quotes"><Quotes /></SectionGate>} />
         <Route path="service-requests" element={<SectionGate section="quotes"><ServiceRequests /></SectionGate>} />
+        <Route path="analytics" element={<SectionGate section="analytics"><Analytics /></SectionGate>} />
         <Route path="packages" element={<SectionGate section="packages"><Packages /></SectionGate>} />
         <Route path="bookings" element={<SectionGate section="bookings"><Bookings /></SectionGate>} />
         <Route path="orders/:id" element={<SectionGate section="bookings"><OrderDetail /></SectionGate>} />

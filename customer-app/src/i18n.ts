@@ -12,6 +12,7 @@
 // name specifically so a missing translation can never silently shift and corrupt another key.
 
 const EN = {
+  areaTitle: 'Your area', areaOptional: 'Your area (optional)', areaHint: 'Helps us bring more vendors and halls near you.', areaPlaceholder: 'Pick your area', areaSearch: 'Search area…', areaNotSet: 'Not set', areaSkip: 'My area isn’t listed', 
   venueCatInHouse: 'In-house catering only', venueCatOutside: 'Outside caterers allowed', venueCatBoth: 'Both allowed', 
   availInStock: 'In stock', availSoldOut: 'Sold out', availOnlyLeft: 'Only {n} left', availQuoteOnly: 'Quote only', 
   svTradHindu: 'Hindu', svTradMuslim: 'Muslim', svTradChristian: 'Christian', svTradSikh: 'Sikh', svTradJain: 'Jain', svFromPerPlate: 'from ₹{price} per plate', 
@@ -584,6 +585,7 @@ export type Key = keyof typeof EN;
 export type LangStrings = Record<Key, string>;
 
 const TE: Partial<Record<Key, string>> = {
+  areaTitle: 'మీ ప్రాంతం', areaOptional: 'మీ ప్రాంతం (ఐచ్ఛికం)', areaHint: 'మీ దగ్గర్లో మరిన్ని వెండర్లు, హాల్స్ తీసుకురావడానికి ఇది సహాయపడుతుంది.', areaPlaceholder: 'మీ ప్రాంతం ఎంచుకోండి', areaSearch: 'ప్రాంతం వెతకండి…', areaNotSet: 'ఎంచుకోలేదు', areaSkip: 'నా ప్రాంతం జాబితాలో లేదు', 
   venueCatInHouse: 'హాల్ క్యాటరింగ్ మాత్రమే', venueCatOutside: 'బయటి క్యాటరర్లకు అనుమతి', venueCatBoth: 'రెండూ అనుమతి', 
   availInStock: 'స్టాక్‌లో ఉంది', availSoldOut: 'అయిపోయింది', availOnlyLeft: '{n} మాత్రమే ఉన్నాయి', availQuoteOnly: 'కొటేషన్ మాత్రమే', 
   svTradHindu: 'హిందూ', svTradMuslim: 'ముస్లిం', svTradChristian: 'క్రైస్తవ', svTradSikh: 'సిక్కు', svTradJain: 'జైన', svFromPerPlate: 'ప్లేట్‌కు ₹{price} నుండి', 
@@ -872,6 +874,7 @@ const TE: Partial<Record<Key, string>> = {
 };
 
 const HI: Partial<Record<Key, string>> = {
+  areaTitle: 'आपका इलाका', areaOptional: 'आपका इलाका (वैकल्पिक)', areaHint: 'इससे हम आपके पास और वेंडर व हॉल ला पाएँगे।', areaPlaceholder: 'अपना इलाका चुनें', areaSearch: 'इलाका खोजें…', areaNotSet: 'चुना नहीं', areaSkip: 'मेरा इलाका सूची में नहीं है', 
   venueCatInHouse: 'सिर्फ़ हॉल की कैटरिंग', venueCatOutside: 'बाहर के कैटरर की अनुमति', venueCatBoth: 'दोनों की अनुमति', 
   availInStock: 'स्टॉक में है', availSoldOut: 'खत्म हो गया', availOnlyLeft: 'सिर्फ़ {n} बचे', availQuoteOnly: 'सिर्फ़ कोटेशन', 
   svTradHindu: 'हिंदू', svTradMuslim: 'मुस्लिम', svTradChristian: 'ईसाई', svTradSikh: 'सिख', svTradJain: 'जैन', svFromPerPlate: '₹{price} प्रति प्लेट से', 
@@ -1156,6 +1159,7 @@ const HI: Partial<Record<Key, string>> = {
 };
 
 const UR: Partial<Record<Key, string>> = {
+  areaTitle: 'آپ کا علاقہ', areaOptional: 'آپ کا علاقہ (اختیاری)', areaHint: 'اس سے ہم آپ کے قریب مزید وینڈر اور ہال لا سکیں گے۔', areaPlaceholder: 'اپنا علاقہ چنیں', areaSearch: 'علاقہ تلاش کریں…', areaNotSet: 'منتخب نہیں', areaSkip: 'میرا علاقہ فہرست میں نہیں', 
   venueCatInHouse: 'صرف ہال کی کیٹرنگ', venueCatOutside: 'باہر کے کیٹرر کی اجازت', venueCatBoth: 'دونوں کی اجازت', 
   availInStock: 'اسٹاک میں ہے', availSoldOut: 'ختم ہو گیا', availOnlyLeft: 'صرف {n} باقی', availQuoteOnly: 'صرف کوٹیشن', 
   svTradHindu: 'ہندو', svTradMuslim: 'مسلم', svTradChristian: 'عیسائی', svTradSikh: 'سکھ', svTradJain: 'جین', svFromPerPlate: '₹{price} فی پلیٹ سے', 

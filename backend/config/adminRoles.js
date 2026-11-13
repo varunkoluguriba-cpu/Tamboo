@@ -5,11 +5,12 @@
 // 'dashboard' isn't listed as a section anyone needs explicitly — every role can open it,
 // it just shows fewer stat cards depending on which other sections that role has.
 const ROLE_SECTIONS = {
-  super_admin: ['partners', 'customers', 'halls', 'items', 'quotes', 'packages', 'bookings', 'disputes', 'support', 'site-content', 'settings', 'audit', 'team'],
+  super_admin: ['partners', 'customers', 'halls', 'items', 'quotes', 'packages', 'bookings', 'disputes', 'support', 'site-content', 'settings', 'audit', 'team', 'analytics'],
   support: ['support', 'customers', 'partners', 'bookings', 'disputes'],
-  operations: ['partners', 'halls', 'items', 'quotes', 'packages', 'disputes'],
+  operations: ['partners', 'halls', 'items', 'quotes', 'packages', 'disputes', 'analytics'],
   finance: ['partners', 'bookings', 'settings'],
-  marketing: ['site-content'],
+  // Area analytics shows only counts per locality (no names/numbers), so marketing can plan campaigns.
+  marketing: ['site-content', 'analytics'],
 };
 
 function sectionsFor(role) {

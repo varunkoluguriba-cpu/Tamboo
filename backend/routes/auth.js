@@ -5,6 +5,8 @@ const User = require('../models/User');
 const { requireAuth } = require('../middleware/auth');
 const { customerBlocker, deleteCustomer } = require('../lib/accountDeletion');
 
+const { LOCALITY_NAMES, localityFromPoint } = require('../lib/localities');
+
 const router = express.Router();
 
 function issueToken(user) {
@@ -18,6 +20,7 @@ function serialize(user) {
     name: user.name,
     email: user.email,
     city: user.city,
+    area: user.area || '',
     registered: user.registered,
     authMethod: user.authMethod,
     isGuest: user.authMethod === 'guest',
@@ -83,14 +86,40 @@ router.post('/guest', async (req, res) => {
 });
 
 router.post('/register', requireAuth, async (req, res) => {
-  const { name, email, city } = req.body || {};
+  const { name, email, city, area } = req.body || {};
   if (!name || !name.trim()) return res.status(400).json({ error: 'Name is required' });
+  if (area !== undefined && area !== '' && !LOCALITY_NAMES.includes(area)) return res.status(400).json({ error: 'Pick your area from the list' });
+  if (area) req.user.area = area;
   req.user.name = name.trim();
   if (email) req.user.email = email.trim();
   if (city) req.user.city = city;
   req.user.registered = true;
   await req.user.save();
   res.json({ user: serialize(req.user) });
+});
+
+// The standard list of Hyderabad localities (for the 'Your area' picker).
+router.get('/localities', (req, res) => res.json(LOCALITY_NAMES));
+
+router.put('/me/area', requireAuth, async (req, res) => {
+  const area = String((req.body || {}).area || '');
+  if (area && !LOCALITY_NAMES.includes(area)) return res.status(400).json({ error: 'Pick your area from the list' });
+  req.user.area = area;
+  await req.user.save();
+  res.json(serialize(req.user));
+});
+
+// Approximate area from the device location (sent at most once a day, only when the customer
+// has allowed location). Rounded to 2 decimals (~1 km) before storing — never the exact spot.
+router.put('/me/location', requireAuth, async (req, res) => {
+  const lat = Number((req.body || {}).lat), lng = Number((req.body || {}).lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return res.status(400).json({ error: 'Invalid location' });
+  req.user.approxLat = Math.round(lat * 100) / 100;
+  req.user.approxLng = Math.round(lng * 100) / 100;
+  req.user.locArea = localityFromPoint(req.user.approxLat, req.user.approxLng) || '';
+  req.user.locatedAt = new Date();
+  await req.user.save();
+  res.json({ ok: true });
 });
 
 router.get('/me', requireAuth, async (req, res) => {

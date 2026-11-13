@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -15,6 +15,7 @@ import { ADDRESSES_KEY } from '../constants';
 import { hallStatusText, orderStatusText } from '../utils/status';
 import { useFocusEffect } from '@react-navigation/native';
 import { prettyPhone } from '../utils/date';
+import AreaPicker from '../components/AreaPicker';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Profile'>;
 
@@ -23,7 +24,8 @@ type PaymentEntry = { id: string; label: string; status: string; amount: number;
 
 
 export default function ProfileScreen({ navigation }: Props) {
-  const { user, logout } = useAuth();
+  const { user, logout, setArea } = useAuth();
+  const [areaOpen, setAreaOpen] = useState(false);
   const { t, lang, setLang } = useLanguage();
   const [langModal, setLangModal] = useState(false);
   const [addrs, setAddrs] = useState<string[]>([]);
@@ -109,6 +111,23 @@ export default function ProfileScreen({ navigation }: Props) {
           <Text style={styles.rowValue}>{langName(lang)[1]}</Text>
           <Icon name="right" size={16} color={colors.dividerStrong} />
         </TouchableOpacity>
+
+        {!user?.isGuest && (
+          <TouchableOpacity style={styles.row} activeOpacity={0.85} onPress={() => setAreaOpen(true)}>
+            <View style={styles.rowIcon}>
+              <Icon name="pin" size={16} color={colors.pinkStrong} />
+            </View>
+            <Text style={styles.rowLabel}>{t.areaTitle}</Text>
+            <Text style={styles.rowValue}>{user?.area || t.areaNotSet}</Text>
+            <Icon name="right" size={16} color={colors.dividerStrong} />
+          </TouchableOpacity>
+        )}
+        <AreaPicker
+          visible={areaOpen}
+          value={user?.area || ''}
+          onClose={() => setAreaOpen(false)}
+          onPick={(a) => { setAreaOpen(false); setArea(a).catch(() => Alert.alert(t.loadFailedMsg)); }}
+        />
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>{t.profileScreenSavedAddresses}</Text>
