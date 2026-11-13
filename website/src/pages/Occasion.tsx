@@ -29,6 +29,8 @@ export default function Occasion() {
   const [halls, setHalls] = useState<PublicHall[]>([]);
   const [farms, setFarms] = useState<Farm[]>([]);
   const occ = OCCASIONS[key];
+  // Where to celebrate: the customer picks hall, farm house or both (default).
+  const [venue, setVenue] = useState<'both' | 'halls' | 'farms'>('both');
   const meta: Record<string, { title: string; sub: string; Art: () => ReactElement }> = {
     wedding: { title: t.homeScreenOccasionWedding, sub: t.webOccWeddingSub, Art: () => <WeddingArt size={150} /> },
     birthday: { title: t.homeScreenOccasionBirthday, sub: t.webOccBirthdaySub, Art: () => <BirthdayArt size={150} /> },
@@ -99,7 +101,15 @@ export default function Occasion() {
   return (
     <div className="stack" style={{ gap: 26 }}>
       <PageBanner title={m.title} sub={m.sub} art={<div className="occ-banner-art"><m.Art /></div>} />
-      {occ.order.map((s) => blocks[s])}
+      <div className="card stack" style={{ gap: 10 }}>
+        <b>{t.webOccWhere}</b>
+        <div className="wrap-row">
+          {([['both', t.webOccBoth], ['halls', t.webNavHalls], ['farms', t.webNavFarms]] as const).map(([k, label]) => (
+            <button key={k} className={`pick ${venue === k ? 'sel' : ''}`} onClick={() => setVenue(k)}>{label}</button>
+          ))}
+        </div>
+      </div>
+      {occ.order.filter((s) => (s === 'halls' ? venue !== 'farms' : s === 'farms' ? venue !== 'halls' : true)).map((s) => blocks[s])}
     </div>
   );
 }
