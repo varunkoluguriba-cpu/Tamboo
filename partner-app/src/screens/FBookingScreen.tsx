@@ -9,7 +9,7 @@ import Icon from '../components/Icon';
 import { api, ApiError } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
 import { prettyPhone } from '../utils/date';
-import { endsNextDay, farmDate, nowMinIST, slotLabel, time12, type OwnerFarmBooking } from '../utils/farm';
+import { endsNextDay, farmDate, nowMinIST, occasionText, slotLabel, time12, type OwnerFarmBooking } from '../utils/farm';
 import { farmStatusStyle } from './FBookingsScreen';
 import { colors, gradients, shadow } from '../theme';
 
@@ -70,7 +70,7 @@ export default function FBookingScreen({ navigation, route }: Props) {
           <Row label={slotLabel(b.slot, t)} value={t.pfGuestsN.replace('{n}', String(b.guests))} />
           <Row label={t.pfCheckIn} value={`${farmDate(b.date, t)}, ${time12(b.checkIn)}`} />
           <Row label={t.pfCheckOut} value={`${time12(b.checkOut)}${nextDay ? ` (${t.pfNextDay})` : ''}`} />
-          {!!b.occasion && <Row label={t.pfOccasion} value={b.occasion} />}
+          {!!b.occasion && <Row label={t.pfOccasion} value={occasionText(b.occasion, t)} />}
         </View>
 
         <View style={styles.card}>

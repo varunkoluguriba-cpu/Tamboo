@@ -38,12 +38,17 @@ export const AMENITIES: Array<{ code: string; key: keyof LangStrings }> = [
 
 export const slotLabel = (s: SlotKey, t: LangStrings) => ({ day: t.pfSlotDay, night: t.pfSlotNight, fullDay: t.pfSlotFullDay })[s];
 
-// 'HH:MM' (24 h) → '9:30 AM'.
+// 'HH:MM' (24 h) → '9:30 AM', in a left-to-right isolate so it never shows as 'AM 9:30' in Urdu.
 export function time12(hhmm: string): string {
   const m = /^(\d{1,2}):(\d{2})$/.exec(hhmm || '');
   if (!m) return hhmm || '';
   const h = Number(m[1]);
-  return `${h % 12 === 0 ? 12 : h % 12}:${m[2]} ${h < 12 ? 'AM' : 'PM'}`;
+  return `\u2066${h % 12 === 0 ? 12 : h % 12}:${m[2]} ${h < 12 ? 'AM' : 'PM'}\u2069`;
+}
+
+// Occasions are stored in English (the customer picks from chips); show them in the owner's language.
+export function occasionText(o: string, t: LangStrings): string {
+  return ({ Wedding: t.psOccWedding, Reception: t.psOccReception, Birthday: t.psOccBirthday, 'House party': t.psOccHouseParty, Corporate: t.psOccCorporate } as Record<string, string>)[o] || o;
 }
 export const toMin = (hhmm: string) => {
   const m = /^(\d{1,2}):(\d{2})$/.exec(hhmm || '');
