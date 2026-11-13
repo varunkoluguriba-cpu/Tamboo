@@ -191,3 +191,6 @@ h1, h2, h3 { font-family: var(--display); margin: 0; line-height: 1.25; }
 .cat { align-items: flex-start; gap: 6px; }
 .step { display: flex; flex-direction: column; gap: 10px; }
 .tile-photo svg { opacity: 0.95; }
+/* Numbers, dates and phone numbers always read left-to-right, even on the Urdu site. */
+input[inputmode='numeric'], input[type='date'], input[type='tel'] { direction: ltr; }
+html[dir='rtl'] input[inputmode='numeric'], html[dir='rtl'] input[type='date'] { text-align: right; }

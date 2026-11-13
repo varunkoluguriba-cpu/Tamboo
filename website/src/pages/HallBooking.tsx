@@ -12,6 +12,7 @@ type Booking = RemoteHallBooking & { visitDay?: string | null; visitTime?: strin
 const DAYS = ['today', 'tomorrow', 'dayAfter'] as const;
 const TIMES = ['morning', 'afternoon', 'evening', 'night'] as const;
 const num = (n: number) => Math.round(n || 0).toLocaleString('en-IN');
+const hoursLeft = (ms: number) => { const m = Math.max(0, Math.floor(ms / 60000)); return `${Math.floor(m / 60)}h ${m % 60}m`; };
 
 export default function HallBooking() {
   const { id = '' } = useParams();
@@ -41,12 +42,14 @@ export default function HallBooking() {
   if (error) return <LoadError onRetry={load} />;
   if (!b) return <Spinner />;
 
+  const dayLabel = (d: string) => ({ today: t.tokenVisitDayToday, tomorrow: t.tokenVisitDayTomorrow, dayAfter: t.tokenVisitDayAfter } as Record<string, string>)[d];
+  const timeLabel = (x: string) => ({ morning: t.tokenVisitTimeMorning, afternoon: t.tokenVisitTimeAfternoon, evening: t.tokenVisitTimeEvening, night: t.tokenVisitTimeNight } as Record<string, string>)[x];
   const act = async (action: string, extra: Record<string, string> = {}, confirmMsg?: string) => {
     if (confirmMsg && !window.confirm(confirmMsg)) return;
     setBusy(true);
     try {
       setB(await api.patch<Booking>(`/api/halls/my-token/${b.id}`, { action, ...extra }));
-      if (action === 'scheduleVisit') showToast(t.tokenVisitScheduledTitle);
+      if (action === 'scheduleVisit') showToast(t.tokenVisitScheduledMsg.replace('{day}', dayLabel(extra.visitDay)).replace('{time}', timeLabel(extra.visitTime)));
       if (action === 'dispute') showToast(t.tokenDisputeRaisedMsg);
     } catch (e) {
       showToast(e instanceof ApiError ? e.message : t.tryAgain);
@@ -79,8 +82,6 @@ export default function HallBooking() {
   const ok = ['visited', 'awaiting_advance', 'confirmed'].includes(b.status);
   const note = expired ? t.tokenNoteExpired : b.status === 'token_paid' ? t.tokenNoteActive : b.status === 'visited' ? t.tokenNoteVisited
     : b.status === 'awaiting_advance' ? t.tokenNoteAwaitingAdvance : b.status === 'confirmed' ? t.tokenNoteConfirmed : '';
-  const dayLabel = (d: string) => ({ today: t.tokenVisitDayToday, tomorrow: t.tokenVisitDayTomorrow, dayAfter: t.tokenVisitDayAfter } as Record<string, string>)[d];
-  const timeLabel = (x: string) => ({ morning: t.tokenVisitTimeMorning, afternoon: t.tokenVisitTimeAfternoon, evening: t.tokenVisitTimeEvening, night: t.tokenVisitTimeNight } as Record<string, string>)[x];
   const deadline = b.advanceDeadlineAtMs ? new Date(b.advanceDeadlineAtMs).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : '';
 
   return (
@@ -97,6 +98,7 @@ export default function HallBooking() {
         <div className="kv"><span>{t.tokenPaySummaryDate}</span><b>{prettyDate(b.date)}</b></div>
         <div className="kv"><span>{t.tokenPaySummarySlot}</span><b>{b.slot === 'Morning' ? t.venueMorning : t.venueEvening}</b></div>
         {!!b.guests && <div className="kv"><span>{t.guests}</span><b>{b.guests}</b></div>}
+        {!!b.visitDay && !!b.visitTime && <div className="kv"><span>{t.webPlannedVisit}</span><b>{dayLabel(b.visitDay)}, {timeLabel(b.visitTime)}</b></div>}
         <div className="kv"><span>{t.tokenAmountPaidLabel}</span><b>{inr(b.amount)}</b></div>
         {b.finalRent > 0 && <div className="kv"><span>{t.advancePaySummaryRent}</span><b>{inr(b.finalRent)}</b></div>}
       </div>
@@ -137,7 +139,7 @@ export default function HallBooking() {
 
       <div className="wrap-row">
         {!!hallPhone && ['token_paid', 'visited', 'awaiting_advance', 'confirmed'].includes(b.status) && <a className="btn btn-soft" href={`tel:${hallPhone}`}>📞 {t.tokenCallHall}</a>}
-        {canCancel && <button className="btn btn-danger" disabled={busy} onClick={() => act('cancel', {}, `${t.tokenCancelTitle}\n\n${t.tokenCancelMsg}`)}>{t.tokenCancelFullRefund}</button>}
+        {canCancel && <button className="btn btn-danger" disabled={busy} onClick={() => act('cancel', {}, `${t.tokenCancelTitle}\n\n${t.tokenCancelMsg}`)}>{t.tokenCancelFullRefund.replace('{time}', hoursLeft(b.heldAtMs + (b.freeCancelHours || 2) * 3600 * 1000 - Date.now()))}</button>}
       </div>
 
       <div className="card stack" style={{ gap: 4 }}>
