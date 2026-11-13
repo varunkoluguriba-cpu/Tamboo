@@ -4,7 +4,7 @@ import { api, ApiError } from '../api';
 import { useAuth } from '../context/AuthContext';
 
 type RefundRow = {
-  id: string; kind: 'order' | 'booking' | 'service'; title: string; customerName: string; customerPhone: string;
+  id: string; kind: 'order' | 'booking' | 'service' | 'farm'; title: string; customerName: string; customerPhone: string;
   amount: number; reason: string; paymentId: string; requestedAt: string; refundedAt: string | null; refundRef: string;
 };
 
@@ -75,7 +75,7 @@ export default function Refunds() {
             <div key={`${r.kind}-${r.id}`} className="partner-row">
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="partner-name">
-                  {r.kind === 'service' ? <Link to="/service-requests">{r.title}</Link> : <Link to={r.kind === 'order' ? `/orders/${r.id}` : `/hall-bookings/${r.id}`}>{r.title}</Link>} · {inr(r.amount)}
+                  {r.kind === 'service' ? <Link to="/service-requests">{r.title}</Link> : r.kind === 'farm' ? <Link to="/farms">{r.title}</Link> : <Link to={r.kind === 'order' ? `/orders/${r.id}` : `/hall-bookings/${r.id}`}>{r.title}</Link>} · {inr(r.amount)}
                 </div>
                 <div className="partner-meta">{r.customerName} · {r.customerPhone} · {r.reason}</div>
                 <div className="partner-meta">

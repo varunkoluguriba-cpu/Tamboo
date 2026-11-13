@@ -98,7 +98,7 @@ router.post('/google', async (req, res) => {
 
 router.post('/register', requirePartnerAuth, async (req, res) => {
   const { role, businessName, ownerName, city, area, venueType, categories, taxId, bankAccount, photos, serviceCategory, traditions, languages } = req.body || {};
-  if (role && !['tent', 'venue', 'service'].includes(role)) return res.status(400).json({ error: 'Pick your business type' });
+  if (role && !['tent', 'venue', 'service', 'farm'].includes(role)) return res.status(400).json({ error: 'Pick your business type' });
   if (role === 'service') {
     if (!servicesAllowedFor(await Config.get(), req.partner.phone)) return res.status(400).json({ error: 'Event services are not open yet' });
     if (!SERVICE_CATEGORIES.includes(serviceCategory)) return res.status(400).json({ error: 'Pick the service you offer' });

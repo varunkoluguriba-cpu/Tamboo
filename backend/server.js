@@ -20,6 +20,7 @@ const siteContentRoutes = require('./routes/siteContent');
 const couponsRoutes = require('./routes/coupons');
 const whatsappRoutes = require('./routes/whatsapp');
 const servicesRoutes = require('./routes/services');
+const { router: farmsRoutes } = require('./routes/farms');
 
 const app = express();
 // Render sits behind a proxy: trust its X-Forwarded-For so req.ip is the real client IP
@@ -45,6 +46,7 @@ app.use('/api/site-content', siteContentRoutes);
 app.use('/api/coupons', couponsRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
 app.use('/api/services', servicesRoutes);
+app.use('/api/farms', farmsRoutes);
 
 // Admin panel (built single-page app, see admin-panel/) served from this same server at /admin,
 // so it needs no separate hosting. Every API call it makes still requires an admin login.

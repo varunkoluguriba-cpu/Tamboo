@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 type Partner = {
   id: string;
   phone: string;
-  role: 'tent' | 'venue' | 'service';
+  role: 'tent' | 'venue' | 'service' | 'farm';
   serviceCategory?: string;
   businessName: string;
   ownerName: string;
@@ -27,7 +27,7 @@ const TABS: Array<{ key: string; label: string }> = [
 
 const SERVICE_LABEL: Record<string, string> = { priest: 'Priest', catering: 'Catering', decor: 'Decoration', music: 'Music' };
 const roleLabel = (p: { role: string; venueType: string; serviceCategory?: string }) =>
-  p.role === 'venue' ? p.venueType || 'Venue' : p.role === 'service' ? `Event service — ${SERVICE_LABEL[p.serviceCategory || ''] || 'not set'}` : 'Tent house';
+  p.role === 'venue' ? p.venueType || 'Venue' : p.role === 'farm' ? 'Farm house' : p.role === 'service' ? `Event service — ${SERVICE_LABEL[p.serviceCategory || ''] || 'not set'}` : 'Tent house';
 export default function Partners() {
   const { logout } = useAuth();
   const [tab, setTab] = useState('pending');

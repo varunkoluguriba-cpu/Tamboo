@@ -1,3 +1,6 @@
+const FarmBooking = require('../models/FarmBooking');
+const FarmHouse = require('../models/FarmHouse');
+const { nowMinIST } = require('./farmAvailability');
 const admin = require('../config/firebaseAdmin');
 const Booking = require('../models/Booking');
 const Order = require('../models/Order');
@@ -37,6 +40,8 @@ async function customerBlocker(userId) {
   if (booking) return 'You have an upcoming hall booking. Please complete or cancel it before deleting your account.';
   const order = await Order.exists({ customer: userId, status: { $in: ACTIVE_ORDER_STATUSES } });
   if (order) return 'You have an order in progress. Please wait until it is completed before deleting your account.';
+  const farm = await FarmBooking.exists({ customer: userId, status: 'confirmed', startMin: { $gt: nowMinIST() } });
+  if (farm) return 'You have an upcoming farm-house booking. Please cancel it before deleting your account.';
   return null;
 }
 
@@ -49,6 +54,8 @@ async function partnerBlocker(partnerId) {
   if (booking) return 'You have upcoming bookings. Please complete or cancel them before deleting your account.';
   const order = await Order.exists({ partner: partnerId, status: { $in: ACTIVE_ORDER_STATUSES } });
   if (order) return 'You have orders in progress. Please complete them before deleting your account.';
+  const farm = await FarmBooking.exists({ partner: partnerId, status: 'confirmed', startMin: { $gt: nowMinIST() } });
+  if (farm) return 'You have upcoming farm-house bookings. Please cancel or complete them before deleting your account.';
   return null;
 }
 
@@ -84,6 +91,7 @@ async function deletePartner(partner) {
   partner.registered = false;
   partner.deletedAt = new Date();
   await partner.save();
+  await FarmHouse.updateMany({ partner: partner._id }, { $set: { published: false } });
   await Item.updateMany({ partner: partner.id }, { paused: true });
   await Hall.updateMany({ partner: partner.id }, { $set: { photos: [] } });
 }

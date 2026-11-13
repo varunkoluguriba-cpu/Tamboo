@@ -453,6 +453,125 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
     await Config.updateOne({ _id: Config.SINGLETON_ID }, { $set: { servicesMode: cfg0.servicesMode || 'off', serviceTesterPhones: cfg0.serviceTesterPhones || [], serviceFreeQuotes: cfg0.serviceFreeQuotes ?? 2, serviceQuoteFees: cfg0.serviceQuoteFees || { priest: 49, music: 69, decor: 79, catering: 89 } } });
   }
 
+  // ---------- FARM HOUSES (online booking per slot) ----------
+  {
+    const FarmHouse = M('FarmHouse'), FarmBooking = M('FarmBooking');
+    const fp = await Partner.create({ phone: '+919999911201', firebaseUid: 'e2e-farm-' + Date.now(), role: 'farm', businessName: 'E2E Farms', ownerName: 'E2E', registered: true, verificationStatus: 'verified', area: 'Moinabad' });
+    const FT = tok(fp.id, 'partner');
+    const ymd = (days) => new Date(Date.now() + 330 * 60000 + days * 86400000).toISOString().slice(0, 10);
+    const D = ymd(20); // check-in date ~3 weeks out
+    let farm, fb;
+    try {
+      await check('Farm: other roles cannot list farm houses', async () => {
+        const r = await call('POST', '/api/farms/me/farms', VT, { name: 'Nope' }); expect(r.status === 403, 'got ' + r.status);
+      });
+      await check('Farm: must offer a priced stay type', async () => {
+        const r = await call('POST', '/api/farms/me/farms', FT, { name: 'E2E Green Acres', slots: { day: { enabled: true, weekdayPrice: 0 } } });
+        expect(r.status === 400, JSON.stringify(r.data));
+      });
+      await check('Farm: owner lists a farm house', async () => {
+        const r = await call('POST', '/api/farms/me/farms', FT, {
+          name: 'E2E Green Acres', about: 'Test', address: 'Plot 1, secret road', lat: 17.33, lng: 78.27, maxGuests: 40, includedGuests: 20, extraGuestCharge: 300,
+          bedrooms: 3, amenities: ['pool', 'lawn', 'bogus'], securityDeposit: 5000, advancePct: 30,
+          slots: { day: { enabled: true, start: '09:00', end: '18:00', weekdayPrice: 10000, weekendPrice: 15000 }, night: { enabled: true, start: '19:00', end: '09:00', weekdayPrice: 12000 }, fullDay: { enabled: true, start: '11:00', end: '10:00', weekdayPrice: 20000 } },
+          rules: { alcoholAllowed: true, musicTill: '22:00' },
+        });
+        farm = r.data;
+        expect(r.status === 200 && farm.amenities.join() === 'pool,lawn' && farm.fromPrice === 10000, JSON.stringify(r.data).slice(0, 200));
+      });
+      await check('Farm: public list hides the exact address', async () => {
+        const r = await call('GET', '/api/farms?lat=17.40&lng=78.40');
+        const f = (r.data || []).find((x) => x.id === farm.id);
+        expect(r.status === 200 && f && f.address === undefined && typeof f.km === 'number', JSON.stringify(f).slice(0, 200));
+      });
+      await check('Farm: quote adds extra guests', async () => {
+        const r = await call('POST', `/api/farms/${farm.id}/quote`, null, { date: D, slot: 'day', guests: 25 });
+        const base = [0, 6].includes(new Date(D + 'T00:00:00Z').getUTCDay()) ? 15000 : 10000;
+        expect(r.status === 200 && r.data.basePrice === base && r.data.extraGuestCharge === 1500 && r.data.advanceAmount === Math.round((base + 1500) * 0.3), JSON.stringify(r.data));
+        return `₹${r.data.total}, advance ₹${r.data.advanceAmount}`;
+      });
+      await check('Farm: over max guests refused', async () => {
+        const r = await call('POST', `/api/farms/${farm.id}/quote`, null, { date: D, slot: 'day', guests: 41 }); expect(r.status === 409, JSON.stringify(r.data));
+      });
+      await check('Farm: guest cannot book', async () => {
+        const r = await call('POST', `/api/farms/${farm.id}/book`, guestTok, { date: D, slot: 'fullDay', guests: 10 }); expect(r.status === 403 || r.status === 401, 'got ' + r.status);
+      });
+      await check('Farm: book Full day → pay advance → confirmed', async () => {
+        const r = await call('POST', `/api/farms/${farm.id}/book`, CT, { date: D, slot: 'fullDay', guests: 10, occasion: 'Birthday' });
+        expect(r.status === 200 && r.data.payment.orderId && r.data.booking.address === '', JSON.stringify(r.data).slice(0, 200));
+        fb = r.data.booking;
+        const pid = 'pay_e2e_farm_' + Date.now();
+        const bad = await call('POST', `/api/farms/bookings/${fb.id}/verify`, CT, { razorpay_order_id: r.data.payment.orderId, razorpay_payment_id: pid, razorpay_signature: 'x' });
+        expect(bad.data.verified === false, 'bad signature accepted');
+        const v = await call('POST', `/api/farms/bookings/${fb.id}/verify`, CT, { razorpay_order_id: r.data.payment.orderId, razorpay_payment_id: pid, razorpay_signature: sign(r.data.payment.orderId, pid) });
+        expect(v.data.verified && v.data.booking.status === 'confirmed' && v.data.booking.address === 'Plot 1, secret road' && v.data.booking.ownerPhone === '+919999911201', JSON.stringify(v.data).slice(0, 300));
+        const credit = await PayoutEntry.findOne({ reference: fb.id, type: 'credit' });
+        expect(credit && credit.amount === Math.round(fb.advanceAmount * 0.9), 'credit ' + (credit && credit.amount));
+        return `${fb.code} advance ₹${fb.advanceAmount}`;
+      });
+      await check('Farm: Full day blocks that Day, Night and next morning', async () => {
+        const next = new Date(Date.parse(D + 'T00:00:00Z') + 86400000).toISOString().slice(0, 10);
+        const day = await call('POST', `/api/farms/${farm.id}/quote`, null, { date: D, slot: 'day', guests: 5 });
+        const night = await call('POST', `/api/farms/${farm.id}/quote`, null, { date: D, slot: 'night', guests: 5 });
+        const nextDay = await call('POST', `/api/farms/${farm.id}/quote`, null, { date: next, slot: 'day', guests: 5 });
+        const nextNight = await call('POST', `/api/farms/${farm.id}/quote`, null, { date: next, slot: 'night', guests: 5 });
+        expect(day.status === 409 && night.status === 409 && nextDay.status === 409 && nextNight.status === 200, `${day.status} ${night.status} ${nextDay.status} ${nextNight.status}`);
+      });
+      await check('Farm: calendar shows booked / free', async () => {
+        const r = await call('GET', `/api/farms/${farm.id}/availability?month=${D.slice(0, 7)}`);
+        expect(r.status === 200 && r.data[D].fullDay === 'booked' && r.data[D].day === 'booked', JSON.stringify(r.data[D]));
+      });
+      await check('Farm: owner sees the booking with customer phone', async () => {
+        const r = await call('GET', '/api/farms/me/bookings', FT);
+        const b = (r.data || []).find((x) => x.id === fb.id);
+        expect(b && b.customerPhone === '+919999900000' && b.youReceiveOnline === Math.round(fb.advanceAmount * 0.9), JSON.stringify(b));
+      });
+      await check('Farm: owner closed dates cannot be booked', async () => {
+        const d2 = ymd(40);
+        await call('PUT', `/api/farms/me/farms/${farm.id}/blocked-dates`, FT, { dates: [d2] });
+        const r = await call('POST', `/api/farms/${farm.id}/quote`, null, { date: d2, slot: 'day', guests: 5 });
+        await call('PUT', `/api/farms/me/farms/${farm.id}/blocked-dates`, FT, { dates: [] });
+        expect(r.status === 409, 'got ' + r.status);
+      });
+      await check('Farm: cannot complete before check-in', async () => {
+        const r = await call('PATCH', `/api/farms/me/bookings/${fb.id}`, FT, { action: 'complete' }); expect(r.status === 400, 'got ' + r.status);
+      });
+      await check('Farm: account deletion blocked by upcoming stay', async () => {
+        const r = await call('DELETE', '/api/partner-auth/me', FT); expect(r.status === 400 || r.status === 409, `got ${r.status} ${JSON.stringify(r.data)}`);
+      });
+      await check('Farm: customer cancels within 2h → full refund, owner debited', async () => {
+        const r = await call('POST', `/api/farms/bookings/${fb.id}/cancel`, CT);
+        const debit = await PayoutEntry.findOne({ reference: fb.id, type: 'debit' });
+        expect(r.status === 200 && r.data.refundPct === 100 && r.data.booking.refundStatus === 'pending' && r.data.booking.refundAmount === fb.advanceAmount && r.data.booking.address === '', JSON.stringify(r.data).slice(0, 300));
+        expect(debit && debit.amount === Math.round(fb.advanceAmount * 0.9), 'debit ' + (debit && debit.amount));
+        const again = await call('POST', `/api/farms/bookings/${fb.id}/cancel`, CT); expect(again.status === 400, 'double cancel ' + again.status);
+      });
+      await check('Farm: cancelled stay frees the slot', async () => {
+        const r = await call('POST', `/api/farms/${farm.id}/quote`, null, { date: D, slot: 'day', guests: 5 }); expect(r.status === 200, 'got ' + r.status);
+      });
+      await check('Farm: refund policy 7d / 72h / late', async () => {
+        const { customerRefundPct } = require(path.join(BACKEND, 'routes/farms'));
+        const { nowMinIST } = require(path.join(BACKEND, 'lib/farmAvailability'));
+        const old = new Date(Date.now() - 5 * 3600000);
+        const pct = (h) => customerRefundPct({ createdAt: old, startMin: nowMinIST() + h * 60 });
+        expect(pct(8 * 24) === 100 && pct(100) === 50 && pct(24) === 0 && customerRefundPct({ createdAt: new Date(), startMin: nowMinIST() + 60 }) === 100, `${pct(8 * 24)} ${pct(100)} ${pct(24)}`);
+      });
+      await check('Admin: farm listings, bookings, refund queue', async () => {
+        const admin = await AdminUser.findOne({ role: 'super_admin' }) || await AdminUser.findOne();
+        const AT = jwt.sign({ sub: admin.id, kind: 'admin' }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const l = await call('GET', '/api/admin/farms', AT), b = await call('GET', '/api/admin/farm-bookings', AT), rf = await call('GET', '/api/admin/refunds', AT);
+        const rfList = Array.isArray(rf.data) ? rf.data : rf.data.rows || rf.data.refunds || [];
+        expect(l.data.some((x) => x.id === farm.id) && b.data.some((x) => x.id === fb.id) && rfList.some((x) => x.kind === 'farm' && x.id === fb.id), `${l.status} ${b.status} ${rf.status} ${JSON.stringify(rf.data).slice(0, 120)}`);
+      });
+    } finally {
+      const ids = (await FarmBooking.find({ partner: fp._id })).map((b) => b.id);
+      await PayoutEntry.deleteMany({ reference: { $in: ids } });
+      await FarmBooking.deleteMany({ partner: fp._id });
+      await FarmHouse.deleteMany({ partner: fp._id });
+      await Partner.deleteOne({ _id: fp._id });
+    }
+  }
+
   // ---------- AREA ANALYTICS ----------
   const custBefore = await User.findById(cust._id).lean();
   try {

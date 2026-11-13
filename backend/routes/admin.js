@@ -17,6 +17,8 @@ const Config = require('../models/Config');
 const Coupon = require('../models/Coupon');
 const AuditLog = require('../models/AuditLog');
 const ServiceRequest = require('../models/ServiceRequest');
+const FarmHouse = require('../models/FarmHouse');
+const FarmBooking = require('../models/FarmBooking');
 const { SERVICE_CATEGORIES } = require('../lib/servicesGate');
 const { localityFromText, localityFromPoint, OTHER } = require('../lib/localities');
 
@@ -45,6 +47,8 @@ router.use('/halls', requireSection('halls'));
 router.use('/items', requireSection('items'));
 router.use('/quotes', requireSection('quotes'));
 router.use('/service-requests', requireSection('quotes'));
+router.use('/farms', requireSection('halls'));
+router.use('/farm-bookings', requireSection('bookings'));
 router.use('/packages', requireSection('packages'));
 router.use('/bookings', requireSection('bookings'));
 router.use('/orders', requireSection('bookings'));
@@ -289,25 +293,26 @@ router.get('/disputes', async (req, res) => {
 // --- Refunds owed to customers (paid manually from the Razorpay dashboard for now). ---
 router.get('/refunds', async (req, res) => {
   const status = req.query.status === 'refunded' ? 'refunded' : 'pending';
-  const [orders, bookings, serviceRequests] = await Promise.all([
+  const [orders, bookings, serviceRequests, farmBookings] = await Promise.all([
     Order.find({ refundStatus: status }).sort({ refundRequestedAt: -1 }).limit(200),
     Booking.find({ refundStatus: status }).sort({ refundRequestedAt: -1 }).limit(200),
     ServiceRequest.find({ refundStatus: status }).sort({ refundRequestedAt: -1 }).limit(200),
+    FarmBooking.find({ refundStatus: status }).sort({ refundRequestedAt: -1 }).limit(200),
   ]);
   const row = (d, kind) => ({
     id: d.id, kind,
-    title: kind === 'order' ? `${d.code} · ${d.vendorName}` : kind === 'service' ? `${d.code} · quote fee · ${d.vendorName}` : d.hallName,
+    title: kind === 'order' ? `${d.code} · ${d.vendorName}` : kind === 'service' ? `${d.code} · quote fee · ${d.vendorName}` : kind === 'farm' ? `${d.code} · ${d.farmName}` : d.hallName,
     customerName: d.customerName, customerPhone: d.customerPhone,
     amount: d.refundAmount, reason: d.refundReason,
     paymentId: kind === 'order' ? d.razorpayPaymentId : d.razorpayPaymentId,
     requestedAt: d.refundRequestedAt, refundedAt: d.refundedAt, refundRef: d.refundRef,
   });
-  res.json([...orders.map((o) => row(o, 'order')), ...bookings.map((b) => row(b, 'booking')), ...serviceRequests.map((r) => row(r, 'service'))]
+  res.json([...orders.map((o) => row(o, 'order')), ...bookings.map((b) => row(b, 'booking')), ...serviceRequests.map((r) => row(r, 'service')), ...farmBookings.map((r) => row(r, 'farm'))]
     .sort((a, b) => new Date(b.requestedAt) - new Date(a.requestedAt)));
 });
 
 router.post('/refunds/:kind/:id/mark-refunded', async (req, res) => {
-  const Model = { order: Order, booking: Booking, service: ServiceRequest }[req.params.kind] || null;
+  const Model = { order: Order, booking: Booking, service: ServiceRequest, farm: FarmBooking }[req.params.kind] || null;
   if (!Model) return res.status(400).json({ error: 'Invalid kind' });
   const doc = await Model.findById(req.params.id);
   if (!doc) return res.status(404).json({ error: 'Not found' });
@@ -544,10 +549,23 @@ router.get('/analytics/areas', async (req, res) => {
   const rows = new Map();
   const row = (name) => {
     const key = name || 'Unknown';
-    if (!rows.has(key)) rows.set(key, { area: key, tent: 0, halls: 0, priest: 0, catering: 0, decor: 0, music: 0, pendingPartners: 0,
+    if (!rows.has(key)) rows.set(key, { area: key, tent: 0, halls: 0, farms: 0, farmBookings: 0, priest: 0, catering: 0, decor: 0, music: 0, pendingPartners: 0,
       customers: 0, customersAreaPicked: 0, customers7d: 0, customers30d: 0, orders: 0, hallBookings: 0, serviceRequests: 0 });
     return rows.get(key);
   };
+  const [farms, farmBookings] = await Promise.all([
+    FarmHouse.find().populate({ path: 'partner', select: 'verificationStatus deletedAt' }).select('lat lng area partner').lean(),
+    FarmBooking.find({ status: { $in: ['confirmed', 'completed'] } }).select('farm').lean(),
+  ]);
+  const farmArea = new Map();
+  for (const f of farms) {
+    if (!f.partner || f.partner.deletedAt) continue;
+    const a = localityFromText(f.area) || localityFromPoint(f.lat, f.lng) || null;
+    farmArea.set(String(f._id), a);
+    const r = row(a);
+    if (f.partner.verificationStatus === 'verified') r.farms += 1; else r.pendingPartners += 1;
+  }
+  for (const fb of farmBookings) row(farmArea.get(String(fb.farm)) || null).farmBookings += 1;
   const [partners, halls, users, orders, bookings, requests] = await Promise.all([
     Partner.find({ registered: true, deletedAt: null }).select('role area serviceCategory verificationStatus').lean(),
     Hall.find().populate({ path: 'partner', select: 'verificationStatus deletedAt' }).select('lat lng address partner').lean(),
@@ -557,7 +575,7 @@ router.get('/analytics/areas', async (req, res) => {
     ServiceRequest.find({ status: { $ne: 'PENDING_PAYMENT' } }).select('area').lean(),
   ]);
   for (const p of partners) {
-    if (p.role === 'venue') continue; // halls are counted by their own location below
+    if (p.role === 'venue' || p.role === 'farm') continue; // halls and farm houses are counted per property
     const r = row(localityFromText(p.area));
     if (p.verificationStatus !== 'verified') { r.pendingPartners += 1; continue; }
     if (p.role === 'tent') r.tent += 1;
@@ -585,7 +603,7 @@ router.get('/analytics/areas', async (req, res) => {
 
   // Simple, explainable push suggestion per area (thresholds shown on the page).
   const list = [...rows.values()].map((r) => {
-    const partnersTotal = r.tent + r.halls + r.priest + r.catering + r.decor + r.music;
+    const partnersTotal = r.tent + r.halls + r.farms + r.priest + r.catering + r.decor + r.music;
     let suggestion = 'none';
     if (r.area !== 'Unknown' && r.area !== OTHER) {
       if (partnersTotal >= 3 && r.customers < partnersTotal * 5) suggestion = 'pushCustomers';
@@ -593,9 +611,29 @@ router.get('/analytics/areas', async (req, res) => {
       else if (partnersTotal + r.customers < 3) suggestion = 'tooLittleData';
       else suggestion = 'balanced';
     }
-    return { ...r, partnersTotal, demand: r.orders + r.hallBookings + r.serviceRequests, suggestion };
+    return { ...r, partnersTotal, demand: r.orders + r.hallBookings + r.farmBookings + r.serviceRequests, suggestion };
   }).sort((a, b) => (b.partnersTotal + b.customers) - (a.partnersTotal + a.customers));
   res.json({ generatedAt: new Date(), rows: list });
+});
+
+// --- Farm houses ---
+router.get('/farms', async (req, res) => {
+  const list = await FarmHouse.find().populate('partner', 'businessName phone verificationStatus').sort({ createdAt: -1 }).lean();
+  res.json(list.map((f) => ({
+    id: String(f._id), name: f.name, area: f.area, published: f.published, maxGuests: f.maxGuests, bedrooms: f.bedrooms,
+    amenities: f.amenities, slots: f.slots, photoCount: (f.photos || []).length, securityDeposit: f.securityDeposit, advancePct: f.advancePct,
+    partner: f.partner ? { id: String(f.partner._id), businessName: f.partner.businessName, phone: f.partner.phone, verificationStatus: f.partner.verificationStatus } : null,
+    createdAt: f.createdAt,
+  })));
+});
+
+router.get('/farm-bookings', async (req, res) => {
+  const list = await FarmBooking.find({ status: { $ne: 'pending' } }).sort({ createdAt: -1 }).limit(300).lean();
+  res.json(list.map((b) => ({
+    id: String(b._id), code: b.code, farmName: b.farmName, customerName: b.customerName, customerPhone: b.customerPhone,
+    date: b.date, slot: b.slot, guests: b.guests, total: b.total, advanceAmount: b.advanceAmount, status: b.status,
+    cancelledBy: b.cancelledBy, refundStatus: b.refundStatus, refundAmount: b.refundAmount, createdAt: b.createdAt,
+  })));
 });
 
 // --- Coupons ---

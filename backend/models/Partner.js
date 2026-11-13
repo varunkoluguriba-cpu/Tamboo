@@ -7,7 +7,7 @@ const partnerSchema = new mongoose.Schema({
   firebaseUid: { type: String, required: true, unique: true },
   authMethod: { type: String, enum: ['phone', 'google'], default: 'phone' },
   email: { type: String, default: '' },
-  role: { type: String, enum: ['tent', 'venue', 'service'], default: 'tent' },
+  role: { type: String, enum: ['tent', 'venue', 'service', 'farm'], default: 'tent' },
   businessName: { type: String, default: '' },
   ownerName: { type: String, default: '' },
   city: { type: String, default: 'Hyderabad' },

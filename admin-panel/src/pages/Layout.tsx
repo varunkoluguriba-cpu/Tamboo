@@ -11,6 +11,7 @@ const NAV_ITEMS: Array<{ to: string; label: string; end?: boolean; section?: Sec
   { to: '/partners', label: 'Partners', section: 'partners', badgeKey: 'pendingVerification' },
   { to: '/customers', label: 'Customers', section: 'customers' },
   { to: '/halls', label: 'Halls', section: 'halls' },
+  { to: '/farms', label: 'Farm houses', section: 'halls' },
   { to: '/items', label: 'Items', section: 'items' },
   { to: '/quotes', label: 'Quotes', section: 'quotes' },
   { to: '/service-requests', label: 'Service requests', section: 'quotes' },

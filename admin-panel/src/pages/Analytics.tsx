@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 
 type Row = {
   area: string;
-  tent: number; halls: number; priest: number; catering: number; decor: number; music: number; pendingPartners: number;
+  tent: number; halls: number; farms: number; farmBookings: number; priest: number; catering: number; decor: number; music: number; pendingPartners: number;
   customers: number; customersAreaPicked: number; customers7d: number; customers30d: number;
   orders: number; hallBookings: number; serviceRequests: number;
   partnersTotal: number; demand: number;
@@ -113,8 +113,8 @@ export default function Analytics() {
           <thead>
             <tr style={{ textAlign: 'left', color: 'var(--text-muted)', fontSize: 11.5, textTransform: 'uppercase', letterSpacing: 0.4 }}>
               <Th>Area</Th><Th style={{ minWidth: 150 }}>Partners vs customers</Th>
-              <Th right>Tent</Th><Th right>Halls</Th><Th right>Priest</Th><Th right>Catering</Th><Th right>Decor</Th><Th right>Music</Th>
-              <Th right>Customers</Th><Th right>New 7d / 30d</Th><Th right>Orders</Th><Th right>Hall bookings</Th><Th right>Service req.</Th>
+              <Th right>Tent</Th><Th right>Halls</Th><Th right>Farms</Th><Th right>Priest</Th><Th right>Catering</Th><Th right>Decor</Th><Th right>Music</Th>
+              <Th right>Customers</Th><Th right>New 7d / 30d</Th><Th right>Orders</Th><Th right>Hall bookings</Th><Th right>Farm bookings</Th><Th right>Service req.</Th>
               <Th>Suggestion</Th>
             </tr>
           </thead>
@@ -128,22 +128,22 @@ export default function Analytics() {
                     <Bar value={r.partnersTotal} max={max} color={PARTNER_COLOR} title={`${r.area}: ${r.partnersTotal} live partners`} />
                     <Bar value={r.customers} max={max} color={CUSTOMER_COLOR} title={`${r.area}: ${r.customers} customers`} />
                   </Td>
-                  <Td right>{r.tent || '–'}</Td><Td right>{r.halls || '–'}</Td><Td right>{r.priest || '–'}</Td>
+                  <Td right>{r.tent || '–'}</Td><Td right>{r.halls || '–'}</Td><Td right>{r.farms || '–'}</Td><Td right>{r.priest || '–'}</Td>
                   <Td right>{r.catering || '–'}</Td><Td right>{r.decor || '–'}</Td><Td right>{r.music || '–'}</Td>
                   <Td right><b>{r.customers}</b></Td>
                   <Td right>{r.customers7d} / {r.customers30d}</Td>
-                  <Td right>{r.orders || '–'}</Td><Td right>{r.hallBookings || '–'}</Td><Td right>{r.serviceRequests || '–'}</Td>
+                  <Td right>{r.orders || '–'}</Td><Td right>{r.hallBookings || '–'}</Td><Td right>{r.farmBookings || '–'}</Td><Td right>{r.serviceRequests || '–'}</Td>
                   <Td>{sug ? <span className={`badge ${sug.cls}`}>{sug.label}</span> : <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>}</Td>
                 </tr>
               );
             })}
-            {shown.length === 0 && <tr><td colSpan={14}><div className="empty-state">No areas match.</div></td></tr>}
+            {shown.length === 0 && <tr><td colSpan={16}><div className="empty-state">No areas match.</div></td></tr>}
           </tbody>
         </table>
       </div>
 
       <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 12, lineHeight: 1.6, maxWidth: 820 }}>
-        <b>How areas are worked out:</b> tent houses and event services by the area they typed at sign-up; halls by their map pin;
+        <b>How areas are worked out:</b> tent houses and event services by the area they typed at sign-up; halls and farm houses by their map pin (or the area typed for the farm);
         customers by the area they picked, otherwise their approximate location (only if they allowed location, rounded to ~1 km).
         Orders use the delivery address. <b>Unknown</b> = no area yet (e.g. customers who skipped it and denied location);
         <b> Other</b> = outside the listed localities.<br />
