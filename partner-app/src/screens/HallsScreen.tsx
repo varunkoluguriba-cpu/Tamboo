@@ -8,6 +8,7 @@ import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { api } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
+import { venueTypeText } from '../utils/labels';
 import { colors, gradients, shadow } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Halls'>;
@@ -56,7 +57,7 @@ export default function HallsScreen({ navigation }: Props) {
                   <Text style={styles.cardName}>{h.name || t.hallsUnnamed}</Text>
                   <Icon name="right" size={16} color={colors.dividerStrong} />
                 </View>
-                <Text style={styles.cardMeta}>{h.venueType || t.hallsUntitledType}</Text>
+                <Text style={styles.cardMeta}>{h.venueType ? venueTypeText(h.venueType, t) : t.hallsUntitledType}</Text>
                 <Text style={styles.cardMeta}>
                   {t.hallsCapacityLine.replace('{seated}', String(h.seated)).replace('{floating}', String(h.floating))}
                 </Text>

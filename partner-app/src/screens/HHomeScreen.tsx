@@ -9,6 +9,7 @@ import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import LanguageSheet from '../components/LanguageSheet';
 import { useAuth } from '../context/AuthContext';
+import { hallSlotText, venueTypeText } from '../utils/labels';
 import { useLanguage } from '../context/LanguageContext';
 import DeleteAccountButton from '../components/DeleteAccountButton';
 import { statusColors } from '../data/catalog';
@@ -18,6 +19,7 @@ import { scheduleRegisterPhotoReminder } from '../utils/registerReminder';
 import { colors, gradients, shadow } from '../theme';
 import VerificationBanner from '../components/VerificationBanner';
 import LaunchBanner from '../components/LaunchBanner';
+import { confirmLogout } from '../utils/confirmLogout';
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 
@@ -74,7 +76,7 @@ export default function HHomeScreen() {
             <Text style={styles.avatarText}>{initials}</Text>
           </View>
           <View style={{ flex: 1, minWidth: 0 }}>
-            <Text style={styles.hello}>{t.hhomeGreeting} · {partner?.venueType || t.hhomeDefaultVenueType}</Text>
+            <Text style={styles.hello}>{t.hhomeGreeting} · {partner?.venueType ? venueTypeText(partner.venueType, t) : t.hhomeDefaultVenueType}</Text>
             <Text style={styles.name} numberOfLines={2}>{partner?.businessName}</Text>
           </View>
           <TouchableOpacity style={styles.langChip} activeOpacity={0.8} onPress={() => setLangSheet(true)}>
@@ -139,7 +141,7 @@ export default function HHomeScreen() {
                       </View>
                     </View>
                     <Text style={styles.tokenEvent}>{tok.event}</Text>
-                    <Text style={styles.tokenMeta}>{tok.customer} · {formatBookingDate(tok.date)} · {tok.slot} · {tok.guests} {t.hhomeGuestsSuffix}</Text>
+                    <Text style={styles.tokenMeta}>{tok.customer} · {formatBookingDate(tok.date, t)} · {hallSlotText(tok.slot, t)}{tok.guests > 0 ? ` · ${tok.guests} ${t.hhomeGuestsSuffix}` : ''}</Text>
                     {!!tok.visitTxt && <Text style={styles.tokenVisit}>{t.hhomeVisitLabel}: {tok.visitTxt}</Text>}
                   </TouchableOpacity>
                 );
@@ -155,7 +157,7 @@ export default function HHomeScreen() {
           <Text style={styles.logoutText}>{t.tambooSupport}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.logoutBtn} activeOpacity={0.85} onPress={logout}>
+        <TouchableOpacity style={styles.logoutBtn} activeOpacity={0.85} onPress={() => confirmLogout(t, logout)}>
           <Icon name="logout" size={16} color={colors.text} />
           <Text style={styles.logoutText}>{t.logout}</Text>
         </TouchableOpacity>

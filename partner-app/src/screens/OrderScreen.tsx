@@ -10,7 +10,7 @@ import { api, ApiError } from '../api/client';
 import { useOrders, type RemoteOrder } from '../hooks/useOrders';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
-import { prettyPhone } from '../utils/date';
+import { formatBookingDate, prettyPhone } from '../utils/date';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Order'>;
 
@@ -31,6 +31,12 @@ export default function OrderScreen({ navigation, route }: Props) {
     COMPLETED: t.orderStatusCompleted,
     CANCELLED: t.orderStatusCancelled,
     DISPUTED: t.orderStatusDisputed,
+  };
+
+  // Timeline entries are stored in English by whoever moved the order; show them in the partner's language.
+  const HISTORY_T: Record<string, string> = {
+    'Order placed': t.orderHistPlaced, Accepted: t.orderHistAccepted, Declined: t.orderHistDeclined, Packed: t.orderStatusPacked,
+    'Out for delivery': t.orderStatusOutForDelivery, Delivered: t.orderStatusDelivered, Completed: t.orderStatusCompleted,
   };
 
   const NEXT_LABEL_T: Record<string, string> = {
@@ -107,7 +113,7 @@ export default function OrderScreen({ navigation, route }: Props) {
           <LinearGradient colors={gradients.primaryButton.colors} start={gradients.primaryButton.start} end={gradients.primaryButton.end} style={StyleSheet.absoluteFill} />
           <Text style={styles.statusLabel}>{t.orderStatusLabel}</Text>
           <Text style={styles.statusValue}>{status ? (STATUS_LABELS[status] || status.replace(/_/g, ' ')) : ''}</Text>
-          <Text style={styles.statusSub}>{original.event} · {original.dateTxt}</Text>
+          <Text style={styles.statusSub}>{original.event} · {formatBookingDate(original.dateTxt, t)}</Text>
         </View>
 
         {isPending && (
@@ -213,7 +219,7 @@ export default function OrderScreen({ navigation, route }: Props) {
           {history.map((h, i) => (
             <View key={i} style={styles.timelineRow}>
               <View style={styles.dot} />
-              <Text style={styles.timelineLabel}>{h.label}</Text>
+              <Text style={styles.timelineLabel}>{HISTORY_T[h.label] || h.label}</Text>
               <Text style={styles.timelineDate}>{h.date}</Text>
             </View>
           ))}
@@ -234,7 +240,7 @@ const styles = StyleSheet.create({
   headerTitle: { fontFamily: 'Sora', fontSize: 18, fontWeight: '800', color: colors.text },
   statusCard: { borderRadius: 22, padding: 18, gap: 4, overflow: 'hidden' },
   statusLabel: { color: 'rgba(255,255,255,0.85)', fontSize: 11.5 },
-  statusValue: { fontFamily: 'Sora', fontSize: 20, fontWeight: '800', color: '#fff', textTransform: 'capitalize' },
+  statusValue: { fontFamily: 'Sora', fontSize: 20, fontWeight: '800', color: '#fff' },
   statusSub: { color: '#fff', fontSize: 13 },
   noteBox: { backgroundColor: '#fff7e6', borderRadius: 14, padding: 12 },
   noteText: { color: '#8a5a00', fontSize: 12.5, lineHeight: 19 },

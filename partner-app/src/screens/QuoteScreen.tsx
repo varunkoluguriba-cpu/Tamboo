@@ -9,6 +9,7 @@ import { api, ApiError } from '../api/client';
 import { useQuotes } from '../hooks/useQuotes';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
+import { formatBookingDate } from '../utils/date';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Quote'>;
 type Line = { label: string; amount: string };
@@ -51,7 +52,9 @@ export default function QuoteScreen({ navigation, route }: Props) {
 
   const sendQuote = async () => {
     const validLines = lines.filter((l) => l.label.trim() && parseInt(l.amount, 10) > 0);
-    if (validLines.length === 0) return;
+    const partial = lines.some((l) => !!l.label.trim() !== parseInt(l.amount, 10) > 0);
+    if (partial) return Alert.alert(t.quoteSendFailed, t.quoteErrPartialLine);
+    if (validLines.length === 0) return Alert.alert(t.quoteSendFailed, t.quoteErrNoLines);
     setSending(true);
     try {
       await api.patch(`/api/quotes/vendor/me/${quote.id}`, {
@@ -62,7 +65,7 @@ export default function QuoteScreen({ navigation, route }: Props) {
       setLines([{ label: '', amount: '' }]);
       setNote('');
     } catch (e) {
-      Alert.alert(t.quoteNotFound, e instanceof ApiError ? e.message : t.tryAgain);
+      Alert.alert(t.quoteSendFailed, e instanceof ApiError ? e.message : t.tryAgain);
     } finally {
       setSending(false);
     }
@@ -80,7 +83,7 @@ export default function QuoteScreen({ navigation, route }: Props) {
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>{quote.event}</Text>
-          <Text style={styles.cardMeta}>{quote.customer} · {quote.date} · {quote.guests} {t.quoteGuestsLabel}</Text>
+          <Text style={styles.cardMeta}>{[quote.customer, quote.date && formatBookingDate(quote.date, t), quote.guests ? `${quote.guests} ${t.quoteGuestsLabel}` : ''].filter(Boolean).join(' · ')}</Text>
           <View style={styles.needBox}>
             <Text style={styles.needText}>"{quote.need}"</Text>
           </View>
@@ -165,6 +168,7 @@ export default function QuoteScreen({ navigation, route }: Props) {
                 <Text style={styles.versionLine}>{inr(l.amount)}</Text>
               </View>
             ))}
+            {v.note ? <Text style={styles.versionNote}>{v.note}</Text> : null}
           </View>
         ))}
       </ScrollView>
@@ -173,6 +177,7 @@ export default function QuoteScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
+  versionNote: { marginTop: 6, fontSize: 12.5, color: colors.textSoft, fontStyle: 'italic' },
   container: { flex: 1, backgroundColor: colors.bg },
   notFound: { padding: 24, color: colors.textSoft },
   scroll: { padding: 18, paddingTop: 6, gap: 14 },

@@ -10,10 +10,10 @@ import LanguageSheet from '../components/LanguageSheet';
 import { api, ApiError } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import DeleteAccountButton from '../components/DeleteAccountButton';
 import { pickImageBase64 } from '../utils/pickImage';
 import { colors, gradients, shadow } from '../theme';
 import { cateringText, venueTypeText } from '../utils/labels';
+import { useDiscardGuard } from '../hooks/useDiscardGuard';
 
 type PricingMode = 'rent' | 'perPlate';
 
@@ -52,7 +52,7 @@ const CATERING_OPTIONS = ['In-house catering only', 'Outside caterers allowed', 
 
 export default function HallScreen({ navigation, route }: Props) {
   const hallId = route.params?.hallId;
-  const { partner, logout } = useAuth();
+  const { partner } = useAuth();
   const { lang, t } = useLanguage();
   const [langSheet, setLangSheet] = useState(false);
 
@@ -101,6 +101,11 @@ export default function HallScreen({ navigation, route }: Props) {
   const [err, setErr] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const { allowLeave } = useDiscardGuard(
+    navigation,
+    JSON.stringify([name, type, address, lat, lng, pricingMode, rent, platePrice, minPlates, nums, toggles, crockeryNote, catering, amenities, blurb, photos.length]),
+    !loading,
+  );
 
   useEffect(() => {
     if (!hallId) {
@@ -193,6 +198,7 @@ export default function HallScreen({ navigation, route }: Props) {
         onPress: async () => {
           try {
             await api.delete(`/api/halls/me/halls/${hallId}`);
+            allowLeave();
             navigation.goBack();
           } catch (e) {
             Alert.alert(t.hallDeleteFailedTitle, e instanceof ApiError ? e.message : t.tryAgain);
@@ -256,7 +262,7 @@ export default function HallScreen({ navigation, route }: Props) {
       };
       if (hallId) await api.put(`/api/halls/me/halls/${hallId}`, body);
       else await api.post('/api/halls/me/halls', body);
-      Alert.alert(t.hallSavedTitle, t.hallSavedMsg, [{ text: t.ok, onPress: () => navigation.goBack() }]);
+      Alert.alert(t.hallSavedTitle, t.hallSavedMsg, [{ text: t.ok, onPress: () => { allowLeave(); navigation.goBack(); } }]);
     } catch (e) {
       setErr(e instanceof ApiError ? e.message : t.hallErrSaveFailed);
     } finally {
@@ -458,10 +464,7 @@ export default function HallScreen({ navigation, route }: Props) {
           </TouchableOpacity>
         )}
 
-        <TouchableOpacity style={styles.logoutBtn} activeOpacity={0.85} onPress={logout}>
-          <Text style={styles.logoutText}>{t.logout}</Text>
-        </TouchableOpacity>
-        <DeleteAccountButton />
+
       </ScrollView>
 
       <LanguageSheet visible={langSheet} onClose={() => setLangSheet(false)} />

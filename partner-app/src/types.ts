@@ -19,6 +19,7 @@ export interface PartnerUser {
   registered: boolean;
   commissionPct?: number; // live Tamboo commission, from /me
   customersLive?: boolean; // false until the customer app/website is public (server decides)
+  whatsappEnabled?: boolean; // WhatsApp Business is connected on the server (Insights has data to show)
   servicesEnabled?: boolean; // event services switched on for this partner (server decides)
   serviceCategory?: ServiceCategory | '';
   traditions?: string[];

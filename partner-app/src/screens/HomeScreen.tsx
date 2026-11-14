@@ -186,5 +186,5 @@ const styles = StyleSheet.create({
   jobEvent: { fontSize: 14, fontWeight: '700', color: colors.text },
   jobMeta: { fontSize: 12, color: colors.textSoft },
   pill: { borderRadius: 999, paddingVertical: 4, paddingHorizontal: 10 },
-  pillText: { fontSize: 11, fontWeight: '700', textTransform: 'capitalize' },
+  pillText: { fontSize: 11, fontWeight: '700' },
 });

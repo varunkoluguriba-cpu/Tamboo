@@ -158,7 +158,7 @@ export default function RegisterScreen({ navigation }: Props) {
         </Field>
 
         <Field label={t.pRegisterBusinessName}>
-          <TextInput value={biz} onChangeText={setBiz} style={styles.input} placeholder={role === 'farm' ? t.pfNamePh : t.pRegisterBizNamePlaceholder} placeholderTextColor={colors.textMuted} />
+          <TextInput value={biz} onChangeText={setBiz} style={styles.input} placeholder={({ farm: t.pfNamePh, venue: t.pRegisterBizNameVenuePh, service: t.pRegisterBizNameServicePh } as Record<string, string>)[role] || t.pRegisterBizNamePlaceholder} placeholderTextColor={colors.textMuted} />
         </Field>
 
         <Field label={t.pRegisterOwnerName}>

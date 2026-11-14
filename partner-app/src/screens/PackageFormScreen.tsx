@@ -10,6 +10,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { colors, gradients, shadow } from '../theme';
 import type { PartnerPackage } from './PackagesScreen';
 import { unitText } from '../utils/units';
+import { useDiscardGuard } from '../hooks/useDiscardGuard';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PackageForm'>;
 
@@ -25,6 +26,7 @@ export default function PackageFormScreen({ navigation, route }: Props) {
   const [qtys, setQtys] = useState<Record<string, number>>({});
   const [err, setErr] = useState('');
   const [saving, setSaving] = useState(false);
+  const { allowLeave } = useDiscardGuard(navigation, JSON.stringify([name, description, qtys]), !loading);
 
   useEffect(() => {
     Promise.all([
@@ -47,7 +49,7 @@ export default function PackageFormScreen({ navigation, route }: Props) {
   const toggle = (id: string) => {
     setQtys((q) => {
       const next = { ...q };
-      if (next[id]) delete next[id];
+      if (id in next) delete next[id];
       else next[id] = 1;
       return next;
     });
@@ -57,7 +59,7 @@ export default function PackageFormScreen({ navigation, route }: Props) {
 
   const save = async () => {
     if (!name.trim()) return setErr(t.packagesErrName);
-    const picked = Object.entries(qtys).map(([itemId, qty]) => ({ itemId, qty }));
+    const picked = Object.entries(qtys).map(([itemId, qty]) => ({ itemId, qty: Math.max(1, qty) }));
     if (picked.length === 0) return setErr(t.packagesErrItems);
     setErr('');
     setSaving(true);
@@ -65,6 +67,7 @@ export default function PackageFormScreen({ navigation, route }: Props) {
       const body = { name: name.trim(), description: description.trim(), items: picked };
       if (editingId) await api.put(`/api/vendors/me/packages/${editingId}`, body);
       else await api.post('/api/vendors/me/packages', body);
+      allowLeave();
       navigation.goBack();
     } catch (e) {
       setErr(e instanceof ApiError ? e.message : t.tryAgain);
@@ -82,6 +85,7 @@ export default function PackageFormScreen({ navigation, route }: Props) {
         onPress: async () => {
           try {
             await api.delete(`/api/vendors/me/packages/${editingId}`);
+            allowLeave();
             navigation.goBack();
           } catch (e) {
             Alert.alert(t.tryAgain, e instanceof ApiError ? e.message : t.tryAgain);
@@ -121,7 +125,7 @@ export default function PackageFormScreen({ navigation, route }: Props) {
             ) : (
               <View style={{ gap: 8 }}>
                 {items.map((i) => {
-                  const on = !!qtys[i.id];
+                  const on = i.id in qtys;
                   return (
                     <View key={i.id} style={[styles.itemRow, on && styles.itemRowOn]}>
                       <TouchableOpacity style={{ flex: 1 }} activeOpacity={0.85} onPress={() => toggle(i.id)}>
@@ -133,7 +137,15 @@ export default function PackageFormScreen({ navigation, route }: Props) {
                           <TouchableOpacity style={styles.qtyBtn} activeOpacity={0.8} onPress={() => setQty(i.id, qtys[i.id] - 1)}>
                             <Icon name="minus" size={14} color={colors.text} />
                           </TouchableOpacity>
-                          <Text style={styles.qtyValue}>{qtys[i.id]}</Text>
+                          {/* Typeable — tent packages often need 100+ chairs. 0 is allowed mid-edit and snaps back to 1 on blur. */}
+                          <TextInput
+                            value={qtys[i.id] ? String(qtys[i.id]) : ''}
+                            onChangeText={(v) => setQtys((q) => ({ ...q, [i.id]: Math.min(99999, parseInt(v.replace(/\D/g, ''), 10) || 0) }))}
+                            onBlur={() => { if (!qtys[i.id]) setQty(i.id, 1); }}
+                            keyboardType="number-pad"
+                            selectTextOnFocus
+                            style={styles.qtyValue}
+                          />
                           <TouchableOpacity style={styles.qtyBtnFilled} activeOpacity={0.8} onPress={() => setQty(i.id, qtys[i.id] + 1)}>
                             <Icon name="plus" size={14} color="#fff" />
                           </TouchableOpacity>
@@ -189,7 +201,7 @@ const styles = StyleSheet.create({
   qtyRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   qtyBtn: { width: 30, height: 30, borderRadius: 15, borderWidth: 1.5, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center' },
   qtyBtnFilled: { width: 30, height: 30, borderRadius: 15, backgroundColor: colors.maroon, alignItems: 'center', justifyContent: 'center' },
-  qtyValue: { width: 30, textAlign: 'center', fontWeight: '700', fontSize: 14, color: colors.text },
+  qtyValue: { minWidth: 44, paddingVertical: 4, paddingHorizontal: 4, borderRadius: 8, borderWidth: 1, borderColor: colors.divider, textAlign: 'center', fontWeight: '700', fontSize: 14, color: colors.text },
   error: { color: colors.dangerStrong, fontSize: 12.5 },
   saveBtn: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   saveBtnText: { color: '#fff', fontWeight: '700', fontSize: 15.5, fontFamily: 'Sora' },

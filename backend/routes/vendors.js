@@ -14,6 +14,7 @@ const { CATEGORY_IDS, UNIT_OPTIONS } = require('../data/itemCatalogOptions');
 const ItemPreset = require('../models/ItemPreset');
 const Conversation = require('../models/Conversation');
 const { getCommittedQtyByItem } = require('../lib/itemAvailability');
+const { normalizeDateTxt } = require('../lib/dates');
 
 // A few concrete example items per category, so the model grounds ambiguous/India-specific
 // terms correctly — e.g. without this, "Desert Cooler" (a large evaporative air-cooling
@@ -401,15 +402,44 @@ router.get('/me/orders', requirePartnerAuth, requireTentRole, async (req, res) =
   res.json(orders.map(serializeOrderOwn));
 });
 
+// Where a vendor may move an order from each status. Disputes, and anything once delivered
+// beyond completing it, are Tamboo's (admin) to handle.
+const VENDOR_NEXT = {
+  PENDING: ['CONFIRMED', 'CANCELLED'],
+  CONFIRMED: ['PACKED', 'CANCELLED'],
+  PACKED: ['OUT_FOR_DELIVERY', 'CANCELLED'],
+  OUT_FOR_DELIVERY: ['DELIVERED'],
+  DELIVERED: ['COMPLETED'],
+};
+
+// Whole days from today (India time) until the event date; null if the date can't be read.
+function daysUntilEvent(dateTxt) {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(normalizeDateTxt(dateTxt));
+  if (!m) return null;
+  const ist = new Date(Date.now() + 5.5 * 3600 * 1000);
+  const today = Date.UTC(ist.getUTCFullYear(), ist.getUTCMonth(), ist.getUTCDate());
+  return Math.round((Date.UTC(+m[3], +m[2] - 1, +m[1]) - today) / 86400000);
+}
+
 // Status transitions only (accept/decline/advance) — order contents are fixed at checkout.
-// Declining a still-PENDING order reverses the payout credit auto-made at checkout, since
-// the vendor is telling us they can't actually fulfil it.
+// Declining or cancelling reverses the payout credit auto-made at checkout, since the
+// customer is refunded in full.
 router.patch('/me/orders/:orderId', requirePartnerAuth, requireTentRole, async (req, res) => {
   const order = await Order.findOne({ _id: req.params.orderId, partner: req.partner.id });
   if (!order) return res.status(404).json({ error: 'Order not found' });
   const { status, historyLabel } = req.body || {};
-  const validStatuses = ['PENDING', 'CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'COMPLETED', 'CANCELLED', 'DISPUTED'];
-  if (!validStatuses.includes(status)) return res.status(400).json({ error: 'Invalid status' });
+  if (!(VENDOR_NEXT[order.status] || []).includes(status)) {
+    return res.status(409).json({ error: `This order is ${order.status.toLowerCase().replace(/_/g, ' ')} and can't be moved to ${String(status).toLowerCase().replace(/_/g, ' ')}. Contact Tamboo Support if something is wrong.` });
+  }
+  // Payout follows completion, so delivery can't be marked long before the event (tents are
+  // often set up a day or two early) and completion not before the event day itself.
+  const days = daysUntilEvent(order.dateTxt);
+  if (days !== null && (status === 'OUT_FOR_DELIVERY' || status === 'DELIVERED') && days > 2) {
+    return res.status(409).json({ error: 'You can mark this order out for delivery or delivered from 2 days before the event date.' });
+  }
+  if (days !== null && status === 'COMPLETED' && days > 0) {
+    return res.status(409).json({ error: 'You can mark this order completed on or after the event date.' });
+  }
 
   const wasPending = order.status === 'PENDING';
   order.status = status;
@@ -420,12 +450,12 @@ router.patch('/me/orders/:orderId', requirePartnerAuth, requireTentRole, async (
     markRefundDue(order, order.amountPaid || order.customerTotal || order.value, wasPending ? 'Vendor declined the order' : 'Vendor cancelled the order');
     await order.save();
   }
-  if (wasPending && status === 'CANCELLED') {
+  if (status === 'CANCELLED') {
     await PayoutEntry.create({
       partner: req.partner.id,
       type: 'debit',
       amount: order.earn,
-      description: `Declined order ${order.code}`,
+      description: `${wasPending ? 'Declined' : 'Cancelled'} order ${order.code}`,
       reference: order.id,
     });
   }

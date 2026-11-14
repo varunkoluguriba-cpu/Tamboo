@@ -8,6 +8,9 @@ import Icon from '../components/Icon';
 import { api, ApiError } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, shadow } from '../theme';
+import { monthName } from '../utils/date';
+import { ledgerText } from '../utils/labels';
+import type { LangStrings } from '../i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Earnings'>;
 
@@ -22,10 +25,9 @@ type PayoutEntry = {
 
 const inr = (n: number) => `₹${Math.abs(Math.round(n)).toLocaleString('en-IN')}`;
 
-function dateTxt(iso: string): string {
+function dateTxt(iso: string, t: LangStrings): string {
   const d = new Date(iso);
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  return `${d.getDate()} ${monthName(d.getMonth(), t, true)} ${d.getFullYear()}`;
 }
 
 export default function EarningsScreen({ navigation }: Props) {
@@ -98,8 +100,8 @@ export default function EarningsScreen({ navigation }: Props) {
                       <Icon name={credit ? 'plus' : 'right'} size={16} color={credit ? colors.green : colors.pinkStrong} />
                     </View>
                     <View style={{ flex: 1, minWidth: 0 }}>
-                      <Text style={styles.entryDesc}>{e.description || (credit ? t.earningsBookingEarning : t.earningsPayout)}</Text>
-                      <Text style={styles.entryDate}>{dateTxt(e.createdAt)}{e.reference ? ` · ${/^[0-9a-f]{24}$/.test(e.reference) ? e.reference.slice(-6).toUpperCase() : e.reference}` : ''}</Text>
+                      <Text style={styles.entryDesc}>{e.description ? ledgerText(e.description, t) : (credit ? t.earningsBookingEarning : t.earningsPayout)}</Text>
+                      <Text style={styles.entryDate}>{dateTxt(e.createdAt, t)}{e.reference ? ` · ${/^[0-9a-f]{24}$/.test(e.reference) ? e.reference.slice(-6).toUpperCase() : e.reference}` : ''}</Text>
                     </View>
                     <Text style={[styles.entryAmount, { color: credit ? colors.green : colors.textSoft }]}>
                       {credit ? '+' : '-'}{inr(e.amount)}

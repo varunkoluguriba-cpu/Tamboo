@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
@@ -31,18 +31,24 @@ export default function ChatScreen({ navigation, route }: Props) {
   const [draft, setDraft] = useState('');
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const load = useCallback(() => {
+    api.get<RemoteMsg[]>(endpoint)
+      .then((res) => setMsgs((prev) => {
+        const remote = res.map((m) => ({ id: m.id, text: m.text, mine: m.sender === 'partner', at: fmtTime(m.at) }));
+        // A poll that started before a send finishes must not wipe the just-sent bubble.
+        const pending = prev.filter((x) => x.id.startsWith('tmp-') && !remote.some((r) => r.mine && r.text === x.text));
+        return [...remote, ...pending];
+      }))
+      .catch(() => {});
+  }, [endpoint]);
+
   useEffect(() => {
-    const load = () => {
-      api.get<RemoteMsg[]>(endpoint)
-        .then((res) => setMsgs(res.map((m) => ({ id: m.id, text: m.text, mine: m.sender === 'partner', at: fmtTime(m.at) }))))
-        .catch(() => {});
-    };
     load();
     pollRef.current = setInterval(load, POLL_MS);
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
     };
-  }, [endpoint]);
+  }, [load]);
 
   const send = () => {
     const text = draft.trim();
@@ -50,7 +56,7 @@ export default function ChatScreen({ navigation, route }: Props) {
     setDraft('');
     const tmpId = `tmp-${Date.now()}`;
     setMsgs((m) => [...m, { id: tmpId, text, mine: true, at: 'now' }]);
-    api.post(endpoint, { text }).catch(() => {
+    api.post(endpoint, { text }).then(load).catch(() => {
       // Don't let a failed send look delivered: take the bubble back and keep the text.
       setMsgs((m) => m.filter((x) => x.id !== tmpId));
       setDraft(text);
@@ -69,6 +75,7 @@ export default function ChatScreen({ navigation, route }: Props) {
         </View>
 
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+          {!customerId && msgs.length === 0 ? <Text style={styles.empty}>{t.chatSupportEmpty}</Text> : null}
           {msgs.map((m) =>
             m.mine ? (
               <View key={m.id} style={[styles.bubbleMineWrap, styles.bubbleMine]}>
@@ -111,6 +118,7 @@ const styles = StyleSheet.create({
   backBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
   peerName: { fontFamily: 'Sora', fontWeight: '800', fontSize: 15, color: colors.text },
   scroll: { padding: 18, gap: 8, flexGrow: 1 },
+  empty: { textAlign: 'center', color: colors.textMuted, fontSize: 13, lineHeight: 19, marginTop: 40, paddingHorizontal: 20 },
   bubbleMineWrap: { alignSelf: 'flex-end', maxWidth: '78%' },
   bubbleMine: { borderRadius: 18, borderBottomRightRadius: 4, paddingVertical: 9, paddingHorizontal: 13, overflow: 'hidden' },
   bubbleMineText: { color: '#fff', fontSize: 13.5, lineHeight: 19 },

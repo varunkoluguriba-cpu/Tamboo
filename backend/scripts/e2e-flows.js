@@ -285,9 +285,20 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
     expect(o.history[0].date.includes(ist.split(' ')[0]), `history time "${o.history[0].date}" not India time (now ${ist})`);
   });
   await check('Vendor sees order', async () => { const r = await call('GET', '/api/vendors/me/orders', TT); expect(r.data.some((o) => o.id === orderId), 'missing'); });
-  for (const st of ['CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'COMPLETED']) {
+  await check('Vendor cannot skip straight to COMPLETED', async () => { const r = await call('PATCH', '/api/vendors/me/orders/' + orderId, TT, { status: 'COMPLETED' }); expect(r.status === 409, 'got ' + r.status); });
+  for (const st of ['CONFIRMED', 'PACKED']) {
     await check('Vendor order → ' + st, async () => { const r = await call('PATCH', '/api/vendors/me/orders/' + orderId, TT, { status: st }); expect(r.status === 200 && r.data.status === st, JSON.stringify(r.data)); });
   }
+  await check('Out for delivery refused weeks before the event', async () => {
+    const far = new Date(Date.now() + 20 * 86400000); const pad = (n) => String(n).padStart(2, '0');
+    await Order.collection.updateOne({ _id: new mongoose.Types.ObjectId(orderId) }, { $set: { dateTxt: `${pad(far.getDate())}/${pad(far.getMonth() + 1)}/${far.getFullYear()}` } });
+    const r = await call('PATCH', '/api/vendors/me/orders/' + orderId, TT, { status: 'OUT_FOR_DELIVERY' }); expect(r.status === 409, 'got ' + r.status);
+  });
+  await Order.collection.updateOne({ _id: new mongoose.Types.ObjectId(orderId) }, { $set: { dateTxt: new Date(Date.now() + 5.5 * 3600000).toISOString().slice(0, 10) } });
+  for (const st of ['OUT_FOR_DELIVERY', 'DELIVERED', 'COMPLETED']) {
+    await check('Vendor order → ' + st, async () => { const r = await call('PATCH', '/api/vendors/me/orders/' + orderId, TT, { status: st }); expect(r.status === 200 && r.data.status === st, JSON.stringify(r.data)); });
+  }
+  await check('Completed order cannot be cancelled by vendor', async () => { const r = await call('PATCH', '/api/vendors/me/orders/' + orderId, TT, { status: 'CANCELLED' }); expect(r.status === 409, 'got ' + r.status); });
 
   await check('Vendor declines a paid order → full refund owed to customer', async () => {
     const cart = { groups: [{ vendorId: tent.id, vendorName: tent.businessName, lines: [{ itemId: p.id, name: p.name, qty: 1 }] }], deliveryMode: 'pickup', payMode: 'full', dateTxt: '16 Mar 2027' };
@@ -300,6 +311,21 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
     expect(o.refundStatus === 'pending' && o.refundAmount === r.data.amount / 100, JSON.stringify({ s: o.refundStatus, amt: o.refundAmount, paid: r.data.amount / 100 }));
     const mine = (await call('GET', '/api/orders/me', CT)).data.find((x) => x.id === oid);
     expect(mine && mine.refundStatus === 'pending', 'customer view');
+  });
+
+  await check('Vendor cancels an accepted order → refund owed AND earnings reversed', async () => {
+    const cart = { groups: [{ vendorId: tent.id, vendorName: tent.businessName, lines: [{ itemId: p.id, name: p.name, qty: 1 }] }], deliveryMode: 'pickup', payMode: 'full', dateTxt: '17 Mar 2027' };
+    const r = await call('POST', '/api/payments/create-order', CT, { cart });
+    const pay = 'pay_E2EC' + Date.now();
+    const v = await call('POST', '/api/payments/verify', CT, { razorpay_order_id: r.data.orderId, razorpay_payment_id: pay, razorpay_signature: sign(r.data.orderId, pay), cart });
+    const oid = v.data.orders[0].id; created.orders.push(oid); created.payoutRefs.push(oid);
+    await call('PATCH', '/api/vendors/me/orders/' + oid, TT, { status: 'CONFIRMED' });
+    const c = await call('PATCH', '/api/vendors/me/orders/' + oid, TT, { status: 'CANCELLED' });
+    expect(c.status === 200, 'cancel ' + c.status);
+    const o = await Order.findById(oid).lean();
+    const entries = await PayoutEntry.find({ reference: oid }).lean();
+    const net = entries.reduce((s2, e) => s2 + (e.type === 'credit' ? e.amount : -e.amount), 0);
+    expect(o.refundStatus === 'pending' && net === 0, JSON.stringify({ refund: o.refundStatus, net, entries: entries.length }));
   });
 
   // ---------- QUOTES ----------

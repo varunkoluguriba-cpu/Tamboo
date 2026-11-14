@@ -5,6 +5,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { statusColors, type TokenStatus } from '../data/catalog';
 import { useHallTokens, tokenUiStatus, bookingRef, visitText } from '../hooks/useHallTokens';
+import { hallSlotText } from '../utils/labels';
 import { useLanguage } from '../context/LanguageContext';
 import { formatBookingDate } from '../utils/date';
 import { colors, shadow } from '../theme';
@@ -95,7 +96,7 @@ export default function HTokensScreen({ navigation }: Props) {
                     </View>
                   </View>
                   <Text style={styles.cardTitle}>{tok.event}</Text>
-                  <Text style={styles.cardMeta}>{tok.customer} · {formatBookingDate(tok.date)} · {tok.slot} · {t.htokensGuestsCount.replace('{count}', String(tok.guests))}</Text>
+                  <Text style={styles.cardMeta}>{tok.customer} · {formatBookingDate(tok.date, t)} · {hallSlotText(tok.slot, t)}{tok.guests > 0 ? ` · ${t.htokensGuestsCount.replace('{count}', String(tok.guests))}` : ''}</Text>
                   {!!tok.visitTxt && <Text style={styles.cardVisit}>{t.htokensVisitLabel.replace('{value}', tok.visitTxt)}</Text>}
                 </TouchableOpacity>
               );

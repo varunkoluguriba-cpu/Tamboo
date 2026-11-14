@@ -6,6 +6,7 @@ const Booking = require('../models/Booking');
 const Order = require('../models/Order');
 const Hall = require('../models/Hall');
 const Item = require('../models/Item');
+const PayoutEntry = require('../models/PayoutEntry');
 
 // Account deletion (Play Store requirement). We anonymise rather than hard-delete: bookings,
 // orders and payout entries are financial records we have to keep, and they still point at
@@ -56,6 +57,10 @@ async function partnerBlocker(partnerId) {
   if (order) return 'You have orders in progress. Please complete them before deleting your account.';
   const farm = await FarmBooking.exists({ partner: partnerId, status: 'confirmed', startMin: { $gt: nowMinIST() } });
   if (farm) return 'You have upcoming farm-house bookings. Please cancel or complete them before deleting your account.';
+  // Deleting wipes the bank account, so money still owed to the partner could never be paid out.
+  const entries = await PayoutEntry.find({ partner: partnerId }, 'type amount').lean();
+  const owed = entries.reduce((sum, e) => sum + (e.type === 'credit' ? e.amount : -e.amount), 0);
+  if (owed > 0) return `Tamboo still owes you ₹${owed.toLocaleString('en-IN')}. It will be paid in the next weekly payout — you can delete your account after that, or contact Tamboo Support.`;
   return null;
 }
 

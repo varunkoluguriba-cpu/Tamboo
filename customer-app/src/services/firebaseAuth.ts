@@ -22,7 +22,12 @@ export async function sendOtp(e164Phone: string): Promise<ConfirmationResult> {
   // App logout only clears our JWT, so a previous Firebase session can still be around —
   // clear it so the instant-verification check below can only ever match this number.
   if (auth().currentUser) await firebaseSignOut(auth());
-  return signInWithPhoneNumber(auth(), e164Phone);
+  // If Firebase's verification (Play Integrity / reCAPTCHA page) fails or is closed, the call can
+  // hang forever — give up after a minute so the Send button comes back and the user can retry.
+  return Promise.race([
+    signInWithPhoneNumber(auth(), e164Phone),
+    new Promise<never>((_, reject) => setTimeout(() => reject(new Error('OTP request timed out')), 60000)),
+  ]);
 }
 
 // Android can verify the number instantly (always for Firebase test numbers, and for real

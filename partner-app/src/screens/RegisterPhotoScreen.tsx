@@ -6,23 +6,24 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { api, ApiError } from '../api/client';
+import { hallSlotText } from '../utils/labels';
 import { useLanguage } from '../context/LanguageContext';
 import { pickImageBase64 } from '../utils/pickImage';
-import { formatBookingDate } from '../utils/date';
+import { formatBookingDate, monthName } from '../utils/date';
 import { colors, gradients, shadow } from '../theme';
+import type { LangStrings } from '../i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'RegisterPhoto'>;
 
-const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 type ExtractedDate = { date: string; slot: 'Morning' | 'Evening' | 'FullDay' };
 
-function monthKey(offset: number): { key: string; label: string } {
+function monthKey(offset: number, t: LangStrings): { key: string; label: string } {
   const d = new Date();
   d.setDate(1);
   d.setMonth(d.getMonth() + offset);
   const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-  const label = `${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
+  const label = `${monthName(d.getMonth(), t)} ${d.getFullYear()}`;
   return { key, label };
 }
 
@@ -35,7 +36,7 @@ export default function RegisterPhotoScreen({ navigation, route }: Props) {
   const [confirming, setConfirming] = useState(false);
   const [resultSummary, setResultSummary] = useState<{ ok: number; skipped: number } | null>(null);
 
-  const { key: month, label: monthLabel } = monthKey(monthOffset);
+  const { key: month, label: monthLabel } = monthKey(monthOffset, t);
 
   const takePhoto = async () => {
     const uri = await pickImageBase64();
@@ -132,7 +133,7 @@ export default function RegisterPhotoScreen({ navigation, route }: Props) {
                 <View style={[styles.checkbox, checked[i] && styles.checkboxSel]}>
                   {checked[i] && <Icon name="check" size={13} color="#fff" />}
                 </View>
-                <Text style={styles.rowText}>{formatBookingDate(d.date)} · {d.slot === 'FullDay' ? t.registerPhotoFullDay : d.slot}</Text>
+                <Text style={styles.rowText}>{formatBookingDate(d.date, t)} · {hallSlotText(d.slot, t)}</Text>
               </TouchableOpacity>
             ))}
 

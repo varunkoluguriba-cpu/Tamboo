@@ -4,6 +4,7 @@ const admin = require('../config/firebaseAdmin');
 const Partner = require('../models/Partner');
 const Config = require('../models/Config');
 const PayoutEntry = require('../models/PayoutEntry');
+const { isConfigured: isWhatsappConfigured } = require('../config/whatsapp');
 const { requirePartnerAuth } = require('../middleware/partnerAuth');
 const { partnerBlocker, deletePartner } = require('../lib/accountDeletion');
 const { servicesAllowedFor, SERVICE_CATEGORIES } = require('../lib/servicesGate');
@@ -41,7 +42,7 @@ function serialize(p) {
 // for this partner (the 'Event service' sign-up option and screens depend on it).
 async function withPlatform(p) {
   const config = await Config.get();
-  return { ...serialize(p), commissionPct: config.commissionPct, customersLive: !!config.customersLive, servicesEnabled: servicesAllowedFor(config, p.phone) };
+  return { ...serialize(p), commissionPct: config.commissionPct, customersLive: !!config.customersLive, servicesEnabled: servicesAllowedFor(config, p.phone), whatsappEnabled: isWhatsappConfigured() };
 }
 
 router.post('/verify', async (req, res) => {

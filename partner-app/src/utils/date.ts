@@ -1,15 +1,26 @@
+import type { LangStrings } from '../i18n';
+
 const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-// Display-only formatting for an ISO 'YYYY-MM-DD' booking date — e.g. "14 Oct 2026".
+// Month name in the partner's language. Short English names are 3 letters ("Sep"); Telugu, Hindi
+// and Urdu month names have no common short form, so those stay full.
+export function monthName(idx: number, t?: LangStrings, short = false): string {
+  const full = t?.pfMonths.split(',')[idx];
+  if (!full) return MONTH_ABBR[idx] || '';
+  return short && /^[A-Za-z]/.test(full) ? full.slice(0, 3) : full;
+}
+
+// Display-only formatting for an ISO 'YYYY-MM-DD' booking date (or a DD/MM/YYYY order date) — e.g. "14 Oct 2026".
 // Falls back to the raw string if it isn't in the expected ISO shape (defensive against
 // any already-saved bookings from before this format was made canonical on the customer side).
-export function formatBookingDate(iso: string): string {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+export function formatBookingDate(iso: string, t?: LangStrings): string {
+  const dmy = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(iso); // order dates are stored DD/MM/YYYY
+  const m = dmy ? [iso, dmy[3], dmy[2], dmy[1]] : /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
   if (!m) return iso;
   const [, y, mo, d] = m;
   const monthIdx = Number(mo) - 1;
   if (monthIdx < 0 || monthIdx > 11) return iso;
-  return `${Number(d)} ${MONTH_ABBR[monthIdx]} ${y}`;
+  return `${Number(d)} ${monthName(monthIdx, t, true)} ${y}`;
 }
 
 // '+919999900000' → '+91 99999 00000' (Indian numbers); anything else shown as-is. Wrapped in

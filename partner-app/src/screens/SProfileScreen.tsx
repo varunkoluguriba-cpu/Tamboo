@@ -12,6 +12,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { pickImageBase64 } from '../utils/pickImage';
 import { colors, gradients, shadow } from '../theme';
+import { confirmLogout } from '../utils/confirmLogout';
 
 type Profile = { about: string; areas: string[]; experienceYears: number; photos: string[] };
 
@@ -104,7 +105,7 @@ export default function SProfileScreen() {
           <TouchableOpacity style={styles.rowBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Chat', { customerName: t.tambooSupport })}>
             <Text style={styles.rowBtnText}>{t.tambooSupport}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.rowBtn} activeOpacity={0.85} onPress={logout}>
+          <TouchableOpacity style={styles.rowBtn} activeOpacity={0.85} onPress={() => confirmLogout(t, logout)}>
             <Icon name="logout" size={16} color={colors.text} />
             <Text style={styles.rowBtnText}>{t.logout}</Text>
           </TouchableOpacity>

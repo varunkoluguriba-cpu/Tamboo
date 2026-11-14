@@ -15,6 +15,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { farmDate, slotLabel, time12, type MyFarm, type OwnerFarmBooking } from '../utils/farm';
 import { colors, gradients, shadow } from '../theme';
+import { confirmLogout } from '../utils/confirmLogout';
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 
@@ -124,7 +125,7 @@ export default function FHomeScreen() {
         <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={() => navigation.navigate('Chat', { customerName: t.tambooSupport })}>
           <Text style={styles.outlineText}>{t.tambooSupport}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={logout}>
+        <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={() => confirmLogout(t, logout)}>
           <Icon name="logout" size={16} color={colors.text} />
           <Text style={styles.outlineText}>{t.logout}</Text>
         </TouchableOpacity>

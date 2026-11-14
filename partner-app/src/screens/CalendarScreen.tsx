@@ -7,10 +7,12 @@ import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { api, ApiError } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import { hallSlotText } from '../utils/labels';
 import { useLanguage } from '../context/LanguageContext';
 import { useHallTokens } from '../hooks/useHallTokens';
 import { useOrders } from '../hooks/useOrders';
 import { colors, shadow } from '../theme';
+import { monthName } from '../utils/date';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Calendar'>;
 
@@ -106,12 +108,13 @@ export default function CalendarScreen({ navigation }: Props) {
       map.set(key, list);
     };
     if (isVenue) {
-      for (const tok of hallTokens.filter((tok) => !activeHall || tok.hallId === activeHall.id)) {
+      // Closed pre-bookings / orders no longer hold the date, so they don't mark it busy.
+      for (const tok of hallTokens.filter((tok) => (!activeHall || tok.hallId === activeHall.id) && !['CANCELLED', 'EXPIRED', 'NOT_BOOKED'].includes(tok.status.toUpperCase()))) {
         const d = parseDisplayDate(tok.date);
         if (d) push(d, { event: tok.hallName, customer: tok.customer, status: tok.status.toUpperCase(), slot: tok.slot, isOffline: tok.source === 'offline', bookingId: tok.id, hallId: tok.hallId });
       }
     } else {
-      for (const o of orders) {
+      for (const o of orders.filter((o) => o.status !== 'CANCELLED')) {
         const d = parseDisplayDate(o.dateTxt);
         if (d) push(d, { event: o.event, customer: o.customer, status: o.status, slot: '', isOffline: false, bookingId: '', hallId: '' });
       }
@@ -235,7 +238,7 @@ export default function CalendarScreen({ navigation }: Props) {
             <TouchableOpacity style={styles.navBtn} activeOpacity={monthOffset > 0 ? 0.8 : 1} disabled={monthOffset === 0} onPress={() => setMonthOffset((m) => Math.max(0, m - 1))}>
               <Icon name="left" size={16} color={monthOffset === 0 ? colors.dividerStrong : colors.text} />
             </TouchableOpacity>
-            <Text style={styles.calTitle}>{MONTH_NAMES[viewMonth.getMonth()]} {viewMonth.getFullYear()}</Text>
+            <Text style={styles.calTitle}>{monthName(viewMonth.getMonth(), t)} {viewMonth.getFullYear()}</Text>
             <TouchableOpacity style={styles.navBtn} activeOpacity={0.8} onPress={() => setMonthOffset((m) => m + 1)}>
               <Icon name="right" size={16} color={colors.text} />
             </TouchableOpacity>
@@ -290,19 +293,19 @@ export default function CalendarScreen({ navigation }: Props) {
         {selected && (
           <View style={styles.detailCard}>
             <Text style={styles.detailTitle}>
-              {selected.getDate()} {MONTH_NAMES[selected.getMonth()].slice(0, 3)} {selected.getFullYear()}
+              {selected.getDate()} {monthName(selected.getMonth(), t, true)} {selected.getFullYear()}
             </Text>
 
             {selJobs.map((j, i) => (
               <View key={i} style={styles.jobRow}>
-                <TouchableOpacity style={{ flex: 1 }} activeOpacity={0.85} onPress={() => navigation.navigate(isVenue ? 'HTokens' : 'Orders')}>
+                <TouchableOpacity style={{ flex: 1 }} activeOpacity={0.85} onPress={() => (isVenue && j.bookingId ? navigation.navigate('HToken', { id: j.bookingId }) : navigation.navigate(isVenue ? 'HTokens' : 'Orders'))}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                     {j.isOffline && (
                       <View style={styles.walkInPill}>
                         <Text style={styles.walkInPillText}>{t.htokensWalkInBadge}</Text>
                       </View>
                     )}
-                    <Text style={styles.jobText}><Text style={{ fontWeight: '700' }}>{j.event}</Text> · {j.customer}{j.slot ? ` · ${j.slot}` : ''}</Text>
+                    <Text style={styles.jobText}><Text style={{ fontWeight: '700' }}>{j.event}</Text>{j.isOffline ? '' : ` · ${j.customer}`}{j.slot ? ` · ${hallSlotText(j.slot, t)}` : ''}</Text>
                   </View>
                   <Text style={styles.jobStatus}>{({ PENDING: t.calendarStatusPending, CONFIRMED: t.calendarStatusConfirmed, ACTIVE: t.htokensTabPending, VISITED: t.htokensTabVisited, AWAITING_ADVANCE: t.htokensTabAwaitingAdvance, EXPIRED: t.htokensTabExpired } as Record<string, string>)[j.status] || j.status}</Text>
                 </TouchableOpacity>

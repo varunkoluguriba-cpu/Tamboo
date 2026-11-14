@@ -12,6 +12,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { pickImageBase64 } from '../utils/pickImage';
 import { AMENITIES, SLOT_KEYS, endsNextDay, fromMin, slotLabel, time12, toMin, type FarmRules, type FarmSlot, type MyFarm, type SlotKey } from '../utils/farm';
 import { colors, gradients, shadow } from '../theme';
+import { useDiscardGuard } from '../hooks/useDiscardGuard';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'FFarm'>;
 
@@ -57,6 +58,11 @@ export default function FFarmScreen({ navigation, route }: Props) {
   const [loading, setLoading] = useState(!!farmId);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
+  const { allowLeave } = useDiscardGuard(
+    navigation,
+    JSON.stringify([name, area, address, about, poolDetails, lat, lng, photos.length, slots, prices, nums, amenities, rules, addons, published]),
+    !loading,
+  );
 
   useEffect(() => {
     if (!farmId) return;
@@ -128,7 +134,7 @@ export default function FFarmScreen({ navigation, route }: Props) {
       };
       if (farmId) await api.put(`/api/farms/me/farms/${farmId}`, body);
       else await api.post('/api/farms/me/farms', body);
-      Alert.alert(t.pfSavedTitle, t.pfSavedMsg, [{ text: t.ok, onPress: () => navigation.goBack() }]);
+      Alert.alert(t.pfSavedTitle, t.pfSavedMsg, [{ text: t.ok, onPress: () => { allowLeave(); navigation.goBack(); } }]);
     } catch (e) {
       setErr(e instanceof ApiError ? e.message : t.pfErrSave);
     } finally {

@@ -88,7 +88,7 @@ export default function OrdersScreen({ navigation }: Props) {
                     </View>
                   </View>
                   <Text style={styles.cardTitle}>{q.event}</Text>
-                  <Text style={styles.cardMeta}>{q.customer} · {formatBookingDate(q.date)} · {q.guests} {t.orderGuestsSuffix}</Text>
+                  <Text style={styles.cardMeta}>{[q.customer, q.date && formatBookingDate(q.date, t), q.guests ? `${q.guests} ${t.orderGuestsSuffix}` : ''].filter(Boolean).join(' · ')}</Text>
                   <View style={styles.needBox}>
                     <Text style={styles.needText}>{q.need}</Text>
                   </View>
@@ -116,8 +116,8 @@ export default function OrdersScreen({ navigation }: Props) {
                   </View>
                   <Text style={styles.cardTitle}>{o.event}</Text>
                   <View style={styles.cardBottomRow}>
-                    <Text style={styles.cardMeta}>{o.dateTxt} · {o.customer}</Text>
-                    <Text style={styles.cardEarn}>{inr(o.earn)}</Text>
+                    <Text style={styles.cardMeta}>{formatBookingDate(o.dateTxt, t)} · {o.customer}</Text>
+                    <Text style={[styles.cardEarn, o.status === 'CANCELLED' && styles.cardEarnVoid]}>{inr(o.earn)}</Text>
                   </View>
                 </TouchableOpacity>
               );
@@ -147,8 +147,9 @@ const styles = StyleSheet.create({
   cardBottomRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
   cardMeta: { fontSize: 12.5, color: colors.textSoft },
   cardEarn: { fontSize: 12.5, fontWeight: '700', color: colors.text },
+  cardEarnVoid: { color: colors.textMuted, textDecorationLine: 'line-through', fontWeight: '500' },
   needBox: { backgroundColor: colors.bg, borderRadius: 10, padding: 10 },
   needText: { fontSize: 12.5, color: '#4b4560' },
   pill: { borderRadius: 999, paddingVertical: 4, paddingHorizontal: 10 },
-  pillText: { fontSize: 11, fontWeight: '700', textTransform: 'capitalize' },
+  pillText: { fontSize: 11, fontWeight: '700' },
 });

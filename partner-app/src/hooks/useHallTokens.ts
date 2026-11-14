@@ -16,6 +16,7 @@ export type RemoteHallToken = {
   slot: string;
   guests: number;
   amount: number;
+  refundAmount?: number;
   finalRent: number;
   advancePct: number;
   advanceAmount: number;

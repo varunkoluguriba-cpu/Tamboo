@@ -36,6 +36,7 @@ function serializeTokenOwn(b) {
     advanceDeadlineAtMs: b.advanceDeadlineAt ? new Date(b.advanceDeadlineAt).getTime() : null,
     status: b.status,
     source: b.source || 'online',
+    refundAmount: b.refundAmount || 0, // refunded to the customer — the owner keeps amount minus this
     heldAtMs: b.createdAt ? new Date(b.createdAt).getTime() : Date.now(),
     visitHours: VISIT_HOURS,
   };

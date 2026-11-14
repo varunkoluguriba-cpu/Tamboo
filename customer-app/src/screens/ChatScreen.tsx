@@ -47,7 +47,12 @@ export default function ChatScreen({ navigation, route }: Props) {
     if (!isLive) return undefined;
     const load = () => {
       api.get<RemoteMsg[]>(endpoint)
-        .then((res) => setMsgs(res.map((m) => ({ id: m.id, text: m.text, mine: m.sender === 'customer', at: fmtTime(m.at) }))))
+        .then((res) => setMsgs((prev) => {
+          const remote = res.map((m) => ({ id: m.id, text: m.text, mine: m.sender === 'customer', at: fmtTime(m.at) }));
+          // A poll that started before a send finishes must not wipe the just-sent bubble.
+          const pending = prev.filter((x) => x.id.startsWith('tmp-') && !remote.some((r) => r.mine && r.text === x.text));
+          return [...remote, ...pending];
+        }))
         .catch(() => {});
     };
     load();

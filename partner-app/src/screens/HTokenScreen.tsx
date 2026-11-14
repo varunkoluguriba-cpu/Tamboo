@@ -6,6 +6,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import Icon from '../components/Icon';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import { api, ApiError } from '../api/client';
 import { statusColors } from '../data/catalog';
 import { useHallTokens, tokenUiStatus, type RemoteHallToken } from '../hooks/useHallTokens';
@@ -16,6 +17,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'HToken'>;
 
 export default function HTokenScreen({ navigation, route }: Props) {
   const { t } = useLanguage();
+  const { partner } = useAuth();
   const { tokens, loading, reload } = useHallTokens();
   const original = tokens.find((tok) => tok.id === route.params.id);
   const [finalRent, setFinalRent] = useState('');
@@ -158,27 +160,52 @@ export default function HTokenScreen({ navigation, route }: Props) {
               <Text style={styles.rowMuted}>{t.htokenPlannedVisit}</Text>
               <Text style={styles.rowText}>
                 {original.visitDate
-                  ? `${formatBookingDate(original.visitDate)} · ${({ morning: t.visitMorning, afternoon: t.visitAfternoon, evening: t.visitEvening, night: t.visitNight } as Record<string, string>)[original.visitTime || ''] || ''}`
+                  ? `${formatBookingDate(original.visitDate, t)} · ${({ morning: t.visitMorning, afternoon: t.visitAfternoon, evening: t.visitEvening, night: t.visitNight } as Record<string, string>)[original.visitTime || ''] || ''}`
                   : t.visitNotScheduled}
               </Text>
             </View>
           )}
           <View style={styles.rowBetween}>
             <Text style={styles.rowMuted}>{t.htokenEventDate}</Text>
-            <Text style={styles.rowText}>{formatBookingDate(original.date)}</Text>
+            <Text style={styles.rowText}>{formatBookingDate(original.date, t)}</Text>
           </View>
           <View style={styles.rowBetween}>
             <Text style={styles.rowMuted}>{t.htokenSlot}</Text>
-            <Text style={styles.rowText}>{original.slot}</Text>
+            <Text style={styles.rowText}>{original.slot === 'Morning' ? t.visitMorning : original.slot === 'Evening' ? t.visitEvening : original.slot}</Text>
           </View>
-          <View style={styles.rowBetween}>
-            <Text style={styles.rowMuted}>{t.htokenGuests}</Text>
-            <Text style={styles.rowText}>{original.guests}</Text>
-          </View>
+          {original.guests > 0 && (
+            <View style={styles.rowBetween}>
+              <Text style={styles.rowMuted}>{t.htokenGuests}</Text>
+              <Text style={styles.rowText}>{original.guests}</Text>
+            </View>
+          )}
           <View style={styles.rowBetween}>
             <Text style={styles.rowMuted}>{t.htokenTokenReceived}</Text>
             <Text style={styles.rowText}>₹{original.amount.toLocaleString('en-IN')}</Text>
           </View>
+          {/* Closed pre-bookings: say what the owner actually keeps, not just what was paid. */}
+          {(status === 'NOT_BOOKED' || status === 'CANCELLED' || status === 'EXPIRED') && (
+            <>
+              <View style={styles.rowBetween}>
+                <Text style={styles.rowMuted}>{t.htokenRefundedToCustomer}</Text>
+                <Text style={styles.rowText}>₹{(original.refundAmount || 0).toLocaleString('en-IN')}</Text>
+              </View>
+              {status === 'EXPIRED' && (
+                <View style={styles.rowBetween}>
+                  <Text style={styles.rowMuted}>{t.orderPlatformCommission} ({partner?.commissionPct ?? 10}%)</Text>
+                  <Text style={styles.rowText}>−₹{(original.amount - Math.round(original.amount * (1 - (partner?.commissionPct ?? 10) / 100))).toLocaleString('en-IN')}</Text>
+                </View>
+              )}
+              <View style={styles.rowBetween}>
+                <Text style={styles.rowMuted}>{t.htokenYouKeep}</Text>
+                {/* Matches the payout ledger: an expired token is kept minus Tamboo's fee; on a
+                    not-booked visit the owner keeps 20% of the token in full; cancelled = nothing. */}
+                <Text style={[styles.rowText, { fontWeight: '800' }]}>₹{(status === 'EXPIRED'
+                  ? Math.round(original.amount * (1 - (partner?.commissionPct ?? 10) / 100))
+                  : Math.max(0, original.amount - (original.refundAmount || 0))).toLocaleString('en-IN')}</Text>
+              </View>
+            </>
+          )}
         </View>
 
         {isActive && (

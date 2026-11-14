@@ -12,6 +12,7 @@ import { useLanguage } from '../context/LanguageContext';
 import DeleteAccountButton from '../components/DeleteAccountButton';
 import { pickImageBase64 } from '../utils/pickImage';
 import { colors, gradients, shadow } from '../theme';
+import { confirmLogout } from '../utils/confirmLogout';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Shop'>;
 
@@ -144,6 +145,7 @@ export default function ShopScreen({ navigation }: Props) {
               <TextInput value={pickup} onChangeText={(v) => setPickup(v.replace(/\D/g, ''))} keyboardType="number-pad" style={styles.inputSm} />
             </View>
           </View>
+          <Text style={styles.hint}>{t.shopFeesHint}</Text>
 
           <TouchableOpacity activeOpacity={0.85} onPress={save} disabled={saving || loading}>
             <View style={styles.saveBtn}>
@@ -152,13 +154,15 @@ export default function ShopScreen({ navigation }: Props) {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.logoutBtn}
-            activeOpacity={0.85}
-            onPress={() => navigation.navigate('Conversations')}
-          >
-            <Text style={styles.logoutText}>{t.whatsappInsights}</Text>
-          </TouchableOpacity>
+          {partner?.whatsappEnabled ? (
+            <TouchableOpacity
+              style={styles.logoutBtn}
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate('Conversations')}
+            >
+              <Text style={styles.logoutText}>{t.whatsappInsights}</Text>
+            </TouchableOpacity>
+          ) : null}
 
           <TouchableOpacity
             style={styles.logoutBtn}
@@ -168,7 +172,7 @@ export default function ShopScreen({ navigation }: Props) {
             <Text style={styles.logoutText}>{t.tambooSupport}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.logoutBtn} activeOpacity={0.85} onPress={logout}>
+          <TouchableOpacity style={styles.logoutBtn} activeOpacity={0.85} onPress={() => confirmLogout(t, logout)}>
             <Icon name="logout" size={16} color={colors.text} />
             <Text style={styles.logoutText}>{t.logout}</Text>
           </TouchableOpacity>

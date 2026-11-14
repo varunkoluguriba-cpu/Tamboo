@@ -12,6 +12,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { pickImageBase64 } from '../utils/pickImage';
 import { colors, gradients, shadow } from '../theme';
 import { unitText } from '../utils/units';
+import { useDiscardGuard } from '../hooks/useDiscardGuard';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ItemForm'>;
 
@@ -84,6 +85,12 @@ export default function ItemFormScreen({ navigation, route }: Props) {
       .catch(() => {})
       .finally(() => setLoadingItem(false));
   }, [editingId]);
+
+  const { allowLeave } = useDiscardGuard(
+    navigation,
+    JSON.stringify([name, cat, price, unit, stock, min, deposit, specs, instant, photos.length]),
+    !loadingItem,
+  );
 
   // Debounced so we don't fire a request on every keystroke — only once the vendor pauses
   // typing a rent amount for at least 500ms, with a real category + a plausible price.
@@ -169,7 +176,7 @@ export default function ItemFormScreen({ navigation, route }: Props) {
       if (editingId) await api.put(`/api/vendors/me/items/${editingId}`, payload);
       else await api.post('/api/vendors/me/items', payload);
       Alert.alert(editingId ? t.itemFormUpdatedTitle : t.itemFormAddedTitle, partner?.verificationStatus === 'rejected' ? t.itemFormHiddenMsg : needsReview ? t.itemFormPendingReviewMsg : t.itemFormLiveMsg, [
-        { text: t.ok, onPress: () => navigation.goBack() },
+        { text: t.ok, onPress: () => { allowLeave(); navigation.goBack(); } },
       ]);
     } catch (e) {
       setErr(e instanceof ApiError ? e.message : t.itemFormErrSaveFailed);
@@ -187,6 +194,7 @@ export default function ItemFormScreen({ navigation, route }: Props) {
         onPress: async () => {
           try {
             await api.delete(`/api/vendors/me/items/${editingId}`);
+            allowLeave();
             navigation.goBack();
           } catch (e) {
             Alert.alert(t.itemFormErrDeleteTitle, e instanceof ApiError ? e.message : t.tryAgain);
@@ -254,13 +262,13 @@ export default function ItemFormScreen({ navigation, route }: Props) {
         <View style={styles.grid2}>
           <View style={styles.gridItem}>
             <Field label={t.itemFormRentLabel}>
-              <TextInput value={price} onChangeText={(v) => setPrice(v.replace(/\D/g, ''))} keyboardType="number-pad" style={styles.input} placeholder="25" placeholderTextColor={colors.textMuted} />
+              <TextInput value={price} onChangeText={(v) => setPrice(v.replace(/\D/g, ''))} keyboardType="number-pad" style={styles.input} />
               {!!priceHintText && <Text style={styles.priceHint}>{priceHintText}</Text>}
             </Field>
           </View>
           <View style={styles.gridItem}>
             <Field label={t.itemFormStockLabel}>
-              <TextInput value={stock} onChangeText={(v) => setStock(v.replace(/\D/g, ''))} keyboardType="number-pad" style={styles.input} placeholder="200" placeholderTextColor={colors.textMuted} />
+              <TextInput value={stock} onChangeText={(v) => setStock(v.replace(/\D/g, ''))} keyboardType="number-pad" style={styles.input} />
             </Field>
           </View>
           <View style={styles.gridItem}>
