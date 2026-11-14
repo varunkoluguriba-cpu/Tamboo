@@ -168,6 +168,31 @@ const sign = (o, p) => crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECR
     expect(debits === 1 && b.status === 'not_booked', `${debits} debits, status ${b.status}`);
   });
 
+  // ---------- 48h VISIT WINDOW + ONE-WAY TOKEN ACTIONS ----------
+  await check('Unvisited token past 48h frees the date for other customers', async () => {
+    const id = await payToken('2027-05-13', 'Morning');
+    await Booking.collection.updateOne({ _id: new mongoose.Types.ObjectId(id) }, { $set: { createdAt: new Date(Date.now() - 49 * 3600 * 1000) } });
+    const av = await call('GET', `/api/halls/${hall.id}/availability?month=2027-05`);
+    expect(av.data['2027-05-13'] && av.data['2027-05-13'].morning === 'free', JSON.stringify(av.data['2027-05-13']));
+    const r = await call('POST', '/api/payments/create-order', CT, { hallId: hall.id, date: '2027-05-13', slot: 'Morning' });
+    expect(r.status === 200, 'second customer refused: ' + r.status);
+  });
+  await check('Owner cannot act on an expired pre-booking', async () => {
+    const id = await payToken('2027-05-14', 'Morning');
+    await Booking.collection.updateOne({ _id: new mongoose.Types.ObjectId(id) }, { $set: { createdAt: new Date(Date.now() - 49 * 3600 * 1000) } });
+    const r = await call('PATCH', '/api/halls/me/tokens/' + id, hallOwnerTok, { action: 'visited' });
+    expect(r.status === 409, 'got ' + r.status);
+  });
+  await check('"Not booked" twice refunds and debits only once', async () => {
+    const id = await payToken('2027-05-15', 'Morning');
+    await call('PATCH', '/api/halls/me/tokens/' + id, hallOwnerTok, { action: 'visited' });
+    const a = await call('PATCH', '/api/halls/me/tokens/' + id, hallOwnerTok, { action: 'notBooked' });
+    const b = await call('PATCH', '/api/halls/me/tokens/' + id, hallOwnerTok, { action: 'notBooked' });
+    const c = await call('PATCH', '/api/halls/me/tokens/' + id, hallOwnerTok, { action: 'cantHost' });
+    const debits = await PayoutEntry.countDocuments({ reference: id, type: 'debit' });
+    expect(a.status === 200 && b.status === 409 && c.status === 409 && debits === 1, `${a.status}/${b.status}/${c.status}, ${debits} debits`);
+  });
+
   // ---------- REFUNDS ----------
   const admin = await AdminUser.findOne({ role: { $in: ['owner', 'admin', 'superadmin'] } }) || await AdminUser.findOne();
   const AT = admin && jwt.sign({ sub: admin.id, kind: 'admin' }, process.env.JWT_SECRET, { expiresIn: '1h' });

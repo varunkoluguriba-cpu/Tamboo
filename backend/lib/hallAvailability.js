@@ -6,6 +6,24 @@ const Booking = require('../models/Booking');
 // has released the slot.
 const ACTIVE_BOOKING_STATUSES = ['token_paid', 'visited', 'awaiting_advance', 'confirmed'];
 
+// Customers must visit within this many hours of paying the token.
+const VISIT_HOURS = 48;
+
+// Bookings that actually hold their slot right now. An unvisited token holds it only during the
+// visit window — after that the pre-booking has lapsed (the owner keeps the token) and the date
+// is free for other customers again.
+function slotHoldFilter(now = Date.now()) {
+  return {
+    $or: [
+      { status: { $in: ['visited', 'awaiting_advance', 'confirmed'] } },
+      { status: 'token_paid', createdAt: { $gt: new Date(now - VISIT_HOURS * 3600 * 1000) } },
+    ],
+  };
+}
+
+const tokenExpired = (booking, now = Date.now()) =>
+  booking.status === 'token_paid' && now - new Date(booking.createdAt).getTime() > VISIT_HOURS * 3600 * 1000;
+
 // Single date+slot check used right before taking payment and again right before creating
 // the booking record, so a slot can never be sold twice — one query each, cheap enough to
 // run twice per booking attempt.
@@ -19,7 +37,7 @@ async function isSlotTaken(hallId, date, slot) {
     hallId: String(hallId),
     date,
     slot,
-    status: { $in: ACTIVE_BOOKING_STATUSES },
+    ...slotHoldFilter(),
   });
   if (clash) return { taken: true, reason: 'This slot was just booked by someone else' };
   return { taken: false, reason: null };
@@ -38,7 +56,7 @@ async function getMonthAvailability(hallId, month) {
   const bookings = await Booking.find({
     hallId: String(hallId),
     date: { $in: dateStrs },
-    status: { $in: ACTIVE_BOOKING_STATUSES },
+    ...slotHoldFilter(),
   }).select('date slot').lean();
 
   const bookedByDate = {};
@@ -63,4 +81,4 @@ async function getMonthAvailability(hallId, month) {
   return result;
 }
 
-module.exports = { ACTIVE_BOOKING_STATUSES, isSlotTaken, getMonthAvailability };
+module.exports = { ACTIVE_BOOKING_STATUSES, VISIT_HOURS, slotHoldFilter, tokenExpired, isSlotTaken, getMonthAvailability };

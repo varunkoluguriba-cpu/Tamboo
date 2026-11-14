@@ -1,6 +1,7 @@
 const FarmBooking = require('../models/FarmBooking');
 const FarmHouse = require('../models/FarmHouse');
 const { nowMinIST } = require('./farmAvailability');
+const { slotHoldFilter } = require('./hallAvailability');
 const admin = require('../config/firebaseAdmin');
 const Booking = require('../models/Booking');
 const Order = require('../models/Order');
@@ -14,7 +15,6 @@ const PayoutEntry = require('../models/PayoutEntry');
 // phone/Google account can sign up fresh later, and the old JWT stops working because
 // login identifiers no longer match anything.
 
-const ACTIVE_BOOKING_STATUSES = ['token_paid', 'visited', 'awaiting_advance', 'confirmed'];
 const ACTIVE_ORDER_STATUSES = ['PENDING', 'CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY'];
 
 function todayStr() {
@@ -35,7 +35,7 @@ async function removeFirebaseUser(uid) {
 async function customerBlocker(userId) {
   const booking = await Booking.exists({
     customer: userId,
-    status: { $in: ACTIVE_BOOKING_STATUSES },
+    ...slotHoldFilter(),
     date: { $gte: todayStr() },
   });
   if (booking) return 'You have an upcoming hall booking. Please complete or cancel it before deleting your account.';
@@ -49,7 +49,7 @@ async function customerBlocker(userId) {
 async function partnerBlocker(partnerId) {
   const booking = await Booking.exists({
     partner: partnerId,
-    status: { $in: ACTIVE_BOOKING_STATUSES },
+    ...slotHoldFilter(),
     date: { $gte: todayStr() },
   });
   if (booking) return 'You have upcoming bookings. Please complete or cancel them before deleting your account.';

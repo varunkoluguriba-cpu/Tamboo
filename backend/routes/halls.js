@@ -7,12 +7,11 @@ const Hall = require('../models/Hall');
 const Partner = require('../models/Partner');
 const Booking = require('../models/Booking');
 const PayoutEntry = require('../models/PayoutEntry');
-const { getMonthAvailability, isSlotTaken } = require('../lib/hallAvailability');
+const { getMonthAvailability, isSlotTaken, slotHoldFilter, tokenExpired, VISIT_HOURS } = require('../lib/hallAvailability');
 const { getClient: getAnthropicClient } = require('../config/anthropic');
 const Config = require('../models/Config');
 const User = require('../models/User');
 
-const VISIT_HOURS = 48;
 // Matches the policy customers agree to before paying: full refund only within 2 hours.
 const FREE_CANCEL_HOURS = 2;
 
@@ -272,10 +271,11 @@ router.delete('/me/halls/:hallId', requirePartnerAuth, requireVenue, async (req,
   if (!hall) return res.status(404).json({ error: 'Hall not found' });
   const openBookings = await Booking.countDocuments({
     hallId: String(hall.id),
-    status: { $in: ['token_paid', 'visited', 'awaiting_advance'] },
+    ...slotHoldFilter(),
+    date: { $gte: new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10) }, // today, India time
   });
   if (openBookings > 0) {
-    return res.status(409).json({ error: 'This hall has open pre-bookings. Resolve them before deleting it.' });
+    return res.status(409).json({ error: 'This hall has upcoming bookings or pre-bookings. Resolve them before deleting it.' });
   }
   await hall.deleteOne();
   res.status(204).send();
@@ -483,6 +483,24 @@ router.patch('/me/tokens/:id', requirePartnerAuth, async (req, res) => {
 
   const { action, finalRent } = req.body || {};
   const originalNet = Math.round(booking.amount * (1 - booking.commissionPct / 100));
+
+  // Each action only makes sense from certain states — otherwise e.g. a second "not booked"
+  // would refund and debit twice, or "confirm" would revive a cancelled booking.
+  const ALLOWED_FROM = {
+    visited: ['token_paid'],
+    confirm: ['token_paid', 'visited', 'awaiting_advance'],
+    notBooked: ['token_paid', 'visited', 'awaiting_advance'],
+    cantHost: ['token_paid', 'visited', 'awaiting_advance'],
+  };
+  if (!ALLOWED_FROM[action]) return res.status(400).json({ error: 'Invalid action' });
+  if (!ALLOWED_FROM[action].includes(booking.status)) {
+    return res.status(409).json({ error: 'This pre-booking has already moved on and can\'t be changed this way. Contact Tamboo Support if something is wrong.' });
+  }
+  // The customer didn't visit within the window: the pre-booking has lapsed and the date may
+  // already be booked by someone else.
+  if (tokenExpired(booking)) {
+    return res.status(409).json({ error: `This pre-booking expired — the customer didn't visit within ${VISIT_HOURS} hours. You keep the token. Contact Tamboo Support if the customer did visit.` });
+  }
 
   if (action === 'visited') {
     booking.status = 'visited';
