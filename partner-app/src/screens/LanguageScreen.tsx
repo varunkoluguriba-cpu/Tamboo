@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -11,6 +11,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { LANGS, isFullyTranslated, langName } from '../i18n';
 import { colors, gradients } from '../theme';
 import { ROLE_KEY, SEEN_ONBOARDING_KEY } from '../constants';
+import { api } from '../api/client';
 import type { PartnerRole } from '../types';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Language'>;
@@ -19,11 +20,17 @@ export default function LanguageScreen({ navigation }: Props) {
   const { lang, setLang, t } = useLanguage();
   const [role, setRole] = useState<PartnerRole>('tent');
   const notFull = !isFullyTranslated(lang);
+  // 'Event service' is offered only while the server has event services switched on for everyone.
+  const [servicesOn, setServicesOn] = useState(false);
+  useEffect(() => {
+    api.get<{ enabled: boolean }>('/api/services/config').then((c) => setServicesOn(!!c.enabled)).catch(() => {});
+  }, []);
 
   const ROLES: Array<{ key: PartnerRole; label: string; desc: string; icon: IconName }> = [
     { key: 'tent', label: t.pLangScreenRoleTentLabel, desc: t.pLangScreenRoleTentDesc, icon: 'tent' },
     { key: 'venue', label: t.pLangScreenRoleVenueLabel, desc: t.pLangScreenRoleVenueDesc, icon: 'home' },
     { key: 'farm', label: t.pLangScreenRoleFarmLabel, desc: t.pLangScreenRoleFarmDesc, icon: 'pin' },
+    ...(servicesOn ? [{ key: 'service' as PartnerRole, label: t.pLangScreenRoleServiceLabel, desc: t.pLangScreenRoleServiceDesc, icon: 'music' as IconName }] : []),
   ];
 
   const continueNext = async () => {
